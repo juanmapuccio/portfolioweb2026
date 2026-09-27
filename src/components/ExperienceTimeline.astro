@@ -1,0 +1,299 @@
+---
+import type { Lang } from '../i18n/ui';
+import { experienceData } from '../data/experience';
+import { Briefcase, CheckCircle2, Award, Sparkles } from 'lucide-astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const milestones = experienceData[lang];
+---
+
+<section id="trayectoria" class="experience-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-badge">
+        <Briefcase size={14} />
+        <span>{lang === 'es' ? 'TRAYECTORIA DE CAMPO' : lang === 'en' ? 'FIELD EXPERIENCE' : 'TRAJETÓRIA PRÁTICA'}</span>
+      </div>
+      <h2 class="section-title">
+        {lang === 'es' ? 'Trinchera Operativa & Evolución Técnica' : lang === 'en' ? 'Operational Frontline & Technical Evolution' : 'Trincheira Operacional & Evolução Técnica'}
+      </h2>
+      <p class="section-subtitle">
+        {lang === 'es'
+          ? 'De la venta en calle, la gestión pública masiva y la salud de alta demanda, a la arquitectura de software en producción.'
+          : lang === 'en'
+          ? 'From frontline sales, high-scale public administration, and healthcare to modern production software architecture.'
+          : 'Das vendas em campo, administração pública e saúde de alta demanda à arquitetura de software em produção.'}
+      </p>
+    </div>
+
+    <div class="timeline-container">
+      <div class="timeline-line"></div>
+
+      <div class="timeline-items">
+        {milestones.map((item, index) => (
+          <div class="timeline-item">
+            <div class="timeline-marker">
+              <span class="marker-dot"></span>
+            </div>
+
+            <div class="timeline-content-card">
+              <div class="card-meta">
+                <span class="period-badge">{item.period}</span>
+                <span class="role-badge">{item.badge}</span>
+              </div>
+
+              <h3 class="milestone-title">{item.title}</h3>
+              <p class="milestone-org">{item.organization}</p>
+              <p class="milestone-summary">{item.summary}</p>
+
+              <ul class="highlights-list">
+                {item.highlights.map((point) => (
+                  <li class="highlight-item">
+                    <CheckCircle2 class="check-icon" size={16} />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div class="transferable-box">
+                <div class="transferable-header">
+                  <Sparkles size={14} class="sparkle-icon" />
+                  <span class="transferable-label">
+                    {lang === 'es' ? 'Competencia Transferible Clave:' : lang === 'en' ? 'Key Transferable Asset:' : 'Competência Transferível:'}
+                  </span>
+                </div>
+                <p class="transferable-text">{item.transferableSkill}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .experience-section {
+    padding: 5rem 0;
+    border-top: 1px solid var(--border-subtle);
+    background: color-mix(in srgb, var(--bg-surface-elevated) 25%, var(--bg-primary));
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .section-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--accent-cyan);
+    background: color-mix(in srgb, var(--accent-cyan) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent-cyan) 25%, transparent);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    margin-bottom: 0.75rem;
+  }
+
+  .section-title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+  }
+
+  .section-subtitle {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    max-width: 640px;
+    margin-inline: auto;
+  }
+
+  /* Timeline */
+  .timeline-container {
+    position: relative;
+    max-width: 860px;
+    margin-inline: auto;
+  }
+
+  .timeline-line {
+    position: absolute;
+    top: 1rem;
+    bottom: 1rem;
+    left: 1.25rem;
+    width: 2px;
+    background: var(--border-subtle);
+  }
+
+  .timeline-items {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .timeline-item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: 1.5rem;
+  }
+
+  .timeline-marker {
+    display: flex;
+    justify-content: center;
+    padding-top: 1.5rem;
+    z-index: 1;
+  }
+
+  .marker-dot {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: var(--bg-surface);
+    border: 3px solid var(--accent-cyan);
+    box-shadow: 0 0 0 4px var(--bg-primary);
+  }
+
+  .timeline-content-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: var(--shadow-card);
+    transition: transform var(--transition), border-color var(--transition);
+  }
+
+  .timeline-content-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .period-badge {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    font-family: monospace;
+  }
+
+  .role-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    background: var(--bg-surface-elevated);
+    padding: 0.15rem 0.6rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .milestone-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 0.25rem;
+  }
+
+  .milestone-org {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--accent-blue);
+    margin-bottom: 0.85rem;
+  }
+
+  .milestone-summary {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+  }
+
+  .highlights-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .highlight-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .check-icon {
+    color: var(--accent-emerald);
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+  }
+
+  .transferable-box {
+    background: var(--bg-surface-elevated);
+    border-left: 3px solid var(--accent-cyan);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 0.85rem 1.15rem;
+  }
+
+  .transferable-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .sparkle-icon {
+    color: var(--accent-cyan);
+  }
+
+  .transferable-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-main);
+  }
+
+  .transferable-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  @media (max-width: 640px) {
+    .timeline-container {
+      padding-left: 0.5rem;
+    }
+
+    .timeline-item {
+      grid-template-columns: 1.5rem 1fr;
+      gap: 1rem;
+    }
+
+    .timeline-line {
+      left: 0.75rem;
+    }
+
+    .timeline-content-card {
+      padding: 1.25rem;
+    }
+  }
+</style>
