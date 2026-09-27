@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import type { Lang } from '../i18n/ui';
 import { languages } from '../i18n/ui';
+import { CV_URL } from '../data/contact';
 
 interface Props {
   title: string;
@@ -66,7 +67,7 @@ const { title, description, lang = 'es' } = Astro.props;
           <a href="#contacto" class="nav-item">
             {lang === 'es' ? 'Contacto' : lang === 'en' ? 'Contact' : 'Contato'}
           </a>
-          <a href="/CV-Juan-Manuel-Puccio-2026-1.pdf" target="_blank" class="nav-item nav-cv">
+          <a href={CV_URL} target="_blank" class="nav-item nav-cv">
             CV 📄
           </a>
         </nav>

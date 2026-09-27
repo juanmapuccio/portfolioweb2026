@@ -1,5 +1,8 @@
 import type { Lang } from '../i18n/ui';
 
+// Replace with the externally hosted CV URL (PDFs are not committed).
+export const CV_URL = '/CV-Juan-Manuel-Puccio-2026-1.pdf';
+
 export interface ContactChannel {
   id: string;
   name: string;
