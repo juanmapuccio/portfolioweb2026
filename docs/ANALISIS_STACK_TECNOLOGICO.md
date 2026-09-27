@@ -1,6 +1,6 @@
 # Stack Tecnológico — portfolioweb-puccio2026
 
-**Decisión final: Astro 5**  
+**Decisión final: Astro 7**  
 **Dominio:** `https://juanpuccio.vercel.app`  
 **Deploy:** Vercel (static output)  
 **Última actualización:** 2026-09-27
@@ -9,7 +9,7 @@
 
 ## Decisión
 
-**Astro 5** — cerrado. No se evalúan alternativas.
+**Astro 7** — cerrado. No se evalúan alternativas.
 
 **Motivos:**
 - Islands Architecture: cero JS por defecto, interactividad quirúrgica donde se necesita

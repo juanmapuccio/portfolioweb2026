@@ -9,7 +9,7 @@
 ## 1. Criterios de Implementación y Arquitectura
 
 1. **Stack Tecnológico:**
-   - **Framework:** Astro 5 con TypeScript estricto.
+   - **Framework:** Astro 7 con TypeScript estricto.
    - **Estilizado:** CSS limpio, modular o Tailwind (según convención definida), priorizando tokens semánticos definidos en `DESIGN.md`.
    - **Internacionalización (i18n):** Uso nativo de `astro:i18n` para soportar `es` (default), `en` y `pt` con rutas canónicas y persistencia fluida.
    - **Arquitectura de Islas:** HTML estático renderizado en build por defecto; reservar componentes interactivos (`client:visible`, `client:idle`) solo para widgets que requieran estado (ej. modal QR, selector dinámico).

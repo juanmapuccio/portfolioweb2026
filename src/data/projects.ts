@@ -1,12 +1,4 @@
-export const languages = {
-  es: 'Español',
-  en: 'English',
-  pt: 'Português',
-} as const;
-
-export type Lang = keyof typeof languages;
-
-export const defaultLang: Lang = 'es';
+import type { Lang } from '../i18n/ui';
 
 export interface ProjectData {
   id: string;
