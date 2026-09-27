@@ -10,6 +10,8 @@ export const defaultLang: Lang = 'es';
 
 export const ui = {
   es: {
+    'meta.title': 'Juan Manuel Puccio | Full Stack Developer & Consultor de Procesos',
+    'meta.description': 'Desarrollador Full Stack especializado en optimización operativa, automatizaciones con Python e IA, y sistemas de gestión en producción (NodoSur).',
     'nav.projects': 'Proyectos',
     'nav.experience': 'Trayectoria',
     'nav.skills': 'Habilidades',
@@ -32,6 +34,8 @@ export const ui = {
     'qr.modal.close': 'Cerrar'
   },
   en: {
+    'meta.title': 'Juan Manuel Puccio | Full Stack Developer & Process Consultant',
+    'meta.description': 'Full Stack Developer focused on operational optimization, Python & AI automations, and production systems (NodoSur).',
     'nav.projects': 'Projects',
     'nav.experience': 'Experience',
     'nav.skills': 'Skills',
@@ -54,6 +58,8 @@ export const ui = {
     'qr.modal.close': 'Close'
   },
   pt: {
+    'meta.title': 'Juan Manuel Puccio | Desenvolvedor Full Stack & Consultor de Processos',
+    'meta.description': 'Desenvolvedor Full Stack focado em otimização operacional, automações com Python e IA, e sistemas em produção (NodoSur).',
     'nav.projects': 'Projetos',
     'nav.experience': 'Experiência',
     'nav.skills': 'Habilidades',

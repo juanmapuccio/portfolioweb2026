@@ -1,0 +1,363 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+import ProjectsSection from './ProjectsSection.astro';
+import ExperienceTimeline from './ExperienceTimeline.astro';
+import SkillsPhilosophySection from './SkillsPhilosophySection.astro';
+import ContactSection from './ContactSection.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const localePath = lang === 'es' ? '' : `/${lang}`;
+const siteHost = new URL(Astro.site ?? 'https://juanpuccio.vercel.app').host;
+const qrUrl = `https://${siteHost}${localePath}`;
+const qrDisplay = `${siteHost}${localePath}`;
+---
+
+<Layout
+  title={t('meta.title')}
+  description={t('meta.description')}
+  lang={lang}
+>
+  <section class="hero-section">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="status-indicator"></span>
+          <span>{t('hero.badge')}</span>
+        </div>
+
+        <h1 class="hero-name">
+          {t('hero.name')}
+        </h1>
+
+        <p class="hero-role">{t('hero.role')}</p>
+
+        <p class="hero-tagline">
+          {t('hero.tagline')}
+        </p>
+
+        <p class="hero-desc">
+          {t('hero.description')}
+        </p>
+
+        <div class="hero-actions">
+          <a href="/CV-Juan-Manuel-Puccio-2026-1.pdf" target="_blank" class="btn btn-primary">
+            {t('hero.btn.cv')}
+          </a>
+          <button class="btn btn-secondary" id="open-qr-btn">
+            {t('hero.btn.qr')}
+          </button>
+        </div>
+      </div>
+
+      <div class="hero-media">
+        <div class="avatar-card">
+          <img
+            src="/fotojmPerfil.PNG"
+            alt="Juan Manuel Puccio"
+            class="avatar-img"
+            width="320"
+            height="320"
+            loading="eager"
+          />
+          <div class="avatar-meta">
+            <span class="meta-label">{t('hero.avatar.role')}</span>
+            <span class="meta-value">{t('hero.avatar.sub')}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Production bento grid & automations -->
+  <ProjectsSection lang={lang} />
+
+  <!-- Operational & technical experience timeline -->
+  <ExperienceTimeline lang={lang} />
+
+  <!-- Tech stack, skills & practical philosophy -->
+  <SkillsPhilosophySection lang={lang} />
+
+  <!-- Contact & call to action -->
+  <ContactSection lang={lang} />
+
+  <!-- Accessible native dialog for the QR code -->
+  <dialog id="qr-modal" class="qr-dialog">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>{t('qr.modal.title')}</h3>
+        <button id="close-qr-btn" class="close-btn" aria-label={t('qr.modal.close')}>✕</button>
+      </div>
+      <p class="modal-desc">{t('qr.modal.desc')}</p>
+      <div class="qr-preview">
+        <img
+          src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(qrUrl)}&format=svg&color=06b6d4&bgcolor=12161f`}
+          alt={t('qr.modal.title')}
+          class="qr-image"
+          width="220"
+          height="220"
+          loading="lazy"
+        />
+      </div>
+      <div class="modal-actions">
+        <a href={qrUrl} target="_blank" class="direct-link">{qrDisplay}</a>
+      </div>
+    </div>
+  </dialog>
+</Layout>
+
+<script>
+  const openBtn = document.getElementById('open-qr-btn');
+  const closeBtn = document.getElementById('close-qr-btn');
+  const dialog = document.getElementById('qr-modal') as HTMLDialogElement | null;
+
+  openBtn?.addEventListener('click', () => dialog?.showModal());
+  closeBtn?.addEventListener('click', () => dialog?.close());
+  dialog?.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close();
+  });
+</script>
+
+<style>
+  .hero-section {
+    padding: 4.5rem 0 3rem;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 3rem;
+    align-items: center;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.85rem;
+    background: color-mix(in srgb, var(--accent-emerald) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent-emerald) 30%, transparent);
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    color: var(--accent-emerald);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+
+  .status-indicator {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--accent-emerald);
+    box-shadow: 0 0 8px var(--accent-emerald);
+  }
+
+  .hero-name {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: var(--text-main);
+    margin-bottom: 0.6rem;
+  }
+
+  .hero-role {
+    font-size: 1.25rem;
+    color: var(--accent-cyan);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    letter-spacing: -0.01em;
+  }
+
+  .hero-tagline {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.35;
+    margin-bottom: 0.85rem;
+  }
+
+  .hero-desc {
+    font-size: 1rem;
+    color: var(--text-muted);
+    max-width: 580px;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.4rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all var(--transition);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(6, 182, 212, 0.25);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+  }
+
+  .btn-secondary {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-main);
+  }
+
+  .btn-secondary:hover {
+    background: var(--bg-surface-elevated);
+    border-color: var(--accent-cyan);
+    transform: translateY(-2px);
+  }
+
+  .avatar-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    box-shadow: var(--shadow-card);
+  }
+
+  .avatar-img {
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+  }
+
+  .avatar-meta {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-primary);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+  }
+
+  .meta-label {
+    color: var(--text-dim);
+  }
+
+  .meta-value {
+    color: var(--accent-cyan);
+    font-weight: 600;
+  }
+
+  /* Modal Dialog */
+  .qr-dialog {
+    border: none;
+    background: transparent;
+    padding: 0;
+    max-width: 90vw;
+  }
+
+  .qr-dialog::backdrop {
+    background: rgba(10, 12, 16, 0.75);
+    backdrop-filter: blur(8px);
+  }
+
+  .modal-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    width: 320px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .close-btn {
+    font-size: 1.2rem;
+    color: var(--text-dim);
+  }
+
+  .close-btn:hover {
+    color: var(--text-main);
+  }
+
+  .modal-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+
+  .qr-preview {
+    display: grid;
+    place-items: center;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+  }
+
+  .qr-image {
+    display: block;
+    border-radius: var(--radius-sm);
+  }
+
+  .modal-actions {
+    margin-top: 1rem;
+    text-align: center;
+  }
+
+  .direct-link {
+    font-size: 0.85rem;
+    color: var(--accent-cyan);
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+
+    .hero-desc {
+      margin-inline: auto;
+    }
+
+    .hero-actions {
+      justify-content: center;
+    }
+
+    .avatar-card {
+      max-width: 300px;
+      margin-inline: auto;
+    }
+  }
+</style>
