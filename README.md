@@ -136,9 +136,23 @@ Update the CV URL in [src/data/contact.ts](src/data/contact.ts) → `CV_URL` con
 
 ---
 
-## 📝 License
+## 📝 License & Usage Terms
 
-MIT — Use freely for portfolio/learning purposes.
+**Code & Architecture:** MIT License — freely use, modify, and reuse the technical structure, components, styling, and build configuration for your own projects.
+
+**Personal Data:** ⚠️ **Prohibited.** All personal information is **proprietary and exclusive to Juan Manuel Puccio**:
+- Name, email, and contact information
+- Professional photo and biometric data
+- CV, work experience, and career narrative
+- Project descriptions and business information
+- All textual content and translations
+
+You may **fork this repo and adapt it for your own portfolio**, but you must:
+1. Remove or replace all personal data with your own
+2. Update configuration, styling, and copy to reflect your identity
+3. Not use Juan's name, image, professional history, or content in any public context
+
+**In short:** Use the code and architecture freely; the personal story is his alone.
 
 ---
 
