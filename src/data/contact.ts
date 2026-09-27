@@ -1,7 +1,7 @@
 import type { Lang } from '../i18n/ui';
 
-// Replace with the externally hosted CV URL (PDFs are not committed).
-export const CV_URL = '/CV-Juan-Manuel-Puccio-2026-1.pdf';
+// CV is hosted externally; PDFs are not committed.
+export const CV_URL = 'https://drive.google.com/file/d/1bi1W2VUtRxUVX_Y6YTz5tqyPL3ofh_YH/view?usp=sharing';
 
 export interface ContactChannel {
   id: string;
