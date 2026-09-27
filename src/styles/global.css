@@ -2,6 +2,11 @@
    TEMA CLARO (Default - Warm Editorial Organic)
    ========================================================= */
 :root {
+  /* Declara el esquema en uso para que los colores de sistema (CanvasText,
+     Canvas) y los controles nativos —scrollbars, dialog, form controls—
+     sigan el tema del sitio y no el del sistema operativo. */
+  color-scheme: light;
+
   --bg-primary: #f8f7f4;          /* Papel de lino / blanco hueso cálido */
   --bg-surface: #ffffff;          /* Tarjetas elevadas limpias */
   --bg-surface-elevated: #f1efe9; /* Sub-contenedores y badges */
@@ -44,6 +49,8 @@
    TEMA OSCURO (EyeCare Muted Slate & Warm Graphite)
    ========================================================= */
 html[data-theme='dark'] {
+  color-scheme: dark;
+
   --bg-primary: #15181c;          /* Grafito neutro suave (no negro #000) */
   --bg-surface: #1d2127;          /* Tarjetas mate de descanso visual */
   --bg-surface-elevated: #242932; /* Sub-bloques con contraste descansado */

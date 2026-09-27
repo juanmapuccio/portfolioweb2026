@@ -283,6 +283,11 @@ const qrSvg = qrSvgRaw
     /* Restores the centering the UA gives a modal dialog; the global
        `* { margin: 0 }` reset strips it. */
     margin: auto;
+    /* The UA stylesheet sets `color: CanvasText` on dialog, an explicit
+       declaration that beats inheritance from the themed ancestors. Left
+       alone it tracks the OS theme instead of ours, rendering near-black
+       text on the dark card. */
+    color: var(--text-main);
   }
 
   .qr-dialog::backdrop {
