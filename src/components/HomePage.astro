@@ -1,4 +1,5 @@
 ---
+import QRCode from 'qrcode';
 import Layout from '../layouts/Layout.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 import ProjectsSection from './ProjectsSection.astro';
@@ -17,6 +18,10 @@ const localePath = lang === 'es' ? '' : `/${lang}`;
 const siteHost = new URL(Astro.site ?? 'https://juanpuccio.vercel.app').host;
 const qrUrl = `https://${siteHost}${localePath}`;
 const qrDisplay = `${siteHost}${localePath}`;
+const qrSvgRaw = await QRCode.toString(qrUrl, { type: 'svg', margin: 1 });
+const qrSvg = qrSvgRaw
+  .replace(/fill="#ffffff"/g, 'fill="var(--bg-surface)"')
+  .replace(/stroke="#000000"/g, 'stroke="var(--text-main)"');
 ---
 
 <Layout
@@ -96,14 +101,7 @@ const qrDisplay = `${siteHost}${localePath}`;
       </div>
       <p class="modal-desc">{t('qr.modal.desc')}</p>
       <div class="qr-preview">
-        <img
-          src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(qrUrl)}&format=svg&color=06b6d4&bgcolor=12161f`}
-          alt={t('qr.modal.title')}
-          class="qr-image"
-          width="220"
-          height="220"
-          loading="lazy"
-        />
+        <div class="qr-image" role="img" aria-label={t('qr.modal.title')} set:html={qrSvg} />
       </div>
       <div class="modal-actions">
         <a href={qrUrl} target="_blank" class="direct-link">{qrDisplay}</a>
@@ -327,7 +325,16 @@ const qrDisplay = `${siteHost}${localePath}`;
 
   .qr-image {
     display: block;
+    width: 220px;
+    height: 220px;
     border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+  }
+
+  .qr-image :global(svg) {
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 
   .modal-actions {

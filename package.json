@@ -13,9 +13,13 @@
   },
   "dependencies": {
     "astro": "^7.3.5",
-    "lucide-astro": "^0.556.0"
+    "lucide-astro": "^0.556.0",
+    "qrcode": "^1.5.4"
   },
   "allowScripts": {
     "esbuild": true
+  },
+  "devDependencies": {
+    "@types/qrcode": "^1.5.6"
   }
 }
