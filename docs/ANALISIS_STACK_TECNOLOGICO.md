@@ -114,6 +114,31 @@ Librerías de animación: a definir según efectos requeridos (ver pendiente aba
 
 ---
 
-## Pendiente de Decisión
+## Decisión: Animaciones / Efectos Interactivos (resuelto 2026-09-27)
 
-- **Animaciones / efectos interactivos:** tipo y biblioteca (GSAP, Motion One, CSS puro, etc.) pendiente de definición de referencias visuales.
+**Elegido: CSS-first, sin biblioteca de animación.**
+
+Investigación web (2026-09-27) confirmó que el stack canónico de portfolios Astro
+premiados es GSAP + SplitText/Flip/ScrollTrigger + Lenis + Three.js + Swup
+(~150-250KB de JS). Ese stack entra en conflicto directo con la restricción
+central del proyecto — TTFB/FCP < 300ms en 4G móvil vía acceso QR — y con el
+posicionamiento del propio autor (optimización de procesos, fricción cero).
+Lenis en particular existe para sincronizar el DOM con loops de render WebGL;
+sin WebGL en este sitio, es peso muerto.
+
+Implementación:
+
+- `@keyframes` + `[data-reveal]` / `.is-revealed` en `src/styles/global.css`,
+  con stagger vía la custom property `--reveal-delay`.
+- `@view-transition { navigation: auto; }` (at-rule CSS nativa) para
+  transiciones cross-document entre locales — cero JS, sin `<ClientRouter />`.
+- Un script `IntersectionObserver` vanilla (~0.7KB antes de minificar, sin
+  imports) en `src/layouts/Layout.astro` que agrega `.is-revealed`.
+- Progressive enhancement estricto: sin JS, todo el contenido es visible; el
+  estado oculto solo se activa vía la clase `html.js-reveal`, añadida
+  tempranamente por el propio script.
+- `prefers-reduced-motion: reduce` desactiva reveals, stagger, view
+  transitions y el `scroll-behavior: smooth` existente.
+
+Si en el futuro un momento hero puntual lo justifica, se evaluará una
+"isla" GSAP aislada — no una migración total del sitio.

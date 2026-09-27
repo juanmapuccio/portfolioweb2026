@@ -13,7 +13,7 @@ const milestones = experienceData[lang];
 
 <section id="trayectoria" class="experience-section">
   <div class="container">
-    <div class="section-header">
+    <div class="section-header" data-reveal>
       <div class="section-badge">
         <Briefcase size={14} />
         <span>{lang === 'es' ? 'TRAYECTORIA DE CAMPO' : lang === 'en' ? 'FIELD EXPERIENCE' : 'TRAJETÓRIA PRÁTICA'}</span>
@@ -34,8 +34,8 @@ const milestones = experienceData[lang];
       <div class="timeline-line"></div>
 
       <div class="timeline-items">
-        {milestones.map((item) => (
-          <div class="timeline-item">
+        {milestones.map((item, i) => (
+          <div class="timeline-item" data-reveal style={`--reveal-delay: ${i}`}>
             <div class="timeline-marker">
               <span class="marker-dot"></span>
             </div>

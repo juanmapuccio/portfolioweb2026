@@ -14,7 +14,7 @@ const auto = automationsContent[lang];
 
 <section id="proyectos" class="projects-section">
   <div class="container">
-    <div class="section-header">
+    <div class="section-header" data-reveal>
       <div class="section-badge">
         <Server class="badge-icon" size={14} />
         <span>PRODUCCIÓN VIVA</span>
@@ -33,8 +33,12 @@ const auto = automationsContent[lang];
 
     <!-- Bento Grid de Proyectos -->
     <div class="bento-grid">
-      {projects.map((project) => (
-        <article class:list={['bento-card', { 'bento-featured': project.featured }]}>
+      {projects.map((project, i) => (
+        <article
+          class:list={['bento-card', { 'bento-featured': project.featured }]}
+          data-reveal
+          style={`--reveal-delay: ${i}`}
+        >
           <div class="card-glow"></div>
           
           <div class="card-header">
@@ -87,7 +91,7 @@ const auto = automationsContent[lang];
     </div>
 
     <!-- Módulo de Automatizaciones Críticas -->
-    <div class="automations-box">
+    <div class="automations-box" data-reveal>
       <div class="auto-header">
         <div class="auto-title-group">
           <Terminal class="text-cyan" size={20} />

@@ -20,11 +20,24 @@
   --accent-amber: #d97706;        /* Fricción y alertas de negocio */
   --shadow-card: 0 4px 18px rgba(0, 0, 0, 0.04);
 
+  /* QR: módulos oscuros sobre fondo claro SIEMPRE, en ambos temas.
+     Un QR invertido (módulos claros sobre fondo oscuro) depende de una
+     capacidad opcional del lector y muchas cámaras nativas no lo leen.
+     Este código es la puerta de entrada principal al sitio: legibilidad
+     antes que integración con el tema. */
+  --qr-bg: #ffffff;
+  --qr-fg: #12161c;
+
   --max-width: 1100px;
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 18px;
   --transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  --reveal-duration: 0.5s;
+  --reveal-easing: cubic-bezier(0.16, 1, 0.3, 1);
+  --reveal-distance: 12px;
+  --reveal-stagger-step: 60ms;
 }
 
 /* =========================================================
@@ -48,6 +61,12 @@ html[data-theme='dark'] {
   --accent-emerald: #34d399;      /* Esmeralda suave */
   --accent-amber: #fbbf24;        /* Ámbar suave */
   --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.25);
+
+  /* La polaridad NO se invierte en oscuro. El fondo baja apenas a un
+     blanco roto para no deslumbrar en el tema EyeCare, conservando un
+     contraste muy por encima del mínimo que necesita un lector. */
+  --qr-bg: #f2f4f7;
+  --qr-fg: #12161c;
 }
 
 *, *::before, *::after {
@@ -96,4 +115,91 @@ button {
   max-width: var(--max-width);
   margin-inline: auto;
   padding-inline: 1.5rem;
+}
+
+/* =========================================================
+   MOVIMIENTO: Scroll Reveal & Transiciones Nativas (CSS-first)
+   ========================================================= */
+
+/* Cross-document view transitions (native, zero JS). Unsupported
+   browsers ignore this at-rule and navigate as usual. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--reveal-duration);
+  animation-timing-function: var(--reveal-easing);
+}
+
+@keyframes reveal-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(var(--reveal-distance));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes reveal-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Hidden state is gated behind html.js-reveal, added early by the
+   inline reveal script. Without JS (or before it runs), content stays
+   fully visible — this is progressive enhancement only. */
+html.js-reveal [data-reveal] {
+  opacity: 0;
+  transform: translateY(var(--reveal-distance));
+  animation-delay: calc(var(--reveal-delay, 0) * var(--reveal-stagger-step));
+}
+
+/* Above-the-fold content reveals on load, driven purely by CSS. It never
+   waits for IntersectionObserver, so a failed or blocked script can never
+   leave the hero invisible — and scroll-revealing what is already on screen
+   would be wrong anyway. */
+html.js-reveal [data-reveal='load'] {
+  animation: reveal-fade-up var(--reveal-duration) var(--reveal-easing)
+    calc(var(--reveal-delay, 0) * var(--reveal-stagger-step)) forwards;
+}
+
+html.js-reveal [data-reveal='fade'] {
+  transform: none;
+}
+
+html.js-reveal [data-reveal].is-revealed {
+  animation: reveal-fade-up var(--reveal-duration) var(--reveal-easing) forwards;
+  animation-delay: calc(var(--reveal-delay, 0) * var(--reveal-stagger-step));
+}
+
+html.js-reveal [data-reveal='fade'].is-revealed {
+  animation-name: reveal-fade-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  @view-transition {
+    navigation: none;
+  }
+
+  html.js-reveal [data-reveal] {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  html.js-reveal [data-reveal].is-revealed {
+    animation: none;
+  }
 }

@@ -41,6 +41,14 @@ const { title, description, lang = 'es' } = Astro.props;
         document.documentElement.removeAttribute('data-theme');
       }
     </script>
+
+    <!-- Reveal-on-scroll gate: added early so [data-reveal] only starts
+         hidden once JS is confirmed running, preventing any no-JS flash. -->
+    <script is:inline>
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+        document.documentElement.classList.add('js-reveal');
+      }
+    </script>
   </head>
   <body>
     <header class="site-header">
@@ -121,6 +129,27 @@ const { title, description, lang = 'es' } = Astro.props;
           localStorage.setItem('theme', 'dark');
         }
       });
+    </script>
+
+    <!-- Reveal-on-scroll: adds .is-revealed once per element, then stops
+         observing. No-op when js-reveal was never enabled (see head script). -->
+    <script>
+      if (document.documentElement.classList.contains('js-reveal')) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-revealed');
+                io.unobserve(entry.target);
+              }
+            }
+          },
+          { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+        );
+        document
+          .querySelectorAll('[data-reveal]:not([data-reveal="load"])')
+          .forEach((el) => io.observe(el));
+      }
     </script>
   </body>
 </html>

@@ -21,9 +21,9 @@ const channelIcons: Record<string, typeof MessageCircle> = {
 
 <section id="contacto" class="contact-section">
   <div class="container">
-    <div class="contact-card">
+    <div class="contact-card" data-reveal>
       <div class="contact-glow"></div>
-      
+
       <div class="contact-header">
         <div class="contact-badge">
           <Sparkles size={14} class="badge-icon" />
@@ -59,15 +59,17 @@ const channelIcons: Record<string, typeof MessageCircle> = {
       </div>
 
       <div class="channels-grid">
-        {data.channels.map((ch) => {
+        {data.channels.map((ch, i) => {
           const IconComponent = channelIcons[ch.id] || Send;
           return (
-            <a 
-              href={ch.url} 
-              target={ch.id === 'email' ? '_self' : '_blank'} 
-              rel={ch.id === 'email' ? '' : 'noopener noreferrer'} 
+            <a
+              href={ch.url}
+              target={ch.id === 'email' ? '_self' : '_blank'}
+              rel={ch.id === 'email' ? '' : 'noopener noreferrer'}
               class:list={['channel-item', { 'primary-channel': ch.primary }]}
               aria-label={ch.name}
+              data-reveal
+              style={`--reveal-delay: ${i}`}
             >
               <div class="channel-icon-wrap">
                 <IconComponent size={18} />

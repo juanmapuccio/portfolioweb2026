@@ -20,7 +20,7 @@ const iconMap: Record<string, typeof Layers> = {
 
 <section id="stack-filosofia" class="skills-section">
   <div class="container">
-    <div class="section-header">
+    <div class="section-header" data-reveal>
       <div class="section-badge">
         <Compass size={14} />
         <span>{lang === 'es' ? 'CRITERIO & HERRAMIENTAS' : lang === 'en' ? 'MINDSET & TOOLING' : 'CRITÉRIO & FERRAMENTAS'}</span>
@@ -39,10 +39,10 @@ const iconMap: Record<string, typeof Layers> = {
 
     <!-- Grid de Pilares de Habilidades y Tecnologías -->
     <div class="skills-grid">
-      {data.categories.map((cat) => {
+      {data.categories.map((cat, i) => {
         const IconComponent = iconMap[cat.id] || Sparkles;
         return (
-          <div class="skill-card">
+          <div class="skill-card" data-reveal style={`--reveal-delay: ${i}`}>
             <div class="card-glow"></div>
             <div class="skill-card-header">
               <div class="skill-icon-wrapper">
@@ -68,7 +68,7 @@ const iconMap: Record<string, typeof Layers> = {
     </div>
 
     <!-- Bloque de Filosofía & Dimensión Humana -->
-    <div class="philosophy-wrapper">
+    <div class="philosophy-wrapper" data-reveal>
       <div class="philosophy-header">
         <ShieldCheck size={18} class="shield-icon" />
         <h3 class="philosophy-section-title">

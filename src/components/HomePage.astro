@@ -20,9 +20,12 @@ const siteHost = new URL(Astro.site ?? 'https://juanpuccio.vercel.app').host;
 const qrUrl = `https://${siteHost}${localePath}`;
 const qrDisplay = `${siteHost}${localePath}`;
 const qrSvgRaw = await QRCode.toString(qrUrl, { type: 'svg', margin: 1 });
+// Themed via dedicated QR tokens, never the surface/text tokens: those
+// swap polarity in dark mode and would render an inverted (unscannable
+// on many readers) code. See --qr-bg / --qr-fg in global.css.
 const qrSvg = qrSvgRaw
-  .replace(/fill="#ffffff"/g, 'fill="var(--bg-surface)"')
-  .replace(/stroke="#000000"/g, 'stroke="var(--text-main)"');
+  .replace(/fill="#ffffff"/g, 'fill="var(--qr-bg)"')
+  .replace(/stroke="#000000"/g, 'stroke="var(--qr-fg)"');
 ---
 
 <Layout
@@ -32,7 +35,7 @@ const qrSvg = qrSvgRaw
 >
   <section class="hero-section">
     <div class="container hero-grid">
-      <div class="hero-content">
+      <div class="hero-content" data-reveal="load">
         <div class="hero-badge">
           <span class="status-indicator"></span>
           <span>{t('hero.badge')}</span>
@@ -62,7 +65,7 @@ const qrSvg = qrSvgRaw
         </div>
       </div>
 
-      <div class="hero-media">
+      <div class="hero-media" data-reveal="load" style="--reveal-delay: 2;">
         <div class="avatar-card">
           <img
             src="/fotojmPerfil.PNG"
@@ -277,6 +280,9 @@ const qrSvg = qrSvgRaw
     background: transparent;
     padding: 0;
     max-width: 90vw;
+    /* Restores the centering the UA gives a modal dialog; the global
+       `* { margin: 0 }` reset strips it. */
+    margin: auto;
   }
 
   .qr-dialog::backdrop {
@@ -329,7 +335,10 @@ const qrSvg = qrSvgRaw
     width: 220px;
     height: 220px;
     border-radius: var(--radius-sm);
-    background: var(--bg-surface);
+    /* Light card in both themes, with padding that widens the quiet zone
+       the generator only renders one module wide. */
+    background: var(--qr-bg);
+    padding: 0.5rem;
   }
 
   .qr-image :global(svg) {
