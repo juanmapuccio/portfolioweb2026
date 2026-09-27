@@ -121,3 +121,42 @@ correct by readback: duration `0.5s`, easing `cubic-bezier(0.16, 1, 0.3, 1)`
 (same curve as the existing `--transition`), distance `12px`, stagger `60ms`.
 Both `@keyframes` (`reveal-fade-up`, `reveal-fade-in`) are present in the CSSOM.
 Worth a human look on a normal machine.
+
+### T7 (user-reported) — QR rendered inverted in dark mode
+
+**Reported:** "el generador de QR estatico se ve mal en modo oscuro".
+
+**Root cause (functional, not cosmetic):** the build-time SVG post-processing in
+`HomePage.astro` mapped the generator's `fill="#ffffff"` to `var(--bg-surface)`
+and `stroke="#000000"` to `var(--text-main)`. Those two tokens swap polarity
+between themes, so in dark mode the code rendered as light modules on a dark
+field. Measured in-browser: background `#1d2127` (luminance 0.015), modules
+`#edf2f7` (luminance 0.882) — an inverted code. Reading inverted QR codes is an
+optional scanner capability, not a guaranteed one; many native phone cameras
+fail on them. Since QR access is this site's primary entry point, dark mode was
+plausibly shipping an unscannable code.
+
+**Fix:** introduced dedicated `--qr-bg` / `--qr-fg` tokens in `global.css` that
+never invert. Light: `#ffffff` on `#12161c`. Dark: `#f2f4f7` on `#12161c` — the
+background softens slightly so a 220px panel does not glare against the EyeCare
+dark theme, while polarity is preserved. `.qr-image` now uses `--qr-bg` and gains
+`0.5rem` padding, widening the quiet zone the generator only renders one module
+wide.
+
+**Verified in-browser, both themes:**
+- light: `#ffffff` / `#12161c`, contrast **18.1:1**, dark-on-light
+- dark: `#f2f4f7` / `#12161c`, contrast **16.5:1**, dark-on-light
+- `npm run build` 3 pages OK, `npm run check` 0 errors.
+
+### T8 (found while verifying T7) — QR modal not centered
+
+The `<dialog>` rendered pinned to the top-left in both themes. Cause: the global
+reset `*, *::before, *::after { margin: 0 }` in `global.css` strips the
+`margin: auto` the user-agent stylesheet gives a modal `<dialog>`, which is the
+mechanism that centers it. `showModal()` was being called correctly.
+
+**Fix:** `margin: auto` restored on `.qr-dialog`.
+
+**Verified:** dialog center X = 633, layout viewport center X = 633, offset **0px**
+(measured against `document.documentElement.clientWidth`; an earlier 8px reading
+was `innerWidth` counting the 15px scrollbar, not a real offset).

@@ -20,6 +20,14 @@
   --accent-amber: #d97706;        /* Fricción y alertas de negocio */
   --shadow-card: 0 4px 18px rgba(0, 0, 0, 0.04);
 
+  /* QR: módulos oscuros sobre fondo claro SIEMPRE, en ambos temas.
+     Un QR invertido (módulos claros sobre fondo oscuro) depende de una
+     capacidad opcional del lector y muchas cámaras nativas no lo leen.
+     Este código es la puerta de entrada principal al sitio: legibilidad
+     antes que integración con el tema. */
+  --qr-bg: #ffffff;
+  --qr-fg: #12161c;
+
   --max-width: 1100px;
   --radius-sm: 6px;
   --radius-md: 12px;
@@ -53,6 +61,12 @@ html[data-theme='dark'] {
   --accent-emerald: #34d399;      /* Esmeralda suave */
   --accent-amber: #fbbf24;        /* Ámbar suave */
   --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.25);
+
+  /* La polaridad NO se invierte en oscuro. El fondo baja apenas a un
+     blanco roto para no deslumbrar en el tema EyeCare, conservando un
+     contraste muy por encima del mínimo que necesita un lector. */
+  --qr-bg: #f2f4f7;
+  --qr-fg: #12161c;
 }
 
 *, *::before, *::after {
