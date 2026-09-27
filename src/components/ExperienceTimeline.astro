@@ -1,7 +1,7 @@
 ---
 import type { Lang } from '../i18n/ui';
 import { experienceData } from '../data/experience';
-import { Briefcase, CheckCircle2, Award, Sparkles } from 'lucide-astro';
+import { Briefcase, CheckCircle2, Sparkles } from 'lucide-astro';
 
 interface Props {
   lang: Lang;
@@ -34,7 +34,7 @@ const milestones = experienceData[lang];
       <div class="timeline-line"></div>
 
       <div class="timeline-items">
-        {milestones.map((item, index) => (
+        {milestones.map((item) => (
           <div class="timeline-item">
             <div class="timeline-marker">
               <span class="marker-dot"></span>
