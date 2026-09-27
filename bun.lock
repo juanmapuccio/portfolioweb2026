@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "tidal-tower",
+      "name": "portfolioweb2026",
       "dependencies": {
         "astro": "^7.3.5",
         "lucide-astro": "^0.556.0",
