@@ -10,7 +10,7 @@ interface Props {
 const { lang } = Astro.props;
 const data = contactData[lang];
 
-const channelIcons: Record<string, any> = {
+const channelIcons: Record<string, typeof MessageCircle> = {
   whatsapp: MessageCircle,
   email: Mail,
   linkedin: Linkedin,

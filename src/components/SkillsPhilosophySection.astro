@@ -10,7 +10,7 @@ interface Props {
 const { lang } = Astro.props;
 const data = skillsData[lang];
 
-const iconMap: Record<string, any> = {
+const iconMap: Record<string, typeof Layers> = {
   frontend: Layers,
   backend: Terminal,
   devops: Cloud,
