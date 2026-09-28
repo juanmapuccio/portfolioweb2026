@@ -34,15 +34,27 @@
   --qr-fg: #12161c;
 
   --max-width: 1100px;
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
+  /* Hard-edge rule (industrial direction): sharp corners everywhere by
+     default. The only exceptions are genuinely circular elements (avatar,
+     status dots, marker dots), which use `border-radius: 50%` hardcoded
+     inline in their own component styles instead of these tokens — so
+     they are unaffected by this being sharp. */
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
   --transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   --reveal-duration: 0.5s;
   --reveal-easing: cubic-bezier(0.16, 1, 0.3, 1);
   --reveal-distance: 12px;
   --reveal-stagger-step: 60ms;
+
+  /* Typography (industrial/utilitarian direction): one restrained sans
+     for reading, one monospace for data/metadata/badges/tech-tags. The
+     monospace is a zero-network-cost system stack — no Google Font load
+     for it — to keep the mobile/4G budget from `css-first-motion`. */
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', 'Consolas', 'Liberation Mono', monospace;
 }
 
 /* =========================================================
@@ -83,7 +95,7 @@ html[data-theme='dark'] {
 }
 
 html {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-sans);
   background-color: var(--bg-primary);
   color: var(--text-main);
   scroll-behavior: smooth;
@@ -93,8 +105,29 @@ html {
 }
 
 h1, h2, h3, h4, .brand-name {
-  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  font-family: var(--font-sans);
+  font-weight: 800;
   letter-spacing: -0.02em;
+}
+
+/* Data/metadata register: dates, badges, tech tags, stats, status text —
+   anything that reads as machine/console output rather than prose. */
+.font-mono,
+.period-badge,
+.role-badge,
+.tech-tag,
+.project-badge,
+.section-badge,
+.skill-badge,
+.status-pill,
+.location-pill,
+.meta-label,
+.meta-value,
+.contact-badge,
+.channel-name,
+.lens-legend,
+.lens-status {
+  font-family: var(--font-mono);
 }
 
 body {
@@ -190,6 +223,7 @@ html.js-reveal [data-reveal].is-revealed {
 html.js-reveal [data-reveal='fade'].is-revealed {
   animation-name: reveal-fade-in;
 }
+
 
 @media (prefers-reduced-motion: reduce) {
   html {
