@@ -34,15 +34,27 @@
   --qr-fg: #12161c;
 
   --max-width: 1100px;
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
+  /* Hard-edge rule (industrial direction): sharp corners everywhere by
+     default. The only exceptions are genuinely circular elements (avatar,
+     status dots, marker dots), which use `border-radius: 50%` hardcoded
+     inline in their own component styles instead of these tokens — so
+     they are unaffected by this being sharp. */
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
   --transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   --reveal-duration: 0.5s;
   --reveal-easing: cubic-bezier(0.16, 1, 0.3, 1);
   --reveal-distance: 12px;
   --reveal-stagger-step: 60ms;
+
+  /* Typography (industrial/utilitarian direction): one restrained sans
+     for reading, one monospace for data/metadata/badges/tech-tags. The
+     monospace is a zero-network-cost system stack — no Google Font load
+     for it — to keep the mobile/4G budget from `css-first-motion`. */
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', 'Consolas', 'Liberation Mono', monospace;
 }
 
 /* =========================================================
@@ -83,7 +95,7 @@ html[data-theme='dark'] {
 }
 
 html {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-sans);
   background-color: var(--bg-primary);
   color: var(--text-main);
   scroll-behavior: smooth;
@@ -93,8 +105,29 @@ html {
 }
 
 h1, h2, h3, h4, .brand-name {
-  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  font-family: var(--font-sans);
+  font-weight: 800;
   letter-spacing: -0.02em;
+}
+
+/* Data/metadata register: dates, badges, tech tags, stats, status text —
+   anything that reads as machine/console output rather than prose. */
+.font-mono,
+.period-badge,
+.role-badge,
+.tech-tag,
+.project-badge,
+.section-badge,
+.skill-badge,
+.status-pill,
+.location-pill,
+.meta-label,
+.meta-value,
+.contact-badge,
+.channel-name,
+.lens-legend,
+.lens-status {
+  font-family: var(--font-mono);
 }
 
 body {
@@ -201,51 +234,110 @@ html.js-reveal [data-reveal='fade'].is-revealed {
    No `data-lens` attribute (the default, first-paint state) means the
    site's existing order applies untouched — see LensSelector.astro. */
 
-/* Technical lens: leads with the engineering stack, keeps business
-   operations visible but de-prioritized. */
-[data-lens='technical'] [data-skill-id='frontend'],
-[data-lens='technical'] [data-skill-id='backend'],
-[data-lens='technical'] [data-skill-id='devops'] {
+/* Lens-change signal (T5): the previous version only shifted `order` and
+   tinted the border to 45% mix — too subtle to register as "something
+   happened" (this was the exact user complaint that triggered this
+   feature). Every emphasized item now gets THREE reinforcing, full-strength
+   cues instead: a solid (not color-mixed) accent border, a hard left flag
+   stripe with a monospace "▸ PRIORITY" tag, and a one-shot entrance flash
+   that reuses the existing --reveal-easing token rather than a parallel
+   animation system. All three are pure CSS — no added JS, no added
+   dependency — and the flash is disabled under reduced motion below while
+   the border/stripe/tag (static, non-motion cues) stay perceptible. */
+@keyframes lens-flag-in {
+  0% {
+    background-color: color-mix(in srgb, var(--accent-amber) 22%, transparent);
+    transform: translateY(-3px);
+  }
+  100% {
+    background-color: transparent;
+    transform: translateY(0);
+  }
+}
+
+/* The `html` type selector is not decorative here: Astro scopes every
+   component <style> block with a `[data-astro-cid-…]` attribute, which
+   ties specificity with a bare `[data-lens] [data-attr]` selector and
+   lets the component's own `border: 1px solid var(--border-subtle)`
+   shorthand win on cascade order. Prefixing with `html` adds one element
+   selector, which is enough to reliably beat that tie (verified against
+   the actual computed `border-left-width` in-browser, not just visually). */
+html[data-lens='technical'] [data-skill-id='frontend'],
+html[data-lens='technical'] [data-skill-id='backend'],
+html[data-lens='technical'] [data-skill-id='devops'],
+html[data-lens='operations'] [data-skill-id='business'],
+html[data-lens='human'] [data-milestone='production'],
+html[data-lens='technical'] [data-milestone='production'],
+html[data-lens='technical'] [data-milestone='healthcare'],
+html[data-lens='operations'] [data-milestone='anses'],
+html[data-lens='operations'] [data-milestone='healthcare'],
+html[data-lens='operations'] [data-channel='whatsapp'],
+html[data-lens='operations'] [data-channel='email'],
+html[data-lens='human'] [data-channel='linkedin'],
+html[data-lens='human'] [data-channel='email'] {
   order: -1;
-  border-color: color-mix(in srgb, var(--accent-cyan) 45%, var(--border-subtle));
+  border-color: var(--accent-amber);
+  border-left: 4px solid var(--accent-amber);
+  animation: lens-flag-in var(--reveal-duration) var(--reveal-easing);
+  position: relative;
 }
 
 [data-lens='technical'] [data-skill-id='business'] {
   order: 1;
 }
 
-[data-lens='technical'] [data-milestone='production'],
-[data-lens='technical'] [data-milestone='healthcare'] {
+/* Monospace "▸ PRIORITY" tag: added as normal in-flow content (not
+   absolutely positioned) so it never needs a positioning context on
+   arbitrary markup shapes (flex rows, grid rows, flex columns alike) — it
+   simply becomes the first thing read/seen in the emphasized item. */
+[data-lens='technical'] [data-skill-id='frontend']::before,
+[data-lens='technical'] [data-skill-id='backend']::before,
+[data-lens='technical'] [data-skill-id='devops']::before,
+[data-lens='operations'] [data-skill-id='business']::before,
+[data-lens='operations'] [data-channel='whatsapp']::before,
+[data-lens='operations'] [data-channel='email']::before,
+[data-lens='human'] [data-channel='linkedin']::before,
+[data-lens='human'] [data-channel='email']::before {
+  content: '▸ PRIORITY';
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent-amber);
+  margin-bottom: 0.5rem;
   order: -1;
 }
 
-/* Operations lens: leads with process/compliance milestones (ANSES,
-   Sanatorio) and the business-operations skill category. */
-[data-lens='operations'] [data-skill-id='business'] {
-  order: -1;
-  border-color: color-mix(in srgb, var(--accent-amber) 45%, var(--border-subtle));
+/* `data-milestone` sits on `.timeline-item`, a 2-column CSS grid (marker +
+   card) — a block-level ::before there would land as a third grid item and
+   break `grid-template-columns: 2.5rem 1fr`. The tag goes on the inner
+   `.timeline-content-card` instead, which is a plain block. */
+[data-lens='human'] [data-milestone='production'] .timeline-content-card::before,
+[data-lens='technical'] [data-milestone='production'] .timeline-content-card::before,
+[data-lens='technical'] [data-milestone='healthcare'] .timeline-content-card::before,
+[data-lens='operations'] [data-milestone='anses'] .timeline-content-card::before,
+[data-lens='operations'] [data-milestone='healthcare'] .timeline-content-card::before {
+  content: '▸ PRIORITY';
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent-amber);
+  margin-bottom: 0.75rem;
 }
 
-[data-lens='operations'] [data-milestone='anses'],
-[data-lens='operations'] [data-milestone='healthcare'] {
-  order: -1;
-}
-
-[data-lens='operations'] [data-channel='whatsapp'],
-[data-lens='operations'] [data-channel='email'] {
-  order: -1;
-}
-
-/* Human lens: leads with the milestone carrying Taekwondo & Filosofía,
-   and the more personal contact channels. */
-[data-lens='human'] [data-milestone='production'] {
-  order: -1;
-  border-color: color-mix(in srgb, var(--accent-emerald) 45%, var(--border-subtle));
-}
-
-[data-lens='human'] [data-channel='linkedin'],
-[data-lens='human'] [data-channel='email'] {
-  order: -1;
+/* `.channel-item` is a flex ROW (icon, then text) — a block-level tag
+   above it would still work, but reads better inline, ahead of the icon. */
+[data-lens='operations'] a[data-channel='whatsapp']::before,
+[data-lens='operations'] a[data-channel='email']::before,
+[data-lens='human'] a[data-channel='linkedin']::before,
+[data-lens='human'] a[data-channel='email']::before {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 0;
+  margin-right: 0.6rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -264,6 +356,22 @@ html.js-reveal [data-reveal='fade'].is-revealed {
   }
 
   html.js-reveal [data-reveal].is-revealed {
+    animation: none;
+  }
+
+  /* Same `html` prefix as the animated rule above, and for the same
+     reason: this override must match or beat that rule's specificity
+     to actually win, otherwise `prefers-reduced-motion: reduce` would
+     silently fail to disable it (verified in-browser: without the
+     `html` prefix here, `animationName` stayed `lens-flag-in` even with
+     the media query active). */
+  html[data-lens='technical'] [data-skill-id],
+  html[data-lens='operations'] [data-skill-id],
+  html[data-lens='technical'] [data-milestone],
+  html[data-lens='operations'] [data-milestone],
+  html[data-lens='human'] [data-milestone],
+  html[data-lens='operations'] [data-channel],
+  html[data-lens='human'] [data-channel] {
     animation: none;
   }
 }

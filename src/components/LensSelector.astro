@@ -20,6 +20,13 @@ const labels: Record<Lang, { legend: string; technical: string; operations: stri
 };
 
 const t = labels[lang] ?? labels.es;
+
+const statusLabels: Record<Lang, { none: string; prefix: string }> = {
+  es: { none: 'ORDEN POR DEFECTO', prefix: 'LENTE ACTIVO:' },
+  en: { none: 'DEFAULT ORDER', prefix: 'ACTIVE LENS:' },
+  pt: { none: 'ORDEM PADRÃO', prefix: 'LENTE ATIVA:' },
+};
+const s = statusLabels[lang] ?? statusLabels.es;
 ---
 
 <div class="lens-selector" data-reveal>
@@ -29,10 +36,23 @@ const t = labels[lang] ?? labels.es;
     <button type="button" class="lens-btn" data-lens-option="operations">{t.operations}</button>
     <button type="button" class="lens-btn" data-lens-option="human">{t.human}</button>
   </div>
+  <!-- Persistent console-style readout of the active lens — a fourth,
+       always-visible signal (in addition to the button's own loud
+       pressed state and the flagged items below) that a change happened
+       and which lens is currently applied. -->
+  <span class="lens-status" data-lens-status data-prefix={s.prefix} aria-live="polite">{s.none}</span>
 </div>
 
 <script>
   const buttons = document.querySelectorAll<HTMLButtonElement>('[data-lens-option]');
+  const statusEl = document.querySelector<HTMLElement>('[data-lens-status]');
+  const labelByOption: Record<string, string> = {
+    technical: buttons[0]?.textContent?.trim() ?? 'technical',
+    operations: buttons[1]?.textContent?.trim() ?? 'operations',
+    human: buttons[2]?.textContent?.trim() ?? 'human',
+  };
+  const defaultStatus = statusEl?.textContent ?? '';
+  const statusPrefix = statusEl?.dataset.prefix ?? '';
 
   function applyLens(lens: string | null) {
     if (lens) {
@@ -43,6 +63,11 @@ const t = labels[lang] ?? labels.es;
     buttons.forEach((btn) => {
       btn.setAttribute('aria-pressed', String(btn.dataset.lensOption === lens));
     });
+    if (statusEl) {
+      statusEl.textContent = lens
+        ? `${statusPrefix} ${(labelByOption[lens] ?? lens).toUpperCase()}`
+        : defaultStatus;
+    }
   }
 
   // Reflect whatever the inline head script already applied (or the
@@ -106,9 +131,22 @@ const t = labels[lang] ?? labels.es;
     background: var(--bg-surface-elevated);
   }
 
+  /* Loud, full-strength pressed state — not just a color tint — so the
+     button itself confirms the click, in addition to the flagged items
+     it produces below. */
   .lens-btn[aria-pressed='true'] {
-    background: var(--bg-surface-elevated);
-    color: var(--accent-cyan);
+    background: var(--accent-amber);
+    color: #12161c;
+    border: 1px solid var(--accent-amber);
+    font-family: var(--font-mono);
+  }
+
+  .lens-status {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    padding: 0.3rem 0.6rem;
     border: 1px solid var(--border-subtle);
   }
 </style>

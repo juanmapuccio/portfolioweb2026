@@ -150,7 +150,7 @@ const qrSvg = qrSvgRaw
     padding: 0.35rem 0.85rem;
     background: color-mix(in srgb, var(--accent-emerald) 10%, transparent);
     border: 1px solid color-mix(in srgb, var(--accent-emerald) 30%, transparent);
-    border-radius: 9999px;
+    border-radius: var(--radius-sm);
     font-size: 0.8rem;
     color: var(--accent-emerald);
     font-weight: 600;
@@ -176,7 +176,7 @@ const qrSvg = qrSvgRaw
 
   .hero-role {
     font-size: 1.25rem;
-    color: var(--accent-cyan);
+    color: var(--accent-amber);
     font-weight: 700;
     margin-bottom: 1rem;
     letter-spacing: -0.01em;
@@ -216,25 +216,26 @@ const qrSvg = qrSvgRaw
   }
 
   .btn-primary {
-    background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
-    color: #ffffff;
-    box-shadow: 0 4px 14px rgba(6, 182, 212, 0.25);
+    background: var(--accent-amber);
+    color: #12161c;
+    font-family: var(--font-mono);
+    font-weight: 700;
   }
 
   .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
   }
 
   .btn-secondary {
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     color: var(--text-main);
+    font-family: var(--font-mono);
   }
 
   .btn-secondary:hover {
     background: var(--bg-surface-elevated);
-    border-color: var(--accent-cyan);
+    border-color: var(--accent-amber);
     transform: translateY(-2px);
   }
 
@@ -275,7 +276,7 @@ const qrSvg = qrSvgRaw
   }
 
   .meta-value {
-    color: var(--accent-cyan);
+    color: var(--accent-amber);
     font-weight: 600;
   }
 

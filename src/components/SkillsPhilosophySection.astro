@@ -113,11 +113,11 @@ const iconMap: Record<string, typeof Layers> = {
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.08em;
-    color: var(--accent-cyan);
-    background: color-mix(in srgb, var(--accent-cyan) 10%, transparent);
-    border: 1px solid color-mix(in srgb, var(--accent-cyan) 25%, transparent);
+    color: var(--accent-amber);
+    background: color-mix(in srgb, var(--accent-amber) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent-amber) 25%, transparent);
     padding: 0.35rem 0.85rem;
-    border-radius: 9999px;
+    border-radius: var(--radius-sm);
     margin-bottom: 1rem;
   }
 
@@ -159,8 +159,7 @@ const iconMap: Record<string, typeof Layers> = {
 
   .skill-card:hover {
     transform: translateY(-4px);
-    border-color: color-mix(in srgb, var(--accent-cyan) 40%, var(--border-subtle));
-    box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.12);
+    border-color: var(--accent-amber);
   }
 
   .card-glow {
@@ -169,7 +168,7 @@ const iconMap: Record<string, typeof Layers> = {
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+    background: var(--accent-amber);
     opacity: 0;
     transition: opacity var(--transition);
   }
@@ -189,8 +188,8 @@ const iconMap: Record<string, typeof Layers> = {
     width: 2.5rem;
     height: 2.5rem;
     border-radius: var(--radius-sm);
-    background: color-mix(in srgb, var(--accent-cyan) 12%, transparent);
-    color: var(--accent-cyan);
+    background: color-mix(in srgb, var(--accent-amber) 12%, transparent);
+    color: var(--accent-amber);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -201,7 +200,7 @@ const iconMap: Record<string, typeof Layers> = {
     font-weight: 700;
     letter-spacing: 0.04em;
     padding: 0.25rem 0.6rem;
-    border-radius: 9999px;
+    border-radius: var(--radius-sm);
     background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
     color: var(--text-muted);
@@ -262,7 +261,7 @@ const iconMap: Record<string, typeof Layers> = {
   }
 
   .shield-icon {
-    color: var(--accent-cyan);
+    color: var(--accent-amber);
   }
 
   .philosophy-section-title {
@@ -301,7 +300,8 @@ const iconMap: Record<string, typeof Layers> = {
   .pillar-subtitle {
     font-size: 0.82rem;
     font-weight: 600;
-    color: var(--accent-cyan);
+    font-family: var(--font-mono);
+    color: var(--accent-amber);
   }
 
   .pillar-desc {
