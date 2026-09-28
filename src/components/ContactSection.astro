@@ -68,7 +68,6 @@ const channelIcons: Record<string, typeof MessageCircle> = {
               rel={ch.id === 'email' ? '' : 'noopener noreferrer'}
               class:list={['channel-item', { 'primary-channel': ch.primary }]}
               aria-label={ch.name}
-              data-channel={ch.id}
               data-reveal
               style={`--reveal-delay: ${i}`}
             >

@@ -42,7 +42,7 @@ const iconMap: Record<string, typeof Layers> = {
       {data.categories.map((cat, i) => {
         const IconComponent = iconMap[cat.id] || Sparkles;
         return (
-          <div class="skill-card" data-skill-id={cat.id} data-reveal style={`--reveal-delay: ${i}`}>
+          <div class="skill-card" data-reveal style={`--reveal-delay: ${i}`}>
             <div class="card-glow"></div>
             <div class="skill-card-header">
               <div class="skill-icon-wrapper">
