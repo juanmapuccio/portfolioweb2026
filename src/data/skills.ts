@@ -50,6 +50,13 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
         badge: 'Visión de Negocio',
         description: 'Capacidad de dialogar de igual a igual con directivos de sanatorios, personal de maestranza o dueños de comercios.',
         items: ['Auditoría Médica & Nomenclador', 'Facturación Contable & IVA', 'Gestión Masiva (ANSES)', 'Logística & Stock Real', 'Living Lab Comercial']
+      },
+      {
+        id: 'certifications',
+        title: 'Certificaciones & Idiomas',
+        badge: 'Formación Continua',
+        description: 'Formación certificada en las tres nubes principales y una base sólida en ciencias de la computación.',
+        items: ['AWS Certified Cloud Practitioner (2025)', 'Microsoft Certified: Azure Fundamentals — AZ-900 (2025)', 'Google Cloud Computing Foundations (2024)', 'CS50: Introduction to Computer Science — Harvard/edX (2023)', 'Python desde Cero a Desarrollador — Udemy (2022)', 'Inglés B2 — lectura técnica fluida']
       }
     ],
     philosophy: [
@@ -96,6 +103,13 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
         badge: 'Business Acumen',
         description: 'Speaking directly with healthcare directors, warehouse clerks, and business owners without middleman noise.',
         items: ['Healthcare Billing & Auditing', 'Commercial Logistics & VAT', 'Massive Operations (ANSES)', 'Inventory Control', 'Commercial Living Lab']
+      },
+      {
+        id: 'certifications',
+        title: 'Certifications & Languages',
+        badge: 'Continuous Learning',
+        description: 'Certified across the three major clouds, with a solid computer science foundation.',
+        items: ['AWS Certified Cloud Practitioner (2025)', 'Microsoft Certified: Azure Fundamentals — AZ-900 (2025)', 'Google Cloud Computing Foundations (2024)', 'CS50: Introduction to Computer Science — Harvard/edX (2023)', 'Python from Zero to Developer — Udemy (2022)', 'English B2 — fluent technical reading']
       }
     ],
     philosophy: [
@@ -142,6 +156,13 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
         badge: 'Visão Prática',
         description: 'Comunicação direta com diretores hospitalares, equipes operacionais e empresários locais sem intermediários.',
         items: ['Auditoria Hospitalar e Faturamento', 'Gestão Financeira & Impostos', 'Operação em Massa (ANSES)', 'Logística & Estoque Real', 'Living Lab Gastronômico']
+      },
+      {
+        id: 'certifications',
+        title: 'Certificações & Idiomas',
+        badge: 'Formação Contínua',
+        description: 'Formação certificada nas três principais nuvens e uma base sólida em ciência da computação.',
+        items: ['AWS Certified Cloud Practitioner (2025)', 'Microsoft Certified: Azure Fundamentals — AZ-900 (2025)', 'Google Cloud Computing Foundations (2024)', 'CS50: Introduction to Computer Science — Harvard/edX (2023)', 'Python do Zero ao Desenvolvedor — Udemy (2022)', 'Inglês B2 — leitura técnica fluente']
       }
     ],
     philosophy: [

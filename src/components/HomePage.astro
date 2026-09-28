@@ -6,6 +6,7 @@ import { useTranslations, type Lang } from '../i18n/ui';
 import ProjectsSection from './ProjectsSection.astro';
 import ExperienceTimeline from './ExperienceTimeline.astro';
 import SkillsPhilosophySection from './SkillsPhilosophySection.astro';
+import EducationSection from './EducationSection.astro';
 import ContactSection from './ContactSection.astro';
 
 interface Props {
@@ -93,6 +94,9 @@ const qrSvg = qrSvgRaw
   <!-- Tech stack, skills & practical philosophy -->
   <SkillsPhilosophySection lang={lang} />
 
+  <!-- Education, Certifications & Continuous Learning -->
+  <EducationSection lang={lang} />
+
   <!-- Contact & call to action -->
   <ContactSection lang={lang} />
 
@@ -128,7 +132,7 @@ const qrSvg = qrSvgRaw
 
 <style>
   .hero-section {
-    padding: 4.5rem 0 3rem;
+    padding: 5.5rem 0 4rem;
   }
 
   .hero-grid {
@@ -189,8 +193,8 @@ const qrSvg = qrSvgRaw
     font-size: 1rem;
     color: var(--text-muted);
     max-width: 580px;
-    line-height: 1.6;
-    margin-bottom: 2rem;
+    line-height: 1.7;
+    margin-bottom: 2.25rem;
   }
 
   .hero-actions {
