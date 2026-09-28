@@ -25,10 +25,6 @@ export const ui = {
     'hero.avatar.sub': 'Sistemas en producción, usuarios reales',
     'hero.btn.cv': 'Descargar CV',
     'hero.btn.qr': 'Ver QR Móvil',
-    'projects.title': 'Proyectos en Producción & Casos Reales',
-    'projects.subtitle': 'Sistemas reales desplegados con usuarios activos que demuestran mi capacidad de arquitectura, entrega y resolución.',
-    'experience.title': 'Trayectoria & Trinchera Operativa',
-    'experience.subtitle': 'Desde la gestión pública y la salud de alta demanda, hasta el desarrollo de software a medida.',
     'qr.modal.title': 'Acceso Rápido Móvil',
     'qr.modal.desc': 'Escaneá este código QR para abrir el portfolio o guardarlo en tu smartphone.',
     'qr.modal.close': 'Cerrar'
@@ -49,10 +45,6 @@ export const ui = {
     'hero.avatar.sub': 'Production systems, real users',
     'hero.btn.cv': 'Download CV',
     'hero.btn.qr': 'View Mobile QR',
-    'projects.title': 'Production Projects & Case Studies',
-    'projects.subtitle': 'Live production software with paying users demonstrating end-to-end architecture, delivery, and reliability.',
-    'experience.title': 'Journey & Operational Experience',
-    'experience.subtitle': 'From high-demand healthcare and public administration to custom software engineering.',
     'qr.modal.title': 'Quick Mobile Access',
     'qr.modal.desc': 'Scan this QR code to view this portfolio or save it on your smartphone.',
     'qr.modal.close': 'Close'
@@ -73,10 +65,6 @@ export const ui = {
     'hero.avatar.sub': 'Sistemas em produção, usuários reais',
     'hero.btn.cv': 'Baixar CV',
     'hero.btn.qr': 'Ver QR Móvel',
-    'projects.title': 'Projetos em Produção & Casos Reais',
-    'projects.subtitle': 'Sistemas em produção com usuários ativos que comprovam capacidade de entrega, arquitetura e estabilidade.',
-    'experience.title': 'Trajetória & Vivência Operacional',
-    'experience.subtitle': 'Da gestão pública e saúde de alta demanda ao desenvolvimento de software sob medida.',
     'qr.modal.title': 'Acesso Móvel Rápido',
     'qr.modal.desc': 'Escaneie este código QR para abrir o portfólio ou salvá-lo em seu smartphone.',
     'qr.modal.close': 'Fechar'
