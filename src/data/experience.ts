@@ -17,7 +17,7 @@ export const experienceData: Record<Lang, Milestone[]> = {
       badge: 'Producción & Consultoría',
       title: 'Sistemas en Producción, Docencia & Filosofía',
       organization: 'NodoSur · Don Pizza Rosario · Filosofía (UNR) · Taekwondo ITF',
-      summary: 'Sistemas propios en producción, con usuarios reales pagando, desplegados en servidores cloud propios (Linux, Docker, GitHub Actions) — tomaron forma en paralelo mientras trabajaba en relación de dependencia, no después de dejarla.',
+      summary: 'NodoSur reúne los sistemas que diseña y mantiene: Stoky (su producto más maduro, un ERP/POS para comercios), NodoFit y la facturación fiscal con ARCA, todos con usuarios reales pagando y desplegados en infraestructura cloud propia — tomaron forma en paralelo mientras trabajaba en relación de dependencia, no después de dejarla. En simultáneo sostiene más de una década de docencia como Profesor Internacional de Taekwondo ITF y cursa la Licenciatura en Filosofía en la UNR.',
       highlights: [
         'Desarrollo y mantenimiento activo de plataformas SaaS como NodoFit y sistemas para clientes (Seiton Motors, Satori Dojo).',
         'Integración con webservices de ARCA (ex AFIP) para facturación electrónica con validación humana en el loop.',
@@ -31,7 +31,7 @@ export const experienceData: Record<Lang, Milestone[]> = {
       badge: 'Salud & Logística',
       title: 'Gestión Sanitaria, Auditoría & Automatización',
       organization: 'Sanatorio Delta · Sanatorio Centro (Aurea MED) · Repuestos JL',
-      summary: 'Inmersión en la trinchera de salud de alta exigencia y logística comercial mayorista, identificando la fricción de software que impulsó la creación de herramientas propias.',
+      summary: 'Admisión, turnos y facturación en salud de alta demanda (Sanatorio Delta, Sanatorio Centro), viendo de cerca la burocracia en papel y los errores de facturación de sistemas arcaicos. Esa fricción real confirmó que el aporte que podía dar estaba en automatizar, no en ejecutar tareas manuales. En paralelo, en logística y finanzas de Repuestos JL, construyó un bot en Python que lee extractos bancarios heterogéneos y liquida IVA en segundos — la semilla técnica de lo que hoy es NodoSur.',
       highlights: [
         'Admisión oncológica, recepción de laboratorios, manejo de nomenclador nacional de salud, auditoría médica y sistema Algoritmo.',
         'Despacho y control integral de stock, cobranzas y facturación en Repuestos JL.',
@@ -44,7 +44,7 @@ export const experienceData: Record<Lang, Milestone[]> = {
       badge: 'Infraestructura & Estado',
       title: 'Infraestructura Crítica & Gestión Masiva',
       organization: 'Administración Nacional de la Seguridad Social (ANSES)',
-      summary: 'Convocado dos veces, la segunda rindiendo y aprobando concursos de mérito hasta la efectivización en planta permanente. Soporte de racks de servidores del Estado Nacional y gestión de miles de expedientes bajo marco legal estricto.',
+      summary: 'Contratado en 2015, forjado en gestión de expedientes masivos y marco normativo previsional hasta que una reestructuración de nómina del Estado cerró esa etapa en 2019. En la pausa no se quedó esperando: armó un negocio propio de fotografía y filmmaking corporativo (Santander, Federada Salud, ExpoAgro) y aprovechó la pandemia para profundizar en programación moderna. Convocado de nuevo en 2021, rindió y aprobó concursos de mérito hasta la efectivización en planta permanente, con soporte directo a racks de servidores del Estado Nacional.',
       highlights: [
         'Mesa de ayuda informática regional: instalación de puestos de trabajo, actualización de software y conexionado con racks de servidores del Estado Nacional.',
         'Desarrollo de un sistema interno para visualización y monitoreo de métricas individuales de trámites mensuales.',
@@ -58,7 +58,7 @@ export const experienceData: Record<Lang, Milestone[]> = {
       badge: 'Bases & Negocio',
       title: 'Formación Técnica & Venta en Campo',
       organization: 'Escuela Técnica Manuel Belgrano · Providus S.A. · AS MED S.A.',
-      summary: 'Cimientos técnicos tempranos combinados con una rápida inserción laboral en ventas de calle y contacto comercial directo.',
+      summary: 'Egresado técnico en Robótica y Programación, con una inserción laboral inmediata en ventas de calle: servicios de salud en AS MED S.A. y planes de capitalización en Providus S.A., después de un primer contacto con la atención al público en Al Natural. Los cimientos técnicos y la negociación directa cara a cara se construyeron en simultáneo, no en secuencia.',
       highlights: [
         'Egresado secundario técnico con especialización en Robótica y Programación (fundamentos tempranos de lógica e ingeniería).',
         'Vendedor viajante de servicios de salud en AS MED S.A. y planes de capitalización y ahorro en Providus S.A.',
@@ -73,7 +73,7 @@ export const experienceData: Record<Lang, Milestone[]> = {
       badge: 'Production & Consulting',
       title: 'Production Systems, Teaching & Philosophy',
       organization: 'NodoSur · Don Pizza Rosario · Philosophy (UNR) · Taekwondo ITF',
-      summary: 'Production systems with real paying users, deployed on self-managed cloud infrastructure (Linux, Docker, GitHub Actions) — built in parallel while holding a full-time job, not after leaving one.',
+      summary: 'NodoSur brings together the systems he designs and maintains: Stoky (his most mature product, an ERP/POS for small businesses), NodoFit, and ARCA fiscal invoicing — all with real paying users, deployed on self-managed cloud infrastructure. They took shape in parallel while holding a full-time job, not after leaving one. He also sustains over a decade of teaching as an International Taekwondo ITF Instructor and is pursuing a Philosophy degree at UNR.',
       highlights: [
         'Active development and maintenance of SaaS platforms like NodoFit and client systems (Seiton Motors, Satori Dojo).',
         'Integration with ARCA (ex AFIP) fiscal webservices for automated electronic invoicing with human validation in the loop.',
@@ -87,7 +87,7 @@ export const experienceData: Record<Lang, Milestone[]> = {
       badge: 'Healthcare & Logistics',
       title: 'Healthcare Management, Audit & Automation',
       organization: 'Sanatorio Delta · Sanatorio Centro (Aurea MED) · Repuestos JL',
-      summary: 'High-demand healthcare admissions and commercial wholesale logistics, pinpointing operational bottlenecks that directly catalyzed custom software engineering.',
+      summary: 'Admissions, scheduling, and billing in high-demand healthcare (Sanatorio Delta, Sanatorio Centro), seeing firsthand the paper-based bureaucracy and billing errors of legacy systems. That real friction confirmed his contribution belonged in automation, not manual execution. In parallel, running logistics and finance at Repuestos JL, he built a Python bot that parses heterogeneous bank statements and settles VAT in seconds — the technical seed of what is now NodoSur.',
       highlights: [
         'Oncology patient admissions, laboratory reception, medical coding (national healthcare nomenclature), and Algoritmo system administration.',
         'Warehouse dispatch, wholesale inventory control, and payment processing at Repuestos JL.',
@@ -100,7 +100,7 @@ export const experienceData: Record<Lang, Milestone[]> = {
       badge: 'Infrastructure & Public Sector',
       title: 'Critical Infrastructure & Large-Scale Operations',
       organization: 'ANSES (National Social Security Administration)',
-      summary: 'Brought on twice, the second time earning permanent tenure through competitive merit examinations. Server-rack support for the National Government and case processing for thousands of files under strict regulatory compliance.',
+      summary: 'Hired on contract in 2015, shaped by high-volume case management and strict social-security regulation until a national payroll restructuring closed that chapter in 2019. He didn\'t wait it out: he built a corporate photography and filmmaking business (Santander, Federada Salud, ExpoAgro) and used the pandemic to go deep on modern programming. Brought back in 2021, he passed competitive merit examinations into permanent tenure, with direct support for National Government server racks.',
       highlights: [
         'Regional IT Helpdesk: workstation setup, software deployments, and network connectivity with National Government server racks.',
         'Built an internal metrics dashboard to track and visualize monthly procedure processing times.',
@@ -114,7 +114,7 @@ export const experienceData: Record<Lang, Milestone[]> = {
       badge: 'Foundations & Sales',
       title: 'Technical Education & Field Sales',
       organization: 'Manuel Belgrano Technical High School · Providus S.A. · AS MED S.A.',
-      summary: 'Early technical engineering foundations combined with frontline door-to-door sales and direct customer negotiations.',
+      summary: 'Technical high school graduate in Robotics and Programming, moving straight into door-to-door sales: healthcare services at AS MED S.A. and savings plans at Providus S.A., after a first taste of customer-facing work at Al Natural. The technical foundations and face-to-face negotiation were built side by side, not in sequence.',
       highlights: [
         'Graduated from Technical High School specialized in Robotics and Programming (solid early foundations in logic and systems).',
         'Field sales representative for healthcare plans at AS MED S.A. and savings/capitalization programs at Providus S.A.',
@@ -129,7 +129,7 @@ export const experienceData: Record<Lang, Milestone[]> = {
       badge: 'Produção & Consultoria',
       title: 'Sistemas em Produção, Docência & Filosofia',
       organization: 'NodoSur · Don Pizza Rosario · Filosofia (UNR) · Taekwondo ITF',
-      summary: 'Sistemas próprios em produção, com usuários reais pagando, hospedados em infraestrutura cloud própria (Linux, Docker, GitHub Actions) — tomaram forma em paralelo enquanto trabalhava em vínculo empregatício, não depois de sair dele.',
+      summary: 'A NodoSur reúne os sistemas que projeta e mantém: Stoky (seu produto mais maduro, um ERP/POS para comércios), NodoFit e a faturação fiscal com ARCA, todos com usuários reais pagando e hospedados em infraestrutura cloud própria — tomaram forma em paralelo enquanto trabalhava em vínculo empregatício, não depois de sair dele. Ao mesmo tempo, sustenta mais de uma década como Professor Internacional de Taekwondo ITF e cursa Filosofia na UNR.',
       highlights: [
         'Desenvolvimento e manutenção ativa de plataformas SaaS como NodoFit e sistemas para clientes (Seiton Motors, Satori Dojo).',
         'Integração fiscal com webservices da ARCA (ex AFIP) para emissão de notas fiscais com validação humana.',
@@ -143,7 +143,7 @@ export const experienceData: Record<Lang, Milestone[]> = {
       badge: 'Saúde & Logística',
       title: 'Gestão Hospitalar, Auditoria & Automação',
       organization: 'Sanatorio Delta · Sanatorio Centro (Aurea MED) · Repuestos JL',
-      summary: 'Vivência prática em hospitais de alta demanda e logística comercial, identificando gargalos operacionais que motivaram o desenvolvimento de software.',
+      summary: 'Admissão, agendamento e faturamento em saúde de alta demanda (Sanatorio Delta, Sanatorio Centro), vendo de perto a burocracia em papel e os erros de faturamento de sistemas ultrapassados. Essa fricção real confirmou que sua contribuição estava em automatizar, não em executar tarefas manuais. Em paralelo, na logística e finanças da Repuestos JL, construiu um bot em Python que lê extratos bancários heterogêneos e liquida impostos em segundos — a semente técnica do que hoje é a NodoSur.',
       highlights: [
         'Admissão oncológica, recepção de exames laboratoriais, faturamento médico e operação do sistema Algoritmo.',
         'Expedição de mercadorias, controle de estoque e cobrança em Repuestos JL.',
@@ -156,7 +156,7 @@ export const experienceData: Record<Lang, Milestone[]> = {
       badge: 'Infraestrutura & Setor Público',
       title: 'Infraestrutura Crítica & Operação em Larga Escala',
       organization: 'ANSES (Previdência Social Nacional)',
-      summary: 'Convocado duas vezes, a segunda com efetivação no quadro permanente após aprovação em concursos de mérito. Suporte aos racks de servidores do Estado Nacional e processamento de milhares de processos sob rigor normativo.',
+      summary: 'Contratado em 2015, forjado na gestão de processos em massa e no rigor normativo previdenciário até que uma reestruturação da folha do Estado encerrou essa etapa em 2019. Na pausa, não ficou esperando: montou um negócio próprio de fotografia e filmmaking corporativo (Santander, Federada Salud, ExpoAgro) e aproveitou a pandemia para se aprofundar em programação moderna. Convocado novamente em 2021, foi aprovado em concursos de mérito até a efetivação no quadro permanente, com suporte direto aos racks de servidores do Estado Nacional.',
       highlights: [
         'Suporte técnico regional: configuração de estações de trabalho e conexão direta com os racks de servidores do Estado.',
         'Desenvolvimento de sistema interno para visualização de métricas de produtividade mensal de processos.',
@@ -170,7 +170,7 @@ export const experienceData: Record<Lang, Milestone[]> = {
       badge: 'Fundamentos & Negócios',
       title: 'Formação Técnica & Vendas em Campo',
       organization: 'Escola Técnica Manuel Belgrano · Providus S.A. · AS MED S.A.',
-      summary: 'Bases técnicas de robótica combinadas com inserção precoce no mercado de vendas externas e contato direto com clientes.',
+      summary: 'Formado em ensino técnico com especialização em Robótica e Programação, partiu direto para vendas externas: planos de saúde na AS MED S.A. e planos de capitalização na Providus S.A., depois de um primeiro contato com atendimento ao público na Al Natural. As bases técnicas e a negociação direta cara a cara se construíram lado a lado, não em sequência.',
       highlights: [
         'Ensino técnico com especialização em Robótica e Programação (lógica de sistemas e engenharia desde cedo).',
         'Vendedor externo de planos de saúde na AS MED S.A. e planos de capitalização na Providus S.A.',
