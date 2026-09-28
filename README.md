@@ -115,7 +115,7 @@ src/
 
 - **[AGENTS.md](AGENTS.md)** — Engineering criteria, architecture rules, skills registry
 - **[DESIGN.md](DESIGN.md)** — Design system v2: warm editorial light, EyeCare dark, color tokens
-- **[docs/narrativa-laboral.md](docs/narrativa-laboral.md)** — Official career narrative & storytelling
+- **[docs/ANALISIS_STACK_TECNOLOGICO.md](docs/ANALISIS_STACK_TECNOLOGICO.md)** — Stack decisions & islands strategy
 - **[docs/COPY_Y_DICCIONARIO_WEB.md](docs/COPY_Y_DICCIONARIO_WEB.md)** — All page copy (ES/EN/PT)
 
 ---

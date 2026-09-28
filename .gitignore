@@ -25,3 +25,10 @@ pnpm-debug.log*
 
 # CV files are hosted externally
 *.pdf
+
+# Private career strategy — interview answers, recruiter-bias analysis and
+# positioning notes. These stay local: a recruiter reading the playbook that
+# was written about them defeats its whole purpose.
+docs/narrativa-laboral.md
+docs/DOCUMENTACION_STORYTELLING_Y_OBJETIVOS.md
+odd/tasks/docs-stoky-y-reencuadre-empleo.md
