@@ -191,6 +191,63 @@ html.js-reveal [data-reveal='fade'].is-revealed {
   animation-name: reveal-fade-in;
 }
 
+/* =========================================================
+   TRES LENTES: Reordenamiento & Énfasis (CSS-first, sin JS pesado)
+   ========================================================= */
+/* `data-lens` on <html> is set by LensSelector.astro, mirroring the
+   `data-theme` pattern above. It never hides or duplicates content:
+   it only reorders flex/grid children (via `order`) and adds visual
+   emphasis (border/weight) to the items each lens cares about most.
+   No `data-lens` attribute (the default, first-paint state) means the
+   site's existing order applies untouched — see LensSelector.astro. */
+
+/* Technical lens: leads with the engineering stack, keeps business
+   operations visible but de-prioritized. */
+[data-lens='technical'] [data-skill-id='frontend'],
+[data-lens='technical'] [data-skill-id='backend'],
+[data-lens='technical'] [data-skill-id='devops'] {
+  order: -1;
+  border-color: color-mix(in srgb, var(--accent-cyan) 45%, var(--border-subtle));
+}
+
+[data-lens='technical'] [data-skill-id='business'] {
+  order: 1;
+}
+
+[data-lens='technical'] [data-milestone='production'],
+[data-lens='technical'] [data-milestone='healthcare'] {
+  order: -1;
+}
+
+/* Operations lens: leads with process/compliance milestones (ANSES,
+   Sanatorio) and the business-operations skill category. */
+[data-lens='operations'] [data-skill-id='business'] {
+  order: -1;
+  border-color: color-mix(in srgb, var(--accent-amber) 45%, var(--border-subtle));
+}
+
+[data-lens='operations'] [data-milestone='anses'],
+[data-lens='operations'] [data-milestone='healthcare'] {
+  order: -1;
+}
+
+[data-lens='operations'] [data-channel='whatsapp'],
+[data-lens='operations'] [data-channel='email'] {
+  order: -1;
+}
+
+/* Human lens: leads with the milestone carrying Taekwondo & Filosofía,
+   and the more personal contact channels. */
+[data-lens='human'] [data-milestone='production'] {
+  order: -1;
+  border-color: color-mix(in srgb, var(--accent-emerald) 45%, var(--border-subtle));
+}
+
+[data-lens='human'] [data-channel='linkedin'],
+[data-lens='human'] [data-channel='email'] {
+  order: -1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

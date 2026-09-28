@@ -12,7 +12,7 @@ An interactive portfolio and CV website for Juan Manuel Puccio, Full Stack Devel
 **Positioning:** 
 - Formed in robotics and programming, tested in operations (ANSES, healthcare, logistics, food commerce)
 - Full Stack with TypeScript, Python automations, fiscal API integrations
-- Founder of **NodoSur** — building production software with real customers
+- Builds and stabilizes production software with real, paying customers (NodoSur, Stoky, NodoFit)
 
 **Four production systems showcased:**
 1. **NodoSur** — Software factory & cloud infrastructure

@@ -26,7 +26,7 @@ export const contactData: Record<Lang, ContactData> = {
   es: {
     badge: 'DISPONIBILIDAD & CONTRATACIÓN',
     title: '¿Tenés un cuello de botella o buscás sumar visión práctica a tu equipo?',
-    subtitle: 'Busco sumarme como Desarrollador Full Stack / Consultor de Procesos en un equipo técnico de alto impacto. NodoSur es mi mejor carta de presentación: capacidad probada de idear, programar y mantener software vivo en producción.',
+    subtitle: 'Busco sumarme como Desarrollador Full Stack en un equipo técnico de alto impacto, con disponibilidad full-time. Diseño, despliego y estabilizo software de negocio en producción — esa es la prueba de ingeniería que quiero poner al servicio de tu equipo.',
     ctaButtonText: 'Conversar por WhatsApp',
     statusText: 'Disponible para incorporación a equipos de producto & ingeniería',
     locationText: 'Rosario, Santa Fe, Argentina · Modalidad Remota / Híbrida / On-site',
@@ -72,7 +72,7 @@ export const contactData: Record<Lang, ContactData> = {
   en: {
     badge: 'CAREER & HIRING',
     title: 'Facing an operational bottleneck or looking to add pragmatic engineering to your team?',
-    subtitle: 'Looking to join an ambitious engineering or product team as a Full Stack Developer / Process Consultant. NodoSur is my live track record: proven ability to design, build, and maintain production software.',
+    subtitle: 'Looking to join an ambitious engineering team as a Full Stack Developer, with full-time availability. I design, ship, and stabilize production business software — that is the engineering proof I want to bring to your team.',
     ctaButtonText: 'Chat on WhatsApp',
     statusText: 'Available for full-time engineering & product roles',
     locationText: 'Rosario, Argentina · Remote / Hybrid / On-site',
@@ -118,7 +118,7 @@ export const contactData: Record<Lang, ContactData> = {
   pt: {
     badge: 'CONTRATAÇÃO & DISPONIBILIDADE',
     title: 'Tem um gargalo operacional ou quer somar visão prática à sua equipe?',
-    subtitle: 'Busco ingressar como Desenvolvedor Full Stack / Consultor de Processos em uma equipe técnica de alto impacto. NodoSur é meu histórico comprovado: capacidade de projetar, codificar e sustentar software vivo em produção.',
+    subtitle: 'Busco ingressar como Desenvolvedor Full Stack em uma equipe técnica de alto impacto, com disponibilidade full-time. Projeto, implanto e estabilizo software de negócio em produção — essa é a prova de engenharia que quero colocar a serviço da sua equipe.',
     ctaButtonText: 'Conversar no WhatsApp',
     statusText: 'Disponível para contratação em equipes de produto & engenharia',
     locationText: 'Rosário, Argentina · Remoto / Híbrido / Presencial',

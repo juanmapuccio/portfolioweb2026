@@ -49,6 +49,20 @@ const { title, description, lang = 'es' } = Astro.props;
         document.documentElement.classList.add('js-reveal');
       }
     </script>
+
+    <!-- Lens selector: restores a previously chosen reading lens before
+         paint. No stored choice (or storage unavailable) means no
+         data-lens attribute, which is the site's default/current order. -->
+    <script is:inline>
+      try {
+        const savedLens = localStorage.getItem('lens');
+        if (savedLens) {
+          document.documentElement.setAttribute('data-lens', savedLens);
+        }
+      } catch {
+        // Storage unavailable — default order applies.
+      }
+    </script>
   </head>
   <body>
     <header class="site-header">

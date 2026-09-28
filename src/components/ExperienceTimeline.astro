@@ -9,6 +9,11 @@ interface Props {
 
 const { lang } = Astro.props;
 const milestones = experienceData[lang];
+
+// Stable identity for the lens CSS to reorder/emphasize by (see
+// global.css [data-lens] rules). Index-based: the milestone list has a
+// fixed chronological shape across all three locales.
+const milestoneLensIds = ['production', 'healthcare', 'anses', 'foundations'] as const;
 ---
 
 <section id="trayectoria" class="experience-section">
@@ -35,7 +40,7 @@ const milestones = experienceData[lang];
 
       <div class="timeline-items">
         {milestones.map((item, i) => (
-          <div class="timeline-item" data-reveal style={`--reveal-delay: ${i}`}>
+          <div class="timeline-item" data-milestone={milestoneLensIds[i]} data-reveal style={`--reveal-delay: ${i}`}>
             <div class="timeline-marker">
               <span class="marker-dot"></span>
             </div>

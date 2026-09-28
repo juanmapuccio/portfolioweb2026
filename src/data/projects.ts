@@ -18,6 +18,20 @@ export interface ProjectData {
 export const projectsContent: Record<Lang, ProjectData[]> = {
   es: [
     {
+      id: 'stoky',
+      badge: 'ERP/POS Cloud en Producción',
+      name: 'Stoky',
+      role: 'Creador & Responsable de Producto',
+      category: 'Gestión Comercial para Pymes',
+      description: 'Sistema de gestión cloud para comercios de 1 a 20 empleados (kioscos, ferreterías, panaderías, vinotecas, fábricas pequeñas), reemplazando cuadernos, planillas y apps de mensajería sueltas.',
+      problem: 'Comercios pequeños gestionan stock, clientes y facturación en herramientas desconectadas, sin trazabilidad ni control en tiempo real.',
+      solution: 'Un solo sistema: catálogo de productos, stock con alertas, clientes e historial de compras, facturación y remitos, compras y proveedores, caja, punto de venta y producción con recetas, con integración fiscal AFIP/ARCA.',
+      impact: 'Su producto de mayor madurez comercial: suscripción por niveles (Base y Full), modular y con prueba gratuita sin tarjeta.',
+      url: 'https://stoky.com.ar',
+      tech: ['TypeScript', 'PostgreSQL', 'AFIP/ARCA', 'Cloud', 'POS'],
+      featured: true
+    },
+    {
       id: 'nodosur',
       badge: 'Software Factory & Cloud',
       name: 'NodoSur',
@@ -65,16 +79,30 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       name: 'Don Pizza Rosario',
       role: 'Desarrollador & Consultor Operativo',
       category: 'E-commerce & Operación Gastronómica',
-      description: 'Plataforma viva para catálogo digital, toma de pedidos rápidos y despacho en tiempo real en un entorno gastronómico de alta rotación.',
+      description: 'No es un pilar comercial de igual peso que Stoky o NodoFit, sino un laboratorio operativo en tiempo real: plataforma viva para catálogo digital, toma de pedidos rápidos y despacho en un entorno gastronómico de alta rotación.',
       problem: 'Fricciones en la toma de pedidos telefónicos y cuellos de botella en horas pico de elaboración y entrega.',
       solution: 'Aplicación ultra-rápida pensada para smartphones, con catálogo dinámico y canal directo a cocina/despacho.',
-      impact: 'En producción real, actuando además como banco de pruebas para validar UX móvil y velocidad de carga.',
+      impact: 'Banco de pruebas real para validar UX móvil y velocidad de carga antes de llevar esos aprendizajes a productos como Stoky.',
       url: 'https://donpizzarosario.vercel.app',
       tech: ['React', 'Mobile First', 'Fast Checkout', 'Cloud'],
       featured: false
     }
   ],
   en: [
+    {
+      id: 'stoky',
+      badge: 'Cloud ERP/POS in Production',
+      name: 'Stoky',
+      role: 'Creator & Product Owner',
+      category: 'Business Management for SMBs',
+      description: 'Cloud management system for businesses with 1–20 employees (shops, kiosks, hardware stores, bakeries, wineries, small factories), replacing disconnected notebooks, spreadsheets, and messaging apps.',
+      problem: 'Small businesses manage inventory, customers, and invoicing across disconnected tools with no traceability or real-time control.',
+      solution: 'One system: product catalog, inventory with alerts, customer profiles and purchase history, invoicing and delivery notes, purchase orders and suppliers, cash register, point of sale, and a production module with recipes, plus AFIP/ARCA fiscal integration.',
+      impact: 'His most commercially mature product: tiered subscription (Base and Full), modular, with a free trial and no credit card required.',
+      url: 'https://stoky.com.ar',
+      tech: ['TypeScript', 'PostgreSQL', 'AFIP/ARCA', 'Cloud', 'POS'],
+      featured: true
+    },
     {
       id: 'nodosur',
       badge: 'Software Factory & Cloud',
@@ -123,16 +151,30 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       name: 'Don Pizza Rosario',
       role: 'Developer & Operational Consultant',
       category: 'Food Delivery & Real-time Orders',
-      description: 'Live ordering and digital catalog system designed for peak rush hours in a high-demand culinary business.',
+      description: 'Not a commercial pillar of the same weight as Stoky or NodoFit, but a real-time operational lab: a live ordering and digital catalog system for peak rush hours in a high-demand culinary business.',
       problem: 'Bottlenecks during peak phone order hours and miscommunication between front counter and kitchen staff.',
       solution: 'Ultra-fast mobile-first ordering app with direct kitchen dispatch and clear item customizers.',
-      impact: 'Live in production, serving as a real-world testing ground for mobile UX and instant load performance.',
+      impact: 'A real-world testing ground for mobile UX and load performance before carrying those learnings into products like Stoky.',
       url: 'https://donpizzarosario.vercel.app',
       tech: ['React', 'Mobile First', 'Fast Checkout', 'Cloud'],
       featured: false
     }
   ],
   pt: [
+    {
+      id: 'stoky',
+      badge: 'ERP/POS Cloud em Produção',
+      name: 'Stoky',
+      role: 'Criador & Responsável pelo Produto',
+      category: 'Gestão Comercial para Pequenos Negócios',
+      description: 'Sistema de gestão cloud para comércios de 1 a 20 funcionários (quiosques, ferragens, padarias, adegas, pequenas fábricas), substituindo cadernos, planilhas e aplicativos de mensagens soltos.',
+      problem: 'Pequenos comércios gerenciam estoque, clientes e faturamento em ferramentas desconectadas, sem rastreabilidade nem controle em tempo real.',
+      solution: 'Um único sistema: catálogo de produtos, estoque com alertas, clientes e histórico de compras, faturamento e remessas, pedidos e fornecedores, caixa, ponto de venda e produção com receitas, com integração fiscal AFIP/ARCA.',
+      impact: 'Seu produto de maior maturidade comercial: assinatura por níveis (Base e Full), modular e com teste gratuito sem cartão.',
+      url: 'https://stoky.com.ar',
+      tech: ['TypeScript', 'PostgreSQL', 'AFIP/ARCA', 'Cloud', 'POS'],
+      featured: true
+    },
     {
       id: 'nodosur',
       badge: 'Software Factory & Cloud',
@@ -181,10 +223,10 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       name: 'Don Pizza Rosario',
       role: 'Desenvolvedor & Consultor Operacional',
       category: 'E-commerce & Operação Gastronômica',
-      description: 'Plataforma viva para catálogo digital, pedidos rápidos e expedição em tempo real em um comércio gastronômico de alta demanda.',
+      description: 'Não é um pilar comercial do mesmo peso que Stoky ou NodoFit, mas um laboratório operacional em tempo real: plataforma viva para catálogo digital, pedidos rápidos e expedição em um comércio gastronômico de alta demanda.',
       problem: 'Fricções no atendimento telefônico e gargalos durante os horários de pico da cozinha.',
       solution: 'Aplicação móvel ultra-rápida com envio direto de pedidos e catálogo interativo.',
-      impact: 'Em produção real, funcionando como laboratório prático para validar UX móvel e velocidade.',
+      impact: 'Laboratório prático para validar UX móvel e velocidade antes de levar esses aprendizados a produtos como Stoky.',
       url: 'https://donpizzarosario.vercel.app',
       tech: ['React', 'Mobile First', 'Fast Checkout', 'Cloud'],
       featured: false

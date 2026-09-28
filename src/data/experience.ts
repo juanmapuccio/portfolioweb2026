@@ -15,16 +15,16 @@ export const experienceData: Record<Lang, Milestone[]> = {
     {
       period: '2025 — Presente',
       badge: 'Producción & Consultoría',
-      title: 'Fundador, Desarrollador & Operador',
+      title: 'Sistemas en Producción, Docencia & Filosofía',
       organization: 'NodoSur · Don Pizza Rosario · Filosofía (UNR) · Taekwondo ITF',
-      summary: 'Renuncia a la estabilidad fija para apostar a la creación de software con clientes reales, desplegado en servidores cloud propios (Linux, Docker, GitHub Actions).',
+      summary: 'Sistemas propios en producción, con usuarios reales pagando, desplegados en servidores cloud propios (Linux, Docker, GitHub Actions) — tomaron forma en paralelo mientras trabajaba en relación de dependencia, no después de dejarla.',
       highlights: [
         'Desarrollo y mantenimiento activo de plataformas SaaS como NodoFit y sistemas para clientes (Seiton Motors, Satori Dojo).',
         'Integración con webservices de ARCA (ex AFIP) para facturación electrónica con validación humana en el loop.',
         'Operación de media jornada en Don Pizza Rosario como Living Lab comercial para testear UX móvil, stock y pedidos en horas pico de demanda.',
         'Más de una década como Profesor Internacional de Taekwondo ITF (disciplina y pedagogía) y estudiante de Licenciatura en Filosofía en la UNR (pensamiento crítico y ética).'
       ],
-      transferableSkill: 'Mentalidad fundadora, arquitectura de software en producción, liderazgo y disciplina ética.'
+      transferableSkill: 'Arquitectura de software en producción, capacidad de entregar y sostener sistemas confiables, liderazgo y disciplina ética.'
     },
     {
       period: '2024 — 2025',
@@ -71,16 +71,16 @@ export const experienceData: Record<Lang, Milestone[]> = {
     {
       period: '2025 — Present',
       badge: 'Production & Consulting',
-      title: 'Founder, Developer & Operator',
+      title: 'Production Systems, Teaching & Philosophy',
       organization: 'NodoSur · Don Pizza Rosario · Philosophy (UNR) · Taekwondo ITF',
-      summary: 'Stepped away from traditional employment to build proprietary software for real paying clients on self-managed cloud infrastructure (Linux, Docker, GitHub Actions).',
+      summary: 'Production systems with real paying users, deployed on self-managed cloud infrastructure (Linux, Docker, GitHub Actions) — built in parallel while holding a full-time job, not after leaving one.',
       highlights: [
         'Active development and maintenance of SaaS platforms like NodoFit and client systems (Seiton Motors, Satori Dojo).',
         'Integration with ARCA (ex AFIP) fiscal webservices for automated electronic invoicing with human validation in the loop.',
         'Half-day commercial operation at Don Pizza Rosario acting as a real-world Living Lab to validate mobile UX and kitchen dispatch under rush hours.',
         'Over a decade as an International Taekwondo ITF Instructor (leadership and pedagogy) and Philosophy undergraduate student at UNR (critical thinking and ethics).'
       ],
-      transferableSkill: 'Founder mindset, production software architecture, leadership, and ethical discipline.'
+      transferableSkill: 'Production software architecture, the ability to ship and sustain reliable systems, leadership, and ethical discipline.'
     },
     {
       period: '2024 — 2025',
@@ -127,16 +127,16 @@ export const experienceData: Record<Lang, Milestone[]> = {
     {
       period: '2025 — Presente',
       badge: 'Produção & Consultoria',
-      title: 'Fundador, Desenvolvedor & Operador',
+      title: 'Sistemas em Produção, Docência & Filosofia',
       organization: 'NodoSur · Don Pizza Rosario · Filosofia (UNR) · Taekwondo ITF',
-      summary: 'Transição da estabilidade para criar software proprietário com clientes reais, hospedado em servidores cloud próprios (Linux, Docker, GitHub Actions).',
+      summary: 'Sistemas próprios em produção, com usuários reais pagando, hospedados em infraestrutura cloud própria (Linux, Docker, GitHub Actions) — tomaram forma em paralelo enquanto trabalhava em vínculo empregatício, não depois de sair dele.',
       highlights: [
         'Desenvolvimento e manutenção ativa de plataformas SaaS como NodoFit e sistemas para clientes (Seiton Motors, Satori Dojo).',
         'Integração fiscal com webservices da ARCA (ex AFIP) para emissão de notas fiscais com validação humana.',
         'Atuação comercial em Don Pizza Rosario como Living Lab para testar UX móvel, estoque e pedidos em horário de pico.',
         'Mais de uma década como Professor Internacional de Taekwondo ITF (disciplina e liderança) e estudante de Filosofia na UNR.'
       ],
-      transferableSkill: 'Mentalidade fundadora, arquitetura de software em produção, liderança e ética.'
+      transferableSkill: 'Arquitetura de software em produção, capacidade de entregar e sustentar sistemas confiáveis, liderança e ética.'
     },
     {
       period: '2024 — 2025',
