@@ -56,8 +56,8 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
       {
         title: 'Pensamiento Crítico y Ética de Sistemas',
         subtitle: 'Licenciatura en Filosofía (UNR — en curso)',
-        description: 'No adoptar tecnologías por moda pasajera. Todo sistema de software tiene consecuencias operativas, humanas y éticas. Utilizo la IA como herramienta amplificadora dirigida con rigor humano, nunca como piloto automático acrítico.',
-        quote: 'Entender el problema de raíz antes de escribir una sola línea de código.'
+        description: 'La facturación fiscal con ARCA (ex AFIP) que integré nunca corre sola: cada comprobante pasa por validación humana antes de emitirse. Prefiero un sistema más lento y auditable a uno rápido que nadie entiende cuando falla.',
+        quote: 'Un bot que automatiza sin nadie revisando el resultado no es una solución, es un riesgo nuevo.'
       },
       {
         title: 'Liderazgo, Disciplina y Templanza Marcial',
@@ -102,8 +102,8 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
       {
         title: 'Critical Thinking & Systems Ethics',
         subtitle: 'Undergraduate in Philosophy (UNR — in progress)',
-        description: 'Rejecting hype-driven development. Every piece of software carries human and business consequences. I treat AI as a powerful force multiplier guided by human judgment, never as an uncritical autopilot.',
-        quote: 'Understand the root friction before writing a single line of code.'
+        description: "The ARCA (ex AFIP) fiscal invoicing I integrated never runs unsupervised: every receipt passes through human validation before it's issued. I'd rather ship a slower, auditable system than a fast one nobody understands when it breaks.",
+        quote: "A bot that automates without anyone checking the output isn't a solution — it's a new risk."
       },
       {
         title: 'Leadership, Discipline & Martial Composure',
@@ -148,8 +148,8 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
       {
         title: 'Pensamento Crítico & Ética de Sistemas',
         subtitle: 'Graduação em Filosofia (UNR — em andamento)',
-        description: 'Recusa ao desenvolvimento motivado por modismos. Todo sistema carrega impactos humanos e éticos. Utilizo IA como ferramenta amplificadora com critério humano inegociável.',
-        quote: 'Compreender a raiz do problema antes de escrever qualquer linha de código.'
+        description: 'A faturação fiscal com ARCA (ex AFIP) que integrei nunca roda sozinha: cada nota passa por validação humana antes de ser emitida. Prefiro um sistema mais lento e auditável a um rápido que ninguém entende quando falha.',
+        quote: 'Um bot que automatiza sem ninguém revisando o resultado não é uma solução, é um risco novo.'
       },
       {
         title: 'Liderança, Disciplina & Autocontrole Marcial',

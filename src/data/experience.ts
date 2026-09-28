@@ -42,9 +42,9 @@ export const experienceData: Record<Lang, Milestone[]> = {
     {
       period: '2015 — 2024',
       badge: 'Infraestructura & Estado',
-      title: 'Planta Permanente, Mesa de Ayuda & Expedientes',
+      title: 'Infraestructura Crítica & Gestión Masiva',
       organization: 'Administración Nacional de la Seguridad Social (ANSES)',
-      summary: 'Ingreso como contratado y posterior efectivización en planta permanente tras superar concursos de mérito. Gestión masiva e infraestructura tecnológica crítica.',
+      summary: 'Convocado dos veces, la segunda rindiendo y aprobando concursos de mérito hasta la efectivización en planta permanente. Soporte de racks de servidores del Estado Nacional y gestión de miles de expedientes bajo marco legal estricto.',
       highlights: [
         'Mesa de ayuda informática regional: instalación de puestos de trabajo, actualización de software y conexionado con racks de servidores del Estado Nacional.',
         'Desarrollo de un sistema interno para visualización y monitoreo de métricas individuales de trámites mensuales.',
@@ -98,9 +98,9 @@ export const experienceData: Record<Lang, Milestone[]> = {
     {
       period: '2015 — 2024',
       badge: 'Infrastructure & Public Sector',
-      title: 'Permanent Staff, IT Helpdesk & Data Processing',
+      title: 'Critical Infrastructure & Large-Scale Operations',
       organization: 'ANSES (National Social Security Administration)',
-      summary: 'Started on contract and earned permanent tenure through competitive merit examinations. Massive operational scale and critical IT server infrastructure.',
+      summary: 'Brought on twice, the second time earning permanent tenure through competitive merit examinations. Server-rack support for the National Government and case processing for thousands of files under strict regulatory compliance.',
       highlights: [
         'Regional IT Helpdesk: workstation setup, software deployments, and network connectivity with National Government server racks.',
         'Built an internal metrics dashboard to track and visualize monthly procedure processing times.',
@@ -154,9 +154,9 @@ export const experienceData: Record<Lang, Milestone[]> = {
     {
       period: '2015 — 2024',
       badge: 'Infraestrutura & Setor Público',
-      title: 'Quadro Permanente, Suporte IT & Gestão de Dados',
+      title: 'Infraestrutura Crítica & Operação em Larga Escala',
       organization: 'ANSES (Previdência Social Nacional)',
-      summary: 'Ingresso por contrato e efetivação no quadro permanente após aprovação em concursos de mérito. Operação em escala massiva e infraestrutura de servidores.',
+      summary: 'Convocado duas vezes, a segunda com efetivação no quadro permanente após aprovação em concursos de mérito. Suporte aos racks de servidores do Estado Nacional e processamento de milhares de processos sob rigor normativo.',
       highlights: [
         'Suporte técnico regional: configuração de estações de trabalho e conexão direta com os racks de servidores do Estado.',
         'Desenvolvimento de sistema interno para visualização de métricas de produtividade mensal de processos.',
