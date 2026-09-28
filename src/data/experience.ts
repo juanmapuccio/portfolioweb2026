@@ -17,7 +17,7 @@ export const experienceData: Record<Lang, Milestone[]> = {
       badge: 'Producción & Consultoría',
       title: 'Fundador y Desarrollador',
       organization: 'NodoSur',
-      summary: 'Fundé NodoSur, la marca y software factory bajo la que diseño, despliego y mantengo sistemas propios: NodoFit, la facturación fiscal con ARCA y el trabajo que hago para clientes como Satori Dojo y Don Pizza — todos con usuarios reales y desplegados en infraestructura cloud propia. Tomó forma en paralelo con mi último empleo en relación de dependencia, no después de dejarlo. Hoy es mi ocupación principal, con disponibilidad full-time real para sumarme a un equipo.',
+      summary: 'Fundé NodoSur, la marca y software factory bajo la que diseño, despliego y mantengo sistemas propios: NodoFit, gestión administrativa y contable integrando webservices de ARCA, y el trabajo que hago para clientes como Satori Dojo, Don Pizza y Seiton Motors — todos con usuarios reales y desplegados en infraestructura cloud propia. Proyecto que se materializó junto con mi último trabajo en relación de dependencia, sin afectar a mi trabajo formal. Hoy cuento con disponibilidad full-time real para sumarme a un equipo.',
       highlights: [
         'Desarrollo y mantenimiento activo de plataformas SaaS como NodoFit y sistemas para clientes (Seiton Motors, Satori Dojo).',
         'Integración con webservices de ARCA (ex AFIP) para facturación electrónica con validación humana en el loop.',
@@ -159,11 +159,11 @@ export const experienceData: Record<Lang, Milestone[]> = {
       badge: 'Production & Consulting',
       title: 'Founder and Developer',
       organization: 'NodoSur',
-      summary: "I founded NodoSur, the brand and software factory under which I design, ship, and maintain my own systems: NodoFit, ARCA fiscal invoicing, and the work I do for clients like Satori Dojo and Don Pizza — all with real users, deployed on self-managed cloud infrastructure. It took shape in parallel with my last salaried role, not after leaving it. Today it's my main occupation, with real full-time availability to join a team.",
+      summary: "I founded NodoSur, the brand and software factory under which I design, ship, and maintain my own systems: NodoFit, administrative and accounting management integrating ARCA webservices, and the work I do for clients like Satori Dojo, Don Pizza, and Seiton Motors — all with real users, deployed on self-managed cloud infrastructure. A project materialized alongside my last salaried employment without affecting my formal job. Today I have real full-time availability to join a team.",
       highlights: [
         'Active development and maintenance of SaaS platforms like NodoFit and client systems (Seiton Motors, Satori Dojo).',
         'Integration with ARCA (ex AFIP) fiscal webservices for automated electronic invoicing with human validation in the loop.',
-        'Operational and technical support at Don Pizza Rosario: syncing the delivery app with the in-house system, while also serving as a real-world Living Lab to validate mobile UX and rush-hour orders.',
+        'Operational and technical support at Don Pizza Rosario: syncing the delivery app with the in-house system, while also serving as a Living Lab to validate mobile UX and rush-hour orders.',
         'Over a decade as an International Taekwondo ITF Instructor (leadership and pedagogy) and Philosophy undergraduate student at UNR (critical thinking and ethics).'
       ],
       transferableSkill: 'Production software architecture, the ability to ship and sustain reliable systems, leadership, and ethical discipline.'
@@ -301,14 +301,14 @@ export const experienceData: Record<Lang, Milestone[]> = {
       badge: 'Produção & Consultoria',
       title: 'Fundador e Desenvolvedor',
       organization: 'NodoSur',
-      summary: 'Fundei a NodoSur, a marca e software factory sob a qual projeto, implanto e mantenho sistemas próprios: NodoFit, a faturação fiscal com ARCA, e o trabalho que faço para clientes como Satori Dojo e Don Pizza — todos com usuários reais e hospedados em infraestrutura cloud própria. Tomou forma em paralelo com meu último vínculo empregatício, não depois de sair dele. Hoje é minha ocupação principal, com disponibilidade full-time real para ingressar em uma equipe.',
+      summary: 'Fundei a NodoSur, a marca e software factory sob a qual projeto, implanto e mantenho sistemas próprios: NodoFit, gestão administrativa e contábil integrando webservices da ARCA, e o trabalho que faço para clientes como Satori Dojo, Don Pizza e Seiton Motors — todos com usuários reais e hospedados em infraestrutura cloud própria. Projeto que se materializou junto com meu último emprego formal, sem afetar meu trabalho regular. Hoje conto com disponibilidade full-time real para ingressar em uma equipe.',
       highlights: [
         'Desenvolvimento e manutenção ativa de plataformas SaaS como NodoFit e sistemas para clientes (Seiton Motors, Satori Dojo).',
-        'Integração fiscal com webservices da ARCA (ex AFIP) para emissão de notas fiscais com validação humana.',
-        'Suporte operacional e tecnológico na Don Pizza Rosario: sincronização do app de delivery com o sistema próprio do local, além de funcionar como Living Lab para testar UX móvel e pedidos em horário de pico.',
-        'Mais de uma década como Professor Internacional de Taekwondo ITF (disciplina e liderança) e estudante de Filosofia na UNR.'
+        'Integração com webservices da ARCA (ex AFIP) para emissão de notas fiscais com validação humana no loop.',
+        'Suporte operacional e tecnológico na Don Pizza Rosario: sincronização do app de delivery com o sistema próprio do local, além de funcionar como Living Lab para testear UX móvel e pedidos em horários de pico.',
+        'Mais de uma década como Professor Internacional de Taekwondo ITF (disciplina e pedagogia) e estudante de Filosofia na UNR (pensamento crítico e ética).'
       ],
-      transferableSkill: 'Arquitetura de software em produção, capacidade de entregar e sustentar sistemas confiáveis, liderança e ética.'
+      transferableSkill: 'Arquitetura de software em produção, capacidade de entregar e sustentar sistemas confiáveis, liderança e disciplina ética.'
     },
     {
       period: 'Jun 2025 — Out 2025',
