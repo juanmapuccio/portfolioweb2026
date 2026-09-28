@@ -194,7 +194,38 @@ Fuente: `src/data/skills.ts` (`skillsData`).
 
 ---
 
-## 5. Sección Contacto & Call to Action (`#contacto`)
+## 5. Sección Formación & Certificaciones (`#formacion`)
+
+Fuente: `src/data/education.ts` (`educationData`) y `src/components/EducationSection.astro`.
+
+### 5.1 Encabezado y Filtros
+- **Badge:** `FORMACIÓN & CERTIFICACIONES` / `EDUCATION & CERTIFICATIONS` / `FORMAÇÃO & CERTIFICAÇÕES`
+- **Título (H2):**
+  - **ES:** `Educación Formal, Certificaciones & Aprendizaje Continuo`
+  - **EN:** `Formal Education, Certifications & Lifelong Learning`
+  - **PT:** `Educação Formal, Certificações & Aprendizado Contínuo`
+- **Subtítulo:**
+  - **ES:** `Cimientos técnicos formales en robótica, rigor conceptual en filosofía y certificaciones oficiales en las nubes líderes.`
+  - **EN:** `Technical high school foundations in robotics, rigorous analytical philosophy, and official cloud certifications.`
+  - **PT:** `Bases técnicas formais em robótica, rigor analítico em filosofia e certificações oficiais nas principais nuvens.`
+- **Pestañas de Filtrado:**
+  - `Todas las credenciales` / `All Credentials` / `Todas as credenciais`
+  - `Cloud & DevOps`
+  - `Formación Académica` / `Academic Degrees` / `Formação Acadêmica`
+  - `Fundamentos & Código` / `CS Foundations & Code` / `Fundamentos & Código`
+
+### 5.2 Items Registrados (Cero mención de Abogacía por directiva explícita de Juan)
+1. **AWS Certified Cloud Practitioner** (2025) — Amazon Web Services (AWS). Badge: *Cloud Certified*.
+2. **Microsoft Certified: Azure Fundamentals (AZ-900)** (2025) — Microsoft. Badge: *Cloud Certified*.
+3. **Google Cloud Computing Foundations** (2024) — Google Cloud Skills Boost. Badge: *Cloud Foundations*.
+4. **CS50: Introduction to Computer Science** (2023) — Harvard University (edX). Badge: *Computer Science*.
+5. **Python desde Cero a Desarrollador: Frameworks & Automatización** (2022) — Udemy. Badge: *Programming & Automation*.
+6. **Licenciatura en Filosofía** (2024 — Presente, en curso) — Universidad Nacional de Rosario (UNR). Badge: *En curso*.
+7. **Secundario Técnico: Robótica y Programación** (2011) — Instituto Belgrano (ex Escuela Técnica Nº 2060). Badge: *Cimientos Técnicos*.
+
+---
+
+## 6. Sección Contacto & Call to Action (`#contacto`)
 
 Fuente: `src/data/contact.ts` (`contactData`).
 

@@ -6,6 +6,7 @@ import { useTranslations, type Lang } from '../i18n/ui';
 import ProjectsSection from './ProjectsSection.astro';
 import ExperienceTimeline from './ExperienceTimeline.astro';
 import SkillsPhilosophySection from './SkillsPhilosophySection.astro';
+import EducationSection from './EducationSection.astro';
 import ContactSection from './ContactSection.astro';
 
 interface Props {
@@ -92,6 +93,9 @@ const qrSvg = qrSvgRaw
 
   <!-- Tech stack, skills & practical philosophy -->
   <SkillsPhilosophySection lang={lang} />
+
+  <!-- Education, Certifications & Continuous Learning -->
+  <EducationSection lang={lang} />
 
   <!-- Contact & call to action -->
   <ContactSection lang={lang} />
