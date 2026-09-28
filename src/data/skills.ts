@@ -28,7 +28,7 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
         title: 'Core Frontend & Arquitectura UI',
         badge: 'UI / UX & Performance',
         description: 'Construcción de interfaces resilientes, accesibles y de carga inmediata con mínima sobrecarga de JavaScript.',
-        items: ['TypeScript Estricto', 'React', 'Next.js', 'Astro 5', 'Tailwind CSS', 'HTML5 Semántico', 'Zero CLS / Web Vitals']
+        items: ['TypeScript Estricto', 'React', 'Next.js', 'Astro 7', 'Tailwind CSS', 'HTML5 Semántico', 'Zero CLS / Web Vitals']
       },
       {
         id: 'backend',
@@ -74,7 +74,7 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
         title: 'Core Frontend & UI Architecture',
         badge: 'UI / UX & Performance',
         description: 'Building resilient, accessible, instant-loading interfaces with minimal JavaScript overhead.',
-        items: ['Strict TypeScript', 'React', 'Next.js', 'Astro 5', 'Tailwind CSS', 'Semantic HTML5', 'Zero CLS / Web Vitals']
+        items: ['Strict TypeScript', 'React', 'Next.js', 'Astro 7', 'Tailwind CSS', 'Semantic HTML5', 'Zero CLS / Web Vitals']
       },
       {
         id: 'backend',
@@ -120,7 +120,7 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
         title: 'Core Frontend & Arquitetura UI',
         badge: 'UI / UX & Performance',
         description: 'Construção de interfaces resilientes, acessíveis e ultrarrápidas com sobrecarga mínima de JavaScript.',
-        items: ['TypeScript Estrito', 'React', 'Next.js', 'Astro 5', 'Tailwind CSS', 'HTML5 Semântico', 'Zero CLS / Web Vitals']
+        items: ['TypeScript Estrito', 'React', 'Next.js', 'Astro 7', 'Tailwind CSS', 'HTML5 Semântico', 'Zero CLS / Web Vitals']
       },
       {
         id: 'backend',
