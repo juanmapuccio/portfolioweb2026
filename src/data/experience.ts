@@ -13,34 +13,35 @@ export interface Milestone {
 export const experienceData: Record<Lang, Milestone[]> = {
   es: [
     {
-      period: '2025 — Presente',
+      period: 'Jun 2025 — Presente',
       badge: 'Producción & Consultoría',
       title: 'Sistemas en Producción, Docencia & Filosofía',
       organization: 'NodoSur · Don Pizza Rosario · Filosofía (UNR) · Taekwondo ITF',
-      summary: 'NodoSur reúne los sistemas que diseña y mantiene: Stoky (su producto más maduro, un ERP/POS para comercios), NodoFit y la facturación fiscal con ARCA, todos con usuarios reales pagando y desplegados en infraestructura cloud propia — tomaron forma en paralelo mientras trabajaba en relación de dependencia, no después de dejarla. En simultáneo sostiene más de una década de docencia como Profesor Internacional de Taekwondo ITF y cursa la Licenciatura en Filosofía en la UNR.',
+      summary: 'NodoSur reúne los sistemas que diseña y mantiene: Stoky (su producto más maduro, un ERP/POS para comercios), NodoFit y la facturación fiscal con ARCA (incluye además los sistemas Inmotuls y Credituls), todos con usuarios reales pagando y desplegados en infraestructura cloud propia — tomaron forma en paralelo con su último empleo en relación de dependencia, no después de dejarlo. Hoy son su ocupación principal, con disponibilidad full-time real para sumarse a un equipo.',
       highlights: [
         'Desarrollo y mantenimiento activo de plataformas SaaS como NodoFit y sistemas para clientes (Seiton Motors, Satori Dojo).',
         'Integración con webservices de ARCA (ex AFIP) para facturación electrónica con validación humana en el loop.',
-        'Operación de media jornada en Don Pizza Rosario como Living Lab comercial para testear UX móvil, stock y pedidos en horas pico de demanda.',
+        'Soporte operativo y tecnológico en Don Pizza Rosario: sincronización de la app de delivery con el sistema propio del local, además de funcionar como Living Lab para testear UX móvil y pedidos en horas pico.',
         'Más de una década como Profesor Internacional de Taekwondo ITF (disciplina y pedagogía) y estudiante de Licenciatura en Filosofía en la UNR (pensamiento crítico y ética).'
       ],
       transferableSkill: 'Arquitectura de software en producción, capacidad de entregar y sostener sistemas confiables, liderazgo y disciplina ética.'
     },
     {
-      period: '2024 — 2025',
+      period: 'May 2024 — Oct 2025',
       badge: 'Salud & Logística',
       title: 'Gestión Sanitaria, Auditoría & Automatización',
-      organization: 'Sanatorio Delta · Sanatorio Centro (Aurea MED) · Repuestos JL',
-      summary: 'Admisión, turnos y facturación en salud de alta demanda (Sanatorio Delta, Sanatorio Centro), viendo de cerca la burocracia en papel y los errores de facturación de sistemas arcaicos. Esa fricción real confirmó que el aporte que podía dar estaba en automatizar, no en ejecutar tareas manuales. En paralelo, en logística y finanzas de Repuestos JL, construyó un bot en Python que lee extractos bancarios heterogéneos y liquida IVA en segundos — la semilla técnica de lo que hoy es NodoSur.',
+      organization: 'Sanatorio Delta · Aurea Med S.A. · Repuestos JL',
+      summary: 'Admisión, turnos y facturación en salud de alta demanda (Sanatorio Delta, Aurea Med), viendo de cerca la burocracia en papel y los errores de facturación de sistemas arcaicos. Esa fricción real confirmó que el aporte que podía dar estaba en automatizar, no en ejecutar tareas manuales. Después, en logística y finanzas de Repuestos JL, construyó un bot en Python que lee extractos bancarios heterogéneos y liquida IVA en segundos — la semilla técnica de lo que hoy es NodoSur, que empezó a tomar forma en paralelo, en los mismos meses.',
       highlights: [
-        'Admisión oncológica, recepción de laboratorios, manejo de nomenclador nacional de salud, auditoría médica y sistema Algoritmo.',
-        'Despacho y control integral de stock, cobranzas y facturación en Repuestos JL.',
+        'Admisión, turnos médicos y facturación con el sistema Algoritmo en Sanatorio Delta, en entorno de alta demanda.',
+        'Gestión de pacientes, turnos y facturación con DATATECH en Aurea Med S.A.',
+        'Despacho de mercadería, control de stock y facturación en Repuestos JL, con seguimiento hasta el cobro.',
         'Desarrollo en Python de un bot lector de extractos bancarios en PDF: detecta y discrimina alícuotas de IVA y totaliza montos para liquidaciones contables en segundos, sustituyendo horas de marcado manual.'
       ],
       transferableSkill: 'Auditoría médica/contable, resolución de cuellos de botella con código en Python e iniciativa de mejora continua.'
     },
     {
-      period: '2015 — 2024',
+      period: 'Dic 2015 — Mar 2024',
       badge: 'Infraestructura & Estado',
       title: 'Infraestructura Crítica & Gestión Masiva',
       organization: 'Administración Nacional de la Seguridad Social (ANSES)',
@@ -69,34 +70,35 @@ export const experienceData: Record<Lang, Milestone[]> = {
   ],
   en: [
     {
-      period: '2025 — Present',
+      period: 'Jun 2025 — Present',
       badge: 'Production & Consulting',
       title: 'Production Systems, Teaching & Philosophy',
       organization: 'NodoSur · Don Pizza Rosario · Philosophy (UNR) · Taekwondo ITF',
-      summary: 'NodoSur brings together the systems he designs and maintains: Stoky (his most mature product, an ERP/POS for small businesses), NodoFit, and ARCA fiscal invoicing — all with real paying users, deployed on self-managed cloud infrastructure. They took shape in parallel while holding a full-time job, not after leaving one. He also sustains over a decade of teaching as an International Taekwondo ITF Instructor and is pursuing a Philosophy degree at UNR.',
+      summary: 'NodoSur brings together the systems he designs and maintains: Stoky (his most mature product, an ERP/POS for small businesses), NodoFit, and ARCA fiscal invoicing (also including the Inmotuls and Credituls systems) — all with real paying users, deployed on self-managed cloud infrastructure. They took shape in parallel with his last salaried role, not after leaving it. Today they are his main occupation, with real full-time availability to join a team.',
       highlights: [
         'Active development and maintenance of SaaS platforms like NodoFit and client systems (Seiton Motors, Satori Dojo).',
         'Integration with ARCA (ex AFIP) fiscal webservices for automated electronic invoicing with human validation in the loop.',
-        'Half-day commercial operation at Don Pizza Rosario acting as a real-world Living Lab to validate mobile UX and kitchen dispatch under rush hours.',
+        'Operational and technical support at Don Pizza Rosario: syncing the delivery app with the in-house system, while also serving as a real-world Living Lab to validate mobile UX and rush-hour orders.',
         'Over a decade as an International Taekwondo ITF Instructor (leadership and pedagogy) and Philosophy undergraduate student at UNR (critical thinking and ethics).'
       ],
       transferableSkill: 'Production software architecture, the ability to ship and sustain reliable systems, leadership, and ethical discipline.'
     },
     {
-      period: '2024 — 2025',
+      period: 'May 2024 — Oct 2025',
       badge: 'Healthcare & Logistics',
       title: 'Healthcare Management, Audit & Automation',
-      organization: 'Sanatorio Delta · Sanatorio Centro (Aurea MED) · Repuestos JL',
-      summary: 'Admissions, scheduling, and billing in high-demand healthcare (Sanatorio Delta, Sanatorio Centro), seeing firsthand the paper-based bureaucracy and billing errors of legacy systems. That real friction confirmed his contribution belonged in automation, not manual execution. In parallel, running logistics and finance at Repuestos JL, he built a Python bot that parses heterogeneous bank statements and settles VAT in seconds — the technical seed of what is now NodoSur.',
+      organization: 'Sanatorio Delta · Aurea Med S.A. · Repuestos JL',
+      summary: 'Admissions, scheduling, and billing in high-demand healthcare (Sanatorio Delta, Aurea Med), seeing firsthand the paper-based bureaucracy and billing errors of legacy systems. That real friction confirmed his contribution belonged in automation, not manual execution. Afterward, running logistics and finance at Repuestos JL, he built a Python bot that parses heterogeneous bank statements and settles VAT in seconds — the technical seed of what is now NodoSur, which started taking shape in parallel, in those same months.',
       highlights: [
-        'Oncology patient admissions, laboratory reception, medical coding (national healthcare nomenclature), and Algoritmo system administration.',
-        'Warehouse dispatch, wholesale inventory control, and payment processing at Repuestos JL.',
+        'Admissions, medical scheduling, and billing with the Algoritmo system at Sanatorio Delta, in a high-demand environment.',
+        'Patient, scheduling, and billing management with DATATECH at Aurea Med S.A.',
+        'Merchandise dispatch, inventory control, and billing at Repuestos JL, through to collections.',
         'Developed a Python automated bank PDF parser: detects VAT rates and summarizes transactions for accounting reconciliations in seconds, replacing hours of manual work.'
       ],
       transferableSkill: 'Medical and financial auditing, Python process automation, and continuous improvement initiative.'
     },
     {
-      period: '2015 — 2024',
+      period: 'Dec 2015 — Mar 2024',
       badge: 'Infrastructure & Public Sector',
       title: 'Critical Infrastructure & Large-Scale Operations',
       organization: 'ANSES (National Social Security Administration)',
@@ -125,34 +127,35 @@ export const experienceData: Record<Lang, Milestone[]> = {
   ],
   pt: [
     {
-      period: '2025 — Presente',
+      period: 'Jun 2025 — Presente',
       badge: 'Produção & Consultoria',
       title: 'Sistemas em Produção, Docência & Filosofia',
       organization: 'NodoSur · Don Pizza Rosario · Filosofia (UNR) · Taekwondo ITF',
-      summary: 'A NodoSur reúne os sistemas que projeta e mantém: Stoky (seu produto mais maduro, um ERP/POS para comércios), NodoFit e a faturação fiscal com ARCA, todos com usuários reais pagando e hospedados em infraestrutura cloud própria — tomaram forma em paralelo enquanto trabalhava em vínculo empregatício, não depois de sair dele. Ao mesmo tempo, sustenta mais de uma década como Professor Internacional de Taekwondo ITF e cursa Filosofia na UNR.',
+      summary: 'A NodoSur reúne os sistemas que projeta e mantém: Stoky (seu produto mais maduro, um ERP/POS para comércios), NodoFit e a faturação fiscal com ARCA (inclui também os sistemas Inmotuls e Credituls), todos com usuários reais pagando e hospedados em infraestrutura cloud própria — tomaram forma em paralelo com seu último vínculo empregatício, não depois de sair dele. Hoje são sua ocupação principal, com disponibilidade full-time real para ingressar em uma equipe.',
       highlights: [
         'Desenvolvimento e manutenção ativa de plataformas SaaS como NodoFit e sistemas para clientes (Seiton Motors, Satori Dojo).',
         'Integração fiscal com webservices da ARCA (ex AFIP) para emissão de notas fiscais com validação humana.',
-        'Atuação comercial em Don Pizza Rosario como Living Lab para testar UX móvel, estoque e pedidos em horário de pico.',
+        'Suporte operacional e tecnológico na Don Pizza Rosario: sincronização do app de delivery com o sistema próprio do local, além de funcionar como Living Lab para testar UX móvel e pedidos em horário de pico.',
         'Mais de uma década como Professor Internacional de Taekwondo ITF (disciplina e liderança) e estudante de Filosofia na UNR.'
       ],
       transferableSkill: 'Arquitetura de software em produção, capacidade de entregar e sustentar sistemas confiáveis, liderança e ética.'
     },
     {
-      period: '2024 — 2025',
+      period: 'Mai 2024 — Out 2025',
       badge: 'Saúde & Logística',
       title: 'Gestão Hospitalar, Auditoria & Automação',
-      organization: 'Sanatorio Delta · Sanatorio Centro (Aurea MED) · Repuestos JL',
-      summary: 'Admissão, agendamento e faturamento em saúde de alta demanda (Sanatorio Delta, Sanatorio Centro), vendo de perto a burocracia em papel e os erros de faturamento de sistemas ultrapassados. Essa fricção real confirmou que sua contribuição estava em automatizar, não em executar tarefas manuais. Em paralelo, na logística e finanças da Repuestos JL, construiu um bot em Python que lê extratos bancários heterogêneos e liquida impostos em segundos — a semente técnica do que hoje é a NodoSur.',
+      organization: 'Sanatorio Delta · Aurea Med S.A. · Repuestos JL',
+      summary: 'Admissão, agendamento e faturamento em saúde de alta demanda (Sanatorio Delta, Aurea Med), vendo de perto a burocracia em papel e os erros de faturamento de sistemas ultrapassados. Essa fricção real confirmou que sua contribuição estava em automatizar, não em executar tarefas manuais. Depois, na logística e finanças da Repuestos JL, construiu um bot em Python que lê extratos bancários heterogêneos e liquida impostos em segundos — a semente técnica do que hoje é a NodoSur, que começou a tomar forma em paralelo, nos mesmos meses.',
       highlights: [
-        'Admissão oncológica, recepção de exames laboratoriais, faturamento médico e operação do sistema Algoritmo.',
-        'Expedição de mercadorias, controle de estoque e cobrança em Repuestos JL.',
+        'Admissão, agendamento médico e faturamento com o sistema Algoritmo no Sanatorio Delta, em ambiente de alta demanda.',
+        'Gestão de pacientes, agendamento e faturamento com DATATECH na Aurea Med S.A.',
+        'Expedição de mercadorias, controle de estoque e faturamento em Repuestos JL, até o recebimento.',
         'Desenvolvimento em Python de um bot leitor de extratos bancários em PDF: identifica alíquotas de imposto e totaliza conciliações contábeis em segundos.'
       ],
       transferableSkill: 'Auditoria hospitalar e contábil, automação em Python e visão pragmática de processos.'
     },
     {
-      period: '2015 — 2024',
+      period: 'Dez 2015 — Mar 2024',
       badge: 'Infraestrutura & Setor Público',
       title: 'Infraestrutura Crítica & Operação em Larga Escala',
       organization: 'ANSES (Previdência Social Nacional)',
