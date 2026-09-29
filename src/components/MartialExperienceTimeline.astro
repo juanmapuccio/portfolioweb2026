@@ -276,6 +276,16 @@ const data = martialExperienceData[lang];
             if (headerBeltSwatch) headerBeltSwatch.style.backgroundColor = '#1c1a17';
             if (headerGupText) headerGupText.textContent = '1º dan';
             if (headerProgressBar) headerProgressBar.style.backgroundColor = '#1c1a17';
+          } else {
+            // Restore previous belt (rojo - stageBlocks[stageBlocks.length - 1])
+            const lastStage = stageBlocks[stageBlocks.length - 1];
+            if (lastStage && headerBeltSwatch && headerGupText && headerProgressBar) {
+              const prevColor = lastStage.dataset.beltColor || 'oklch(0.56 0.17 28)';
+              const prevLine = lastStage.dataset.beltLine || prevColor;
+              headerBeltSwatch.style.backgroundColor = prevColor;
+              headerGupText.textContent = lastStage.dataset.gup || '2º gup';
+              headerProgressBar.style.backgroundColor = prevLine;
+            }
           }
         }
       });
