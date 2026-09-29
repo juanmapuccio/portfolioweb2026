@@ -23,9 +23,6 @@
   --accent-amber: oklch(0.84 0.15 90);   /* Fricción y alertas de negocio */
   --shadow-card: 0 4px 20px rgba(28, 26, 23, 0.04);
 
-  --qr-bg: #ffffff;
-  --qr-fg: #1c1a17;
-
   --max-width: 1600px;
   --radius-sm: 0px;
   --radius-md: 0px;
@@ -70,8 +67,6 @@ html[data-theme='dark'] {
   /* La polaridad NO se invierte en oscuro. El fondo baja apenas a un
      blanco roto para no deslumbrar en el tema EyeCare, conservando un
      contraste muy por encima del mínimo que necesita un lector. */
-  --qr-bg: #f2f4f7;
-  --qr-fg: #12161c;
 }
 
 *, *::before, *::after {

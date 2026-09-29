@@ -55,7 +55,7 @@ const auto = automationsContent[lang];
                   target="_blank" 
                   rel="noopener noreferrer" 
                   class="project-live-link"
-                  aria-label={`Ver ${pr.name} en vivo`}
+                  aria-label={lang === 'es' ? `Ver ${pr.name} en vivo` : lang === 'en' ? `Visit ${pr.name} live` : `Ver ${pr.name} ao vivo`}
                 >
                   <span>{lang === 'es' ? 'Ver en vivo' : lang === 'en' ? 'Visit live' : 'Ver ao vivo'} ↗</span>
                 </a>
@@ -91,15 +91,15 @@ const auto = automationsContent[lang];
                     
                     <div class="blueprint-metric-grid">
                       <div class="blueprint-metric-card">
-                        <span class="metric-label">{lang === 'es' ? 'DISPONIBILIDAD' : 'UPTIME'}</span>
+                        <span class="metric-label">{lang === 'es' ? 'DISPONIBILIDAD' : lang === 'en' ? 'UPTIME' : 'DISPONIBILIDADE'}</span>
                         <span class="metric-val">99.98%</span>
                       </div>
                       <div class="blueprint-metric-card">
-                        <span class="metric-label">{lang === 'es' ? 'LATENCIA CORE' : 'CORE LATENCY'}</span>
+                        <span class="metric-label">{lang === 'es' ? 'LATENCIA CORE' : lang === 'en' ? 'CORE LATENCY' : 'LATÊNCIA CORE'}</span>
                         <span class="metric-val">&lt; 45ms</span>
                       </div>
                       <div class="blueprint-metric-card">
-                        <span class="metric-label">{lang === 'es' ? 'INFRAESTRUCTURA' : 'INFRA'}</span>
+                        <span class="metric-label">{lang === 'es' ? 'INFRAESTRUCTURA' : lang === 'en' ? 'INFRA' : 'INFRAESTRUTURA'}</span>
                         <span class="metric-val">{pr.tech[0]}</span>
                       </div>
                     </div>

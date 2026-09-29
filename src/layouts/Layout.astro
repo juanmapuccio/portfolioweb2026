@@ -3,6 +3,7 @@ import '../styles/global.css';
 import type { Lang } from '../i18n/ui';
 import { languages } from '../i18n/ui';
 import { CV_URL } from '../data/contact';
+import BeltKnot from '../components/BeltKnot.astro';
 
 interface Props {
   title: string;
@@ -11,6 +12,11 @@ interface Props {
 }
 
 const { title, description, lang = 'es' } = Astro.props;
+
+const siteUrl = (Astro.site ?? new URL('https://juanpuccio.vercel.app')).toString().replace(/\/$/, '');
+const localePaths: Record<Lang, string> = { es: '/', en: '/en/', pt: '/pt/' };
+const ogLocales: Record<Lang, string> = { es: 'es_AR', en: 'en_US', pt: 'pt_BR' };
+const canonicalUrl = siteUrl + localePaths[lang];
 ---
 
 <!doctype html>
@@ -25,12 +31,19 @@ const { title, description, lang = 'es' } = Astro.props;
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:locale" content={ogLocales[lang]} />
+    <link rel="canonical" href={canonicalUrl} />
+    {Object.keys(localePaths).map((code) => (
+      <link rel="alternate" hreflang={code} href={siteUrl + localePaths[code as Lang]} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={siteUrl + localePaths.es} />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <!-- Google Fonts: Source Serif 4, Hanken Grotesk, IBM Plex Mono (Claude Design Aesthetic) -->
+    <!-- Google Fonts: Source Serif 4, Hanken Grotesk, IBM Plex Mono, Noto Sans KR for hangul (Claude Design Aesthetic) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..700;1,300..700&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..700;1,300..700&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Noto+Sans+KR:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&display=swap" rel="stylesheet" />
 
     <!-- Script inline: Claro por defecto absoluto a menos que el usuario haya elegido 'dark' explícitamente -->
     <script is:inline>
@@ -54,8 +67,9 @@ const { title, description, lang = 'es' } = Astro.props;
   <body>
     <header class="site-header">
       <div class="header-inner">
-        <a href={lang === 'es' ? '#top' : `/${lang}#top`} class="brand-title">
-          Juan Manuel Puccio
+        <a href={lang === 'es' ? '#top' : `/${lang}#top`} class="brand-title" aria-label="Juan Manuel Puccio">
+          <BeltKnot class="brand-knot" label="JMP" />
+          <span class="brand-name">Juan Manuel Puccio</span>
         </a>
 
         <div class="header-right-group">
@@ -66,13 +80,16 @@ const { title, description, lang = 'es' } = Astro.props;
           </div>
 
           <!-- Selector de idioma compacto -->
-          <div class="lang-switch-minimal">
+          <div class="lang-switch-minimal" role="group" aria-label={lang === 'es' ? 'Idioma' : lang === 'en' ? 'Language' : 'Idioma'}>
             {Object.entries(languages).map(([code]) => {
               const targetPath = code === 'es' ? '/' : `/${code}`;
               const isActive = code === lang;
               return (
-                <a 
-                  href={targetPath} 
+                <a
+                  href={targetPath}
+                  hreflang={code}
+                  lang={code}
+                  aria-current={isActive ? 'page' : undefined}
                   class:list={['lang-min-link', { active: isActive }]}
                 >
                   {code.toUpperCase()}
@@ -96,16 +113,14 @@ const { title, description, lang = 'es' } = Astro.props;
     </main>
 
     <script>
-      const toggle = document.getElementById('theme-toggle');
-      toggle?.addEventListener('click', () => {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        if (isDark) {
-          document.documentElement.removeAttribute('data-theme');
-          localStorage.setItem('theme', 'light');
-        } else {
-          document.documentElement.setAttribute('data-theme', 'dark');
-          localStorage.setItem('theme', 'dark');
-        }
+      // Keep the current #hash when switching language.
+      document.querySelectorAll<HTMLAnchorElement>('.lang-min-link').forEach((link) => {
+        link.addEventListener('click', () => {
+          if (location.hash) {
+            const base = link.getAttribute('href')?.split('#')[0] ?? '';
+            link.setAttribute('href', base + location.hash);
+          }
+        });
       });
     </script>
 
@@ -173,6 +188,9 @@ const { title, description, lang = 'es' } = Astro.props;
   }
 
   .brand-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
     font-family: var(--font-serif, 'Source Serif 4', serif);
     font-size: 19px;
     letter-spacing: -0.01em;
@@ -184,6 +202,21 @@ const { title, description, lang = 'es' } = Astro.props;
 
   .brand-title:hover {
     opacity: 0.7;
+  }
+
+  .brand-title :global(.brand-knot) {
+    width: 44px;
+    height: auto;
+    color: #1c1a17;
+    --knot-fill: #1c1a17;
+    --knot-stroke: #1c1a17;
+    --knot-label: #f2eee6;
+  }
+
+  @media (max-width: 640px) {
+    .brand-name {
+      display: none;
+    }
   }
 
   .header-right-group {
@@ -257,20 +290,6 @@ const { title, description, lang = 'es' } = Astro.props;
     width: 0%;
     background: #bdb4a4;
     transition: background 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
-  }
-
-  .theme-toggle-btn:hover {
-    background: var(--bg-surface-elevated);
-    border-color: var(--border-strong);
-    transform: translateY(-1px);
-  }
-
-  /* Control de iconos sol/luna según data-theme */
-  :global(html:not([data-theme='dark'])) .dark-icon {
-    display: none;
-  }
-  :global(html[data-theme='dark']) .light-icon {
-    display: none;
   }
 
   .lang-switch {
