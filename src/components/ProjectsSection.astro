@@ -1,7 +1,7 @@
 ---
 import type { Lang } from '../i18n/ui';
 import { projectsContent, automationsContent } from '../data/projects';
-import { ExternalLink, Terminal, ShieldCheck, Zap } from 'lucide-astro';
+import { ShieldCheck, Zap } from 'lucide-astro';
 import ArchitectureDiagram from './ArchitectureDiagram.astro';
 
 interface Props {
@@ -11,13 +11,6 @@ interface Props {
 const { lang } = Astro.props;
 const projects = projectsContent[lang];
 const auto = automationsContent[lang];
-
-const projectImages: Record<string, string> = {
-  nodosur: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80',
-  nodofit: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80',
-  satori: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1200&q=80',
-  donpizza: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80',
-};
 ---
 
 <section id="proyectos" class="projects-scrolly-section">
@@ -43,7 +36,6 @@ const projectImages: Record<string, string> = {
     {projects.map((pr, index) => {
       const num = String(index + 1).padStart(2, '0');
       const total = String(projects.length).padStart(2, '0');
-      const imgSrc = projectImages[pr.id] || projectImages.nodosur;
 
       return (
         <div class="project-scene" data-project-scene id={`project-scene-${pr.id}`}>
@@ -70,21 +62,66 @@ const projectImages: Record<string, string> = {
               </div>
             </header>
 
-            <!-- Grid: Screenshot + Scrollytelling de Fricción / Solución / Impacto -->
+            <!-- Grid: Technical Mockup UI + Scrollytelling de Fricción / Solución / Impacto -->
             <div class="project-grid-main">
-              <!-- Visual Mockup / Screenshot -->
+              <!-- Technical Wireframe / Blueprint Display -->
               <div class="project-visual-col">
-                <div class="mockup-frame">
-                  <img 
-                    src={imgSrc} 
-                    alt={`Screenshot ${pr.name}`} 
-                    class="project-screenshot-img"
-                    loading="lazy"
-                  />
-                  <div class="screen-overlay-multiply"></div>
+                <div class="mockup-frame technical-blueprint">
+                  <div class="blueprint-window-header">
+                    <div class="window-controls">
+                      <span class="dot-ctrl"></span>
+                      <span class="dot-ctrl"></span>
+                      <span class="dot-ctrl"></span>
+                    </div>
+                    <div class="window-title-address">
+                      <span class="address-lock">🔒</span>
+                      <span class="address-text">{pr.url.replace('https://', '')}</span>
+                    </div>
+                    <div class="window-status-pill">
+                      <span class="pulse-dot"></span>
+                      <span>HTTP 200 OK</span>
+                    </div>
+                  </div>
+
+                  <div class="blueprint-inner-body">
+                    <div class="blueprint-sys-meta">
+                      <span class="sys-id">SYSTEM_ID // {pr.id.toUpperCase()}_CORE</span>
+                      <span class="sys-env">ENV: PRODUCTION</span>
+                    </div>
+                    
+                    <div class="blueprint-metric-grid">
+                      <div class="blueprint-metric-card">
+                        <span class="metric-label">{lang === 'es' ? 'DISPONIBILIDAD' : 'UPTIME'}</span>
+                        <span class="metric-val">99.98%</span>
+                      </div>
+                      <div class="blueprint-metric-card">
+                        <span class="metric-label">{lang === 'es' ? 'LATENCIA CORE' : 'CORE LATENCY'}</span>
+                        <span class="metric-val">&lt; 45ms</span>
+                      </div>
+                      <div class="blueprint-metric-card">
+                        <span class="metric-label">{lang === 'es' ? 'INFRAESTRUCTURA' : 'INFRA'}</span>
+                        <span class="metric-val">{pr.tech[0]}</span>
+                      </div>
+                    </div>
+
+                    <div class="blueprint-terminal-box">
+                      <div class="terminal-line"><span class="cmd-prompt">&gt;</span> <span class="cmd-run">target --verify</span> <span class="cmd-arg">{pr.name}</span></div>
+                      <div class="terminal-line text-muted">&gt; status: active · automated checks passing</div>
+                      <div class="terminal-line text-highlight">&gt; scope: {pr.category}</div>
+                    </div>
+
+                    <div class="blueprint-circuit-grid">
+                      <div class="circuit-node">NODE_01: API_ROUTER [READY]</div>
+                      <div class="circuit-divider"></div>
+                      <div class="circuit-node">NODE_02: DB_PERSISTENCE [SYNC]</div>
+                      <div class="circuit-divider"></div>
+                      <div class="circuit-node">NODE_03: BUSINESS_RULES [LIVE]</div>
+                    </div>
+                  </div>
+
                   <div class="screen-tag">
                     <span class="pulse-dot"></span>
-                    <span>ONLINE · {pr.id}.dev</span>
+                    <span>ACTIVE · {pr.id}</span>
                   </div>
                 </div>
               </div>
@@ -400,27 +437,154 @@ const projectImages: Record<string, string> = {
   .mockup-frame {
     position: relative;
     width: 100%;
-    height: clamp(260px, 45vh, 480px);
-    background: rgba(242, 238, 230, 0.05);
+    min-height: clamp(280px, 46vh, 480px);
+    background: #141210;
     border: 1px solid rgba(242, 238, 230, 0.16);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
   }
 
-  .project-screenshot-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: grayscale(1) contrast(1.08);
-    display: block;
+  .technical-blueprint {
+    font-family: var(--font-mono, monospace);
   }
 
-  .screen-overlay-multiply {
-    position: absolute;
-    inset: 0;
-    background: #1c1a17;
-    opacity: 0.25;
-    mix-blend-mode: multiply;
-    pointer-events: none;
+  .blueprint-window-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 1rem;
+    background: rgba(242, 238, 230, 0.04);
+    border-bottom: 1px solid rgba(242, 238, 230, 0.1);
+  }
+
+  .window-controls {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .dot-ctrl {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(242, 238, 230, 0.2);
+  }
+
+  .window-title-address {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.72rem;
+    color: #b3ab9d;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    border: 1px solid rgba(242, 238, 230, 0.08);
+  }
+
+  .window-status-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.68rem;
+    color: #34d399;
+  }
+
+  .blueprint-inner-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    flex: 1;
+  }
+
+  .blueprint-sys-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.68rem;
+    color: #8c8375;
+    letter-spacing: 0.05em;
+    border-bottom: 1px dashed rgba(242, 238, 230, 0.1);
+    padding-bottom: 0.5rem;
+  }
+
+  .blueprint-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+  }
+
+  .blueprint-metric-card {
+    background: rgba(242, 238, 230, 0.02);
+    border: 1px solid rgba(242, 238, 230, 0.08);
+    padding: 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .metric-label {
+    font-size: 0.6rem;
+    color: #8c8375;
+    letter-spacing: 0.06em;
+  }
+
+  .metric-val {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #f2eee6;
+  }
+
+  .blueprint-terminal-box {
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(242, 238, 230, 0.08);
+    padding: 0.85rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.72rem;
+  }
+
+  .cmd-prompt {
+    color: #e27d60;
+  }
+
+  .cmd-run {
+    color: #f2eee6;
+  }
+
+  .cmd-arg {
+    color: #34d399;
+  }
+
+  .text-muted {
+    color: #8c8375;
+  }
+
+  .text-highlight {
+    color: #e6b89c;
+  }
+
+  .blueprint-circuit-grid {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.65rem;
+    color: #71695d;
+  }
+
+  .circuit-node {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .circuit-divider {
+    height: 1px;
+    background: rgba(242, 238, 230, 0.06);
+    margin: 0.1rem 0;
   }
 
   .screen-tag {
