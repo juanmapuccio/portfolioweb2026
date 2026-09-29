@@ -594,12 +594,13 @@ const data = martialExperienceData[lang];
     position: absolute;
     left: clamp(20px, 5vw, 72px);
     right: clamp(20px, 5vw, 72px);
-    top: calc(50% - 140px);
+    bottom: calc(50% + 20px);
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: baseline;
     gap: 16px;
     pointer-events: none;
+    margin-bottom: 0;
   }
 
   .black-display-label {
@@ -617,7 +618,7 @@ const data = martialExperienceData[lang];
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--text-dim);
-    padding-bottom: 12px;
+    padding-bottom: 0;
   }
 
   .black-reveal-content {
