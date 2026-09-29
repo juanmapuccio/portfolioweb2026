@@ -1,7 +1,6 @@
 ---
 import type { Lang } from '../i18n/ui';
-import { martialExperienceData, BELTS, type MartialStage } from '../data/martialExperience';
-import { Shield, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-astro';
+import { martialExperienceData, BELTS } from '../data/martialExperience';
 
 interface Props {
   lang: Lang;
@@ -168,6 +167,7 @@ const data = martialExperienceData[lang];
     // Header elements sync
     const headerBeltSwatch = document.getElementById('header-belt-indicator');
     const headerGupText = document.getElementById('header-gup-indicator');
+    const headerProgressBar = document.getElementById('header-scroll-progress');
 
     if (!stageBlocks.length || !monitorGup || !monitorYears || !monitorBeltName || !monitorStrap) {
       return;
@@ -218,12 +218,16 @@ const data = martialExperienceData[lang];
         monitorStrap.style.backgroundColor = color;
       }
 
-      // Sync topbar header indicator
+      // Sync topbar header indicator & scroll progress line color
+      const activeLineColor = line || color;
       if (headerBeltSwatch && color) {
         headerBeltSwatch.style.backgroundColor = color;
       }
       if (headerGupText && gup) {
         headerGupText.textContent = gup;
+      }
+      if (headerProgressBar && activeLineColor) {
+        headerProgressBar.style.backgroundColor = activeLineColor;
       }
 
       // Sync 6 dot bars with opacity: 1 (current), 0.55 (passed), 0.2 (upcoming)
@@ -268,9 +272,10 @@ const data = martialExperienceData[lang];
           blackReveal.style.transform = `translateY(${revealTranslate}px)`;
 
           // When passing into black belt scene, sync header to black belt
-          if (p > 0.4 && headerBeltSwatch && headerGupText) {
-            headerBeltSwatch.style.backgroundColor = '#1c1a17';
-            headerGupText.textContent = '1º dan';
+          if (p > 0.4) {
+            if (headerBeltSwatch) headerBeltSwatch.style.backgroundColor = '#1c1a17';
+            if (headerGupText) headerGupText.textContent = '1º dan';
+            if (headerProgressBar) headerProgressBar.style.backgroundColor = '#1c1a17';
           }
         }
       });
@@ -594,13 +599,12 @@ const data = martialExperienceData[lang];
     position: absolute;
     left: clamp(20px, 5vw, 72px);
     right: clamp(20px, 5vw, 72px);
-    bottom: calc(50% + 20px);
+    top: calc(50% - 150px);
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: flex-end;
     gap: 16px;
     pointer-events: none;
-    margin-bottom: 0;
   }
 
   .black-display-label {
@@ -614,11 +618,11 @@ const data = martialExperienceData[lang];
 
   .black-mono-sub {
     font-family: var(--font-mono, monospace);
-    font-size: 13px;
+    font-size: 12px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--text-dim);
-    padding-bottom: 0;
+    color: #4a463f;
+    padding-bottom: 12px;
   }
 
   .black-reveal-content {
