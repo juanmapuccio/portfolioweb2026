@@ -1,6 +1,8 @@
 ---
 import type { Lang } from '../i18n/ui';
 import { skillsData } from '../data/skills';
+import { principlesData } from '../data/principles';
+import { BELTS } from '../data/martialExperience';
 
 interface Props {
   lang: Lang;
@@ -9,6 +11,8 @@ interface Props {
 const { lang } = Astro.props;
 const data = skillsData[lang];
 const philosophy = [...data.philosophy].reverse();
+const principles = principlesData[lang];
+const sealColor = BELTS.rojo.color;
 ---
 
 <section id="stack-filosofia" class="skills-section">
@@ -20,6 +24,21 @@ const philosophy = [...data.philosophy].reverse();
           {lang === 'es' ? 'La Dimensión Humana & Ética Operativa' : lang === 'en' ? 'The Human Dimension & Operational Ethics' : 'A Dimensão Humana & Ética Operacional'}
         </h2>
       </header>
+
+      <div class="principles" style={`--seal-color: ${sealColor};`}>
+        <p class="principles-label">{principles.label}</p>
+        <ul class="principles-row">
+          {principles.items.map((item) => (
+            <li class="seal-item" style={`--chars: ${Math.max(2, [...item.hangul].length)};`}>
+              <div class="seal-mark" lang="ko" aria-hidden="true">
+                <span class="seal-hangul">{item.hangul}</span>
+              </div>
+              <p class="seal-name">{item.name}</p>
+              <p class="seal-line">{item.line}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <div class="human-rows">
         {philosophy.map((item) => (
@@ -91,6 +110,55 @@ const philosophy = [...data.philosophy].reverse();
     line-height: 0.99;
     text-wrap: balance;
   }
+  .principles { margin-bottom: clamp(2.5rem, 5vw, 5rem); }
+  .principles-label {
+    margin-bottom: 1.5rem;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
+    letter-spacing: 0.11em;
+    color: var(--text-muted);
+  }
+  .principles-row {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: clamp(1rem, 2.5vw, 2.5rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .seal-item {
+    container-type: inline-size;
+    min-width: 0;
+  }
+  .seal-mark {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    border: 2px solid var(--seal-color);
+    color: var(--seal-color);
+  }
+  .seal-hangul {
+    font-family: 'Noto Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    font-weight: 700;
+    font-size: calc(72cqi / var(--chars));
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .seal-name {
+    margin-top: 1rem;
+    font-family: var(--font-sans, sans-serif);
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .seal-line {
+    margin-top: 0.4rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
   .human-rows { border-top: 1px solid var(--border-strong); }
   .human-row {
     display: grid;
@@ -174,6 +242,19 @@ const philosophy = [...data.philosophy].reverse();
   @media (max-width: 1000px) {
     .skills-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 2.5rem; }
     .skill-title { min-height: 0; }
+  }
+  @media (max-width: 900px) {
+    .principles-row {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 0.5rem;
+    }
+    .seal-item {
+      flex: 0 0 min(62vw, 14rem);
+      scroll-snap-align: start;
+    }
   }
   @media (max-width: 680px) {
     .human-row { grid-template-columns: 1fr; gap: 1.5rem; }
