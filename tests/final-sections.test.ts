@@ -5,9 +5,14 @@ import { skillsData } from '../src/data/skills';
 
 const skillsComponent = await readFile(new URL('../src/components/SkillsPhilosophySection.astro', import.meta.url), 'utf8');
 const contactComponent = await readFile(new URL('../src/components/ContactSection.astro', import.meta.url), 'utf8');
+const homePage = await readFile(new URL('../src/components/HomePage.astro', import.meta.url), 'utf8');
 const layout = await readFile(new URL('../src/layouts/Layout.astro', import.meta.url), 'utf8');
 
 describe('final portfolio sections', () => {
+  test('moves directly from the technology stack to contact', () => {
+    expect(homePage).not.toContain('EducationSection');
+  });
+
   test('keeps both Spanish human-dimension entries with their exact copy and quotes', () => {
     const { philosophy } = skillsData.es;
     expect(philosophy).toHaveLength(2);
