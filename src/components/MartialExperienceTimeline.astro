@@ -27,7 +27,7 @@ const data = martialExperienceData[lang];
           <span id="monitor-gup">10º gup</span> · <span id="monitor-years">2011</span>
         </span>
 
-        <h3 class="belt-display-name" id="monitor-belt-name">Cinturón blanco</h3>
+        <h3 class="belt-display-name" id="monitor-belt-name">{BELTS.blanco.beltName[lang]}</h3>
 
         <!-- Barra de tela de 72px con textura rayada y transición de color suave -->
         <div class="belt-strap" id="monitor-strap"></div>
@@ -41,7 +41,7 @@ const data = martialExperienceData[lang];
                 class="belt-dot-bar"
                 data-belt-step={stage.beltKey}
                 style={`--dot-color: ${belt.color};`}
-                title={`${belt.beltName} (${stage.years})`}
+                title={`${belt.beltName[lang]} (${stage.years})`}
               />
             );
           })}
@@ -68,17 +68,19 @@ const data = martialExperienceData[lang];
             data-stage-index={index}
             data-belt-key={stage.beltKey}
             data-gup={belt.gup}
-            data-belt-name={belt.beltName}
+            data-belt-name={belt.beltName[lang]}
             data-years={stage.years}
             data-belt-color={belt.color}
             data-belt-line={belt.line}
+            style={`--chapter-tint: ${belt.color};`}
           >
             <div class="stage-intro-header" data-reveal>
               <div class="stage-badge-tag">
                 <span class="belt-badge-swatch" style={`background-color: ${belt.color};`}></span>
-                <span class="belt-badge-text">{belt.gup} · {belt.beltName} · {stage.years}</span>
+                <span class="belt-badge-text">{belt.gup} · {belt.beltName[lang]} · {stage.years}</span>
               </div>
               <h3 class="stage-main-title">{stage.title}</h3>
+              <p class="stage-symbolism">{belt.symbolism[lang]}</p>
               {stage.lede && <p class="stage-editorial-lede">"{stage.lede}"</p>}
             </div>
 
@@ -107,14 +109,14 @@ const data = martialExperienceData[lang];
   </div>
 </section>
 
-  <!-- Escena Pinned de Transición a Cinturón Negro (Claude Design v2) -->
+  <!-- Escena Pinned de Black Belt Transition (Claude Design v2) -->
   <div class="black-belt-scene" id="black-belt-transition" data-black-belt-scene>
     <div class="black-belt-sticky-wrapper">
       <div class="black-expanding-canvas" id="black-canvas"></div>
       
       <!-- Entrada: 2º gup -> 1º dan -->
       <div class="black-pre-text" id="black-pre-text">
-        <span class="black-display-label">Negro</span>
+        <span class="black-display-label">{lang === 'es' ? 'Negro' : lang === 'en' ? 'Black' : 'Preta'}</span>
         <span class="black-mono-sub">2º gup → 1º dan</span>
       </div>
 
@@ -228,6 +230,12 @@ const data = martialExperienceData[lang];
       }
       if (headerProgressBar && activeLineColor) {
         headerProgressBar.style.backgroundColor = activeLineColor;
+      }
+
+      // Shared source of truth for the decorative 3D belt (Belt3D.astro).
+      if (color) {
+        document.documentElement.dataset.activeBeltColor = color;
+        window.dispatchEvent(new CustomEvent('belt:change', { detail: { key, color } }));
       }
 
       // Sync 6 dot bars with opacity: 1 (current), 0.55 (passed), 0.2 (upcoming)
@@ -436,8 +444,15 @@ const data = martialExperienceData[lang];
     flex-direction: column;
   }
 
+  /* Chapter tint: very low-chroma wash of the belt color. Bleeds into the
+     gutter via matching negative margin so text stays aligned. */
   .stage-scroll-block {
-    padding: 14vh 0 10vh;
+    --chapter-bleed: clamp(16px, 2vw, 32px);
+    margin-inline: calc(-1 * var(--chapter-bleed));
+    padding-inline: var(--chapter-bleed);
+    background: color-mix(in oklab, var(--chapter-tint) 7%, transparent);
+    padding-top: 14vh;
+    padding-bottom: 10vh;
     min-height: 90vh;
     display: flex;
     flex-direction: column;
@@ -476,6 +491,17 @@ const data = martialExperienceData[lang];
     line-height: 0.92;
     letter-spacing: -0.04em;
     color: #1c1a17;
+  }
+
+  .stage-symbolism {
+    margin: 0;
+    font-family: var(--font-mono, monospace);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #4a463f;
+    padding-left: 14px;
+    border-left: 3px solid var(--chapter-tint);
   }
 
   .stage-editorial-lede {

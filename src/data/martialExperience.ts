@@ -6,16 +6,17 @@ export interface MartialBelt {
   badgeColor: string;
   line: string;
   gup: string;
-  beltName: string;
+  beltName: Record<Lang, string>;
+  symbolism: Record<Lang, string>;
 }
 
 export const BELTS: Record<string, MartialBelt> = {
-  blanco: { key: 'blanco', color: '#f8f6f0', badgeColor: '#e5e0d3', line: '#bdb4a4', gup: '10º gup', beltName: 'Cinturón blanco' },
-  amarillo: { key: 'amarillo', color: 'oklch(0.84 0.15 90)', badgeColor: 'oklch(0.78 0.15 90)', line: 'oklch(0.78 0.15 90)', gup: '8º gup', beltName: 'Cinturón amarillo' },
-  verde: { key: 'verde', color: 'oklch(0.58 0.12 150)', badgeColor: 'oklch(0.58 0.12 150)', line: 'oklch(0.58 0.12 150)', gup: '6º gup', beltName: 'Cinturón verde' },
-  azul: { key: 'azul', color: 'oklch(0.5 0.13 255)', badgeColor: 'oklch(0.5 0.13 255)', line: 'oklch(0.5 0.13 255)', gup: '4º gup', beltName: 'Cinturón azul' },
-  rojo: { key: 'rojo', color: 'oklch(0.56 0.17 28)', badgeColor: 'oklch(0.56 0.17 28)', line: 'oklch(0.56 0.17 28)', gup: '2º gup', beltName: 'Cinturón rojo' },
-  negro: { key: 'negro', color: '#1c1a17', badgeColor: '#1c1a17', line: '#1c1a17', gup: '1º dan', beltName: 'Cinturón negro' }
+  blanco: { key: 'blanco', color: '#f8f6f0', badgeColor: '#e5e0d3', line: '#bdb4a4', gup: '10º gup', beltName: { es: 'Cinturón blanco', en: 'White belt', pt: 'Faixa branca' }, symbolism: { es: 'Inocencia: todo por aprender.', en: 'Innocence: everything still to learn.', pt: 'Inocência: tudo por aprender.' } },
+  amarillo: { key: 'amarillo', color: 'oklch(0.84 0.15 90)', badgeColor: 'oklch(0.78 0.15 90)', line: 'oklch(0.78 0.15 90)', gup: '8º gup', beltName: { es: 'Cinturón amarillo', en: 'Yellow belt', pt: 'Faixa amarela' }, symbolism: { es: 'Tierra y raíces: donde empieza a crecer.', en: 'Earth and roots: where growth begins.', pt: 'Terra e raízes: onde o crescimento começa.' } },
+  verde: { key: 'verde', color: 'oklch(0.58 0.12 150)', badgeColor: 'oklch(0.58 0.12 150)', line: 'oklch(0.58 0.12 150)', gup: '6º gup', beltName: { es: 'Cinturón verde', en: 'Green belt', pt: 'Faixa verde' }, symbolism: { es: 'Crecimiento: la planta toma forma.', en: 'Growth: the plant takes shape.', pt: 'Crescimento: a planta ganha forma.' } },
+  azul: { key: 'azul', color: 'oklch(0.5 0.13 255)', badgeColor: 'oklch(0.5 0.13 255)', line: 'oklch(0.5 0.13 255)', gup: '4º gup', beltName: { es: 'Cinturón azul', en: 'Blue belt', pt: 'Faixa azul' }, symbolism: { es: 'Cielo: hacia dónde apunta lo aprendido.', en: 'Heaven: where learning points to.', pt: 'Céu: para onde aponta o aprendizado.' } },
+  rojo: { key: 'rojo', color: 'oklch(0.56 0.17 28)', badgeColor: 'oklch(0.56 0.17 28)', line: 'oklch(0.56 0.17 28)', gup: '2º gup', beltName: { es: 'Cinturón rojo', en: 'Red belt', pt: 'Faixa vermelha' }, symbolism: { es: 'Cautela y control: saber cuándo frenar.', en: 'Caution and control: knowing when to hold back.', pt: 'Cautela e controle: saber quando frear.' } },
+  negro: { key: 'negro', color: '#1c1a17', badgeColor: '#1c1a17', line: '#1c1a17', gup: '1º dan', beltName: { es: 'Cinturón negro', en: 'Black belt', pt: 'Faixa preta' }, symbolism: { es: 'Madurez: la calma de quien ya no necesita demostrar.', en: 'Maturity: the calm of no longer needing to prove.', pt: 'Maturidade: a calma de quem não precisa provar.' } }
 };
 
 export interface MartialPosition {

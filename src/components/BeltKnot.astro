@@ -1,0 +1,48 @@
+---
+interface Props {
+  /** Optional monogram rendered inside the band block. */
+  label?: string;
+  class?: string;
+}
+
+const { label, class: className } = Astro.props;
+---
+
+<svg
+  class:list={['belt-knot', className]}
+  viewBox="0 0 120 100"
+  xmlns="http://www.w3.org/2000/svg"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+  focusable="false"
+>
+  <polygon class="knot-shape" points="50,52 22,96 44,98 68,56" />
+  <polygon class="knot-shape" points="70,52 98,96 76,98 52,56" />
+  <rect class="knot-shape" x="22" y="12" width="76" height="46" />
+  {label && (
+    <text class="knot-label" x="60" y="43" text-anchor="middle">{label}</text>
+  )}
+</svg>
+
+<style>
+  .belt-knot {
+    display: block;
+    overflow: visible;
+  }
+
+  .knot-shape {
+    fill: var(--knot-fill, currentColor);
+    stroke: var(--knot-stroke, currentColor);
+    stroke-width: 3;
+    stroke-linejoin: miter;
+  }
+
+  .knot-label {
+    fill: var(--knot-label, var(--bg-primary));
+    font-family: var(--font-mono, monospace);
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+</style>

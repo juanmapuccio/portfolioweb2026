@@ -1,0 +1,378 @@
+---
+// Decorative 3D belt, desktop only. Visible only while the trajectory section (#trayectoria) is on screen.
+// three.js is imported dynamically after desktop + WebGL + motion checks pass.
+---
+
+<div id="belt3d-root" class="belt3d-root" aria-hidden="true" hidden>
+  <canvas id="belt3d-canvas" class="belt3d-canvas" width="340" height="340"></canvas>
+</div>
+
+<style>
+  .belt3d-root {
+    position: fixed;
+    left: 0;
+    bottom: 24px;
+    width: 340px;
+    height: 340px;
+    z-index: 30;
+    pointer-events: none;
+    opacity: 0;
+    transform-origin: 0 100%;
+    will-change: transform, opacity;
+  }
+  .belt3d-root[hidden] {
+    display: none;
+  }
+  .belt3d-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: auto;
+    cursor: grab;
+    touch-action: pan-y;
+  }
+  .belt3d-canvas:active {
+    cursor: grabbing;
+  }
+  @media (max-width: 1023px), (prefers-reduced-motion: reduce) {
+    .belt3d-root {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const SIZE = 340;
+  const STAGE_SCALE = 0.5;
+  const FIT = 2.9;
+  // Orientation of the model so the knot faces the camera (radians x,y,z).
+  const MODEL_ROT: [number, number, number] = [0, 0, 0];
+
+  const root = document.getElementById('belt3d-root') as HTMLElement | null;
+  const canvas = document.getElementById('belt3d-canvas') as HTMLCanvasElement | null;
+  const desktopMq = window.matchMedia('(min-width: 1024px)');
+  const reducedMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  let dispose: (() => void) | null = null;
+  let starting = false;
+
+  function hasWebGL(): boolean {
+    try {
+      const c = document.createElement('canvas');
+      return !!(c.getContext('webgl2') || c.getContext('webgl'));
+    } catch {
+      return false;
+    }
+  }
+
+  function eligible(): boolean {
+    return desktopMq.matches && !reducedMq.matches && hasWebGL();
+  }
+
+  // Resolves any CSS color (including oklch) to an sRGB triple through a 2D canvas.
+  const swatch = document.createElement('canvas');
+  swatch.width = swatch.height = 1;
+  const swatchCtx = swatch.getContext('2d', { willReadFrequently: true });
+  function cssToRgb(css: string): [number, number, number] {
+    if (!swatchCtx) return [0.9, 0.9, 0.9];
+    swatchCtx.clearRect(0, 0, 1, 1);
+    swatchCtx.fillStyle = '#000';
+    swatchCtx.fillStyle = css;
+    swatchCtx.fillRect(0, 0, 1, 1);
+    const d = swatchCtx.getImageData(0, 0, 1, 1).data;
+    return [d[0] / 255, d[1] / 255, d[2] / 255];
+  }
+
+  async function start() {
+    if (dispose || starting || !root || !canvas || !eligible()) return;
+    starting = true;
+    const [THREE, { GLTFLoader }, { RoomEnvironment }] = await Promise.all([
+      import('three'),
+      import('three/examples/jsm/loaders/GLTFLoader.js'),
+      import('three/examples/jsm/environments/RoomEnvironment.js'),
+    ]);
+    starting = false;
+    if (dispose || !eligible()) return;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    renderer.setSize(SIZE, SIZE, false);
+    renderer.setClearColor(0x000000, 0);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.9;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 50);
+    camera.position.set(0, 0.6, 5.6);
+    camera.lookAt(0, 0, 0);
+
+    // Lighting that reads on light and dark pages.
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8478, 0.3));
+    const key = new THREE.DirectionalLight(0xffffff, 0.9);
+    key.position.set(2.5, 3, 4);
+    scene.add(key);
+    const rim = new THREE.DirectionalLight(0xdfe8ff, 0.4);
+    rim.position.set(-3, 2, -3);
+    scene.add(rim);
+
+    const belt = new THREE.Group();
+    belt.position.y = 0.1;
+    scene.add(belt);
+
+    // Environment lighting so sheen and bump detail read.
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04);
+    scene.environment = envRT.texture;
+    scene.environmentIntensity = 0.4;
+
+    // Current tint (kept outside the material so it survives until the model loads).
+    const cur = new THREE.Color(0xf8f6f0);
+    const cloth: Array<InstanceType<typeof THREE.MeshStandardMaterial>> = [];
+    const applyTint = () => {
+      for (const m of cloth) {
+        m.color.copy(cur);
+        const sheen = (m as unknown as { sheenColor?: InstanceType<typeof THREE.Color> }).sheenColor;
+        if (sheen) sheen.copy(cur);
+      }
+    };
+    let alive = true;
+    new GLTFLoader().load(
+      '/models/cinturon-itf.glb',
+      (gltf) => {
+        if (!alive) {
+          disposeTree(gltf.scene);
+          return;
+        }
+        const model = gltf.scene;
+        model.traverse((o) => {
+          const mesh = o as InstanceType<typeof THREE.Mesh>;
+          if (!mesh.isMesh) return;
+          const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+          for (const m of mats) if (m.name === 'belt_cloth' && !cloth.includes(m as never)) cloth.push(m as never);
+        });
+        // Center and fit to the camera framing.
+        const box = new THREE.Box3().setFromObject(model);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        model.position.sub(center);
+        const wrap = new THREE.Group();
+        wrap.add(model);
+        wrap.scale.setScalar(Math.min(FIT / size.x, FIT / size.y));
+        wrap.rotation.set(MODEL_ROT[0], MODEL_ROT[1], MODEL_ROT[2]);
+        belt.add(wrap);
+        loaded = wrap;
+        // Where the visible belt's left edge sits inside the canvas (px), so it can align to the flat belt.
+        wrap.updateMatrixWorld(true);
+        const wb = new THREE.Box3().setFromObject(wrap);
+        const ndc = new THREE.Vector3(wb.min.x, (wb.min.y + wb.max.y) / 2, wb.max.z).project(camera);
+        padLeft = Math.max(0, ((ndc.x + 1) / 2) * SIZE);
+        layout();
+        applyTint();
+      },
+      undefined,
+      () => {
+        if (root) root.hidden = true;
+      }
+    );
+    let padLeft = 0;
+    let loaded: InstanceType<typeof THREE.Group> | null = null;
+    function disposeTree(obj: InstanceType<typeof THREE.Object3D>) {
+      const seen = new Set<unknown>();
+      obj.traverse((o) => {
+        const mesh = o as InstanceType<typeof THREE.Mesh>;
+        if (!mesh.isMesh) return;
+        mesh.geometry?.dispose();
+        const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        for (const m of mats) {
+          if (!m || seen.has(m)) continue;
+          seen.add(m);
+          for (const v of Object.values(m as unknown as Record<string, unknown>)) {
+            if (v && (v as { isTexture?: boolean }).isTexture) (v as { dispose(): void }).dispose();
+          }
+          m.dispose();
+        }
+      });
+    }
+
+    // State driven by GSAP and the render loop.
+    const state = { drag: 0, spin: 0, mix: 1 };
+    const from = new THREE.Color(0xf8f6f0);
+    const to = new THREE.Color(0xf8f6f0);
+    const setTarget = (css: string, animate: boolean) => {
+      const [r, g, b] = cssToRgb(css);
+      from.copy(cur);
+      to.setRGB(r, g, b, THREE.SRGBColorSpace);
+      gsap.killTweensOf(state, 'mix,spin');
+      if (!animate) {
+        cur.copy(to);
+        applyTint();
+        state.mix = 1;
+        return;
+      }
+      state.mix = 0;
+      state.spin = 0;
+      gsap.to(state, { mix: 1, duration: 0.6, ease: 'power2.inOut' });
+      gsap.to(state, { spin: Math.PI * 2, duration: 0.9, ease: 'power2.inOut', onComplete: () => { state.spin = 0; } });
+    };
+
+    // Active belt: same source of truth as the header indicator (CustomEvent from the timeline).
+    let activeColor = document.documentElement.dataset.activeBeltColor || '#f8f6f0';
+    let inBlackScene = false;
+    const applyColor = (animate: boolean) => setTarget(inBlackScene ? '#1c1a17' : activeColor, animate);
+    applyColor(false);
+    const onBelt = (e: Event) => {
+      const c = (e as CustomEvent<{ color?: string }>).detail?.color;
+      if (!c || c === activeColor) return;
+      activeColor = c;
+      if (!inBlackScene) applyColor(true);
+    };
+    window.addEventListener('belt:change', onBelt);
+
+    // Visibility and layout: only inside #trayectoria.
+    const strap = document.getElementById('monitor-strap');
+    // Align the visible 3D belt edge with the flat belt column (recomputed on resize / refresh).
+    const stageX = () => (strap ? strap.getBoundingClientRect().left : 24) - padLeft * STAGE_SCALE;
+    const layout = () => gsap.set(root, { x: stageX() });
+    gsap.set(root, { x: stageX(), scale: STAGE_SCALE * 0.8, opacity: 0 });
+    root!.hidden = false;
+    const show = () => gsap.to(root, { opacity: 1, scale: STAGE_SCALE, duration: 0.5, ease: 'power2.out', overwrite: 'auto' });
+    const hide = () => gsap.to(root, { opacity: 0, scale: STAGE_SCALE * 0.8, duration: 0.4, ease: 'power2.in', overwrite: 'auto' });
+
+    const triggers: ScrollTrigger[] = [];
+    const section = document.getElementById('trayectoria');
+    if (section) {
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: section,
+          start: 'top 60%',
+          end: 'bottom 40%',
+          onToggle: (self) => (self.isActive ? show() : hide()),
+        })
+      );
+      // The trigger is created late (on idle), so sync with the current scroll position.
+      if (triggers[0].isActive) show();
+    }
+    const blackScene = document.querySelector<HTMLElement>('[data-black-belt-scene]');
+    if (blackScene) {
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: blackScene,
+          start: 'top 60%',
+          end: 'bottom top',
+          onToggle: (self) => {
+            inBlackScene = self.isActive;
+            applyColor(true);
+          },
+        })
+      );
+    }
+    const ro = new ResizeObserver(layout);
+    ro.observe(document.documentElement);
+    if (strap) ro.observe(strap);
+    ScrollTrigger.addEventListener('refresh', layout);
+
+    // Drag: rotate Y only, eases back on release. No wheel handling.
+    let dragging = false;
+    let lastX = 0;
+    const onDown = (e: PointerEvent) => {
+      dragging = true;
+      lastX = e.clientX;
+      gsap.killTweensOf(state, 'drag');
+      canvas!.setPointerCapture(e.pointerId);
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!dragging) return;
+      state.drag += (e.clientX - lastX) * 0.012;
+      lastX = e.clientX;
+    };
+    const onUp = (e: PointerEvent) => {
+      if (!dragging) return;
+      dragging = false;
+      if (canvas!.hasPointerCapture(e.pointerId)) canvas!.releasePointerCapture(e.pointerId);
+      const turns = Math.round(state.drag / (Math.PI * 2));
+      state.drag -= turns * Math.PI * 2;
+      gsap.to(state, { drag: 0, duration: 0.9, ease: 'elastic.out(1, 0.6)' });
+    };
+    canvas!.addEventListener('pointerdown', onDown);
+    canvas!.addEventListener('pointermove', onMove);
+    canvas!.addEventListener('pointerup', onUp);
+    canvas!.addEventListener('pointercancel', onUp);
+
+    // Render loop, paused when the tab is hidden.
+    let raf = 0;
+    let t0 = performance.now();
+    let lastT = 0;
+    const frame = () => {
+      raf = requestAnimationFrame(frame);
+      const t = (performance.now() - t0) / 1000;
+      lastT = t;
+      if (state.mix < 1) {
+        cur.copy(from).lerp(to, state.mix);
+        applyTint();
+      }
+      const auto = dragging ? 0 : Math.sin(t * 0.6) * THREE.MathUtils.degToRad(12);
+      belt.rotation.y = state.drag + auto + state.spin;
+      belt.scale.setScalar(1.01 + 0.01 * Math.sin(t * 1.2));
+      renderer.render(scene, camera);
+    };
+    const onVis = () => {
+      cancelAnimationFrame(raf);
+      if (!document.hidden) {
+        t0 = performance.now() - lastT * 1000;
+        raf = requestAnimationFrame(frame);
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
+    raf = requestAnimationFrame(frame);
+
+    dispose = () => {
+      cancelAnimationFrame(raf);
+      document.removeEventListener('visibilitychange', onVis);
+      ro.disconnect();
+      ScrollTrigger.removeEventListener('refresh', layout);
+      window.removeEventListener('belt:change', onBelt);
+      canvas!.removeEventListener('pointerdown', onDown);
+      canvas!.removeEventListener('pointermove', onMove);
+      canvas!.removeEventListener('pointerup', onUp);
+      canvas!.removeEventListener('pointercancel', onUp);
+      triggers.forEach((tr) => tr.kill());
+      gsap.killTweensOf(state);
+      gsap.killTweensOf(root);
+      alive = false;
+      if (loaded) disposeTree(loaded);
+      envRT.dispose();
+      pmrem.dispose();
+      scene.environment = null;
+      renderer.dispose();
+      renderer.forceContextLoss();
+      root!.hidden = true;
+      dispose = null;
+    };
+  }
+
+  function sync() {
+    if (eligible()) {
+      if (!dispose && !starting) start();
+    } else if (dispose) {
+      dispose();
+    }
+  }
+
+  if (root && canvas) {
+    const boot = () => {
+      const ric = (window as unknown as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void }).requestIdleCallback;
+      if (ric) ric(sync, { timeout: 3000 });
+      else setTimeout(sync, 1500);
+    };
+    if (document.readyState === 'complete') boot();
+    else window.addEventListener('load', boot, { once: true });
+    desktopMq.addEventListener('change', sync);
+    reducedMq.addEventListener('change', sync);
+  }
+</script>
