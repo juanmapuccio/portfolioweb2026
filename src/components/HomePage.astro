@@ -1,5 +1,4 @@
 ---
-import QRCode from 'qrcode';
 import Layout from '../layouts/Layout.astro';
 import { CV_URL } from '../data/contact';
 import { useTranslations, type Lang } from '../i18n/ui';
@@ -7,8 +6,8 @@ import ProjectsSection from './ProjectsSection.astro';
 import ManifestoScrollytelling from './ManifestoScrollytelling.astro';
 import MartialExperienceTimeline from './MartialExperienceTimeline.astro';
 import SkillsPhilosophySection from './SkillsPhilosophySection.astro';
-import EducationSection from './EducationSection.astro';
 import ContactSection from './ContactSection.astro';
+import Belt3D from './Belt3D.astro';
 
 interface Props {
   lang: Lang;
@@ -16,18 +15,6 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = useTranslations(lang);
-
-const localePath = lang === 'es' ? '' : `/${lang}`;
-const siteHost = new URL(Astro.site ?? 'https://juanpuccio.vercel.app').host;
-const qrUrl = `https://${siteHost}${localePath}`;
-const qrDisplay = `${siteHost}${localePath}`;
-const qrSvgRaw = await QRCode.toString(qrUrl, { type: 'svg', margin: 1 });
-// Themed via dedicated QR tokens, never the surface/text tokens: those
-// swap polarity in dark mode and would render an inverted (unscannable
-// on many readers) code. See --qr-bg / --qr-fg in global.css.
-const qrSvg = qrSvgRaw
-  .replace(/fill="#ffffff"/g, 'fill="var(--qr-bg)"')
-  .replace(/stroke="#000000"/g, 'stroke="var(--qr-fg)"');
 ---
 
 <Layout
@@ -89,7 +76,7 @@ const qrSvg = qrSvgRaw
       </div>
 
       <div class="hero-belt-track"></div>
-      <div class="hero-scroll-cue">Scroll ↓</div>
+      <div class="hero-scroll-cue">{lang === 'es' ? 'Desplazá' : lang === 'en' ? 'Scroll' : 'Role'} ↓</div>
     </div>
   </section>
 
@@ -105,41 +92,11 @@ const qrSvg = qrSvgRaw
   <!-- Scene 06 & 07: Tech stack, skills & practical philosophy -->
   <SkillsPhilosophySection lang={lang} />
 
-  <!-- Education, Certifications & Continuous Learning -->
-  <EducationSection lang={lang} />
-
   <!-- Scene 08: Contact & call to action -->
   <ContactSection lang={lang} />
 
-  <!-- Accessible native dialog for the QR code -->
-  <dialog id="qr-modal" class="qr-dialog">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>{t('qr.modal.title')}</h3>
-        <button id="close-qr-btn" class="close-btn" aria-label={t('qr.modal.close')}>✕</button>
-      </div>
-      <p class="modal-desc">{t('qr.modal.desc')}</p>
-      <div class="qr-preview">
-        <div class="qr-image" role="img" aria-label={t('qr.modal.title')} set:html={qrSvg} />
-      </div>
-      <div class="modal-actions">
-        <a href={qrUrl} target="_blank" class="direct-link">{qrDisplay}</a>
-      </div>
-    </div>
-  </dialog>
+  <Belt3D />
 </Layout>
-
-<script>
-  const openBtn = document.getElementById('open-qr-btn');
-  const closeBtn = document.getElementById('close-qr-btn');
-  const dialog = document.getElementById('qr-modal') as HTMLDialogElement | null;
-
-  openBtn?.addEventListener('click', () => dialog?.showModal());
-  closeBtn?.addEventListener('click', () => dialog?.close());
-  dialog?.addEventListener('click', (e) => {
-    if (e.target === dialog) dialog.close();
-  });
-</script>
 
 <style>
   .hero-pinned-scene {
@@ -376,95 +333,6 @@ const qrSvg = qrSvgRaw
   .meta-value {
     color: var(--accent-amber);
     font-weight: 600;
-  }
-
-  /* Modal Dialog */
-  .qr-dialog {
-    border: none;
-    background: transparent;
-    padding: 0;
-    max-width: 90vw;
-    /* Restores the centering the UA gives a modal dialog; the global
-       `* { margin: 0 }` reset strips it. */
-    margin: auto;
-    /* The UA stylesheet sets `color: CanvasText` on dialog, an explicit
-       declaration that beats inheritance from the themed ancestors. Left
-       alone it tracks the OS theme instead of ours, rendering near-black
-       text on the dark card. */
-    color: var(--text-main);
-  }
-
-  .qr-dialog::backdrop {
-    background: rgba(10, 12, 16, 0.75);
-    backdrop-filter: blur(8px);
-  }
-
-  .modal-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    width: 320px;
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
-  }
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-  }
-
-  .close-btn {
-    font-size: 1.2rem;
-    color: var(--text-dim);
-  }
-
-  .close-btn:hover {
-    color: var(--text-main);
-  }
-
-  .modal-desc {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin-bottom: 1rem;
-  }
-
-  .qr-preview {
-    display: grid;
-    place-items: center;
-    background: var(--bg-surface-elevated);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    padding: 1rem;
-  }
-
-  .qr-image {
-    display: block;
-    width: 220px;
-    height: 220px;
-    border-radius: var(--radius-sm);
-    /* Light card in both themes, with padding that widens the quiet zone
-       the generator only renders one module wide. */
-    background: var(--qr-bg);
-    padding: 0.5rem;
-  }
-
-  .qr-image :global(svg) {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-
-  .modal-actions {
-    margin-top: 1rem;
-    text-align: center;
-  }
-
-  .direct-link {
-    font-size: 0.85rem;
-    color: var(--accent-cyan);
-    text-decoration: underline;
   }
 
   @media (max-width: 768px) {

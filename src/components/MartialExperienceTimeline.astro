@@ -1,7 +1,6 @@
 ---
 import type { Lang } from '../i18n/ui';
-import { martialExperienceData, BELTS, type MartialStage } from '../data/martialExperience';
-import { Shield, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-astro';
+import { martialExperienceData, BELTS } from '../data/martialExperience';
 
 interface Props {
   lang: Lang;
@@ -28,7 +27,7 @@ const data = martialExperienceData[lang];
           <span id="monitor-gup">10º gup</span> · <span id="monitor-years">2011</span>
         </span>
 
-        <h3 class="belt-display-name" id="monitor-belt-name">Cinturón blanco</h3>
+        <h3 class="belt-display-name" id="monitor-belt-name">{BELTS.blanco.beltName[lang]}</h3>
 
         <!-- Barra de tela de 72px con textura rayada y transición de color suave -->
         <div class="belt-strap" id="monitor-strap"></div>
@@ -42,7 +41,7 @@ const data = martialExperienceData[lang];
                 class="belt-dot-bar"
                 data-belt-step={stage.beltKey}
                 style={`--dot-color: ${belt.color};`}
-                title={`${belt.beltName} (${stage.years})`}
+                title={`${belt.beltName[lang]} (${stage.years})`}
               />
             );
           })}
@@ -69,17 +68,19 @@ const data = martialExperienceData[lang];
             data-stage-index={index}
             data-belt-key={stage.beltKey}
             data-gup={belt.gup}
-            data-belt-name={belt.beltName}
+            data-belt-name={belt.beltName[lang]}
             data-years={stage.years}
             data-belt-color={belt.color}
             data-belt-line={belt.line}
+            style={`--chapter-tint: ${belt.color};`}
           >
             <div class="stage-intro-header" data-reveal>
               <div class="stage-badge-tag">
                 <span class="belt-badge-swatch" style={`background-color: ${belt.color};`}></span>
-                <span class="belt-badge-text">{belt.gup} · {belt.beltName} · {stage.years}</span>
+                <span class="belt-badge-text">{belt.gup} · {belt.beltName[lang]} · {stage.years}</span>
               </div>
               <h3 class="stage-main-title">{stage.title}</h3>
+              <p class="stage-symbolism">{belt.symbolism[lang]}</p>
               {stage.lede && <p class="stage-editorial-lede">"{stage.lede}"</p>}
             </div>
 
@@ -108,14 +109,14 @@ const data = martialExperienceData[lang];
   </div>
 </section>
 
-  <!-- Escena Pinned de Transición a Cinturón Negro (Claude Design v2) -->
+  <!-- Escena Pinned de Black Belt Transition (Claude Design v2) -->
   <div class="black-belt-scene" id="black-belt-transition" data-black-belt-scene>
     <div class="black-belt-sticky-wrapper">
       <div class="black-expanding-canvas" id="black-canvas"></div>
       
       <!-- Entrada: 2º gup -> 1º dan -->
       <div class="black-pre-text" id="black-pre-text">
-        <span class="black-display-label">Negro</span>
+        <span class="black-display-label">{lang === 'es' ? 'Negro' : lang === 'en' ? 'Black' : 'Preta'}</span>
         <span class="black-mono-sub">2º gup → 1º dan</span>
       </div>
 
@@ -168,6 +169,7 @@ const data = martialExperienceData[lang];
     // Header elements sync
     const headerBeltSwatch = document.getElementById('header-belt-indicator');
     const headerGupText = document.getElementById('header-gup-indicator');
+    const headerProgressBar = document.getElementById('header-scroll-progress');
 
     if (!stageBlocks.length || !monitorGup || !monitorYears || !monitorBeltName || !monitorStrap) {
       return;
@@ -218,12 +220,22 @@ const data = martialExperienceData[lang];
         monitorStrap.style.backgroundColor = color;
       }
 
-      // Sync topbar header indicator
+      // Sync topbar header indicator & scroll progress line color
+      const activeLineColor = line || color;
       if (headerBeltSwatch && color) {
         headerBeltSwatch.style.backgroundColor = color;
       }
       if (headerGupText && gup) {
         headerGupText.textContent = gup;
+      }
+      if (headerProgressBar && activeLineColor) {
+        headerProgressBar.style.backgroundColor = activeLineColor;
+      }
+
+      // Shared source of truth for the decorative 3D belt (Belt3D.astro).
+      if (color) {
+        document.documentElement.dataset.activeBeltColor = color;
+        window.dispatchEvent(new CustomEvent('belt:change', { detail: { key, color } }));
       }
 
       // Sync 6 dot bars with opacity: 1 (current), 0.55 (passed), 0.2 (upcoming)
@@ -268,9 +280,20 @@ const data = martialExperienceData[lang];
           blackReveal.style.transform = `translateY(${revealTranslate}px)`;
 
           // When passing into black belt scene, sync header to black belt
-          if (p > 0.4 && headerBeltSwatch && headerGupText) {
-            headerBeltSwatch.style.backgroundColor = '#1c1a17';
-            headerGupText.textContent = '1º dan';
+          if (p > 0.4) {
+            if (headerBeltSwatch) headerBeltSwatch.style.backgroundColor = '#1c1a17';
+            if (headerGupText) headerGupText.textContent = '1º dan';
+            if (headerProgressBar) headerProgressBar.style.backgroundColor = '#1c1a17';
+          } else {
+            // Restore previous belt (rojo - stageBlocks[stageBlocks.length - 1])
+            const lastStage = stageBlocks[stageBlocks.length - 1];
+            if (lastStage && headerBeltSwatch && headerGupText && headerProgressBar) {
+              const prevColor = lastStage.dataset.beltColor || 'oklch(0.56 0.17 28)';
+              const prevLine = lastStage.dataset.beltLine || prevColor;
+              headerBeltSwatch.style.backgroundColor = prevColor;
+              headerGupText.textContent = lastStage.dataset.gup || '2º gup';
+              headerProgressBar.style.backgroundColor = prevLine;
+            }
           }
         }
       });
@@ -421,8 +444,15 @@ const data = martialExperienceData[lang];
     flex-direction: column;
   }
 
+  /* Chapter tint: very low-chroma wash of the belt color. Bleeds into the
+     gutter via matching negative margin so text stays aligned. */
   .stage-scroll-block {
-    padding: 14vh 0 10vh;
+    --chapter-bleed: clamp(16px, 2vw, 32px);
+    margin-inline: calc(-1 * var(--chapter-bleed));
+    padding-inline: var(--chapter-bleed);
+    background: color-mix(in oklab, var(--chapter-tint) 7%, transparent);
+    padding-top: 14vh;
+    padding-bottom: 10vh;
     min-height: 90vh;
     display: flex;
     flex-direction: column;
@@ -461,6 +491,17 @@ const data = martialExperienceData[lang];
     line-height: 0.92;
     letter-spacing: -0.04em;
     color: #1c1a17;
+  }
+
+  .stage-symbolism {
+    margin: 0;
+    font-family: var(--font-mono, monospace);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #4a463f;
+    padding-left: 14px;
+    border-left: 3px solid var(--chapter-tint);
   }
 
   .stage-editorial-lede {
@@ -594,13 +635,12 @@ const data = martialExperienceData[lang];
     position: absolute;
     left: clamp(20px, 5vw, 72px);
     right: clamp(20px, 5vw, 72px);
-    bottom: calc(50% + 20px);
+    top: calc(50% - 150px);
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: flex-end;
     gap: 16px;
     pointer-events: none;
-    margin-bottom: 0;
   }
 
   .black-display-label {
@@ -614,11 +654,11 @@ const data = martialExperienceData[lang];
 
   .black-mono-sub {
     font-family: var(--font-mono, monospace);
-    font-size: 13px;
+    font-size: 12px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--text-dim);
-    padding-bottom: 0;
+    color: #4a463f;
+    padding-bottom: 12px;
   }
 
   .black-reveal-content {
