@@ -35,73 +35,80 @@ const qrSvg = qrSvgRaw
   description={t('meta.description')}
   lang={lang}
 >
-  <section class="hero-section">
-    <div class="container hero-grid">
-      <div class="hero-content" data-reveal="load">
-        <div class="hero-badge">
-          <span class="status-indicator"></span>
-          <span>{t('hero.badge')}</span>
-        </div>
-
-        <h1 class="hero-name">
-          {t('hero.name')}
-        </h1>
-
-        <p class="hero-role">{t('hero.role')}</p>
-
-        <p class="hero-tagline">
-          {t('hero.tagline')}
-        </p>
-
-        <p class="hero-desc">
-          {t('hero.description')}
-        </p>
-
-        <div class="hero-actions">
-          <a href={CV_URL} target="_blank" class="btn btn-primary">
-            {t('hero.btn.cv')}
-          </a>
-          <button class="btn btn-secondary" id="open-qr-btn">
-            {t('hero.btn.qr')}
-          </button>
-        </div>
+  <section id="top" class="hero-pinned-scene">
+    <div class="hero-sticky-container">
+      <div class="hero-top-status-row">
+        <span class="hero-status-pill">
+          <span class="status-dot"></span>
+          <span>{lang === 'es' ? 'Disponible · full-time' : lang === 'en' ? 'Available · full-time' : 'Disponível · full-time'}</span>
+        </span>
+        <span class="hero-location-text">Rosario, Santa Fe, Argentina</span>
       </div>
 
-      <div class="hero-media" data-reveal="load" style="--reveal-delay: 2;">
-        <div class="avatar-card">
-          <img
-            src="/fotojmPerfil.PNG"
-            alt="Juan Manuel Puccio"
-            class="avatar-img"
-            width="320"
-            height="320"
-            loading="eager"
-          />
-          <div class="avatar-meta">
-            <span class="meta-label">{t('hero.avatar.role')}</span>
-            <span class="meta-value">{t('hero.avatar.sub')}</span>
+      <h1 class="hero-headline-name">Juan Manuel<br />Puccio</h1>
+
+      <div class="hero-bottom-grid">
+        <div class="hero-narrative-block">
+          <span class="hero-role-headline">
+            {lang === 'es' ? 'Desarrollador Full Stack — Disponibilidad full-time' : lang === 'en' ? 'Full Stack Developer — Full-time availability' : 'Desenvolvedor Full Stack — Disponibilidade full-time'}
+          </span>
+          <p class="hero-italic-quote">
+            {lang === 'es' ? 'Construyo sistemas que siguen funcionando sin mí.' : lang === 'en' ? 'I build systems that keep working without me.' : 'Construo sistemas que continuam funcionando sem mim.'}
+          </p>
+          <p class="hero-body-claim">
+            {lang === 'es' 
+              ? 'Diseño, despliego y estabilizo software de negocio en producción, con usuarios reales. Esa capacidad de construir sistemas confiables, que siguen funcionando una vez entregados, es la que quiero poner al servicio de un equipo, con dedicación full-time.'
+              : lang === 'en'
+              ? 'I design, deploy, and stabilize production business software with real active users. That capability to build resilient systems that run autonomously after delivery is what I want to bring to an engineering team full-time.'
+              : 'Projeto, implanto e estabilizo software de negócios em produção, com usuários reais. Essa capacidade de construir sistemas confiáveis, que continuam funcionando após a entrega, é o que quero colocar a serviço de uma equipe, com dedicação em tempo integral.'}
+          </p>
+          <div class="hero-buttons-row">
+            <a href={CV_URL} target="_blank" rel="noopener noreferrer" class="hero-btn-dark">
+              {t('hero.btn.cv')}
+            </a>
+            <a href="#contacto" class="hero-btn-outline">
+              {lang === 'es' ? 'Contacto' : lang === 'en' ? 'Contact' : 'Contato'}
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-portrait-col">
+          <div class="portrait-slot">
+            <img
+              src="/fotojmPerfil.PNG"
+              alt="Juan Manuel Puccio"
+              class="portrait-img"
+              loading="eager"
+            />
+          </div>
+          <div class="portrait-caption-row">
+            <span>Fig. 01</span>
+            <span>Rosario, 2026</span>
           </div>
         </div>
       </div>
+
+      <div class="hero-belt-track"></div>
+      <div class="hero-scroll-cue">Scroll ↓</div>
     </div>
   </section>
 
-  <!-- Scene 02: Word-by-word Manifesto Scrollytelling (Claude Design) -->
+  <!-- Scene 02: Word-by-word Manifesto Scrollytelling (Perfil) -->
   <ManifestoScrollytelling lang={lang} />
 
-  <!-- Production bento grid & automations -->
-  <ProjectsSection lang={lang} />
-
-  <!-- Operational & technical martial experience timeline (Taekwondo ITF 10º gup -> 1º dan) -->
+  <!-- Scene 03 & 04: Operational & technical martial experience timeline (Taekwondo ITF 10º gup -> 1º dan Cinturón Negro) -->
   <MartialExperienceTimeline lang={lang} />
 
-  <!-- Tech stack, skills & practical philosophy -->
+  <!-- Scene 05: Production bento grid & automations (Nace del negro de la escena 04) -->
+  <ProjectsSection lang={lang} />
+
+  <!-- Scene 06 & 07: Tech stack, skills & practical philosophy -->
   <SkillsPhilosophySection lang={lang} />
 
   <!-- Education, Certifications & Continuous Learning -->
   <EducationSection lang={lang} />
 
-  <!-- Contact & call to action -->
+  <!-- Scene 08: Contact & call to action -->
   <ContactSection lang={lang} />
 
   <!-- Accessible native dialog for the QR code -->
@@ -135,112 +142,194 @@ const qrSvg = qrSvgRaw
 </script>
 
 <style>
-  .hero-section {
-    padding: 5.5rem 0 4rem;
+  .hero-pinned-scene {
+    position: relative;
+    height: 140vh;
+    background: #f2eee6;
   }
 
-  .hero-grid {
-    display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: 3rem;
+  .hero-sticky-container {
+    position: sticky;
+    top: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: clamp(12px, 2.5vh, 24px);
+    padding: clamp(72px, 11vh, 92px) clamp(20px, 5vw, 72px) clamp(32px, 6vh, 56px);
+  }
+
+  .hero-top-status-row {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-  }
-
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.35rem 0.85rem;
-    background: color-mix(in srgb, var(--accent-emerald) 10%, transparent);
-    border: 1px solid color-mix(in srgb, var(--accent-emerald) 30%, transparent);
-    border-radius: var(--radius-sm);
-    font-size: 0.8rem;
-    color: var(--accent-emerald);
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-  }
-
-  .status-indicator {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    background-color: var(--accent-emerald);
-    box-shadow: 0 0 8px var(--accent-emerald);
-  }
-
-  .hero-name {
-    font-family: var(--font-serif, 'Source Serif 4', serif);
-    font-size: clamp(3.2rem, 7vw, 6.5rem);
-    font-weight: 300;
-    line-height: 0.9;
-    letter-spacing: -0.045em;
-    color: var(--text-main);
-    margin-bottom: 1.25rem;
-  }
-
-  .hero-role {
+    gap: 16px;
+    flex-wrap: wrap;
     font-family: var(--font-mono, monospace);
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    font-weight: 600;
-    margin-bottom: 1.2rem;
-    letter-spacing: 0.04em;
+    font-size: 12px;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
+    color: #4a463f;
   }
 
-  .hero-tagline {
+  .hero-status-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: oklch(0.58 0.12 150);
+  }
+
+  .hero-headline-name {
+    margin: 0;
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-weight: 300;
+    font-size: clamp(44px, min(12vw, 16vh), 224px);
+    line-height: 0.86;
+    letter-spacing: -0.045em;
+    color: #1c1a17;
+  }
+
+  .hero-bottom-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+    gap: 32px 64px;
+    align-items: end;
+  }
+
+  .hero-narrative-block {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 2vh, 18px);
+    max-width: 620px;
+  }
+
+  .hero-role-headline {
+    font-family: var(--font-mono, monospace);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: #4a463f;
+  }
+
+  .hero-italic-quote {
+    margin: 0;
     font-family: var(--font-serif, 'Source Serif 4', serif);
     font-style: italic;
-    font-size: clamp(1.4rem, 2.5vw, 2.2rem);
     font-weight: 300;
-    color: var(--text-main);
-    line-height: 1.2;
+    font-size: clamp(24px, min(3vw, 5.5vh), 44px);
+    line-height: 1.12;
     letter-spacing: -0.02em;
-    margin-bottom: 1rem;
+    color: #1c1a17;
   }
 
-  .hero-desc {
-    font-size: 1.05rem;
-    color: var(--text-muted);
-    max-width: 540px;
-    line-height: 1.65;
-    margin-bottom: 2.25rem;
+  .hero-body-claim {
+    margin: 0;
+    font-size: clamp(15px, 2.2vh, 16px);
+    line-height: 1.5;
+    max-width: 520px;
+    color: #4a463f;
   }
 
-  .hero-actions {
+  .hero-buttons-row {
     display: flex;
-    gap: 1rem;
+    gap: 12px;
     flex-wrap: wrap;
+    margin-top: 4px;
   }
 
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.85rem 1.4rem;
-    font-weight: 600;
-    font-size: 0.85rem;
+  .hero-btn-dark {
+    font-family: var(--font-mono, monospace);
+    font-size: 13px;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    font-family: var(--font-mono, monospace);
-    transition: all var(--transition);
-  }
-
-  .btn-primary {
     background: #1c1a17;
     color: #f2eee6;
-    border: 1px solid #1c1a17;
+    padding: 15px 20px;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
   }
 
-  .btn-primary:hover {
-    background: #332f2a;
-    transform: translateY(-2px);
+  .hero-btn-dark:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
   }
 
-  .btn-secondary {
-    background: transparent;
+  .hero-btn-outline {
+    font-family: var(--font-mono, monospace);
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
     border: 1px solid #1c1a17;
     color: #1c1a17;
+    padding: 14px 20px;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+
+  .hero-btn-outline:hover {
+    opacity: 0.7;
+    transform: translateY(-1px);
+  }
+
+  .hero-portrait-col {
+    justify-self: end;
+    width: clamp(140px, min(17vw, 30vh), 250px);
+  }
+
+  .portrait-slot {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    background: rgba(28, 26, 23, 0.08);
+    overflow: hidden;
+  }
+
+  .portrait-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.06);
+    mix-blend-mode: multiply;
+  }
+
+  .portrait-caption-row {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #7a746a;
+  }
+
+  .hero-belt-track {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 20px;
+    width: 100%;
+    background: #f8f6f0;
+    border-top: 1px solid rgba(28, 26, 23, 0.25);
+    border-bottom: 1px solid rgba(28, 26, 23, 0.25);
+    background-image: repeating-linear-gradient(0deg, transparent 0 4px, rgba(28, 26, 23, 0.07) 4px 5px);
+  }
+
+  .hero-scroll-cue {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 30px;
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #7a746a;
   }
 
   .btn-secondary:hover {

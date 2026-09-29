@@ -53,62 +53,42 @@ const { title, description, lang = 'es' } = Astro.props;
   </head>
   <body>
     <header class="site-header">
-      <div class="container header-inner">
-        <a href={lang === 'es' ? '/' : `/${lang}`} class="brand" aria-label="Inicio">
-          <span class="brand-avatar">JP</span>
-          <div class="brand-text">
-            <span class="brand-name">Juan Manuel Puccio</span>
-            <span class="brand-sub">Full Stack & Consultor IT</span>
-          </div>
+      <div class="header-inner">
+        <a href={lang === 'es' ? '#top' : `/${lang}#top`} class="brand-title">
+          Juan Manuel Puccio
         </a>
 
-        <!-- Navegación con Smooth Scroll hacia anclas de la página -->
-        <nav class="main-nav">
-          <a href="#proyectos" class="nav-item">
-            {lang === 'es' ? 'Proyectos' : lang === 'en' ? 'Projects' : 'Projetos'}
-          </a>
-          <a href="#trayectoria" class="nav-item">
-            {lang === 'es' ? 'Trayectoria' : lang === 'en' ? 'Experience' : 'Trajetória'}
-          </a>
-          <a href="#stack-filosofia" class="nav-item">
-            {lang === 'es' ? 'Stack & Filosofía' : lang === 'en' ? 'Stack & Mindset' : 'Stack & Filosofia'}
-          </a>
-          <a href="#formacion" class="nav-item">
-            {lang === 'es' ? 'Formación' : lang === 'en' ? 'Education' : 'Formação'}
-          </a>
-          <a href="#contacto" class="nav-item">
-            {lang === 'es' ? 'Contacto' : lang === 'en' ? 'Contact' : 'Contato'}
-          </a>
-          <a href={CV_URL} target="_blank" class="nav-item nav-cv">
-            CV 📄
-          </a>
-        </nav>
+        <div class="header-right-group">
+          <!-- Indicador dinámico de grado marcial actual -->
+          <div class="header-grade-pill">
+            <span class="header-belt-swatch" id="header-belt-indicator"></span>
+            <span class="header-gup-text" id="header-gup-indicator">10º gup</span>
+          </div>
 
-        <div class="header-controls">
-          <!-- Toggle EyeCare (Claro Orgánico / Oscuro Suave) -->
-          <button id="theme-toggle" class="theme-toggle-btn" aria-label="Alternar modo claro / oscuro">
-            <span class="theme-icon light-icon" title="Modo Claro">☀️</span>
-            <span class="theme-icon dark-icon" title="Modo Oscuro EyeCare">🌙</span>
-          </button>
-
-          <!-- Selector de idioma -->
-          <div class="lang-switch">
-            {Object.entries(languages).map(([code, label]) => {
+          <!-- Selector de idioma compacto -->
+          <div class="lang-switch-minimal">
+            {Object.entries(languages).map(([code]) => {
               const targetPath = code === 'es' ? '/' : `/${code}`;
               const isActive = code === lang;
               return (
                 <a 
                   href={targetPath} 
-                  class:list={['lang-link', { active: isActive }]}
-                  aria-label={`Cambiar a ${label}`}
+                  class:list={['lang-min-link', { active: isActive }]}
                 >
                   {code.toUpperCase()}
                 </a>
               );
             })}
           </div>
+
+          <!-- Descargar CV -->
+          <a href={CV_URL} target="_blank" rel="noopener noreferrer" class="header-cv-btn">
+            {lang === 'es' ? 'Descargar CV' : lang === 'en' ? 'Download CV' : 'Baixar CV'}
+          </a>
         </div>
       </div>
+      <!-- Barra de progreso global del scroll -->
+      <div class="header-scroll-progress" id="header-scroll-progress"></div>
     </header>
 
     <main>
@@ -158,116 +138,132 @@ const { title, description, lang = 'es' } = Astro.props;
   </body>
 </html>
 
+<script>
+  // Actualización dinámica de la barra de progreso del header y color de cinturón
+  function updateHeaderProgress() {
+    const progressBar = document.getElementById('header-scroll-progress');
+    if (!progressBar) return;
+    const doc = document.documentElement;
+    const total = Math.max(1, doc.scrollHeight - window.innerHeight);
+    const progress = Math.min(1, Math.max(0, window.scrollY / total));
+    progressBar.style.width = `${progress * 100}%`;
+  }
+
+  window.addEventListener('scroll', updateHeaderProgress, { passive: true });
+  window.addEventListener('resize', updateHeaderProgress);
+  updateHeaderProgress();
+</script>
+
 <style>
+
   .site-header {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 50;
-    backdrop-filter: blur(14px);
-    background-color: color-mix(in srgb, var(--bg-primary) 85%, transparent);
-    border-bottom: 1px solid var(--border-subtle);
+    height: 60px;
+    background: rgba(242, 238, 230, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(28, 26, 23, 0.12);
+    padding: 0 clamp(20px, 5vw, 72px);
   }
 
   .header-inner {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 4rem;
+    height: 100%;
+    width: 100%;
+    max-width: 100%;
   }
 
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-weight: 700;
-    color: var(--text-main);
-  }
-
-  .brand-avatar {
-    width: 2.2rem;
-    height: 2.2rem;
-    border-radius: var(--radius-sm);
-    /* Flat fill, not a gradient — industrial direction treats color as a
-       signal, not decoration. */
-    background: var(--accent-amber);
-    color: #12161c;
-    display: grid;
-    place-items: center;
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    font-weight: 800;
-  }
-
-  .brand-text {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.15;
-  }
-
-  .brand-name {
-    font-size: 0.95rem;
-    font-weight: 800;
-    color: var(--text-main);
+  .brand-title {
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-size: 19px;
     letter-spacing: -0.01em;
+    color: #1c1a17;
+    text-decoration: none;
+    font-weight: 400;
+    transition: opacity 0.2s;
   }
 
-  .brand-sub {
-    font-size: 0.72rem;
-    font-weight: 500;
-    color: var(--text-dim);
+  .brand-title:hover {
+    opacity: 0.7;
   }
 
-  /* Nav Links con Smooth Scroll */
-  .main-nav {
+  .header-right-group {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: clamp(14px, 2.5vw, 24px);
   }
 
-  .nav-item {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    padding: 0.3rem 0.5rem;
-    border-radius: var(--radius-sm);
-    transition: all var(--transition);
-  }
-
-  .nav-item:hover {
-    color: var(--accent-amber);
-    background: var(--bg-surface-elevated);
-  }
-
-  .nav-cv {
-    color: var(--accent-amber);
-    background: color-mix(in srgb, var(--accent-amber) 10%, transparent);
-    border: 1px solid color-mix(in srgb, var(--accent-amber) 25%, transparent);
-    padding: 0.25rem 0.65rem;
-    font-family: var(--font-mono);
-  }
-
-  .nav-cv:hover {
-    background: var(--accent-amber);
-    color: #12161c;
-  }
-
-  .header-controls {
+  .header-grade-pill {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 8px;
+    font-family: var(--font-mono, monospace);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #4a463f;
   }
 
-  .theme-toggle-btn {
+  .header-belt-swatch {
+    width: 18px;
+    height: 8px;
+    border: 1px solid rgba(28, 26, 23, 0.35);
+    background: #f8f6f0;
+    transition: background 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .lang-switch-minimal {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.2rem;
-    height: 2.2rem;
-    border-radius: var(--radius-md);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-main);
-    font-size: 1rem;
+    gap: 8px;
+  }
+
+  .lang-min-link {
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: #7a746a;
+    text-decoration: none;
+    padding: 2px 4px;
+    transition: color 0.2s;
+  }
+
+  .lang-min-link.active {
+    color: #1c1a17;
+    font-weight: 700;
+    border-bottom: 1px solid #1c1a17;
+  }
+
+  .header-cv-btn {
+    font-family: var(--font-mono, monospace);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: #1c1a17;
+    color: #f2eee6;
+    padding: 10px 14px;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+
+  .header-cv-btn:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+  }
+
+  .header-scroll-progress {
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    height: 3px;
+    width: 0%;
+    background: #bdb4a4;
+    transition: background 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
     transition: all var(--transition);
   }
 
