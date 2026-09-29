@@ -11,11 +11,11 @@ export interface MartialBelt {
 
 export const BELTS: Record<string, MartialBelt> = {
   blanco: { key: 'blanco', color: '#f8f6f0', badgeColor: '#e5e0d3', line: '#bdb4a4', gup: '10º gup', beltName: 'Cinturón blanco' },
-  amarillo: { key: 'amarillo', color: '#facc15', badgeColor: '#ca8a04', line: '#eab308', gup: '8º gup', beltName: 'Cinturón amarillo' },
-  verde: { key: 'verde', color: '#10b981', badgeColor: '#059669', line: '#047857', gup: '6º gup', beltName: 'Cinturón verde' },
-  azul: { key: 'azul', color: '#3b82f6', badgeColor: '#2563eb', line: '#1d4ed8', gup: '4º gup', beltName: 'Cinturón azul' },
-  rojo: { key: 'rojo', color: '#ef4444', badgeColor: '#dc2626', line: '#b91c1c', gup: '2º gup', beltName: 'Cinturón rojo' },
-  negro: { key: 'negro', color: '#1c1a17', badgeColor: '#090807', line: '#1c1a17', gup: '1º dan', beltName: 'Cinturón negro' }
+  amarillo: { key: 'amarillo', color: 'oklch(0.84 0.15 90)', badgeColor: 'oklch(0.78 0.15 90)', line: 'oklch(0.78 0.15 90)', gup: '8º gup', beltName: 'Cinturón amarillo' },
+  verde: { key: 'verde', color: 'oklch(0.58 0.12 150)', badgeColor: 'oklch(0.58 0.12 150)', line: 'oklch(0.58 0.12 150)', gup: '6º gup', beltName: 'Cinturón verde' },
+  azul: { key: 'azul', color: 'oklch(0.5 0.13 255)', badgeColor: 'oklch(0.5 0.13 255)', line: 'oklch(0.5 0.13 255)', gup: '4º gup', beltName: 'Cinturón azul' },
+  rojo: { key: 'rojo', color: 'oklch(0.56 0.17 28)', badgeColor: 'oklch(0.56 0.17 28)', line: 'oklch(0.56 0.17 28)', gup: '2º gup', beltName: 'Cinturón rojo' },
+  negro: { key: 'negro', color: '#1c1a17', badgeColor: '#1c1a17', line: '#1c1a17', gup: '1º dan', beltName: 'Cinturón negro' }
 };
 
 export interface MartialPosition {

@@ -11,109 +11,102 @@ const { lang } = Astro.props;
 const data = martialExperienceData[lang];
 ---
 
-<section id="trayectoria" class="martial-timeline-section">
-  <div class="container">
-    <div class="section-header" data-reveal>
-      <div class="section-badge">
-        <Shield size={14} />
-        <span>{data.sectionBadge}</span>
-      </div>
-      <h2 class="section-title">{data.title}</h2>
-      <p class="section-subtitle">{data.subtitle}</p>
-    </div>
+<section id="trayectoria" class="martial-timeline-section" data-screen-label="03 Trayectoria">
+  <!-- Encabezado de sección editorial espacioso -->
+  <div class="trayectoria-intro" data-reveal>
+    <span class="trayectoria-badge">{data.sectionBadge}</span>
+    <h2 class="trayectoria-headline">{data.title}</h2>
+    <p class="trayectoria-lede">{data.subtitle}</p>
+  </div>
 
-    <!-- Layout dividido: Rail Sticky de Cinturones a la izquierda, Contenido a la derecha -->
-    <div class="timeline-layout">
-      <!-- Rail Sticky Izquierdo (Monitor Marcial) -->
-      <aside class="belt-rail-container" aria-hidden="true">
-        <div class="belt-sticky-monitor" id="belt-sticky-monitor">
-          <div class="belt-meta-row">
-            <span class="belt-gup-label" id="monitor-gup">10º gup</span>
-            <span class="belt-years-label" id="monitor-years">2011</span>
-          </div>
+  <!-- Layout dividido 5fr / 7fr: Rail Sticky a la izquierda, Etapas a la derecha -->
+  <div class="trayectoria-grid">
+    <!-- Rail Sticky Izquierdo (Monitor Marcial) -->
+    <aside class="belt-rail-wrapper" aria-hidden="true">
+      <div class="belt-sticky-monitor" id="belt-sticky-monitor">
+        <span class="belt-gup-row" id="monitor-meta">
+          <span id="monitor-gup">10º gup</span> · <span id="monitor-years">2011</span>
+        </span>
 
-          <div class="belt-name-display" id="monitor-belt-name">Cinturón blanco</div>
+        <h3 class="belt-display-name" id="monitor-belt-name">Cinturón blanco</h3>
 
-          <!-- Barra simuladora de tela de cinturón con gradiente y textura -->
-          <div class="belt-strap" id="monitor-strap">
-            <div class="belt-texture"></div>
-          </div>
+        <!-- Barra de tela de 72px con textura rayada y transición de color suave -->
+        <div class="belt-strap" id="monitor-strap"></div>
 
-          <!-- Indicador de progreso de los 6 cinturones -->
-          <div class="belt-steps-indicator">
-            {data.stages.map((stage) => {
-              const belt = BELTS[stage.beltKey];
-              return (
-                <div
-                  class="step-segment"
-                  data-belt-step={stage.beltKey}
-                  style={`--step-color: ${belt.color};`}
-                  title={`${belt.beltName} (${stage.years})`}
-                ></div>
-              );
-            })}
-          </div>
-
-          <p class="belt-philosophy-caption">
-            {lang === 'es'
-              ? 'Los grados del Taekwondo ITF, del blanco al negro, como mapa de constancia, rigor y maduración profesional.'
-              : lang === 'en'
-              ? 'Taekwondo ITF belt ranks, from white to black, as a blueprint of discipline, operational rigor, and mastery.'
-              : 'As graduações do Taekwondo ITF, da branca à preta, como mapa de disciplina, rigor e maturidade profissional.'}
-          </p>
+        <!-- Indicador de 6 segmentos lineales de progreso -->
+        <div class="belt-dots-row">
+          {data.stages.map((stage) => {
+            const belt = BELTS[stage.beltKey];
+            return (
+              <span
+                class="belt-dot-bar"
+                data-belt-step={stage.beltKey}
+                style={`--dot-color: ${belt.color};`}
+                title={`${belt.beltName} (${stage.years})`}
+              />
+            );
+          })}
         </div>
-      </aside>
 
-      <!-- Flujo de Etapas a la derecha -->
-      <div class="stages-content-flow">
-        {data.stages.filter(s => s.beltKey !== 'negro').map((stage, sIdx) => {
-          const belt = BELTS[stage.beltKey];
-          return (
-            <article
-              class="stage-block"
-              id={`stage-${stage.beltKey}`}
-              data-belt-key={stage.beltKey}
-              data-gup={belt.gup}
-              data-belt-name={belt.beltName}
-              data-years={stage.years}
-              data-belt-color={belt.color}
-              data-belt-badge={belt.badgeColor}
-            >
-              <div class="stage-header">
-                <div class="stage-tag" style={`--belt-color: ${belt.color}; --belt-badge: ${belt.badgeColor}`}>
-                  <span class="belt-swatch"></span>
-                  <span class="belt-tag-text">{belt.gup} · {belt.beltName} · {stage.years}</span>
-                </div>
-                <h3 class="stage-title">{stage.title}</h3>
-                {stage.lede && <p class="stage-lede">"{stage.lede}"</p>}
-              </div>
-
-              <div class="positions-list">
-                {stage.positions.map((pos) => (
-                  <div class="position-item">
-                    <div class="position-date-col">
-                      <span class="position-date">{pos.dates}</span>
-                    </div>
-                    <div class="position-main-col">
-                      <h4 class="position-role">{pos.role}</h4>
-                      <div class="position-org">{pos.org}</div>
-                      <p class="position-desc">{pos.description}</p>
-                      {pos.transferableCompetency && (
-                        <div class="competency-badge">
-                          <span class="competency-label">{data.competencyLabel}</span>
-                          <span class="competency-val">{pos.transferableCompetency}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </article>
-          );
-        })}
+        <p class="belt-caption">
+          {lang === 'es'
+            ? 'Los grados del Taekwondo ITF, del blanco al negro, como mapa de cada etapa.'
+            : lang === 'en'
+            ? 'Taekwondo ITF belt ranks, from white to black, as a blueprint of each milestone.'
+            : 'As graduações do Taekwondo ITF, da branca à preta, como mapa de cada etapa.'}
+        </p>
       </div>
+    </aside>
+
+    <!-- Columna de Etapas a la derecha -->
+    <div class="stages-column">
+      {data.stages.filter(s => s.beltKey !== 'negro').map((stage, index) => {
+        const belt = BELTS[stage.beltKey];
+        return (
+          <article
+            class="stage-scroll-block"
+            id={`stage-${stage.beltKey}`}
+            data-stage-index={index}
+            data-belt-key={stage.beltKey}
+            data-gup={belt.gup}
+            data-belt-name={belt.beltName}
+            data-years={stage.years}
+            data-belt-color={belt.color}
+            data-belt-line={belt.line}
+          >
+            <div class="stage-intro-header" data-reveal>
+              <div class="stage-badge-tag">
+                <span class="belt-badge-swatch" style={`background-color: ${belt.color};`}></span>
+                <span class="belt-badge-text">{belt.gup} · {belt.beltName} · {stage.years}</span>
+              </div>
+              <h3 class="stage-main-title">{stage.title}</h3>
+              {stage.lede && <p class="stage-editorial-lede">"{stage.lede}"</p>}
+            </div>
+
+            <div class="stage-positions-stack">
+              {stage.positions.map((pos) => (
+                <div class="position-row" data-reveal>
+                  <span class="position-dates-col">{pos.dates}</span>
+                  <div class="position-body-col">
+                    <div class="position-role-title">{pos.role}</div>
+                    <div class="position-org-title">{pos.org}</div>
+                    {pos.description && <p class="position-desc-text">{pos.description}</p>}
+                    {pos.transferableCompetency && (
+                      <div class="position-comp-badge">
+                        <span class="comp-badge-label">{data.competencyLabel}</span>
+                        <span class="comp-badge-val">{pos.transferableCompetency}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </article>
+        );
+      })}
     </div>
   </div>
+</section>
 
   <!-- Escena Pinned de Transición a Cinturón Negro (Claude Design v2) -->
   <div class="black-belt-scene" id="black-belt-transition" data-black-belt-scene>
@@ -153,11 +146,10 @@ const data = martialExperienceData[lang];
                 : 'Hoje conto com disponibilidade full-time real para me somar a uma equipe.'}
             </p>
           </div>
-        </div>
       </div>
     </div>
   </div>
-</section>
+</div>
 
 <script>
   import { gsap } from 'gsap';
@@ -166,34 +158,58 @@ const data = martialExperienceData[lang];
   gsap.registerPlugin(ScrollTrigger);
 
   function setupMartialTimeline() {
-    const stageBlocks = document.querySelectorAll<HTMLElement>('.stage-block[data-belt-key]');
+    const stageBlocks = document.querySelectorAll<HTMLElement>('.stage-scroll-block[data-belt-key]');
     const monitorGup = document.getElementById('monitor-gup');
     const monitorYears = document.getElementById('monitor-years');
     const monitorBeltName = document.getElementById('monitor-belt-name');
     const monitorStrap = document.getElementById('monitor-strap');
-    const stepSegments = document.querySelectorAll<HTMLElement>('.step-segment[data-belt-step]');
+    const dotBars = document.querySelectorAll<HTMLElement>('.belt-dot-bar[data-belt-step]');
+    
+    // Header elements sync
+    const headerBeltSwatch = document.getElementById('header-belt-indicator');
+    const headerGupText = document.getElementById('header-gup-indicator');
 
     if (!stageBlocks.length || !monitorGup || !monitorYears || !monitorBeltName || !monitorStrap) {
       return;
     }
 
-    stageBlocks.forEach((block) => {
+    // Set initial active state on first belt
+    updateMonitor(
+      stageBlocks[0].dataset.beltKey,
+      stageBlocks[0].dataset.gup,
+      stageBlocks[0].dataset.years,
+      stageBlocks[0].dataset.beltName,
+      stageBlocks[0].dataset.beltColor,
+      stageBlocks[0].dataset.beltLine,
+      0
+    );
+
+    stageBlocks.forEach((block, index) => {
       const beltKey = block.dataset.beltKey;
       const gup = block.dataset.gup;
       const years = block.dataset.years;
       const beltName = block.dataset.beltName;
       const beltColor = block.dataset.beltColor;
+      const beltLine = block.dataset.beltLine;
 
       ScrollTrigger.create({
         trigger: block,
-        start: 'top center',
-        end: 'bottom center',
-        onEnter: () => updateMonitor(beltKey, gup, years, beltName, beltColor),
-        onEnterBack: () => updateMonitor(beltKey, gup, years, beltName, beltColor),
+        start: 'top 55%',
+        end: 'bottom 55%',
+        onEnter: () => updateMonitor(beltKey, gup, years, beltName, beltColor, beltLine, index),
+        onEnterBack: () => updateMonitor(beltKey, gup, years, beltName, beltColor, beltLine, index),
       });
     });
 
-    function updateMonitor(key?: string, gup?: string, years?: string, name?: string, color?: string) {
+    function updateMonitor(
+      key?: string,
+      gup?: string,
+      years?: string,
+      name?: string,
+      color?: string,
+      line?: string,
+      activeIndex: number = 0
+    ) {
       if (!key) return;
       if (monitorGup && gup) monitorGup.textContent = gup;
       if (monitorYears && years) monitorYears.textContent = years;
@@ -202,12 +218,22 @@ const data = martialExperienceData[lang];
         monitorStrap.style.backgroundColor = color;
       }
 
-      stepSegments.forEach((seg) => {
-        const targetKey = seg.dataset.beltStep;
-        if (targetKey === key) {
-          seg.classList.add('is-active');
+      // Sync topbar header indicator
+      if (headerBeltSwatch && color) {
+        headerBeltSwatch.style.backgroundColor = color;
+      }
+      if (headerGupText && gup) {
+        headerGupText.textContent = gup;
+      }
+
+      // Sync 6 dot bars with opacity: 1 (current), 0.55 (passed), 0.2 (upcoming)
+      dotBars.forEach((bar, i) => {
+        if (i === activeIndex) {
+          bar.style.opacity = '1';
+        } else if (i < activeIndex) {
+          bar.style.opacity = '0.55';
         } else {
-          seg.classList.remove('is-active');
+          bar.style.opacity = '0.2';
         }
       });
     }
@@ -240,6 +266,12 @@ const data = martialExperienceData[lang];
           const revealTranslate = Math.max(0, (0.75 - p) * 80);
           blackReveal.style.opacity = `${revealOpacity}`;
           blackReveal.style.transform = `translateY(${revealTranslate}px)`;
+
+          // When passing into black belt scene, sync header to black belt
+          if (p > 0.4 && headerBeltSwatch && headerGupText) {
+            headerBeltSwatch.style.backgroundColor = '#1c1a17';
+            headerGupText.textContent = '1º dan';
+          }
         }
       });
     }
@@ -254,287 +286,282 @@ const data = martialExperienceData[lang];
 </script>
 
 <style>
+  /* Sección 03 Trayectoria: Ancho completo de borde a borde */
   .martial-timeline-section {
-    padding: 6.5rem 0;
-    border-top: 1px solid var(--border-subtle);
-    background: var(--bg-primary);
+    position: relative;
+    padding: 0 clamp(20px, 5vw, 72px);
+    background: #f2eee6;
+    color: #1c1a17;
   }
 
-  .section-header {
-    margin-bottom: 4rem;
-    max-width: 52rem;
+  .trayectoria-intro {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+    max-width: 900px;
+    box-sizing: border-box;
   }
 
-  .section-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    color: var(--accent-cyan);
-    background: var(--bg-surface-elevated);
-    border: 1px solid var(--border-subtle);
-    padding: 0.35rem 0.85rem;
-    margin-bottom: 1.25rem;
+  .trayectoria-badge {
     font-family: var(--font-mono, monospace);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #7a746a;
   }
 
-  .section-title {
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    color: var(--text-main);
-    line-height: 1.1;
-    margin-bottom: 1rem;
+  .trayectoria-headline {
+    margin: 0;
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-weight: 300;
+    font-size: clamp(40px, 6vw, 96px);
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    color: #1c1a17;
+    text-wrap: balance;
   }
 
-  .section-subtitle {
-    font-size: 1.1rem;
-    color: var(--text-muted);
-    line-height: 1.6;
+  .trayectoria-lede {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.55;
+    color: #4a463f;
+    max-width: 620px;
+    text-wrap: pretty;
   }
 
-  /* Layout con Rail Sticky */
-  .timeline-layout {
+  /* Grid Layout: 5fr a la izquierda (sticky belt) / 7fr a la derecha (etapas) */
+  .trayectoria-grid {
     display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 4.5rem;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(40px, 6vw, 120px);
     align-items: start;
     position: relative;
   }
 
-  .belt-rail-container {
+  /* Columna izquierda Sticky: Monitor Marcial */
+  .belt-rail-wrapper {
+    display: block;
     position: relative;
     height: 100%;
   }
 
   .belt-sticky-monitor {
     position: sticky;
-    top: 6rem;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    padding: 2rem 1.75rem;
-    box-shadow: var(--shadow-card);
+    top: 0;
+    height: 100vh;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    justify-content: center;
+    gap: 26px;
+    padding-top: 60px;
+    box-sizing: border-box;
   }
 
-  .belt-meta-row {
-    display: flex;
-    justify-content: space-between;
+  .belt-gup-row {
     font-family: var(--font-mono, monospace);
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
+    font-size: 13px;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--text-muted);
+    color: #4a463f;
   }
 
-  .belt-name-display {
-    font-size: 1.45rem;
-    font-weight: 800;
-    color: var(--text-main);
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-    min-height: 2.2rem;
+  .belt-display-name {
+    margin: 0;
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-weight: 300;
+    font-size: clamp(40px, 4.6vw, 76px);
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    color: #1c1a17;
   }
 
   .belt-strap {
-    height: 52px;
+    height: 72px;
+    border: 1px solid rgba(28, 26, 23, 0.22);
     background-color: #f8f6f0;
-    border: 1px solid var(--border-strong);
-    position: relative;
-    overflow: hidden;
-    transition: background-color 0.4s ease-out;
-  }
-
-  .belt-texture {
-    position: absolute;
-    inset: 0;
     background-image: repeating-linear-gradient(
       0deg,
-      transparent 0,
-      transparent 5px,
-      rgba(0, 0, 0, 0.08) 5px,
-      rgba(0, 0, 0, 0.08) 6px
+      transparent 0px,
+      transparent 6px,
+      rgba(28, 26, 23, 0.08) 6px,
+      rgba(28, 26, 23, 0.08) 7px
     );
+    transition: background-color 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
-  .belt-steps-indicator {
+  .belt-dots-row {
     display: flex;
-    gap: 0.4rem;
+    gap: 6px;
   }
 
-  .step-segment {
+  .belt-dot-bar {
     flex: 1;
-    height: 8px;
-    background-color: var(--step-color);
-    opacity: 0.25;
-    border: 1px solid var(--border-subtle);
-    transition: opacity 0.3s ease, transform 0.2s ease;
+    height: 10px;
+    border: 1px solid rgba(28, 26, 23, 0.25);
+    background: var(--dot-color);
+    opacity: 0.2;
+    transition: opacity 0.4s ease;
   }
 
-  .step-segment.is-active {
-    opacity: 1;
-    transform: scaleY(1.35);
-  }
-
-  .belt-philosophy-caption {
-    font-size: 0.78rem;
+  .belt-caption {
+    font-family: var(--font-mono, monospace);
+    font-size: 12px;
+    color: #7a746a;
+    max-width: 340px;
     line-height: 1.5;
-    color: var(--text-dim);
     margin: 0;
   }
 
-  /* Etapas a la derecha */
-  .stages-content-flow {
+  /* Columna derecha: Flujo de etapas */
+  .stages-column {
     display: flex;
     flex-direction: column;
-    gap: 4.5rem;
   }
 
-  .stage-block {
-    padding-top: 1rem;
-    border-top: 2px solid var(--border-subtle);
-  }
-
-  .stage-header {
+  .stage-scroll-block {
+    padding: 14vh 0 10vh;
+    min-height: 90vh;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
+    gap: 28px;
+    box-sizing: border-box;
   }
 
-  .stage-tag {
-    display: inline-flex;
+  .stage-intro-header {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .stage-badge-tag {
+    display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 14px;
     font-family: var(--font-mono, monospace);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
+    font-size: 12px;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--text-main);
+    color: #4a463f;
   }
 
-  .belt-swatch {
-    width: 38px;
-    height: 12px;
-    background-color: var(--belt-color);
-    border: 1px solid var(--border-strong);
+  .belt-badge-swatch {
+    width: 56px;
+    height: 14px;
+    border: 1px solid rgba(28, 26, 23, 0.25);
   }
 
-  .stage-title {
-    font-size: clamp(1.8rem, 3vw, 2.4rem);
-    font-weight: 800;
-    color: var(--text-main);
-    letter-spacing: -0.025em;
-    line-height: 1.15;
+  .stage-main-title {
     margin: 0;
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-weight: 300;
+    font-size: clamp(48px, 6.4vw, 104px);
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+    color: #1c1a17;
   }
 
-  .stage-lede {
-    font-size: 1.05rem;
+  .stage-editorial-lede {
+    margin: 0;
+    max-width: 640px;
+    font-family: var(--font-serif, 'Source Serif 4', serif);
     font-style: italic;
-    color: var(--text-muted);
-    line-height: 1.55;
-    margin: 0;
-    max-width: 46rem;
+    font-weight: 300;
+    font-size: clamp(20px, 1.8vw, 26px);
+    line-height: 1.35;
+    color: #4a463f;
+    text-wrap: pretty;
   }
 
-  .positions-list {
+  .stage-positions-stack {
     display: flex;
     flex-direction: column;
-    gap: 1.75rem;
   }
 
-  .position-item {
-    display: grid;
-    grid-template-columns: 140px 1fr;
-    gap: 1.75rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border-subtle);
-  }
-
-  .position-date {
-    font-family: var(--font-mono, monospace);
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--text-dim);
-    letter-spacing: 0.04em;
-    display: block;
-    margin-top: 0.25rem;
-  }
-
-  .position-main-col {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .position-role {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--text-main);
-    margin: 0;
-    line-height: 1.3;
-  }
-
-  .position-org {
-    font-family: var(--font-mono, monospace);
-    font-size: 0.85rem;
-    color: var(--accent-cyan);
-    font-weight: 600;
-  }
-
-  .position-desc {
-    font-size: 0.92rem;
-    line-height: 1.6;
-    color: var(--text-muted);
-    margin: 0;
-  }
-
-  .competency-badge {
-    margin-top: 0.5rem;
+  .position-row {
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.4rem 0.6rem;
-    background: var(--bg-surface-elevated);
-    padding: 0.65rem 0.9rem;
-    border-left: 2px solid var(--accent-cyan);
-    border-radius: var(--radius-sm);
+    gap: 10px 32px;
+    padding: 26px 0;
+    border-top: 1px solid rgba(28, 26, 23, 0.14);
   }
 
-  .competency-label {
+  .position-dates-col {
+    flex: 0 0 170px;
     font-family: var(--font-mono, monospace);
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--text-dim);
+    font-size: 13px;
+    color: #7a746a;
+    padding-top: 4px;
   }
 
-  .competency-val {
-    font-size: 0.84rem;
+  .position-body-col {
+    flex: 1 1 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 640px;
+  }
+
+  .position-role-title {
+    font-size: 20px;
     font-weight: 600;
-    color: var(--text-main);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: #1c1a17;
+  }
+
+  .position-org-title {
+    font-family: var(--font-mono, monospace);
+    font-size: 13px;
+    color: #4a463f;
+  }
+
+  .position-desc-text {
+    margin: 4px 0 0;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #4a463f;
+    text-wrap: pretty;
+  }
+
+  .position-comp-badge {
+    margin-top: 6px;
+    font-size: 14px;
+    color: #1c1a17;
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+  }
+
+  .comp-badge-label {
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #7a746a;
+    flex: none;
+  }
+
+  .comp-badge-val {
+    color: #1c1a17;
   }
 
   @media (max-width: 900px) {
-    .timeline-layout {
-      grid-template-columns: 1fr;
-      gap: 2.5rem;
+    .trayectoria-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
     }
-    .belt-rail-container {
+    .belt-rail-wrapper {
       display: none;
     }
-    .position-item {
-      grid-template-columns: 1fr;
-      gap: 0.5rem;
+    .position-row {
+      flex-direction: column;
+      gap: 8px;
+    }
+    .position-dates-col {
+      flex: none;
     }
   }
 

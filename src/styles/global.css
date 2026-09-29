@@ -26,7 +26,7 @@
   --qr-bg: #ffffff;
   --qr-fg: #1c1a17;
 
-  --max-width: 1200px;
+  --max-width: 1600px;
   --radius-sm: 0px;
   --radius-md: 0px;
   --radius-lg: 0px;
@@ -140,7 +140,7 @@ button {
   width: 100%;
   max-width: var(--max-width);
   margin-inline: auto;
-  padding-inline: 1.5rem;
+  padding-inline: clamp(20px, 5vw, 72px);
 }
 
 /* =========================================================
