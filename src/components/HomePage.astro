@@ -4,7 +4,7 @@ import Layout from '../layouts/Layout.astro';
 import { CV_URL } from '../data/contact';
 import { useTranslations, type Lang } from '../i18n/ui';
 import ProjectsSection from './ProjectsSection.astro';
-import ExperienceTimeline from './ExperienceTimeline.astro';
+import MartialExperienceTimeline from './MartialExperienceTimeline.astro';
 import SkillsPhilosophySection from './SkillsPhilosophySection.astro';
 import EducationSection from './EducationSection.astro';
 import ContactSection from './ContactSection.astro';
@@ -88,8 +88,8 @@ const qrSvg = qrSvgRaw
   <!-- Production bento grid & automations -->
   <ProjectsSection lang={lang} />
 
-  <!-- Operational & technical experience timeline -->
-  <ExperienceTimeline lang={lang} />
+  <!-- Operational & technical martial experience timeline (Taekwondo ITF 10º gup -> 1º dan) -->
+  <MartialExperienceTimeline lang={lang} />
 
   <!-- Tech stack, skills & practical philosophy -->
   <SkillsPhilosophySection lang={lang} />

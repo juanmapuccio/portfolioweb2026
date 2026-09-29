@@ -2,6 +2,7 @@
 import type { Lang } from '../i18n/ui';
 import { projectsContent, automationsContent } from '../data/projects';
 import { ExternalLink, Terminal, ShieldCheck, Zap, Server } from 'lucide-astro';
+import ArchitectureDiagram from './ArchitectureDiagram.astro';
 
 interface Props {
   lang: Lang;
@@ -128,6 +129,9 @@ const auto = automationsContent[lang];
         </div>
       </div>
     </div>
+
+    <!-- Diagrama de Arquitectura de Producción e Infraestructura Cloud -->
+    <ArchitectureDiagram lang={lang} />
   </div>
 </section>
 
