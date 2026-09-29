@@ -29,7 +29,7 @@ The current final sections use centered headings and card grids, while the refer
 - Structural readback of the changed Astro/CSS and locale data.
 
 ## Tasks
-- [ ] **FSR-1 — Rebuild the final portfolio sections to match the reference.** Add focused Bun tests for the expected localized content and section structure first, then update the human/ethics, skills, availability/contact, and footer presentation. Run each applicable check and record the work-unit commit below.
+- [x] **FSR-1 — Rebuild the final portfolio sections to match the reference.** Added focused Bun tests first, then updated the human/ethics, skills, availability/contact, and footer presentation; all applicable checks passed.
 
 ## Progress and evidence
 - TDD mode: on (explicit user choice); runner: Bun built-in test runner.
@@ -38,5 +38,5 @@ The current final sections use centered headings and card grids, while the refer
 - Verification: parent `bun test` passed (4 tests, 25 assertions); independent `bun test`, `bun run check` (0 errors; existing unrelated warnings/hints), and `bun run build` passed. The Impeccable detector reported no findings. `git diff --check` passed.
 - Risk assessment: native assessment returned `high` / `unassessable` because existing untracked files were undeclared; an independent read-only verification found no actionable defects. RDD is off globally, so no native review transaction was started.
 - Branch: `feat/match-final-sections-to-reference`.
-- Next step: review the staged work-unit and commit FSR-1.
-- Work-unit commits: pending.
+- Work-unit commit: `8d4ba0c` (`feat: match final portfolio sections to reference`).
+- Next step: none.
