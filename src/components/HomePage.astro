@@ -4,6 +4,7 @@ import Layout from '../layouts/Layout.astro';
 import { CV_URL } from '../data/contact';
 import { useTranslations, type Lang } from '../i18n/ui';
 import ProjectsSection from './ProjectsSection.astro';
+import ManifestoScrollytelling from './ManifestoScrollytelling.astro';
 import MartialExperienceTimeline from './MartialExperienceTimeline.astro';
 import SkillsPhilosophySection from './SkillsPhilosophySection.astro';
 import EducationSection from './EducationSection.astro';
@@ -85,6 +86,9 @@ const qrSvg = qrSvgRaw
     </div>
   </section>
 
+  <!-- Scene 02: Word-by-word Manifesto Scrollytelling (Claude Design) -->
+  <ManifestoScrollytelling lang={lang} />
+
   <!-- Production bento grid & automations -->
   <ProjectsSection lang={lang} />
 
@@ -165,35 +169,41 @@ const qrSvg = qrSvgRaw
   }
 
   .hero-name {
-    font-size: 3rem;
-    font-weight: 800;
-    line-height: 1.1;
-    letter-spacing: -0.03em;
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-size: clamp(3.2rem, 7vw, 6.5rem);
+    font-weight: 300;
+    line-height: 0.9;
+    letter-spacing: -0.045em;
     color: var(--text-main);
-    margin-bottom: 0.6rem;
+    margin-bottom: 1.25rem;
   }
 
   .hero-role {
-    font-size: 1.25rem;
-    color: var(--accent-amber);
-    font-weight: 700;
-    margin-bottom: 1rem;
-    letter-spacing: -0.01em;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
 
   .hero-tagline {
-    font-size: 1.2rem;
-    font-weight: 700;
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-style: italic;
+    font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+    font-weight: 300;
     color: var(--text-main);
-    line-height: 1.35;
-    margin-bottom: 0.85rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
   }
 
   .hero-desc {
-    font-size: 1rem;
+    font-size: 1.05rem;
     color: var(--text-muted);
-    max-width: 580px;
-    line-height: 1.7;
+    max-width: 540px;
+    line-height: 1.65;
     margin-bottom: 2.25rem;
   }
 
@@ -207,34 +217,34 @@ const qrSvg = qrSvgRaw
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.75rem 1.4rem;
-    border-radius: var(--radius-sm);
+    padding: 0.85rem 1.4rem;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: var(--font-mono, monospace);
     transition: all var(--transition);
   }
 
   .btn-primary {
-    background: var(--accent-amber);
-    color: #12161c;
-    font-family: var(--font-mono);
-    font-weight: 700;
+    background: #1c1a17;
+    color: #f2eee6;
+    border: 1px solid #1c1a17;
   }
 
   .btn-primary:hover {
+    background: #332f2a;
     transform: translateY(-2px);
   }
 
   .btn-secondary {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-main);
-    font-family: var(--font-mono);
+    background: transparent;
+    border: 1px solid #1c1a17;
+    color: #1c1a17;
   }
 
   .btn-secondary:hover {
     background: var(--bg-surface-elevated);
-    border-color: var(--accent-amber);
     transform: translateY(-2px);
   }
 

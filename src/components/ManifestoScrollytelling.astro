@@ -1,0 +1,129 @@
+---
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+
+const manifestoText = {
+  es: "No soy un desarrollador de laboratorio aislado del mundo comercial, ni un administrativo pasivo que solo ejecuta tareas repetitivas. Soy un perfil híbrido con cimientos técnicos tempranos en robótica y programación, forjado en la trinchera operativa más exigente de salud de alta demanda, seguridad social masiva, logística comercial y ventas en calle. Hoy construyo software de negocio en producción: SaaS de gestión, bots en Python, integraciones fiscales con ARCA y despliegues en servidores cloud propios.",
+  en: "I am not a lab developer isolated from business reality, nor a passive clerk executing repetitive tasks. I am a hybrid engineer with early technical foundations in robotics and programming, forged across high-demand healthcare, public social security, logistics, and frontline sales. Today I build production business software: operational SaaS, Python bots, ARCA fiscal integrations, and self-hosted cloud deployments.",
+  pt: "Não sou um desenvolvedor de laboratório isolado da realidade comercial, nem um administrativo passivo executando tarefas repetitivas. Sou um profissional híbrido com base técnica em robótica e programação, forjado na rotina de saúde de alta demanda, seguridade social, logística e vendas. Hoje construo software de negócio em produção: SaaS de gestão, bots em Python, integrações fiscais com ARCA e servidores cloud próprios."
+}[lang];
+
+const words = manifestoText.split(' ').map((w, i, arr) => ({
+  word: w,
+  progressThreshold: (i / arr.length).toFixed(3)
+}));
+---
+
+<section id="manifiesto" class="manifesto-scroll-section" data-scene="manifesto">
+  <div class="manifesto-sticky-wrapper">
+    <div class="container">
+      <span class="manifesto-badge">
+        {lang === 'es' ? 'PERFIL & MANIFIESTO' : lang === 'en' ? 'PROFILE & MANIFESTO' : 'PERFIL & MANIFESTO'}
+      </span>
+      <p class="manifesto-paragraph">
+        {words.map((item) => (
+          <span class="manifesto-word" data-threshold={item.progressThreshold}>
+            {item.word}{' '}
+          </span>
+        ))}
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  function initManifestoScroll() {
+    const section = document.querySelector<HTMLElement>('.manifesto-scroll-section');
+    const words = document.querySelectorAll<HTMLElement>('.manifesto-word');
+    if (!section || !words.length) return;
+
+    ScrollTrigger.create({
+      trigger: section,
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 0.5,
+      onUpdate: (self) => {
+        const p = self.progress;
+        words.forEach((w) => {
+          const t = parseFloat(w.dataset.threshold || '0');
+          // Word reveals smoothly based on scroll position exactly like Claude Design
+          const opacity = Math.min(1, Math.max(0.12, (p * 1.15 - t) * 12));
+          w.style.opacity = opacity.toString();
+        });
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initManifestoScroll);
+  } else {
+    initManifestoScroll();
+  }
+  document.addEventListener('astro:page-load', initManifestoScroll);
+</script>
+
+<style>
+  .manifesto-scroll-section {
+    height: 240vh;
+    position: relative;
+    background: var(--bg-primary);
+  }
+
+  .manifesto-sticky-wrapper {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem 0;
+  }
+
+  .manifesto-badge {
+    display: inline-block;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 2rem;
+  }
+
+  .manifesto-paragraph {
+    margin: 0;
+    max-width: 1100px;
+    font-family: var(--font-serif, Georgia, serif);
+    font-weight: 300;
+    font-size: clamp(1.4rem, 2.8vw, 2.5rem);
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+    color: var(--text-main);
+  }
+
+  .manifesto-word {
+    display: inline-block;
+    opacity: 0.12;
+    transition: opacity 0.1s linear;
+  }
+
+  @media (max-width: 768px) {
+    .manifesto-scroll-section {
+      height: 180vh;
+    }
+    .manifesto-paragraph {
+      font-size: 1.25rem;
+      line-height: 1.45;
+    }
+  }
+</style>

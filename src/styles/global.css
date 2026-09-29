@@ -2,59 +2,45 @@
    TEMA CLARO (Default - Warm Editorial Organic)
    ========================================================= */
 :root {
-  /* Declara el esquema en uso para que los colores de sistema (CanvasText,
-     Canvas) y los controles nativos —scrollbars, dialog, form controls—
-     sigan el tema del sitio y no el del sistema operativo. */
+  /* Declara el esquema en uso para que los controles nativos sigan el tema */
   color-scheme: light;
 
-  --bg-primary: #f8f7f4;          /* Papel de lino / blanco hueso cálido */
+  --bg-primary: #f2eee6;          /* Papel de lino / cálido editorial Claude Design */
   --bg-surface: #ffffff;          /* Tarjetas elevadas limpias */
-  --bg-surface-elevated: #f1efe9; /* Sub-contenedores y badges */
-  --bg-surface-hover: #ece9e1;    /* Estados interactivos */
+  --bg-surface-elevated: #e8e3d8; /* Sub-contenedores y badges */
+  --bg-surface-hover: #ded8cb;    /* Estados interactivos */
 
-  --border-subtle: #e4dfd5;       /* Delimitador suave orgánico */
-  --border-strong: #c8c2b5;       /* Bordes destacados y focus */
+  --border-subtle: rgba(28, 26, 23, 0.12); /* Delimitador sutil */
+  --border-strong: rgba(28, 26, 23, 0.28); /* Bordes destacados */
 
-  --text-main: #181d24;           /* Carbón profundo para máxima legibilidad */
-  --text-muted: #525c6a;          /* Tono intermedio editorial */
-  --text-dim: #788494;            /* Fechas, metadatos y etiquetas */
+  --text-main: #1c1a17;           /* Tinta carbón profunda Claude Design */
+  --text-muted: #4a463f;          /* Tono intermedio editorial */
+  --text-dim: #7a746a;            /* Fechas, metadatos y etiquetas */
 
   --accent-cyan: #0284c7;         /* Azul técnico refinado */
   --accent-blue: #2563eb;         /* Confiabilidad */
-  --accent-emerald: #059669;      /* Estado en producción */
-  --accent-amber: #d97706;        /* Fricción y alertas de negocio */
-  --shadow-card: 0 4px 18px rgba(0, 0, 0, 0.04);
+  --accent-emerald: oklch(0.58 0.12 150); /* Estado en producción Claude Design */
+  --accent-amber: oklch(0.84 0.15 90);   /* Fricción y alertas de negocio */
+  --shadow-card: 0 4px 20px rgba(28, 26, 23, 0.04);
 
-  /* QR: módulos oscuros sobre fondo claro SIEMPRE, en ambos temas.
-     Un QR invertido (módulos claros sobre fondo oscuro) depende de una
-     capacidad opcional del lector y muchas cámaras nativas no lo leen.
-     Este código es la puerta de entrada principal al sitio: legibilidad
-     antes que integración con el tema. */
   --qr-bg: #ffffff;
-  --qr-fg: #12161c;
+  --qr-fg: #1c1a17;
 
-  --max-width: 1100px;
-  /* Hard-edge rule (industrial direction): sharp corners everywhere by
-     default. The only exceptions are genuinely circular elements (avatar,
-     status dots, marker dots), which use `border-radius: 50%` hardcoded
-     inline in their own component styles instead of these tokens — so
-     they are unaffected by this being sharp. */
-  --radius-sm: 2px;
-  --radius-md: 2px;
-  --radius-lg: 2px;
-  --transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --max-width: 1200px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --transition: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 
   --reveal-duration: 0.5s;
   --reveal-easing: cubic-bezier(0.16, 1, 0.3, 1);
-  --reveal-distance: 12px;
+  --reveal-distance: 16px;
   --reveal-stagger-step: 60ms;
 
-  /* Typography (industrial/utilitarian direction): one restrained sans
-     for reading, one monospace for data/metadata/badges/tech-tags. The
-     monospace is a zero-network-cost system stack — no Google Font load
-     for it — to keep the mobile/4G budget from `css-first-motion`. */
-  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', 'Consolas', 'Liberation Mono', monospace;
+  /* Typography: Claude Design editorial pair (Source Serif 4 + IBM Plex Mono + Hanken Grotesk) */
+  --font-serif: 'Source Serif 4', Georgia, serif;
+  --font-sans: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 }
 
 /* =========================================================
