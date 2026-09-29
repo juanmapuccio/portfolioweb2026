@@ -1,0 +1,13 @@
+# Exported by three-d-stage
+newmtl belt_cloth
+Kd 0.7913 0.7529 0.6724
+Ks 0.2000 0.2000 0.2000
+Ns 16
+d 1.0000
+
+newmtl belt_stitch
+Kd 0.6774 0.6181 0.4936
+Ks 0.2000 0.2000 0.2000
+Ns 40
+d 1.0000
+
