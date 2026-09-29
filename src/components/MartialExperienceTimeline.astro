@@ -66,7 +66,7 @@ const data = martialExperienceData[lang];
 
       <!-- Flujo de Etapas a la derecha -->
       <div class="stages-content-flow">
-        {data.stages.map((stage, sIdx) => {
+        {data.stages.filter(s => s.beltKey !== 'negro').map((stage, sIdx) => {
           const belt = BELTS[stage.beltKey];
           return (
             <article
@@ -111,6 +111,49 @@ const data = martialExperienceData[lang];
             </article>
           );
         })}
+      </div>
+    </div>
+  </div>
+
+  <!-- Escena Pinned de Transición a Cinturón Negro (Claude Design v2) -->
+  <div class="black-belt-scene" id="black-belt-transition" data-black-belt-scene>
+    <div class="black-belt-sticky-wrapper">
+      <div class="black-expanding-canvas" id="black-canvas"></div>
+      
+      <!-- Entrada: 2º gup -> 1º dan -->
+      <div class="black-pre-text" id="black-pre-text">
+        <span class="black-display-label">Negro</span>
+        <span class="black-mono-sub">2º gup → 1º dan</span>
+      </div>
+
+      <!-- Revelación completa: Producción / NodoSur -->
+      <div class="black-reveal-content" id="black-reveal-content">
+        <span class="black-badge-dan">1º dan · {lang === 'es' ? 'Cinturón negro · Jun 2025 — hoy' : lang === 'en' ? 'Black belt · Jun 2025 — present' : 'Faixa preta · Jun 2025 — presente'}</span>
+        <h3 class="black-main-headline">{lang === 'es' ? 'Producción' : lang === 'en' ? 'Production' : 'Produção'}</h3>
+        <div class="black-details-grid">
+          <div class="black-col-left">
+            <span class="black-founder-title">{lang === 'es' ? 'Fundador & Arquitecto de Software' : lang === 'en' ? 'Founder & Software Architect' : 'Fundador & Arquiteto de Software'}</span>
+            <a href="https://nodosur.dev/" target="_blank" rel="noopener noreferrer" class="black-nodosur-link">
+              NodoSur · nodosur.dev ↗
+            </a>
+          </div>
+          <div class="black-col-right">
+            <p class="black-editorial-p">
+              {lang === 'es' 
+                ? 'Marca y software factory de soluciones a medida, servidores cloud autoadministrados y flujo CI/CD con Docker y GitHub Actions.'
+                : lang === 'en' 
+                ? 'Boutique software factory and proprietary cloud solutions: self-managed Linux servers, containerization, and GitHub Actions CI/CD.'
+                : 'Marca e software factory de soluções sob medida, servidores cloud autogerenciados e fluxo CI/CD com Docker e GitHub Actions.'}
+            </p>
+            <p class="black-availability-p">
+              {lang === 'es' 
+                ? 'Hoy cuento con disponibilidad full-time real para sumarme a un equipo.' 
+                : lang === 'en' 
+                ? 'Ready with immediate full-time availability to join an engineering team.' 
+                : 'Hoje conto com disponibilidade full-time real para me somar a uma equipe.'}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -165,6 +208,38 @@ const data = martialExperienceData[lang];
           seg.classList.add('is-active');
         } else {
           seg.classList.remove('is-active');
+        }
+      });
+    }
+
+    // GSAP ScrollTrigger para la transición a Cinturón Negro
+    const blackScene = document.querySelector<HTMLElement>('[data-black-belt-scene]');
+    const blackCanvas = document.getElementById('black-canvas');
+    const blackPreText = document.getElementById('black-pre-text');
+    const blackReveal = document.getElementById('black-reveal-content');
+
+    if (blackScene && blackCanvas && blackPreText && blackReveal) {
+      ScrollTrigger.create({
+        trigger: blackScene,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: true,
+        onUpdate: (self) => {
+          const p = self.progress;
+
+          // Height of black canvas expanding from center: 40px -> 100vh
+          const expandPercent = Math.min(1, p * 1.8);
+          blackCanvas.style.height = `calc(40px + ${expandPercent} * (100vh - 40px))`;
+
+          // Pre-text fades out early
+          const preOpacity = Math.max(0, Math.min(1, 1 - p * 3.5));
+          blackPreText.style.opacity = `${preOpacity}`;
+
+          // Final content fades in after 0.55 progress
+          const revealOpacity = Math.max(0, Math.min(1, (p - 0.55) * 4));
+          const revealTranslate = Math.max(0, (0.75 - p) * 80);
+          blackReveal.style.opacity = `${revealOpacity}`;
+          blackReveal.style.transform = `translateY(${revealTranslate}px)`;
         }
       });
     }
@@ -461,5 +536,143 @@ const data = martialExperienceData[lang];
       grid-template-columns: 1fr;
       gap: 0.5rem;
     }
+  }
+
+  /* Escena Pinned de Cinturón Negro (Claude Design v2) */
+  .black-belt-scene {
+    height: 280vh;
+    position: relative;
+    margin-top: 5rem;
+  }
+
+  .black-belt-sticky-wrapper {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .black-expanding-canvas {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 40px;
+    background: repeating-linear-gradient(0deg, transparent 0px, transparent 6px, rgba(242, 238, 230, 0.035) 6px, rgba(242, 238, 230, 0.035) 7px) #1c1a17;
+    will-change: height;
+  }
+
+  .black-pre-text {
+    position: absolute;
+    left: clamp(20px, 5vw, 72px);
+    right: clamp(20px, 5vw, 72px);
+    top: calc(50% - 140px);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    pointer-events: none;
+  }
+
+  .black-display-label {
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-weight: 300;
+    font-size: clamp(48px, 7vw, 112px);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--text-main);
+  }
+
+  .black-mono-sub {
+    font-family: var(--font-mono, monospace);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding-bottom: 12px;
+  }
+
+  .black-reveal-content {
+    position: absolute;
+    inset: 0;
+    padding: 100px clamp(20px, 5vw, 72px) 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 24px;
+    color: #f2eee6;
+    opacity: 0;
+    pointer-events: auto;
+  }
+
+  .black-badge-dan {
+    font-family: var(--font-mono, monospace);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #b3ab9d;
+  }
+
+  .black-main-headline {
+    margin: 0;
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-weight: 300;
+    font-size: clamp(56px, 10vw, 150px);
+    line-height: 0.88;
+    letter-spacing: -0.045em;
+    color: #f2eee6;
+  }
+
+  .black-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: 24px 64px;
+    max-width: 1100px;
+  }
+
+  .black-col-left {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .black-founder-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #ffffff;
+  }
+
+  .black-nodosur-link {
+    font-family: var(--font-mono, monospace);
+    font-size: 13px;
+    color: #b3ab9d;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .black-nodosur-link:hover {
+    color: #ffffff;
+  }
+
+  .black-col-right {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .black-editorial-p {
+    margin: 0;
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-weight: 300;
+    font-size: clamp(20px, 1.8vw, 26px);
+    line-height: 1.35;
+    color: #f2eee6;
+  }
+
+  .black-availability-p {
+    margin: 0;
+    font-size: 16px;
+    color: #cfc7b8;
   }
 </style>

@@ -1,7 +1,7 @@
 ---
 import type { Lang } from '../i18n/ui';
 import { projectsContent, automationsContent } from '../data/projects';
-import { ExternalLink, Terminal, ShieldCheck, Zap, Server } from 'lucide-astro';
+import { ExternalLink, Terminal, ShieldCheck, Zap } from 'lucide-astro';
 import ArchitectureDiagram from './ArchitectureDiagram.astro';
 
 interface Props {
@@ -11,427 +11,656 @@ interface Props {
 const { lang } = Astro.props;
 const projects = projectsContent[lang];
 const auto = automationsContent[lang];
+
+const projectImages: Record<string, string> = {
+  nodosur: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80',
+  nodofit: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80',
+  satori: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1200&q=80',
+  donpizza: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80',
+};
 ---
 
-<section id="proyectos" class="projects-section">
-  <div class="container">
-    <div class="section-header" data-reveal>
-      <div class="section-badge">
-        <Server class="badge-icon" size={14} />
-        <span>PRODUCCIÓN VIVA</span>
-      </div>
-      <h2 class="section-title">
-        {lang === 'es' ? 'Sistemas en Producción & Casos Reales' : lang === 'en' ? 'Live Production Systems & Real Cases' : 'Sistemas em Produção & Casos Reais'}
-      </h2>
-      <p class="section-subtitle">
-        {lang === 'es' 
-          ? 'Proyectos desplegados en clientes reales, resolviendo problemas de software, logística y operación.' 
-          : lang === 'en' 
-          ? 'Software deployed for real business clients, solving operational bottlenecks and logistics.' 
-          : 'Projetos implantados em clientes reais, resolvendo problemas de software, logística e operações.'}
-      </p>
+<section id="proyectos" class="projects-scrolly-section">
+  <!-- Encabezado editorial oscuro -->
+  <div class="projects-intro" data-reveal>
+    <div class="intro-badge">
+      <span class="mono-badge">{lang === 'es' ? 'PRODUCCIÓN VIVA' : lang === 'en' ? 'LIVE PRODUCTION' : 'PRODUÇÃO VIVA'}</span>
     </div>
+    <h2 class="intro-title">
+      {lang === 'es' ? 'Sistemas en Producción & Casos Reales' : lang === 'en' ? 'Live Production Systems & Real Cases' : 'Sistemas em Produção & Casos Reais'}
+    </h2>
+    <p class="intro-subtitle">
+      {lang === 'es' 
+        ? 'Proyectos desplegados en clientes reales, resolviendo problemas de software, logística y operación.' 
+        : lang === 'en' 
+        ? 'Software deployed for real business clients, solving operational bottlenecks and logistics.' 
+        : 'Projetos implantados em clientes reais, resolvendo problemas de software, logística e operações.'}
+    </p>
+  </div>
 
-    <!-- Bento Grid de Proyectos -->
-    <div class="bento-grid">
-      {projects.map((project, i) => (
-        <article
-          class:list={['bento-card', { 'bento-featured': project.featured }]}
-          data-reveal
-          style={`--reveal-delay: ${i}`}
-        >
-          <div class="card-glow"></div>
-          
-          <div class="card-header">
-            <span class="project-badge">
-              <span class="pulse-dot"></span>
-              {project.badge}
-            </span>
-            <a 
-              href={project.url} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              class="link-btn" 
-              aria-label={`Visitar ${project.name}`}
-            >
-              <span>{lang === 'es' ? 'Ver en vivo' : lang === 'en' ? 'Visit live' : 'Ver ao vivo'}</span>
-              <ExternalLink size={14} />
-            </a>
-          </div>
+  <!-- Escenas pinned de proyectos estilo Claude Design -->
+  <div class="projects-pinned-container">
+    {projects.map((pr, index) => {
+      const num = String(index + 1).padStart(2, '0');
+      const total = String(projects.length).padStart(2, '0');
+      const imgSrc = projectImages[pr.id] || projectImages.nodosur;
 
-          <div class="card-body">
-            <h3 class="project-name">{project.name}</h3>
-            <p class="project-role">{project.role} · <span class="project-cat">{project.category}</span></p>
-            <p class="project-desc">{project.description}</p>
-
-            <div class="problem-solution-box">
-              <div class="row">
-                <span class="label text-amber">{lang === 'es' ? 'Fricción:' : lang === 'en' ? 'Bottleneck:' : 'Fricção:'}</span>
-                <span class="text">{project.problem}</span>
+      return (
+        <div class="project-scene" data-project-scene id={`project-scene-${pr.id}`}>
+          <div class="project-sticky-wrapper">
+            <!-- Header superior del proyecto -->
+            <header class="project-topbar">
+              <div class="project-title-group">
+                <span class="project-seq-meta">
+                  {num} / {total} · {pr.badge}
+                </span>
+                <h3 class="project-display-title">{pr.name}</h3>
               </div>
-              <div class="row">
-                <span class="label text-cyan">{lang === 'es' ? 'Solución:' : lang === 'en' ? 'Solution:' : 'Solução:'}</span>
-                <span class="text">{project.solution}</span>
+              <div class="project-role-group">
+                <span class="project-role-text">{pr.role}</span>
+                <a 
+                  href={pr.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  class="project-live-link"
+                  aria-label={`Ver ${pr.name} en vivo`}
+                >
+                  <span>{lang === 'es' ? 'Ver en vivo' : lang === 'en' ? 'Visit live' : 'Ver ao vivo'} ↗</span>
+                </a>
               </div>
-              <div class="row">
-                <span class="label text-emerald">{lang === 'es' ? 'Impacto:' : lang === 'en' ? 'Impact:' : 'Impacto:'}</span>
-                <span class="text highlight">{project.impact}</span>
+            </header>
+
+            <!-- Grid: Screenshot + Scrollytelling de Fricción / Solución / Impacto -->
+            <div class="project-grid-main">
+              <!-- Visual Mockup / Screenshot -->
+              <div class="project-visual-col">
+                <div class="mockup-frame">
+                  <img 
+                    src={imgSrc} 
+                    alt={`Screenshot ${pr.name}`} 
+                    class="project-screenshot-img"
+                    loading="lazy"
+                  />
+                  <div class="screen-overlay-multiply"></div>
+                  <div class="screen-tag">
+                    <span class="pulse-dot"></span>
+                    <span>ONLINE · {pr.id}.dev</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pasos de Scrollytelling interactivo -->
+              <div class="project-narrative-col">
+                <!-- Barras de progreso de los 3 pasos -->
+                <div class="narrative-progress-bars">
+                  <div class="step-prog-item" data-step-prog="0">
+                    <span class="step-label">{lang === 'es' ? '01 Fricción' : lang === 'en' ? '01 Bottleneck' : '01 Fricção'}</span>
+                    <div class="prog-track"><div class="prog-bar bar-amber"></div></div>
+                  </div>
+                  <div class="step-prog-item" data-step-prog="1">
+                    <span class="step-label">{lang === 'es' ? '02 Solución' : lang === 'en' ? '02 Solution' : '02 Solução'}</span>
+                    <div class="prog-track"><div class="prog-bar bar-white"></div></div>
+                  </div>
+                  <div class="step-prog-item" data-step-prog="2">
+                    <span class="step-label">{lang === 'es' ? '03 Impacto' : lang === 'en' ? '03 Impact' : '03 Impacto'}</span>
+                    <div class="prog-track"><div class="prog-bar bar-emerald"></div></div>
+                  </div>
+                </div>
+
+                <!-- Textos superpuestos con fade de transición -->
+                <div class="narrative-content-slot">
+                  <div class="narrative-pane pane-friction active" data-pane="0">
+                    <div class="pane-meta text-amber">{lang === 'es' ? 'Fricción operativa' : lang === 'en' ? 'Operational bottleneck' : 'Fricção operacional'}</div>
+                    <p class="pane-text">"{pr.problem}"</p>
+                  </div>
+                  <div class="narrative-pane pane-solution" data-pane="1">
+                    <div class="pane-meta text-white">{lang === 'es' ? 'Solución de ingeniería' : lang === 'en' ? 'Engineering solution' : 'Solução de engenharia'}</div>
+                    <p class="pane-text">"{pr.solution}"</p>
+                  </div>
+                  <div class="narrative-pane pane-impact" data-pane="2">
+                    <div class="pane-meta text-emerald">{lang === 'es' ? 'Impacto medible' : lang === 'en' ? 'Measured impact' : 'Impacto mensurável'}</div>
+                    <p class="pane-text highlight-impact">"{pr.impact}"</p>
+                  </div>
+                </div>
+
+                <!-- Tags de tecnologías utilizadas -->
+                <div class="narrative-tech-row">
+                  {pr.tech.map((t) => (
+                    <span class="tech-pill">{t}</span>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
+        </div>
+      );
+    })}
+  </div>
 
-          <div class="card-footer">
-            <div class="tech-tags">
-              {project.tech.map((tech) => (
-                <span class="tech-tag">{tech}</span>
-              ))}
-            </div>
-          </div>
-        </article>
-      ))}
+  <!-- Automatizaciones & Bots de Negocio -->
+  <div class="automations-wrapper container">
+    <div class="auto-header" data-reveal>
+      <span class="mono-badge">
+        {lang === 'es' ? 'RESOLVIENDO CUELLOS DE BOTELLA REALES' : lang === 'en' ? 'SOLVING REAL BOTTLENECKS' : 'RESOLVENDO GARGALOS REAIS'}
+      </span>
+      <h3 class="auto-display-title">{auto.title}</h3>
+      <p class="auto-display-sub">{auto.subtitle}</p>
     </div>
 
-    <!-- Módulo de Automatizaciones Críticas -->
-    <div class="automations-box" data-reveal>
-      <div class="auto-header">
-        <div class="auto-title-group">
-          <Terminal class="text-cyan" size={20} />
-          <div>
-            <h3 class="auto-title">{auto.title}</h3>
-            <p class="auto-subtitle">{auto.subtitle}</p>
-          </div>
+    <div class="auto-cards-grid">
+      <div class="auto-editorial-card" data-reveal>
+        <div class="card-icon-line">
+          <Zap class="text-amber" size={20} />
+          <h4 class="auto-item-name">{auto.bot1Title}</h4>
+        </div>
+        <p class="auto-item-text">{auto.bot1Desc}</p>
+        <div class="auto-metric-tag">
+          <span class="metric-arrow">→</span>
+          <span class="metric-body">{auto.bot1Metric}</span>
         </div>
       </div>
 
-      <div class="auto-grid">
-        <div class="auto-card">
-          <div class="auto-card-top">
-            <Zap class="text-cyan" size={18} />
-            <h4 class="auto-item-title">{auto.bot1Title}</h4>
-          </div>
-          <p class="auto-item-desc">{auto.bot1Desc}</p>
-          <div class="auto-metric">
-            <span class="metric-label">{lang === 'es' ? 'Resultado:' : lang === 'en' ? 'Outcome:' : 'Resultado:'}</span>
-            <span class="metric-val">{auto.bot1Metric}</span>
-          </div>
+      <div class="auto-editorial-card" data-reveal style="--reveal-delay: 1">
+        <div class="card-icon-line">
+          <ShieldCheck class="text-emerald" size={20} />
+          <h4 class="auto-item-name">{auto.bot2Title}</h4>
         </div>
-
-        <div class="auto-card">
-          <div class="auto-card-top">
-            <ShieldCheck class="text-emerald" size={18} />
-            <h4 class="auto-item-title">{auto.bot2Title}</h4>
-          </div>
-          <p class="auto-item-desc">{auto.bot2Desc}</p>
-          <div class="auto-metric">
-            <span class="metric-label">{lang === 'es' ? 'Resultado:' : lang === 'en' ? 'Outcome:' : 'Resultado:'}</span>
-            <span class="metric-val">{auto.bot2Metric}</span>
-          </div>
+        <p class="auto-item-text">{auto.bot2Desc}</p>
+        <div class="auto-metric-tag">
+          <span class="metric-arrow">→</span>
+          <span class="metric-body">{auto.bot2Metric}</span>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Diagrama de Arquitectura de Producción e Infraestructura Cloud -->
+  <!-- Pipeline de Arquitectura en Producción (Cloud & Edge) -->
+  <div class="architecture-wrapper container">
     <ArchitectureDiagram lang={lang} />
   </div>
 </section>
 
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  function setupProjectScrolly() {
+    const scenes = document.querySelectorAll<HTMLElement>('.project-scene[data-project-scene]');
+    if (!scenes.length) return;
+
+    scenes.forEach((scene) => {
+      const bars = scene.querySelectorAll<HTMLElement>('.prog-bar');
+      const panes = scene.querySelectorAll<HTMLElement>('.narrative-pane');
+
+      ScrollTrigger.create({
+        trigger: scene,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: true,
+        onUpdate: (self) => {
+          const p = self.progress;
+
+          // Bar 0: Friction (0 -> 0.33)
+          const p0 = Math.min(1, Math.max(0, p * 3.1));
+          // Bar 1: Solution (0.33 -> 0.66)
+          const p1 = Math.min(1, Math.max(0, (p - 0.33) * 3.1));
+          // Bar 2: Impact (0.66 -> 1)
+          const p2 = Math.min(1, Math.max(0, (p - 0.66) * 3.1));
+
+          if (bars[0]) bars[0].style.width = `${p0 * 100}%`;
+          if (bars[1]) bars[1].style.width = `${p1 * 100}%`;
+          if (bars[2]) bars[2].style.width = `${p2 * 100}%`;
+
+          // Switch active pane based on progress thirds
+          let activeIndex = 0;
+          if (p >= 0.64) activeIndex = 2;
+          else if (p >= 0.31) activeIndex = 1;
+
+          panes.forEach((pane, idx) => {
+            if (idx === activeIndex) {
+              pane.classList.add('active');
+            } else {
+              pane.classList.remove('active');
+            }
+          });
+        }
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupProjectScrolly);
+  } else {
+    setupProjectScrolly();
+  }
+</script>
+
 <style>
-  .projects-section {
-    padding: 6.5rem 0;
-    border-top: 1px solid var(--border-subtle);
+  .projects-scrolly-section {
+    background: #1c1a17;
+    color: #f2eee6;
+    margin-top: -1px;
+    padding-bottom: 8rem;
+    position: relative;
+    border-top: 1px solid rgba(242, 238, 230, 0.12);
   }
 
-  .section-header {
-    text-align: center;
-    margin-bottom: 4.5rem;
+  .container {
+    max-width: var(--max-width, 1200px);
+    margin: 0 auto;
+    padding: 0 clamp(20px, 5vw, 48px);
   }
 
-  .section-badge {
+  /* Intro Section */
+  .projects-intro {
+    padding: clamp(80px, 14vh, 140px) clamp(20px, 5vw, 72px) clamp(40px, 8vh, 80px);
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    text-align: left;
+  }
+
+  .intro-badge {
+    margin-bottom: 0.25rem;
+  }
+
+  .mono-badge {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #b3ab9d;
+    display: inline-block;
+  }
+
+  .intro-title {
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-weight: 300;
+    font-size: clamp(2.4rem, 5.5vw, 5.2rem);
+    line-height: 0.96;
+    letter-spacing: -0.04em;
+    color: #f2eee6;
+    margin: 0;
+  }
+
+  .intro-subtitle {
+    font-size: clamp(1rem, 1.3vw, 1.2rem);
+    color: #cfc7b8;
+    max-width: 640px;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Pinned Scrollytelling Scenes */
+  .projects-pinned-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .project-scene {
+    height: 280vh;
+    position: relative;
+    border-top: 1px solid rgba(242, 238, 230, 0.12);
+  }
+
+  .project-sticky-wrapper {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(70px, 11vh, 90px) clamp(20px, 5vw, 72px) clamp(30px, 5vh, 48px);
+    box-sizing: border-box;
+  }
+
+  .project-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .project-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .project-seq-meta {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #b3ab9d;
+  }
+
+  .project-display-title {
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-weight: 300;
+    font-size: clamp(2.8rem, 6vw, 6.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.045em;
+    color: #f2eee6;
+    margin: 0;
+  }
+
+  .project-role-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    align-items: flex-start;
+  }
+
+  .project-role-text {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #f2eee6;
+  }
+
+  .project-live-link {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.8rem;
+    color: #b3ab9d;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(179, 171, 157, 0.4);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .project-live-link:hover {
+    color: #f2eee6;
+    border-color: #f2eee6;
+  }
+
+  /* Grid Layout: Visual on Left, Steps on Right */
+  .project-grid-main {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: clamp(24px, 4vw, 64px);
+    align-items: center;
+  }
+
+  .project-visual-col {
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .mockup-frame {
+    position: relative;
+    width: 100%;
+    height: clamp(260px, 45vh, 480px);
+    background: rgba(242, 238, 230, 0.05);
+    border: 1px solid rgba(242, 238, 230, 0.16);
+    overflow: hidden;
+  }
+
+  .project-screenshot-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.08);
+    display: block;
+  }
+
+  .screen-overlay-multiply {
+    position: absolute;
+    inset: 0;
+    background: #1c1a17;
+    opacity: 0.25;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+
+  .screen-tag {
+    position: absolute;
+    top: 14px;
+    left: 14px;
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
     font-family: var(--font-mono, monospace);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    margin-bottom: 0.85rem;
-  }
-
-  .section-title {
-    font-family: var(--font-serif, 'Source Serif 4', serif);
-    font-size: clamp(2.4rem, 5vw, 4.2rem);
-    font-weight: 300;
-    letter-spacing: -0.035em;
-    line-height: 0.98;
-    color: var(--text-main);
-    margin-bottom: 1rem;
-  }
-
-  .section-subtitle {
-    color: var(--text-muted);
-    font-size: 1.1rem;
-    max-width: 640px;
-    margin-inline: auto;
-    line-height: 1.55;
-  }
-
-  /* Bento Grid */
-  .bento-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
-  }
-
-  .bento-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg);
-    padding: 2.1rem;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-    transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
-  }
-
-  .bento-card:hover {
-    transform: translateY(-3px);
-    border-color: var(--accent-amber);
-  }
-
-  /* Structural break from the templated symmetric grid (T4): each
-     featured project spans the full row width and gets a hard accent
-     stripe down its left edge — read as "flagship/priority unit on
-     the control panel," not a decorative card variant. */
-  .bento-featured {
-    grid-column: 1 / -1;
-    border-left: 4px solid var(--accent-amber);
-  }
-
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.25rem;
-  }
-
-  .project-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    background: var(--bg-surface-elevated);
-    padding: 0.2rem 0.6rem;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-subtle);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: #f2eee6;
+    background: rgba(28, 26, 23, 0.85);
+    border: 1px solid rgba(242, 238, 230, 0.2);
+    padding: 0.3rem 0.6rem;
+    backdrop-filter: blur(4px);
   }
 
   .pulse-dot {
     width: 6px;
     height: 6px;
-    background: var(--accent-emerald);
     border-radius: 50%;
-    box-shadow: 0 0 6px var(--accent-emerald);
+    background: oklch(0.58 0.12 150);
+    box-shadow: 0 0 6px oklch(0.58 0.12 150);
   }
 
-  .link-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    font-family: var(--font-mono);
-    color: var(--accent-amber);
-    padding: 0.35rem 0.7rem;
-    border-radius: var(--radius-sm);
-    background: color-mix(in srgb, var(--accent-amber) 10%, transparent);
-    border: 1px solid color-mix(in srgb, var(--accent-amber) 25%, transparent);
-    transition: all var(--transition);
-  }
-
-  .link-btn:hover {
-    background: var(--accent-amber);
-    border-color: var(--accent-amber);
-    color: #12161c;
-  }
-
-  .project-name {
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: var(--text-main);
-    margin-bottom: 0.25rem;
-  }
-
-  .project-role {
-    font-size: 0.85rem;
-    color: var(--accent-blue);
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-  }
-
-  .project-cat {
-    color: var(--text-dim);
-    font-weight: 400;
-  }
-
-  .project-desc {
-    font-size: 0.95rem;
-    color: var(--text-muted);
-    line-height: 1.65;
-    margin-bottom: 1.5rem;
-  }
-
-  .problem-solution-box {
-    background: var(--bg-primary);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    padding: 1.35rem;
+  /* Narrative Scrollytelling Column */
+  .project-narrative-col {
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
-    margin-bottom: 1.75rem;
-    font-size: 0.85rem;
+    gap: 1.8rem;
+    justify-content: center;
+    padding-left: clamp(0px, 2vw, 24px);
   }
 
-  .problem-solution-box .row {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-  }
-
-  .problem-solution-box .label {
-    font-weight: 700;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .text-amber { color: var(--accent-amber); }
-  .text-cyan { color: var(--accent-cyan); }
-  .text-emerald { color: var(--accent-emerald); }
-
-  .problem-solution-box .text {
-    color: var(--text-muted);
-    line-height: 1.4;
-  }
-
-  .problem-solution-box .highlight {
-    color: var(--text-main);
-    font-weight: 500;
-  }
-
-  .card-footer {
-    margin-top: auto;
-  }
-
-  .tech-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-  }
-
-  .tech-tag {
-    font-size: 0.75rem;
-    font-family: monospace;
-    color: var(--text-dim);
-    background: var(--bg-surface-elevated);
-    padding: 0.2rem 0.5rem;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-subtle);
-  }
-
-  /* Automations Module */
-  .automations-box {
-    margin-top: 4.5rem;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg);
-    padding: 2.25rem;
-  }
-
-  .auto-header {
-    margin-bottom: 2rem;
-  }
-
-  .auto-title-group {
-    display: flex;
-    align-items: center;
+  .narrative-progress-bars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.75rem;
   }
 
-  .auto-title {
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: var(--text-main);
-  }
-
-  .auto-subtitle {
-    font-size: 0.85rem;
-    color: var(--text-dim);
-  }
-
-  .auto-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.75rem;
-  }
-
-  .auto-card {
-    background: var(--bg-primary);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    padding: 1.5rem;
+  .step-prog-item {
     display: flex;
     flex-direction: column;
+    gap: 0.45rem;
   }
 
-  .auto-card-top {
+  .step-label {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #b3ab9d;
+  }
+
+  .prog-track {
+    height: 2px;
+    background: rgba(242, 238, 230, 0.16);
+    overflow: hidden;
+  }
+
+  .prog-bar {
+    height: 100%;
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+
+  .bar-amber { background: oklch(0.84 0.15 90); }
+  .bar-white { background: #f2eee6; }
+  .bar-emerald { background: oklch(0.72 0.12 150); }
+
+  /* Narrative Panes with Crossfade */
+  .narrative-content-slot {
+    position: relative;
+    min-height: 120px;
+    display: grid;
+  }
+
+  .narrative-pane {
+    grid-area: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    pointer-events: none;
+  }
+
+  .narrative-pane.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .pane-meta {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .text-amber { color: oklch(0.84 0.15 90); }
+  .text-white { color: #f2eee6; }
+  .text-emerald { color: oklch(0.72 0.12 150); }
+
+  .pane-text {
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-weight: 300;
+    font-size: clamp(1.2rem, 1.8vw, 1.8rem);
+    line-height: 1.35;
+    color: #f2eee6;
+    margin: 0;
+  }
+
+  .highlight-impact {
+    color: #ffffff;
+  }
+
+  .narrative-tech-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.78rem;
+    color: #b3ab9d;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(242, 238, 230, 0.1);
+  }
+
+  .tech-pill {
+    position: relative;
+  }
+
+  .tech-pill:not(:last-child)::after {
+    content: '·';
+    margin-left: 1rem;
+    opacity: 0.4;
+  }
+
+  /* Automations Module */
+  .automations-wrapper {
+    margin-top: 7rem;
+    padding-top: 5rem;
+    border-top: 1px solid rgba(242, 238, 230, 0.12);
+  }
+
+  .auto-header {
+    margin-bottom: 3.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .auto-display-title {
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-weight: 300;
+    font-size: clamp(2rem, 4vw, 3.8rem);
+    letter-spacing: -0.035em;
+    color: #f2eee6;
+    margin: 0;
+  }
+
+  .auto-display-sub {
+    font-size: 1.05rem;
+    color: #cfc7b8;
+    max-width: 680px;
+    margin: 0;
+  }
+
+  .auto-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+    gap: 2.5rem 3.5rem;
+  }
+
+  .auto-editorial-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 2rem 0;
+    border-top: 1px solid rgba(242, 238, 230, 0.18);
+  }
+
+  .card-icon-line {
     display: flex;
     align-items: center;
+    gap: 0.65rem;
+  }
+
+  .auto-item-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #f2eee6;
+    margin: 0;
+  }
+
+  .auto-item-text {
+    font-size: 0.95rem;
+    color: #cfc7b8;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .auto-metric-tag {
+    margin-top: 0.5rem;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.82rem;
+    color: oklch(0.84 0.15 90);
+    display: flex;
     gap: 0.5rem;
-    margin-bottom: 0.5rem;
+    line-height: 1.4;
   }
 
-  .auto-item-title {
-    font-size: 1rem;
+  .metric-arrow {
     font-weight: 700;
-    color: var(--text-main);
   }
 
-  .auto-item-desc {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    line-height: 1.45;
-    margin-bottom: 1rem;
-  }
-
-  .auto-metric {
-    margin-top: auto;
-    background: color-mix(in srgb, var(--accent-emerald) 10%, transparent);
-    border: 1px solid color-mix(in srgb, var(--accent-emerald) 25%, transparent);
-    border-radius: var(--radius-sm);
-    padding: 0.5rem 0.75rem;
-    font-size: 0.8rem;
-    font-family: var(--font-mono);
-  }
-
-  .metric-label {
-    color: var(--accent-emerald);
-    font-weight: 700;
-    margin-right: 0.4rem;
-  }
-
-  .metric-val {
-    color: var(--text-main);
+  /* Architecture container */
+  .architecture-wrapper {
+    margin-top: 5rem;
   }
 
   @media (max-width: 900px) {
-    .bento-grid, .auto-grid {
+    .project-grid-main {
       grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .project-sticky-wrapper {
+      padding: 70px 20px 24px;
+    }
+
+    .mockup-frame {
+      height: 220px;
+    }
+
+    .pane-text {
+      font-size: 1.15rem;
     }
   }
 </style>
