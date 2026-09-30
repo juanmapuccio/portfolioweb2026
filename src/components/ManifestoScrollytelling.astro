@@ -43,12 +43,19 @@ const words = manifestoText.split(' ').map((w, i, arr) => ({
   function initManifestoScroll() {
     const section = document.querySelector<HTMLElement>('.manifesto-scroll-section');
     const words = document.querySelectorAll<HTMLElement>('.manifesto-word');
-    if (!section || !words.length) return;
+    if (!section || !words.length || section.dataset.manifestoReady === 'true') return;
+    section.dataset.manifestoReady = 'true';
+
+    // Reduced motion: the text stays fully readable, no scroll-driven reveal.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // Desktop pins the section; mobile does not, so the range follows the viewport.
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
 
     ScrollTrigger.create({
       trigger: section,
-      start: 'top top',
-      end: 'bottom bottom',
+      start: isMobile ? 'top 80%' : 'top top',
+      end: isMobile ? 'bottom 45%' : 'bottom bottom',
       scrub: 0.5,
       onUpdate: (self) => {
         const p = self.progress;
@@ -118,13 +125,27 @@ const words = manifestoText.split(' ').map((w, i, arr) => ({
     transition: opacity 0.08s linear;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
+    /* No pinning on mobile: the block costs only its own height. */
     .manifesto-scroll-section {
-      height: 200vh;
+      height: auto;
+    }
+    .manifesto-sticky-wrapper {
+      position: static;
+      height: auto;
+      gap: 20px;
+      padding: 56px clamp(20px, 5vw, 72px) 56px;
     }
     .manifesto-paragraph {
-      font-size: clamp(20px, 5.5vw, 28px);
-      line-height: 1.3;
+      font-size: clamp(18px, 4.9vw, 24px);
+      line-height: 1.36;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .manifesto-word {
+      opacity: 1;
+      transition: none;
     }
   }
 </style>

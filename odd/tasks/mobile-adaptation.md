@@ -9,9 +9,9 @@ Baseline (375px): page 30,323px; trayectoria 8,055; proyectos 12,302; stack 3,54
 - [x] M2 Compact hero on mobile (photo + CTAs in first viewport). Route: delegated writer.
 - [x] M3 Trajectory as log accordion on mobile (`<details>`, 1-column competency). Route: delegated writer.
 - [x] M4 Projects compact on mobile (fix badge overlap, technical detail in `<details>`) + dan bars counter. Route: delegated writer.
-- [ ] M5 Manifesto compact on mobile. Route: delegated writer (2+ non-trivial files).
-- [ ] M6 Stack/Skills scannable by family on mobile, detail in `<details>`. Route: delegated writer.
-- [ ] M7 Contact as obvious destination on mobile: >=44px thumb-reach actions, safe-area, persistent contact shortcut. Route: delegated writer.
+- [x] M5 Manifesto compact on mobile. Route: delegated writer (2+ non-trivial files).
+- [x] M6 Stack/Skills scannable by family on mobile, detail in `<details>`. Route: delegated writer.
+- [x] M7 Contact as obvious destination on mobile: >=44px thumb-reach actions, safe-area, persistent contact shortcut. Route: delegated writer.
 
 ## Acceptance
 - Desktop unchanged; no horizontal overflow; header height <= 72px at 375; page < ~15k px at 375.
@@ -26,3 +26,9 @@ Baseline (375px): page 30,323px; trayectoria 8,055; proyectos 12,302; stack 3,54
 - Note: Layout already had a pre-existing window scroll listener for the progress bar; left untouched. Progress bar tint already came from the timeline (belt line color).
 
 - M1-M4 committed: 520d272.
+
+- M5-M7 implemented by delegated writer, not committed. Files: ManifestoScrollytelling.astro (no pinning <=767px, reduced-motion honored at all widths, double-init guard), SkillsPhilosophySection.astro (human description in `<details>` via responsiveDetails, skills as chip rows per family), ContactSection.astro (44px+ actions, safe-area bottom padding, mobile fixed shortcut to #contacto shown after 0.8 viewport of scroll and hidden while contact is in view), Layout.astro (viewport-fit=cover), i18n/ui.ts (contact.shortcut, skills.readMore es/en/pt).
+- Verified: bun test 5 pass; astro check 0 errors; bun run build OK.
+- 375x812 es: total 14,921px (was 16,987); manifiesto 501 (1,624); stack 2,691 (3,548); contacto 1,219; scrollWidth 375. en: total 14,580, manifiesto 451, stack 2,606, contacto 1,192, scrollWidth 375. Shortcut 44px tall: hidden at top, visible mid-page, hidden at #contacto. Actions 56px / rows 86px.
+- 1440x900: manifiesto 2,340, stack 2,782, contacto 1,451 (en 1,419), totals 28,668 / 28,343: identical to pre-change master build. Details open, shortcut display none.
+- Pending: pt not measured; landscape notch side safe-area not handled (viewport-fit=cover added); only 2 philosophy items exist so 2 details.

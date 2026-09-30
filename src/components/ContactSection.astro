@@ -1,7 +1,8 @@
 ---
 import type { Lang } from '../i18n/ui';
 import { contactData, CV_URL } from '../data/contact';
-import { ArrowUpRight } from 'lucide-astro';
+import { ArrowUpRight, ArrowDown } from 'lucide-astro';
+import { useTranslations } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
@@ -9,6 +10,7 @@ interface Props {
 
 const { lang } = Astro.props;
 const data = contactData[lang];
+const t = useTranslations(lang);
 const location = lang === 'es' ? 'Rosario, Argentina' : lang === 'en' ? 'Rosario, Argentina' : 'Rosário, Argentina';
 const whatsappLabel = lang === 'es' ? 'CONVERSAR POR WHATSAPP' : lang === 'en' ? 'CHAT ON WHATSAPP' : 'CONVERSAR PELO WHATSAPP';
 const cvLabel = lang === 'es' ? 'DESCARGAR CV' : lang === 'en' ? 'DOWNLOAD CV' : 'BAIXAR CV';
@@ -52,9 +54,60 @@ const cvLabel = lang === 'es' ? 'DESCARGAR CV' : lang === 'en' ? 'DOWNLOAD CV' :
   </div>
 </section>
 
+<!-- Mobile-only shortcut to the contact section. Hidden while the section is in view. -->
+<a href="#contacto" class="contact-shortcut" data-contact-shortcut aria-hidden="true" tabindex="-1">
+  {t('contact.shortcut')}<ArrowDown size={16} aria-hidden="true" />
+</a>
+
+<script>
+  function initContactShortcut() {
+    const shortcut = document.querySelector<HTMLAnchorElement>('[data-contact-shortcut]');
+    const target = document.getElementById('contacto');
+    if (!shortcut || !target || shortcut.dataset.ready === 'true') return;
+    shortcut.dataset.ready = 'true';
+
+    let pastIntro = false;
+    let contactInView = false;
+
+    const render = () => {
+      const visible = pastIntro && !contactInView;
+      shortcut.classList.toggle('is-visible', visible);
+      shortcut.setAttribute('aria-hidden', visible ? 'false' : 'true');
+      shortcut.tabIndex = visible ? 0 : -1;
+    };
+
+    // Appears once the hero (which has its own contact CTAs) has scrolled away.
+    const onScroll = () => {
+      const next = window.scrollY > window.innerHeight * 0.8;
+      if (next !== pastIntro) {
+        pastIntro = next;
+        render();
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        contactInView = entries.some((entry) => entry.isIntersecting);
+        render();
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(target);
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initContactShortcut);
+  } else {
+    initContactShortcut();
+  }
+</script>
+
 <style>
   .contact-section {
-    padding: clamp(5rem, 10vw, 10rem) 0 2rem;
+    padding: clamp(5rem, 10vw, 10rem) 0 max(2rem, env(safe-area-inset-bottom));
     background: #1c1a17;
     color: #f2eee6;
   }
@@ -140,14 +193,57 @@ const cvLabel = lang === 'es' ? 'DESCARGAR CV' : lang === 'en' ? 'DOWNLOAD CV' :
     font-size: 0.65rem;
     letter-spacing: 0.03em;
   }
+  .contact-shortcut { display: none; }
+
   @media (max-width: 640px) {
     .contact-actions { flex-direction: column; align-items: stretch; }
-    .contact-action { width: 100%; }
-    .contact-row { align-items: flex-start; flex-direction: column; gap: 0.6rem; min-height: 0; }
+    .contact-action { width: 100%; min-height: 3.5rem; }
+    .contact-row { align-items: flex-start; flex-direction: column; gap: 0.6rem; min-height: 3.5rem; }
     .contact-row-value { text-align: left; }
     .contact-footer { flex-direction: column; }
   }
+  @media (max-width: 767px) {
+    .contact-section { padding-top: 4rem; }
+    .contact-actions { margin-top: 1.75rem; }
+    .contact-rows { margin-top: 3rem; }
+    .contact-row { padding: 1rem 0; }
+
+    .contact-shortcut {
+      position: fixed;
+      right: max(1rem, env(safe-area-inset-right));
+      bottom: max(1rem, env(safe-area-inset-bottom));
+      z-index: 40;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0 1rem;
+      background: #1c1a17;
+      color: #f2eee6;
+      border: 1px solid rgba(242, 238, 230, 0.35);
+      box-shadow: 0 6px 16px rgba(28, 26, 23, 0.28);
+      font-family: var(--font-mono, monospace);
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      opacity: 0;
+      transform: translateY(8px);
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 220ms cubic-bezier(0.16, 1, 0.3, 1), transform 220ms cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 220ms;
+    }
+    .contact-shortcut.is-visible {
+      opacity: 1;
+      transform: none;
+      visibility: visible;
+      pointer-events: auto;
+      transition-delay: 0s;
+    }
+    .contact-shortcut:focus-visible { outline: 2px solid #b6d3b8; outline-offset: 3px; }
+  }
   @media (prefers-reduced-motion: reduce) {
-    .contact-action, .contact-row { transition: none; }
+    .contact-action, .contact-row, .contact-shortcut { transition: none; }
+    .contact-shortcut { transform: none; }
   }
 </style>
