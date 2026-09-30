@@ -9,6 +9,7 @@ import MartialExperienceTimeline from './MartialExperienceTimeline.astro';
 import SkillsPhilosophySection from './SkillsPhilosophySection.astro';
 import ContactSection from './ContactSection.astro';
 import Belt3D from './Belt3D.astro';
+import BeltKnot from './BeltKnot.astro';
 
 interface Props {
   lang: Lang;
@@ -17,6 +18,8 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 const beltStages = martialExperienceData[lang].stages;
+const initialBeltStage = beltStages[0];
+const initialBelt = BELTS[initialBeltStage?.beltKey ?? 'blanco'];
 ---
 
 <Layout
@@ -25,50 +28,6 @@ const beltStages = martialExperienceData[lang].stages;
   lang={lang}
 >
   <div class="portfolio-shell">
-    <aside class="belt-stage-rail" aria-label={martialExperienceData[lang].sectionBadge}>
-      <div class="belt-stage-rail-sticky">
-        <div class="belt-sticky-monitor" id="belt-sticky-monitor">
-          <span class="belt-gup-row" id="monitor-meta">
-            <span id="monitor-gup">10º gup</span> · <span id="monitor-years">2011</span>
-          </span>
-          <p class="belt-display-name" id="monitor-belt-name">{BELTS.blanco.beltName[lang]}</p>
-          <div class="belt-strap" id="monitor-strap"></div>
-          <div class="belt-dots-row" aria-hidden="true">
-            {beltStages.map((stage) => {
-              const belt = BELTS[stage.beltKey];
-              return <span class="belt-dot-bar" data-belt-step={stage.beltKey} style={`--dot-color: ${belt.color};`} />;
-            })}
-          </div>
-          <p class="belt-caption">
-            {lang === 'es'
-              ? 'Los grados del Taekwondo ITF, del blanco al negro, como mapa de cada etapa.'
-              : lang === 'en'
-              ? 'Taekwondo ITF belt ranks, from white to black, as a blueprint of each milestone.'
-              : 'As graduações do Taekwondo ITF, da branca à preta, como mapa de cada etapa.'}
-          </p>
-        </div>
-
-        <nav class="belt-stage-navigation" aria-label={martialExperienceData[lang].sectionBadge}>
-          {beltStages.map((stage) => {
-            const belt = BELTS[stage.beltKey];
-            const target = stage.beltKey === 'negro' ? 'black-belt-transition' : `stage-${stage.beltKey}`;
-            return (
-              <a
-                class="belt-stage-link"
-                data-belt-key={stage.beltKey}
-                aria-current={stage.beltKey === beltStages[0]?.beltKey ? 'step' : undefined}
-                href={`#${target}`}
-              >
-                <span class="belt-stage-swatch" style={`--stage-color: ${belt.color};`} aria-hidden="true"></span>
-                <span>{belt.gup}</span>
-                <span class="belt-stage-name">{belt.beltName[lang]}</span>
-              </a>
-            );
-          })}
-        </nav>
-      </div>
-    </aside>
-
     <main class="portfolio-main-column">
   <section id="top" class="hero-pinned-scene">
     <div class="hero-sticky-container">
@@ -144,9 +103,52 @@ const beltStages = martialExperienceData[lang].stages;
   <ContactSection lang={lang} />
     </main>
 
-    <aside class="belt-viewer-column" aria-label={martialExperienceData[lang].sectionBadge}>
-      <div class="belt-viewer-sticky">
-        <Belt3D />
+    <aside class="belt-console-column" aria-label={martialExperienceData[lang].sectionBadge}>
+      <div class="belt-console">
+        <div class="belt-sticky-monitor" id="belt-sticky-monitor">
+          <span class="belt-gup-row" id="monitor-meta">
+            <span id="monitor-gup">{initialBelt.gup}</span> · <span id="monitor-years">{initialBeltStage?.years}</span>
+          </span>
+          <p class="belt-display-name" id="monitor-belt-name">{BELTS.blanco.beltName[lang]}</p>
+          <div class="belt-strap" id="monitor-strap"></div>
+          <div class="belt-dots-row" aria-hidden="true">
+            {beltStages.map((stage) => {
+              const belt = BELTS[stage.beltKey];
+              return <span class="belt-dot-bar" data-belt-step={stage.beltKey} style={`--dot-color: ${belt.color};`} />;
+            })}
+          </div>
+          <p class="belt-caption">
+            {lang === 'es'
+              ? 'Los grados del Taekwondo ITF, del blanco al negro, como mapa de cada etapa.'
+              : lang === 'en'
+              ? 'Taekwondo ITF belt ranks, from white to black, as a blueprint of each milestone.'
+              : 'As graduações do Taekwondo ITF, da branca à preta, como mapa de cada etapa.'}
+          </p>
+        </div>
+
+        <div class="belt-console-model-stage">
+          <Belt3D />
+          <BeltKnot class="belt-console-fallback" />
+        </div>
+
+        <nav class="belt-stage-navigation" aria-label={martialExperienceData[lang].sectionBadge}>
+          {beltStages.map((stage) => {
+            const belt = BELTS[stage.beltKey];
+            const target = stage.beltKey === 'negro' ? 'black-belt-transition' : `stage-${stage.beltKey}`;
+            return (
+              <a
+                class="belt-stage-link"
+                data-belt-key={stage.beltKey}
+                aria-current={stage.beltKey === beltStages[0]?.beltKey ? 'step' : undefined}
+                href={`#${target}`}
+              >
+                <span class="belt-stage-swatch" style={`--stage-color: ${belt.color};`} aria-hidden="true"></span>
+                <span>{belt.gup}</span>
+                <span class="belt-stage-name">{belt.beltName[lang]}</span>
+              </a>
+            );
+          })}
+        </nav>
       </div>
     </aside>
   </div>
@@ -154,40 +156,43 @@ const beltStages = martialExperienceData[lang].stages;
 
 <style>
   .portfolio-shell {
-    width: min(100%, 1600px);
+    width: min(100%, 1920px);
     margin-inline: auto;
-    padding-inline: clamp(16px, 3vw, 48px);
+    padding-inline: clamp(20px, 2.5vw, 40px);
     display: grid;
-    grid-template-columns: minmax(112px, 0.8fr) minmax(0, 4fr) minmax(220px, 2fr);
-    gap: clamp(16px, 2vw, 32px);
+    grid-template-columns: minmax(0, 1.45fr) minmax(360px, 0.9fr);
+    gap: clamp(24px, 3vw, 56px);
     align-items: stretch;
   }
 
-  .belt-stage-rail,
-  .belt-viewer-column {
+  .portfolio-main-column,
+  .belt-console-column {
     min-width: 0;
   }
 
-  .belt-stage-rail-sticky,
-  .belt-viewer-sticky {
+  .belt-console {
     position: sticky;
     top: 76px;
     box-sizing: border-box;
-    height: min(680px, calc(100vh - 92px));
-    min-height: 340px;
-  }
-
-  .belt-stage-rail-sticky {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 28px;
+    width: min(100%, 680px, 78vh);
+    aspect-ratio: 1;
+    margin-inline: auto;
+    overflow: hidden;
+    background: #f8f6f0;
+    border: 1px solid rgba(28, 26, 23, 0.2);
   }
 
   .belt-sticky-monitor {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
+    position: absolute;
+    z-index: 2;
+    top: clamp(16px, 2vw, 28px);
+    left: clamp(16px, 2vw, 28px);
+    right: clamp(16px, 2vw, 28px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 76px;
+    gap: 8px 12px;
+    padding: 0 0 10px;
+    background: #f8f6f0;
   }
 
   .belt-gup-row,
@@ -198,12 +203,14 @@ const beltStages = martialExperienceData[lang].stages;
   }
 
   .belt-gup-row {
+    grid-column: 1;
     font-size: 11px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
   .belt-display-name {
+    grid-column: 1;
     margin: 0;
     font-family: var(--font-serif, 'Source Serif 4', serif);
     font-size: clamp(21px, 2vw, 30px);
@@ -213,7 +220,11 @@ const beltStages = martialExperienceData[lang].stages;
   }
 
   .belt-strap {
-    height: 34px;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    width: 76px;
+    height: 18px;
     border: 1px solid rgba(28, 26, 23, 0.22);
     background-color: #f8f6f0;
     background-image: repeating-linear-gradient(0deg, transparent 0 6px, rgba(28, 26, 23, 0.08) 6px 7px);
@@ -221,6 +232,7 @@ const beltStages = martialExperienceData[lang].stages;
   }
 
   .belt-dots-row {
+    grid-column: 1 / -1;
     display: flex;
     gap: 4px;
   }
@@ -235,15 +247,45 @@ const beltStages = martialExperienceData[lang].stages;
   }
 
   .belt-caption {
+    grid-column: 1 / -1;
     margin: 0;
     font-size: 10px;
     line-height: 1.5;
     text-wrap: pretty;
   }
 
+  .belt-console-model-stage {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  :global(.belt-console-fallback) {
+    position: absolute;
+    z-index: 1;
+    width: min(42%, 220px);
+    height: auto;
+    pointer-events: none;
+    --knot-fill: var(--active-belt-color, #f8f6f0);
+    --knot-stroke: #1c1a17;
+  }
+
+  :global(.belt3d-root:not([hidden]) ~ .belt-console-fallback) {
+    display: none;
+  }
+
   .belt-stage-navigation {
-    display: flex;
-    flex-direction: column;
+    position: absolute;
+    z-index: 2;
+    left: clamp(16px, 2vw, 28px);
+    right: clamp(16px, 2vw, 28px);
+    bottom: clamp(16px, 2vw, 28px);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px clamp(8px, 1.2vw, 16px);
+    padding-top: 8px;
+    background: #f8f6f0;
   }
 
   .belt-stage-link {
@@ -292,20 +334,13 @@ const beltStages = martialExperienceData[lang].stages;
     outline-offset: 2px;
   }
 
-  .belt-viewer-sticky {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   @media (max-width: 1023px) {
     .portfolio-shell {
       display: block;
       padding: 0;
     }
 
-    .belt-stage-rail,
-    .belt-viewer-column {
+    .belt-console-column {
       display: none;
     }
   }

@@ -13,6 +13,39 @@ const martialTimeline = await readFile(new URL('../src/components/MartialExperie
 const layout = await readFile(new URL('../src/layouts/Layout.astro', import.meta.url), 'utf8');
 
 describe('final portfolio sections', () => {
+  test('unifies the model, current stage console, and native navigation in one square desktop zone', () => {
+    const beltConsole = homePage.match(/<aside class="belt-console-column"[\s\S]*?<\/aside>/)?.[0] ?? '';
+    const shellStyles = homePage.match(/\.portfolio-shell\s*\{([^}]+)\}/)?.[1] ?? '';
+
+    expect(beltConsole).toContain('class="belt-console"');
+    expect(beltConsole).toContain('id="belt-sticky-monitor"');
+    expect(beltConsole).toContain('id="monitor-gup"');
+    expect(beltConsole).toContain('id="monitor-years"');
+    expect(beltConsole).toContain('id="monitor-belt-name"');
+    expect(beltConsole).toContain('id="monitor-strap"');
+    expect(beltConsole).toContain('<Belt3D />');
+    expect(beltConsole).toContain('<BeltKnot class="belt-console-fallback" />');
+    expect(homePage).toContain('const initialBelt = BELTS[initialBeltStage?.beltKey ?? \'blanco\'];');
+    expect(homePage).toContain('--knot-fill: var(--active-belt-color, #f8f6f0)');
+    expect(homePage).toContain('--knot-stroke: #1c1a17');
+    expect(beltConsole).toContain('class="belt-stage-navigation"');
+    expect(beltConsole).toContain('href={`#${target}`}');
+    expect(beltConsole).toContain('Los grados del Taekwondo ITF, del blanco al negro, como mapa de cada etapa.');
+    expect(beltConsole).toContain('Taekwondo ITF belt ranks, from white to black, as a blueprint of each milestone.');
+    expect(beltConsole).toContain('As graduações do Taekwondo ITF, da branca à preta, como mapa de cada etapa.');
+    expect((shellStyles.match(/minmax\(/g) ?? []).length).toBe(2);
+    expect(shellStyles).toContain('align-items: stretch;');
+    expect(homePage).toContain('aspect-ratio: 1;');
+    expect(homePage).not.toContain('class="belt-stage-rail"');
+    expect(homePage).not.toContain('class="belt-viewer-column"');
+
+    const glbLoadIndex = belt3d.indexOf('new GLTFLoader().load(');
+    const viewerRevealIndex = belt3d.indexOf('root.hidden = false;', glbLoadIndex);
+    expect(belt3d).toContain('<div id="belt3d-root" class="belt3d-root" aria-hidden="true" hidden>');
+    expect(glbLoadIndex >= 0).toBe(true);
+    expect(viewerRevealIndex > glbLoadIndex).toBe(true);
+  });
+
   test('keeps the compact header knot stroke stable without changing the mobile header geometry', () => {
     expect(layout).toContain('--knot-stroke: #1c1a17');
     expect(layout).toContain('height: 60px;');
@@ -29,6 +62,7 @@ describe('final portfolio sections', () => {
     expect(layout).toContain("dataset.activeBeltColor");
     expect(layout).toContain("window.addEventListener('belt:change', syncHeaderBeltColor)");
     expect(layout).toContain("setProperty('--active-belt-color', color)");
+    expect(layout).toContain("document.documentElement.style.setProperty('--active-belt-color', color)");
     expect(layout).toContain('.header-grade-pill');
     const tabletHeaderStyles = layout.slice(layout.indexOf('@media (max-width: 1023px)'), layout.indexOf('/* Mobile:'));
     expect(tabletHeaderStyles).toContain('.header-belt-swatch {\n      display: none;');
@@ -92,19 +126,19 @@ describe('final portfolio sections', () => {
     expect(homePage).toContain('<p class="belt-display-name" id="monitor-belt-name">{BELTS.blanco.beltName[lang]}</p>');
   });
 
-  test('places the existing page flow between a belt-stage rail and sticky desktop viewer', () => {
+  test('places the existing page flow beside a single sticky belt console', () => {
     expect(homePage).toContain('class="portfolio-shell"');
-    expect(homePage).toContain('class="belt-stage-rail"');
     expect(homePage).toContain('class="portfolio-main-column"');
-    expect(homePage).toContain('class="belt-viewer-column"');
+    expect(homePage).toContain('class="belt-console-column"');
+    expect(homePage).toContain('class="belt-console"');
     expect(homePage.indexOf('<div class="portfolio-shell">')).toBeLessThan(homePage.indexOf('<main class="portfolio-main-column">'));
-    expect(homePage.indexOf('<main class="portfolio-main-column">')).toBeLessThan(homePage.indexOf('<aside class="belt-viewer-column"'));
-    expect(homePage).toContain('<div class="belt-viewer-sticky">\n        <Belt3D />\n      </div>');
-    expect(/\.belt-viewer-sticky\s*\{[^}]*position:\s*sticky/s.test(homePage)).toBe(true);
+    expect(homePage.indexOf('<main class="portfolio-main-column">')).toBeLessThan(homePage.indexOf('<aside class="belt-console-column"'));
+    expect(/\.belt-console\s*\{[^}]*position:\s*sticky/s.test(homePage)).toBe(true);
 
     for (const stage of martialExperienceData.es.stages) {
       expect(homePage).toContain('const target = stage.beltKey === \'negro\' ? \'black-belt-transition\' : `stage-${stage.beltKey}`;');
       expect(homePage).toContain('href={`#${target}`}');
+      expect(homePage).toContain('data-belt-key={stage.beltKey}');
       expect(martialTimeline.includes(stage.beltKey === 'negro' ? 'id="black-belt-transition"' : 'id={`stage-${stage.beltKey}`}')).toBe(true);
       expect(Boolean(BELTS[stage.beltKey].beltName.es)).toBe(true);
     }

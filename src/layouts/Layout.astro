@@ -168,6 +168,7 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
   const headerGradePill = document.querySelector<HTMLElement>('.header-grade-pill');
   function setHeaderBeltColor(color: string) {
     headerGradePill?.style.setProperty('--active-belt-color', color);
+    document.documentElement.style.setProperty('--active-belt-color', color);
   }
 
   const initialBeltColor = document.documentElement.dataset.activeBeltColor;

@@ -93,7 +93,6 @@
     if (dispose || !eligible()) return;
 
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
-    root.hidden = false;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setSize(SIZE, SIZE, false);
     renderer.setClearColor(0x000000, 0);
@@ -162,6 +161,7 @@
         belt.add(wrap);
         loaded = wrap;
         applyTint();
+        root.hidden = false;
       },
       undefined,
       () => {
