@@ -32,3 +32,4 @@ Baseline (375px): page 30,323px; trayectoria 8,055; proyectos 12,302; stack 3,54
 - 375x812 es: total 14,921px (was 16,987); manifiesto 501 (1,624); stack 2,691 (3,548); contacto 1,219; scrollWidth 375. en: total 14,580, manifiesto 451, stack 2,606, contacto 1,192, scrollWidth 375. Shortcut 44px tall: hidden at top, visible mid-page, hidden at #contacto. Actions 56px / rows 86px.
 - 1440x900: manifiesto 2,340, stack 2,782, contacto 1,451 (en 1,419), totals 28,668 / 28,343: identical to pre-change master build. Details open, shortcut display none.
 - Pending: pt not measured; landscape notch side safe-area not handled (viewport-fit=cover added); only 2 philosophy items exist so 2 details.
+- M5-M7 committed: d1e6b08. Parent re-ran bun test (5 pass) and astro check (0 errors).
