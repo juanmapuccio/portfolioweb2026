@@ -9,6 +9,9 @@ Baseline (375px): page 30,323px; trayectoria 8,055; proyectos 12,302; stack 3,54
 - [x] M2 Compact hero on mobile (photo + CTAs in first viewport). Route: delegated writer.
 - [x] M3 Trajectory as log accordion on mobile (`<details>`, 1-column competency). Route: delegated writer.
 - [x] M4 Projects compact on mobile (fix badge overlap, technical detail in `<details>`) + dan bars counter. Route: delegated writer.
+- [ ] M5 Manifesto compact on mobile. Route: delegated writer (2+ non-trivial files).
+- [ ] M6 Stack/Skills scannable by family on mobile, detail in `<details>`. Route: delegated writer.
+- [ ] M7 Contact as obvious destination on mobile: >=44px thumb-reach actions, safe-area, persistent contact shortcut. Route: delegated writer.
 
 ## Acceptance
 - Desktop unchanged; no horizontal overflow; header height <= 72px at 375; page < ~15k px at 375.
@@ -21,3 +24,5 @@ Baseline (375px): page 30,323px; trayectoria 8,055; proyectos 12,302; stack 3,54
 - 1440x900: sections identical to baseline except proyectos +14px (dan band); position row geometry identical; dan bars light per project (1000 -> 1110 while scrolling).
 - Pending vs acceptance: total 16,987px is above the ~15k target (manifiesto 1,624 and stack 3,548 are out of M1-M4 scope; hiding friction/solution panes on mobile would save ~1.5-2k).
 - Note: Layout already had a pre-existing window scroll listener for the progress bar; left untouched. Progress bar tint already came from the timeline (belt line color).
+
+- M1-M4 committed: 520d272.
