@@ -45,16 +45,6 @@ const canonicalUrl = siteUrl + localePaths[lang];
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..700;1,300..700&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Noto+Sans+KR:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&display=swap" rel="stylesheet" />
 
-    <!-- Script inline: Claro por defecto absoluto a menos que el usuario haya elegido 'dark' explícitamente -->
-    <script is:inline>
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      } else {
-        document.documentElement.removeAttribute('data-theme');
-      }
-    </script>
-
     <!-- Reveal-on-scroll gate: added early so [data-reveal] only starts
          hidden once JS is confirmed running, preventing any no-JS flash. -->
     <script is:inline>

@@ -1,4 +1,4 @@
-# Design System & Creative Direction (v3: Editorial Organic + EyeCare Dark)
+# Design System & Creative Direction (v3: Editorial Organic)
 
 **Proyecto:** Portfolio 2026 — Juan Manuel Puccio (`portfolioweb-puccio2026`)
 **Dirección:** Editorial, orgánica y de alta legibilidad, orientada a reclutadores y equipos técnicos.
@@ -10,9 +10,7 @@
 
 Portfolio de desarrollador full-stack con una dirección **editorial, orgánica y de alta legibilidad**. Se descartan los patrones genéricos de IA (gradientes morados, negros puros, cards con sombra + borde) en favor de una claridad operativa inspirada en papel editorial de calidad, cerámica y lino técnico.
 
-**Dos temas:**
-- **Claro (default — Warm Editorial Organic):** arena suave, blanco roto cálido, tinta carbón. Máxima legibilidad diurna.
-- **Oscuro (EyeCare Muted Slate):** grafito mate cálido, nunca negro absoluto. Protección visual en sesiones prolongadas.
+**Tema único (Warm Editorial Organic):** arena suave, blanco roto cálido, tinta carbón. Máxima legibilidad diurna. No hay tema oscuro.
 
 **Ejes de identidad:**
 - El cinturón de Taekwondo ITF como metáfora narrativa del progreso técnico (10º gup → 1º dan).
@@ -85,38 +83,6 @@ Valores verificados contra `src/styles/global.css`.
 }
 ```
 
-### Tema Oscuro (EyeCare)
-
-```css
-html[data-theme='dark'] {
-  color-scheme: dark;
-
-  --bg-primary:          #15181c;  /* Grafito neutro (no #000) */
-  --bg-surface:          #1d2127;
-  --bg-surface-elevated: #242932;
-  --bg-surface-hover:    #2c323d;
-
-  --border-subtle: #2d3440;
-  --border-strong: #434d5e;
-
-  --text-main:  #edf2f7;
-  --text-muted: #a0aec0;
-  --text-dim:   #8492a6;
-
-  --accent-cyan:    #38bdf8;
-  --accent-blue:    #60a5fa;
-  --accent-emerald: #34d399;
-  --accent-amber:   #fbbf24;
-
-  --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.25);
-
-  /* Polaridad NO invertida en oscuro: el fondo baja apenas a blanco roto
-     para no deslumbrar, conservando contraste muy por encima del mínimo. */
-  --qr-bg: #f2f4f7;
-  --qr-fg: #12161c;
-}
-```
-
 ### Escala de cinturones (narrativa marcial)
 
 | Grado | Color |
@@ -153,15 +119,7 @@ html[data-theme='dark'] {
 
 ---
 
-## 6. Selector de Tema (EyeCare Toggle)
-
-- Botón accesible en el header que alterna `html[data-theme]`.
-- Persistencia en `localStorage`; fallback a `prefers-color-scheme`.
-- El QR mantiene polaridad propia (`--qr-bg` / `--qr-fg`) para no invertirse en oscuro.
-
----
-
-## 7. Accesibilidad
+## 6. Accesibilidad
 
 - Contraste mínimo 4.5:1 (texto) y 3:1 (display).
 - `::selection` invierte tinta/fondo.
@@ -172,7 +130,7 @@ html[data-theme='dark'] {
 
 ---
 
-## 8. Decisiones de Marca
+## 7. Decisiones de Marca
 
 - **Sin emoji**: solo tipografía e iconografía vectorial consistente.
 - **Monospace para meta**: fechas, labels y referencias en IBM Plex Mono.

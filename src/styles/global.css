@@ -40,35 +40,6 @@
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 }
 
-/* =========================================================
-   TEMA OSCURO (EyeCare Muted Slate & Warm Graphite)
-   ========================================================= */
-html[data-theme='dark'] {
-  color-scheme: dark;
-
-  --bg-primary: #15181c;          /* Grafito neutro suave (no negro #000) */
-  --bg-surface: #1d2127;          /* Tarjetas mate de descanso visual */
-  --bg-surface-elevated: #242932; /* Sub-bloques con contraste descansado */
-  --bg-surface-hover: #2c323d;    /* Hover suave */
-
-  --border-subtle: #2d3440;       /* Micro-bordes sutiles */
-  --border-strong: #434d5e;
-
-  --text-main: #edf2f7;           /* Blanco marfil descansado (evita resplandor) */
-  --text-muted: #a0aec0;          /* Gris medio equilibrado */
-  --text-dim: #8492a6;            /* Metadatos */
-
-  --accent-cyan: #38bdf8;         /* Azul cielo suave */
-  --accent-blue: #60a5fa;
-  --accent-emerald: #34d399;      /* Esmeralda suave */
-  --accent-amber: #fbbf24;        /* Ámbar suave */
-  --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.25);
-
-  /* La polaridad NO se invierte en oscuro. El fondo baja apenas a un
-     blanco roto para no deslumbrar en el tema EyeCare, conservando un
-     contraste muy por encima del mínimo que necesita un lector. */
-}
-
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;

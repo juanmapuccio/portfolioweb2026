@@ -92,9 +92,9 @@ src/
 ├── i18n/
 │   └── ui.ts                   # All copy in 3 languages + CV URL
 ├── layouts/
-│   └── Layout.astro            # HTML boilerplate, theme toggle
+│   └── Layout.astro            # HTML boilerplate
 └── styles/
-    └── global.css              # Design tokens, light/dark themes
+    └── global.css              # Design tokens
 ```
 
 ---
@@ -103,9 +103,8 @@ src/
 
 - **Fast & Accessible:** Static HTML, semantic markup, WCAG-compliant
 - **Mobile-First:** Optimized for QR code access, <300ms TTFB on 4G
-- **Theme Toggle:** Light (warm editorial) ↔ Dark (EyeCare muted) via CSS tokens
 - **Multilingual:** Route-based i18n (no slug in URL for default locale)
-- **Local QR:** Generated at build time, themed via CSS tokens, no external dependency
+- **Local QR:** Generated at build time, no external dependency
 - **Centralized Content:** Translations and data in single sources (`ui.ts`, `data/`)
 - **Type-Safe:** TypeScript strict mode, no implicit `any`
 
@@ -114,7 +113,7 @@ src/
 ## 📄 Documentation
 
 - **[AGENTS.md](AGENTS.md)** — Engineering criteria, architecture rules, skills registry
-- **[DESIGN.md](DESIGN.md)** — Design system v2: warm editorial light, EyeCare dark, color tokens
+- **[DESIGN.md](DESIGN.md)** — Design system: warm editorial light theme, color tokens
 - **[docs/ANALISIS_STACK_TECNOLOGICO.md](docs/ANALISIS_STACK_TECNOLOGICO.md)** — Stack decisions & islands strategy
 - **[docs/COPY_Y_DICCIONARIO_WEB.md](docs/COPY_Y_DICCIONARIO_WEB.md)** — All page copy (ES/EN/PT)
 
