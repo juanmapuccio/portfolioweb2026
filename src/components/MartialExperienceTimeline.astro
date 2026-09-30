@@ -279,6 +279,13 @@ const blackStage = data.stages.find((stage) => stage.beltKey === 'negro');
 
     if (blackScene && blackCanvas && blackPreText && blackReveal) {
       const blackStageIndex = Array.from(dotBars).findIndex((bar) => bar.dataset.beltStep === blackScene.dataset.beltKey);
+      // One scrubbed signal for the whole transition: the scene visuals below,
+      // the grade metadata flip, and the 3D model tint (Belt3D listens for
+      // belt:black-progress) all read this same progress. The tint scrubs
+      // across a window centered on the flip, so forward/reverse/fast scroll
+      // can never leave model and monitor on opposite sides of the threshold.
+      const BLACK_GRADE_FLIP = 0.4;
+      const TINT_HALF_WIDTH = 0.1;
       ScrollTrigger.create({
         trigger: blackScene,
         start: 'top top',
@@ -301,7 +308,7 @@ const blackStage = data.stages.find((stage) => stage.beltKey === 'negro');
           blackReveal.style.opacity = `${revealOpacity}`;
           blackReveal.style.transform = `translateY(${revealTranslate}px)`;
 
-          const shouldShowBlackBelt = p > 0.4;
+          const shouldShowBlackBelt = p > BLACK_GRADE_FLIP;
           if (shouldShowBlackBelt !== blackBeltActive) {
             blackBeltActive = shouldShowBlackBelt;
             if (blackBeltActive) {
@@ -326,6 +333,19 @@ const blackStage = data.stages.find((stage) => stage.beltKey === 'negro');
               );
             }
           }
+
+          // Same signal drives the model tint: no wall-clock tween at the
+          // flip. Dispatched after the metadata update so the scrubbed tint
+          // always has the last word within one update.
+          const tintMix = Math.max(0, Math.min(1, (p - (BLACK_GRADE_FLIP - TINT_HALF_WIDTH)) / (TINT_HALF_WIDTH * 2)));
+          window.dispatchEvent(new CustomEvent('belt:black-progress', {
+            detail: {
+              progress: p,
+              mix: tintMix,
+              from: lastNonBlackStage?.color ?? blackScene.dataset.beltColor,
+              to: blackScene.dataset.beltColor,
+            },
+          }));
         }
       });
     }

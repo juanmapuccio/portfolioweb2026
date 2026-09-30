@@ -121,6 +121,37 @@ describe('final portfolio sections', () => {
     expect(belt3d).not.toContain("document.querySelector<HTMLElement>('[data-black-belt-scene]')");
   });
 
+  test('drives black scene, model tint, and grade metadata from one scrubbed progress signal', () => {
+    // One signal: the existing black-belt ScrollTrigger's scrubbed progress.
+    expect(martialTimeline).toContain('scrub: true,');
+    expect(martialTimeline).toContain('const BLACK_GRADE_FLIP = 0.4;');
+    expect(martialTimeline).toContain('const shouldShowBlackBelt = p > BLACK_GRADE_FLIP;');
+    expect(martialTimeline).not.toContain('p > 0.4');
+    expect(martialTimeline).toContain(
+      'const tintMix = Math.max(0, Math.min(1, (p - (BLACK_GRADE_FLIP - TINT_HALF_WIDTH)) / (TINT_HALF_WIDTH * 2)));'
+    );
+    expect(martialTimeline).toContain("window.dispatchEvent(new CustomEvent('belt:black-progress'");
+    expect(martialTimeline).toContain('progress: p,');
+    expect(martialTimeline).toContain('mix: tintMix,');
+    expect(martialTimeline).toContain('from: lastNonBlackStage?.color ?? blackScene.dataset.beltColor');
+    expect(martialTimeline).toContain('to: blackScene.dataset.beltColor');
+
+    // The progress dispatch lands after the metadata flip in the same update,
+    // so the tint has the last word at the threshold.
+    const flipIndex = martialTimeline.indexOf('if (shouldShowBlackBelt !== blackBeltActive)');
+    const progressIndex = martialTimeline.indexOf("new CustomEvent('belt:black-progress'");
+    expect(flipIndex >= 0).toBe(true);
+    expect(progressIndex > flipIndex).toBe(true);
+
+    // Belt3D consumes that progress; the wall-clock tint/spin tweens are gone.
+    expect(belt3d).toContain("window.addEventListener('belt:black-progress', onBlackProgress)");
+    expect(belt3d).toContain('cur.copy(scrubFrom).lerp(scrubTo, d.mix);');
+    expect(belt3d).toContain("window.removeEventListener('belt:black-progress', onBlackProgress)");
+    expect(belt3d).not.toContain('duration: 0.6');
+    expect(/gsap\.to\(state,\s*\{\s*mix/.test(belt3d)).toBe(false);
+    expect(/gsap\.to\(state,\s*\{\s*spin/.test(belt3d)).toBe(false);
+  });
+
   test('keeps the belt monitor label outside the page heading hierarchy', () => {
     expect(homePage).not.toContain('<h2 class="belt-display-name" id="monitor-belt-name">');
     expect(homePage).toContain('<p class="belt-display-name" id="monitor-belt-name">{BELTS.blanco.beltName[lang]}</p>');

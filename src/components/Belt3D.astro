@@ -187,38 +187,46 @@
       });
     }
 
-    // State driven by GSAP and the render loop.
-    const state = { drag: 0, spin: 0, mix: 1 };
-    const from = new THREE.Color(0xf8f6f0);
+    // State driven by GSAP (drag only). Belt color is never wall-clock
+    // animated: stage changes apply immediately from belt:change, and the
+    // red-to-black transition is scrubbed from scroll progress below.
+    const state = { drag: 0 };
     const to = new THREE.Color(0xf8f6f0);
-    const setTarget = (css: string, animate: boolean) => {
+    const setTarget = (css: string) => {
       const [r, g, b] = cssToRgb(css);
-      from.copy(cur);
       to.setRGB(r, g, b, THREE.SRGBColorSpace);
-      gsap.killTweensOf(state, 'mix,spin');
-      if (!animate) {
-        cur.copy(to);
-        applyTint();
-        state.mix = 1;
-        return;
-      }
-      state.mix = 0;
-      state.spin = 0;
-      gsap.to(state, { mix: 1, duration: 0.6, ease: 'power2.inOut' });
-      gsap.to(state, { spin: Math.PI * 2, duration: 0.9, ease: 'power2.inOut', onComplete: () => { state.spin = 0; } });
+      cur.copy(to);
+      applyTint();
     };
 
     // Active belt: same source of truth as the header indicator (CustomEvent from the timeline).
     let activeColor = document.documentElement.dataset.activeBeltColor || '#f8f6f0';
-    const applyColor = (animate: boolean) => setTarget(activeColor, animate);
-    applyColor(false);
+    setTarget(activeColor);
     const onBelt = (e: Event) => {
       const c = (e as CustomEvent<{ color?: string }>).detail?.color;
       if (!c || c === activeColor) return;
       activeColor = c;
-      applyColor(true);
+      setTarget(c);
     };
     window.addEventListener('belt:change', onBelt);
+
+    // Black-scene progress: MartialExperienceTimeline's scrubbed ScrollTrigger
+    // emits one signal that already drives the scene visuals and the grade
+    // metadata; the tint reads the same progress, so forward, reverse, and
+    // fast scrolling keep model and monitor coherent.
+    const scrubFrom = new THREE.Color();
+    const scrubTo = new THREE.Color();
+    const onBlackProgress = (e: Event) => {
+      const d = (e as CustomEvent<{ progress: number; mix: number; from?: string; to?: string }>).detail;
+      if (!d || !d.from || !d.to) return;
+      const [fr, fg, fb] = cssToRgb(d.from);
+      const [tr, tg, tb] = cssToRgb(d.to);
+      scrubFrom.setRGB(fr, fg, fb, THREE.SRGBColorSpace);
+      scrubTo.setRGB(tr, tg, tb, THREE.SRGBColorSpace);
+      cur.copy(scrubFrom).lerp(scrubTo, d.mix);
+      applyTint();
+    };
+    window.addEventListener('belt:black-progress', onBlackProgress);
 
     // Drag: rotate Y only, eases back on release. No wheel handling.
     let dragging = false;
@@ -255,12 +263,8 @@
       raf = requestAnimationFrame(frame);
       const t = (performance.now() - t0) / 1000;
       lastT = t;
-      if (state.mix < 1) {
-        cur.copy(from).lerp(to, state.mix);
-        applyTint();
-      }
       const auto = dragging ? 0 : Math.sin(t * 0.6) * THREE.MathUtils.degToRad(12);
-      belt.rotation.y = state.drag + auto + state.spin;
+      belt.rotation.y = state.drag + auto;
       belt.scale.setScalar(1.01 + 0.01 * Math.sin(t * 1.2));
       renderer.render(scene, camera);
     };
@@ -278,6 +282,7 @@
       cancelAnimationFrame(raf);
       document.removeEventListener('visibilitychange', onVis);
       window.removeEventListener('belt:change', onBelt);
+      window.removeEventListener('belt:black-progress', onBlackProgress);
       canvas!.removeEventListener('pointerdown', onDown);
       canvas!.removeEventListener('pointermove', onMove);
       canvas!.removeEventListener('pointerup', onUp);
