@@ -18,46 +18,8 @@ const data = martialExperienceData[lang];
     <p class="trayectoria-lede">{data.subtitle}</p>
   </div>
 
-  <!-- Layout dividido 5fr / 7fr: Rail Sticky a la izquierda, Etapas a la derecha -->
+  <!-- Existing belt progression and experience chapters -->
   <div class="trayectoria-grid">
-    <!-- Rail Sticky Izquierdo (Monitor Marcial) -->
-    <aside class="belt-rail-wrapper" aria-hidden="true">
-      <div class="belt-sticky-monitor" id="belt-sticky-monitor">
-        <span class="belt-gup-row" id="monitor-meta">
-          <span id="monitor-gup">10º gup</span> · <span id="monitor-years">2011</span>
-        </span>
-
-        <h3 class="belt-display-name" id="monitor-belt-name">{BELTS.blanco.beltName[lang]}</h3>
-
-        <!-- Barra de tela de 72px con textura rayada y transición de color suave -->
-        <div class="belt-strap" id="monitor-strap"></div>
-
-        <!-- Indicador de 6 segmentos lineales de progreso -->
-        <div class="belt-dots-row">
-          {data.stages.map((stage) => {
-            const belt = BELTS[stage.beltKey];
-            return (
-              <span
-                class="belt-dot-bar"
-                data-belt-step={stage.beltKey}
-                style={`--dot-color: ${belt.color};`}
-                title={`${belt.beltName[lang]} (${stage.years})`}
-              />
-            );
-          })}
-        </div>
-
-        <p class="belt-caption">
-          {lang === 'es'
-            ? 'Los grados del Taekwondo ITF, del blanco al negro, como mapa de cada etapa.'
-            : lang === 'en'
-            ? 'Taekwondo ITF belt ranks, from white to black, as a blueprint of each milestone.'
-            : 'As graduações do Taekwondo ITF, da branca à preta, como mapa de cada etapa.'}
-        </p>
-      </div>
-    </aside>
-
-    <!-- Columna de Etapas a la derecha -->
     <div class="stages-column">
       {data.stages.filter(s => s.beltKey !== 'negro').map((stage, index) => {
         const belt = BELTS[stage.beltKey];
@@ -374,87 +336,9 @@ const data = martialExperienceData[lang];
     text-wrap: pretty;
   }
 
-  /* Grid Layout: 5fr a la izquierda (sticky belt) / 7fr a la derecha (etapas) */
+  /* The page-level belt rail now owns the sticky monitor. */
   .trayectoria-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    gap: clamp(40px, 6vw, 120px);
-    align-items: start;
     position: relative;
-  }
-
-  /* Columna izquierda Sticky: Monitor Marcial */
-  .belt-rail-wrapper {
-    display: block;
-    position: relative;
-    height: 100%;
-  }
-
-  .belt-sticky-monitor {
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 26px;
-    padding-top: 60px;
-    box-sizing: border-box;
-  }
-
-  .belt-gup-row {
-    font-family: var(--font-mono, monospace);
-    font-size: 13px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #4a463f;
-  }
-
-  .belt-display-name {
-    margin: 0;
-    font-family: var(--font-serif, 'Source Serif 4', serif);
-    font-weight: 300;
-    font-size: clamp(40px, 4.6vw, 76px);
-    line-height: 0.95;
-    letter-spacing: -0.035em;
-    color: #1c1a17;
-  }
-
-  .belt-strap {
-    height: 72px;
-    border: 1px solid rgba(28, 26, 23, 0.22);
-    background-color: #f8f6f0;
-    background-image: repeating-linear-gradient(
-      0deg,
-      transparent 0px,
-      transparent 6px,
-      rgba(28, 26, 23, 0.08) 6px,
-      rgba(28, 26, 23, 0.08) 7px
-    );
-    transition: background-color 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
-  }
-
-  .belt-dots-row {
-    display: flex;
-    gap: 6px;
-  }
-
-  .belt-dot-bar {
-    flex: 1;
-    height: 10px;
-    border: 1px solid rgba(28, 26, 23, 0.25);
-    background: var(--dot-color);
-    opacity: 0.2;
-    transition: opacity 0.4s ease;
-  }
-
-  .belt-caption {
-    font-family: var(--font-mono, monospace);
-    font-size: 12px;
-    color: #6a645a;
-    max-width: 340px;
-    line-height: 1.5;
-    margin: 0;
   }
 
   /* Columna derecha: Flujo de etapas */
@@ -634,13 +518,6 @@ const data = martialExperienceData[lang];
   }
 
   @media (max-width: 900px) {
-    .trayectoria-grid {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 0;
-    }
-    .belt-rail-wrapper {
-      display: none;
-    }
     .position-dates-col {
       margin-bottom: 8px;
     }

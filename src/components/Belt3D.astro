@@ -1,5 +1,5 @@
 ---
-// Decorative 3D belt, desktop only. Visible only while the trajectory section (#trayectoria) is on screen.
+// Desktop-only 3D belt rendered inside the page-level sticky viewer.
 // three.js is imported dynamically after desktop + WebGL + motion checks pass.
 ---
 
@@ -9,23 +9,20 @@
 
 <style>
   .belt3d-root {
-    position: fixed;
-    left: 0;
-    bottom: 24px;
-    width: 340px;
-    height: 340px;
-    z-index: 30;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     pointer-events: none;
-    opacity: 0;
-    transform-origin: 0 100%;
-    will-change: transform, opacity;
   }
   .belt3d-root[hidden] {
     display: none;
   }
   .belt3d-canvas {
-    width: 100%;
-    height: 100%;
+    width: min(100%, 340px);
+    height: auto;
+    aspect-ratio: 1;
     display: block;
     pointer-events: auto;
     cursor: grab;
@@ -48,7 +45,6 @@
   gsap.registerPlugin(ScrollTrigger);
 
   const SIZE = 340;
-  const STAGE_SCALE = 0.5;
   const FIT = 2.9;
   // Orientation of the model so the knot faces the camera (radians x,y,z).
   const MODEL_ROT: [number, number, number] = [0, 0, 0];
@@ -100,6 +96,7 @@
     if (dispose || !eligible()) return;
 
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
+    root.hidden = false;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setSize(SIZE, SIZE, false);
     renderer.setClearColor(0x000000, 0);
@@ -167,12 +164,6 @@
         wrap.rotation.set(MODEL_ROT[0], MODEL_ROT[1], MODEL_ROT[2]);
         belt.add(wrap);
         loaded = wrap;
-        // Where the visible belt's left edge sits inside the canvas (px), so it can align to the flat belt.
-        wrap.updateMatrixWorld(true);
-        const wb = new THREE.Box3().setFromObject(wrap);
-        const ndc = new THREE.Vector3(wb.min.x, (wb.min.y + wb.max.y) / 2, wb.max.z).project(camera);
-        padLeft = Math.max(0, ((ndc.x + 1) / 2) * SIZE);
-        layout();
         applyTint();
       },
       undefined,
@@ -180,7 +171,6 @@
         if (root) root.hidden = true;
       }
     );
-    let padLeft = 0;
     let loaded: InstanceType<typeof THREE.Group> | null = null;
     function disposeTree(obj: InstanceType<typeof THREE.Object3D>) {
       const seen = new Set<unknown>();
@@ -234,30 +224,7 @@
     };
     window.addEventListener('belt:change', onBelt);
 
-    // Visibility and layout: only inside #trayectoria.
-    const strap = document.getElementById('monitor-strap');
-    // Align the visible 3D belt edge with the flat belt column (recomputed on resize / refresh).
-    const stageX = () => (strap ? strap.getBoundingClientRect().left : 24) - padLeft * STAGE_SCALE;
-    const layout = () => gsap.set(root, { x: stageX() });
-    gsap.set(root, { x: stageX(), scale: STAGE_SCALE * 0.8, opacity: 0 });
-    root!.hidden = false;
-    const show = () => gsap.to(root, { opacity: 1, scale: STAGE_SCALE, duration: 0.5, ease: 'power2.out', overwrite: 'auto' });
-    const hide = () => gsap.to(root, { opacity: 0, scale: STAGE_SCALE * 0.8, duration: 0.4, ease: 'power2.in', overwrite: 'auto' });
-
     const triggers: ScrollTrigger[] = [];
-    const section = document.getElementById('trayectoria');
-    if (section) {
-      triggers.push(
-        ScrollTrigger.create({
-          trigger: section,
-          start: 'top 60%',
-          end: 'bottom 40%',
-          onToggle: (self) => (self.isActive ? show() : hide()),
-        })
-      );
-      // The trigger is created late (on idle), so sync with the current scroll position.
-      if (triggers[0].isActive) show();
-    }
     const blackScene = document.querySelector<HTMLElement>('[data-black-belt-scene]');
     if (blackScene) {
       triggers.push(
@@ -272,11 +239,6 @@
         })
       );
     }
-    const ro = new ResizeObserver(layout);
-    ro.observe(document.documentElement);
-    if (strap) ro.observe(strap);
-    ScrollTrigger.addEventListener('refresh', layout);
-
     // Drag: rotate Y only, eases back on release. No wheel handling.
     let dragging = false;
     let lastX = 0;
@@ -334,8 +296,6 @@
     dispose = () => {
       cancelAnimationFrame(raf);
       document.removeEventListener('visibilitychange', onVis);
-      ro.disconnect();
-      ScrollTrigger.removeEventListener('refresh', layout);
       window.removeEventListener('belt:change', onBelt);
       canvas!.removeEventListener('pointerdown', onDown);
       canvas!.removeEventListener('pointermove', onMove);
@@ -343,7 +303,6 @@
       canvas!.removeEventListener('pointercancel', onUp);
       triggers.forEach((tr) => tr.kill());
       gsap.killTweensOf(state);
-      gsap.killTweensOf(root);
       alive = false;
       if (loaded) disposeTree(loaded);
       envRT.dispose();
