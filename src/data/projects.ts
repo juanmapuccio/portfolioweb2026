@@ -28,7 +28,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       solution: 'Desarrollo de sistemas propietarios desplegados en infraestructura cloud propia (Linux, Docker, GitHub Actions) con integraciones fiscales.',
       impact: 'Clientes activos en producción (Satori Dojo, Don Pizza) con monitoreo y control de versiones centralizado, y consultoría IT y gestión de base de datos para Seiton Motors.',
       url: 'https://nodosur.dev',
-      tech: ['Astro', 'TypeScript', 'Docker', 'Linux Cloud', 'CI/CD'],
+      tech: ['Astro', 'TypeScript', 'React', 'GSAP'],
       featured: true
     },
     {
@@ -42,7 +42,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       solution: 'Plataforma ágil con dashboard operativo en tiempo real, alertas de cuotas vencidas y métricas de retención de alumnos.',
       impact: 'En producción activa reduciendo a cero las horas de conciliación manual de cobros y accesos.',
       url: 'https://nodofit.com.ar',
-      tech: ['Next.js', 'Supabase', 'Cron Jobs', 'REST APIs'],
+      tech: ['Next.js', 'PostgreSQL', 'Tailwind', 'Supabase', 'REST APIs'],
       featured: false
     },
     {
@@ -86,7 +86,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       solution: 'Proprietary systems deployed on our own cloud infrastructure (Linux, Docker, GitHub Actions) with fiscal integrations.',
       impact: 'Active production clients (Satori Dojo, Don Pizza) with centralized versioning and monitoring, plus IT consulting and database management for Seiton Motors.',
       url: 'https://nodosur.dev',
-      tech: ['Astro', 'TypeScript', 'Docker', 'Linux Cloud', 'CI/CD'],
+      tech: ['Astro', 'TypeScript', 'React', 'GSAP'],
       featured: true
     },
     {
@@ -100,7 +100,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       solution: 'Agile platform with a real-time operational dashboard, overdue-fee alerts, and student retention metrics.',
       impact: 'Live in production, reducing to zero the hours of manual reconciliation of payments and access.',
       url: 'https://nodofit.com.ar',
-      tech: ['Next.js', 'Supabase', 'Cron Jobs', 'REST APIs'],
+      tech: ['Next.js', 'PostgreSQL', 'Tailwind', 'Supabase', 'REST APIs'],
       featured: false
     },
     {
@@ -144,7 +144,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       solution: 'Sistemas proprietários implantados em infraestrutura cloud própria (Linux, Docker, GitHub Actions) com integrações fiscais.',
       impact: 'Clientes ativos em produção (Satori Dojo, Don Pizza) com monitoramento e controle de versões centralizado, e consultoria de TI e gestão de banco de dados para a Seiton Motors.',
       url: 'https://nodosur.dev',
-      tech: ['Astro', 'TypeScript', 'Docker', 'Linux Cloud', 'CI/CD'],
+      tech: ['Astro', 'TypeScript', 'React', 'GSAP'],
       featured: true
     },
     {
@@ -158,7 +158,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       solution: 'Plataforma ágil com dashboard operacional em tempo real, alertas de mensalidades vencidas e métricas de retenção de alunos.',
       impact: 'Em produção ativa, reduzindo a zero as horas de conciliação manual de cobranças e acessos.',
       url: 'https://nodofit.com.ar',
-      tech: ['Next.js', 'Supabase', 'Cron Jobs', 'REST APIs'],
+      tech: ['Next.js', 'PostgreSQL', 'Tailwind', 'Supabase', 'REST APIs'],
       featured: false
     },
     {
