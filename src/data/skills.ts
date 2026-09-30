@@ -169,7 +169,7 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
       {
         title: 'Pensamento Crítico & Ética de Sistemas',
         subtitle: 'Graduação em Filosofia (UNR — em andamento)',
-        description: 'A faturamento fiscal com ARCA (ex AFIP) que integrei nunca roda sozinha: cada nota passa por validação humana antes de ser emitida. Prefiro um sistema mais lento e auditável a um rápido que ninguém entende quando falha.',
+        description: 'O faturamento fiscal com ARCA (ex AFIP) que integrei nunca roda sozinho: cada nota passa por validação humana antes de ser emitida. Prefiro um sistema mais lento e auditável a um rápido que ninguém entende quando falha.',
         quote: 'Um bot que automatiza sem ninguém revisando o resultado não é uma solução, é um risco novo.'
       },
       {

@@ -11,6 +11,13 @@ interface Props {
 const { lang } = Astro.props;
 const projects = projectsContent[lang];
 const auto = automationsContent[lang];
+
+// Terminal-style mockup copy. Only real data is shown: stack, status, environment.
+const mock = {
+  es: { stack: 'STACK', statusLabel: 'ESTADO', envLabel: 'ENTORNO', statusValue: 'Activo', envValue: 'Producción', statusLine: 'estado: activo', scopeLine: 'alcance', tag: 'ACTIVO' },
+  en: { stack: 'STACK', statusLabel: 'STATUS', envLabel: 'ENVIRONMENT', statusValue: 'Active', envValue: 'Production', statusLine: 'status: active', scopeLine: 'scope', tag: 'ACTIVE' },
+  pt: { stack: 'STACK', statusLabel: 'STATUS', envLabel: 'AMBIENTE', statusValue: 'Ativo', envValue: 'Produção', statusLine: 'status: ativo', scopeLine: 'escopo', tag: 'ATIVO' },
+}[lang];
 ---
 
 <section id="proyectos" class="projects-scrolly-section">
@@ -87,37 +94,32 @@ const auto = automationsContent[lang];
                       <span class="address-lock">🔒</span>
                       <span class="address-text">{pr.url.replace('https://', '')}</span>
                     </div>
-                    <div class="window-status-pill">
-                      <span class="pulse-dot"></span>
-                      <span>HTTP 200 OK</span>
-                    </div>
                   </div>
 
                   <div class="blueprint-inner-body">
                     <div class="blueprint-sys-meta">
                       <span class="sys-id">SYSTEM_ID // {pr.id.toUpperCase()}_CORE</span>
-                      <span class="sys-env">ENV: PRODUCTION</span>
                     </div>
                     
                     <div class="blueprint-metric-grid">
                       <div class="blueprint-metric-card">
-                        <span class="metric-label">{lang === 'es' ? 'DISPONIBILIDAD' : lang === 'en' ? 'UPTIME' : 'DISPONIBILIDADE'}</span>
-                        <span class="metric-val">99.98%</span>
-                      </div>
-                      <div class="blueprint-metric-card">
-                        <span class="metric-label">{lang === 'es' ? 'LATENCIA CORE' : lang === 'en' ? 'CORE LATENCY' : 'LATÊNCIA CORE'}</span>
-                        <span class="metric-val">&lt; 45ms</span>
-                      </div>
-                      <div class="blueprint-metric-card">
-                        <span class="metric-label">{lang === 'es' ? 'INFRAESTRUCTURA' : lang === 'en' ? 'INFRA' : 'INFRAESTRUTURA'}</span>
+                        <span class="metric-label">{mock.stack}</span>
                         <span class="metric-val">{pr.tech[0]}</span>
+                      </div>
+                      <div class="blueprint-metric-card">
+                        <span class="metric-label">{mock.statusLabel}</span>
+                        <span class="metric-val">{mock.statusValue}</span>
+                      </div>
+                      <div class="blueprint-metric-card">
+                        <span class="metric-label">{mock.envLabel}</span>
+                        <span class="metric-val">{mock.envValue}</span>
                       </div>
                     </div>
 
                     <div class="blueprint-terminal-box">
                       <div class="terminal-line"><span class="cmd-prompt">&gt;</span> <span class="cmd-run">target --verify</span> <span class="cmd-arg">{pr.name}</span></div>
-                      <div class="terminal-line text-muted">&gt; status: active · automated checks passing</div>
-                      <div class="terminal-line text-highlight">&gt; scope: {pr.category}</div>
+                      <div class="terminal-line text-muted">&gt; {mock.statusLine}</div>
+                      <div class="terminal-line text-highlight">&gt; {mock.scopeLine}: {pr.category}</div>
                     </div>
 
                     <div class="blueprint-circuit-grid">
@@ -131,7 +133,7 @@ const auto = automationsContent[lang];
 
                   <div class="screen-tag">
                     <span class="pulse-dot"></span>
-                    <span>ACTIVE · {pr.id}</span>
+                    <span>{mock.tag} · {pr.id}</span>
                   </div>
                 </div>
                 </details>
@@ -571,14 +573,6 @@ const auto = automationsContent[lang];
     border: 1px solid rgba(242, 238, 230, 0.08);
   }
 
-  .window-status-pill {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-size: 0.68rem;
-    color: #34d399;
-  }
-
   .blueprint-inner-body {
     padding: 1.25rem;
     display: flex;
@@ -610,6 +604,7 @@ const auto = automationsContent[lang];
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    min-width: 0;
   }
 
   .metric-label {
@@ -622,6 +617,7 @@ const auto = automationsContent[lang];
     font-size: 0.95rem;
     font-weight: 700;
     color: #f2eee6;
+    overflow-wrap: anywhere;
   }
 
   .blueprint-terminal-box {
