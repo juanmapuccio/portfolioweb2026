@@ -21,7 +21,7 @@ describe('final portfolio sections', () => {
     expect(martial?.subtitle).toBe('Profesor Internacional de Taekwondo ITF (+10 años)');
     expect(martial?.description).toContain('Más de una década formando a niños, jóvenes y adultos.');
     expect(martial?.quote).toBe('La constancia vence a la improvisación; la templanza resuelve la urgencia.');
-    expect(ethics?.subtitle).toBe('Licenciatura en Filosofía (UNR — en curso)');
+    expect(ethics?.subtitle).toBe('Licenciatura en Filosofía (UNR, en curso)');
     expect(ethics?.description).toContain('cada comprobante pasa por validación humana antes de emitirse');
     expect(ethics?.quote).toBe('Un bot que automatiza sin nadie revisando el resultado no es una solución, es un riesgo nuevo.');
   });

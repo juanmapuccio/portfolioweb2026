@@ -56,13 +56,13 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
         title: 'Certificaciones & Idiomas',
         badge: 'Formación Continua',
         description: 'Formación certificada en las tres nubes principales y una base sólida en ciencias de la computación.',
-        items: ['AWS Certified Cloud Practitioner (2025)', 'Microsoft Certified: Azure Fundamentals — AZ-900 (2025)', 'Google Cloud Computing Foundations (2024)', 'CS50: Introduction to Computer Science — Harvard/edX (2023)', 'Python desde Cero a Desarrollador — Udemy (2022)', 'Inglés B2 — lectura técnica fluida']
+        items: ['AWS Certified Cloud Practitioner (2025)', 'Microsoft Certified: Azure Fundamentals · AZ-900 (2025)', 'Google Cloud Computing Foundations (2024)', 'CS50: Introduction to Computer Science · Harvard/edX (2023)', 'Python desde Cero a Desarrollador · Udemy (2022)', 'Inglés B2: lectura técnica fluida']
       }
     ],
     philosophy: [
       {
         title: 'Pensamiento Crítico y Ética de Sistemas',
-        subtitle: 'Licenciatura en Filosofía (UNR — en curso)',
+        subtitle: 'Licenciatura en Filosofía (UNR, en curso)',
         description: 'La facturación fiscal con ARCA (ex AFIP) que integré nunca corre sola: cada comprobante pasa por validación humana antes de emitirse. Prefiero un sistema más lento y auditable a uno rápido que nadie entiende cuando falla.',
         quote: 'Un bot que automatiza sin nadie revisando el resultado no es una solución, es un riesgo nuevo.'
       },
@@ -109,15 +109,15 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
         title: 'Certifications & Languages',
         badge: 'Continuous Learning',
         description: 'Certified across the three major clouds, with a solid computer science foundation.',
-        items: ['AWS Certified Cloud Practitioner (2025)', 'Microsoft Certified: Azure Fundamentals — AZ-900 (2025)', 'Google Cloud Computing Foundations (2024)', 'CS50: Introduction to Computer Science — Harvard/edX (2023)', 'Python from Zero to Developer — Udemy (2022)', 'English B2 — fluent technical reading']
+        items: ['AWS Certified Cloud Practitioner (2025)', 'Microsoft Certified: Azure Fundamentals · AZ-900 (2025)', 'Google Cloud Computing Foundations (2024)', 'CS50: Introduction to Computer Science · Harvard/edX (2023)', 'Python from Zero to Developer · Udemy (2022)', 'English B2: fluent technical reading']
       }
     ],
     philosophy: [
       {
         title: 'Critical Thinking & Systems Ethics',
-        subtitle: 'Undergraduate in Philosophy (UNR — in progress)',
+        subtitle: 'Undergraduate in Philosophy (UNR, in progress)',
         description: "The ARCA (ex AFIP) fiscal invoicing I integrated never runs unsupervised: every receipt passes through human validation before it's issued. I'd rather ship a slower, auditable system than a fast one nobody understands when it breaks.",
-        quote: "A bot that automates without anyone checking the output isn't a solution — it's a new risk."
+        quote: "A bot that automates without anyone checking the output isn't a solution, it's a new risk."
       },
       {
         title: 'Leadership, Discipline & Martial Composure',
@@ -162,13 +162,13 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
         title: 'Certificações & Idiomas',
         badge: 'Formação Contínua',
         description: 'Formação certificada nas três principais nuvens e uma base sólida em ciência da computação.',
-        items: ['AWS Certified Cloud Practitioner (2025)', 'Microsoft Certified: Azure Fundamentals — AZ-900 (2025)', 'Google Cloud Computing Foundations (2024)', 'CS50: Introduction to Computer Science — Harvard/edX (2023)', 'Python do Zero ao Desenvolvedor — Udemy (2022)', 'Inglês B2 — leitura técnica fluente']
+        items: ['AWS Certified Cloud Practitioner (2025)', 'Microsoft Certified: Azure Fundamentals · AZ-900 (2025)', 'Google Cloud Computing Foundations (2024)', 'CS50: Introduction to Computer Science · Harvard/edX (2023)', 'Python do Zero ao Desenvolvedor · Udemy (2022)', 'Inglês B2: leitura técnica fluente']
       }
     ],
     philosophy: [
       {
         title: 'Pensamento Crítico & Ética de Sistemas',
-        subtitle: 'Graduação em Filosofia (UNR — em andamento)',
+        subtitle: 'Graduação em Filosofia (UNR, em andamento)',
         description: 'O faturamento fiscal com ARCA (ex AFIP) que integrei nunca roda sozinho: cada nota passa por validação humana antes de ser emitida. Prefiro um sistema mais lento e auditável a um rápido que ninguém entende quando falha.',
         quote: 'Um bot que automatiza sem ninguém revisando o resultado não é uma solução, é um risco novo.'
       },

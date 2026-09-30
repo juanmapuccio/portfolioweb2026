@@ -213,14 +213,14 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         positions: [
           {
             dates: 'Mar 2015 — Sep 2015',
-            role: 'Field Sales Representative — Healthcare Services',
+            role: 'Field Sales Representative, Healthcare Services',
             org: 'AS MED S.A.',
             description: 'Door-to-door sales of healthcare plans, handling face-to-face commercial closing.',
             transferableCompetency: 'Direct negotiation, client empathy, and resilient communication.'
           },
           {
             dates: 'May 2013 — Jan 2014',
-            role: 'Field Sales Representative — Savings Plans',
+            role: 'Field Sales Representative, Savings Plans',
             org: 'Providus S.A.',
             description: 'Direct sales of capitalization and savings plans with active pipeline follow-up.',
             transferableCompetency: 'Ethical persuasion, daily discipline, and sales resilience.'
@@ -353,14 +353,14 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         positions: [
           {
             dates: 'Mar 2015 — Set 2015',
-            role: 'Representante Comercial — Serviços de Saúde',
+            role: 'Representante Comercial, Serviços de Saúde',
             org: 'AS MED S.A.',
             description: 'Vendas presenciais porta a porta de planos de saúde e fechamento comercial direto.',
             transferableCompetency: 'Negociação direta, empatia com o cliente e comunicação interpessoal.'
           },
           {
             dates: 'Mai 2013 — Jan 2014',
-            role: 'Representante Comercial — Planos de Capitalização',
+            role: 'Representante Comercial, Planos de Capitalização',
             org: 'Providus S.A.',
             description: 'Venda direta porta a porta de planos de capitalização e poupança, com acompanhamento comercial de carteira.',
             transferableCompetency: 'Persuasão ética, disciplina diária e resiliência comercial.'
