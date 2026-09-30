@@ -86,10 +86,12 @@ const data = martialExperienceData[lang];
 
             <div class="stage-positions-stack">
               {stage.positions.map((pos) => (
-                <div class="position-row" data-reveal>
-                  <span class="position-dates-col">{pos.dates}</span>
-                  <div class="position-body-col">
-                    <div class="position-role-title">{pos.role}</div>
+                <details class="position-row" data-reveal open>
+                  <summary class="position-summary">
+                    <span class="position-dates-col">{pos.dates}</span>
+                    <span class="position-role-title">{pos.role}</span>
+                  </summary>
+                  <div class="position-more">
                     <div class="position-org-title">{pos.org}</div>
                     {pos.description && <p class="position-desc-text">{pos.description}</p>}
                     {pos.transferableCompetency && (
@@ -99,7 +101,7 @@ const data = martialExperienceData[lang];
                       </div>
                     )}
                   </div>
-                </div>
+                </details>
               ))}
             </div>
           </article>
@@ -156,9 +158,12 @@ const data = martialExperienceData[lang];
   import { gsap } from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
+  import { initResponsiveDetails } from '../scripts/responsiveDetails';
+
   gsap.registerPlugin(ScrollTrigger);
 
   function setupMartialTimeline() {
+    initResponsiveDetails('.position-row');
     const stageBlocks = document.querySelectorAll<HTMLElement>('.stage-scroll-block[data-belt-key]');
     const monitorGup = document.getElementById('monitor-gup');
     const monitorYears = document.getElementById('monitor-years');
@@ -170,6 +175,20 @@ const data = martialExperienceData[lang];
     const headerBeltSwatch = document.getElementById('header-belt-indicator');
     const headerGupText = document.getElementById('header-gup-indicator');
     const headerProgressBar = document.getElementById('header-scroll-progress');
+
+    // Header chip: grade number stays, the "gup"/"dan" word is hidden on mobile via CSS.
+    function setHeaderGup(text: string) {
+      if (!headerGupText || headerGupText.dataset.gup === text) return;
+      headerGupText.dataset.gup = text;
+      const [num, ...rest] = text.split(' ');
+      headerGupText.textContent = num;
+      if (rest.length) {
+        const word = document.createElement('span');
+        word.className = 'header-gup-word';
+        word.textContent = ` ${rest.join(' ')}`;
+        headerGupText.appendChild(word);
+      }
+    }
 
     if (!stageBlocks.length || !monitorGup || !monitorYears || !monitorBeltName || !monitorStrap) {
       return;
@@ -226,7 +245,7 @@ const data = martialExperienceData[lang];
         headerBeltSwatch.style.backgroundColor = color;
       }
       if (headerGupText && gup) {
-        headerGupText.textContent = gup;
+        setHeaderGup(gup);
       }
       if (headerProgressBar && activeLineColor) {
         headerProgressBar.style.backgroundColor = activeLineColor;
@@ -282,7 +301,7 @@ const data = martialExperienceData[lang];
           // When passing into black belt scene, sync header to black belt
           if (p > 0.4) {
             if (headerBeltSwatch) headerBeltSwatch.style.backgroundColor = '#1c1a17';
-            if (headerGupText) headerGupText.textContent = '1º dan';
+            if (headerGupText) setHeaderGup('1º dan');
             if (headerProgressBar) headerProgressBar.style.backgroundColor = '#1c1a17';
           } else {
             // Restore previous belt (rojo - stageBlocks[stageBlocks.length - 1])
@@ -291,7 +310,7 @@ const data = martialExperienceData[lang];
               const prevColor = lastStage.dataset.beltColor || 'oklch(0.56 0.17 28)';
               const prevLine = lastStage.dataset.beltLine || prevColor;
               headerBeltSwatch.style.backgroundColor = prevColor;
-              headerGupText.textContent = lastStage.dataset.gup || '2º gup';
+              setHeaderGup(lastStage.dataset.gup || '2º gup');
               headerProgressBar.style.backgroundColor = prevLine;
             }
           }
@@ -521,31 +540,43 @@ const data = martialExperienceData[lang];
     flex-direction: column;
   }
 
+  /* One markup for desktop and mobile: <details open> that only collapses
+     below 768px. Desktop keeps the dates | body two-column layout. */
   .position-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 32px;
+    position: relative;
     padding: 26px 0;
     border-top: 1px solid rgba(28, 26, 23, 0.14);
   }
 
+  .position-summary {
+    display: block;
+    list-style: none;
+    cursor: default;
+    max-width: 640px;
+  }
+
+  .position-summary::-webkit-details-marker {
+    display: none;
+  }
+
   .position-dates-col {
-    flex: 0 0 170px;
+    display: block;
+    margin-bottom: 10px;
     font-family: var(--font-mono, monospace);
     font-size: 13px;
     color: #7a746a;
-    padding-top: 4px;
   }
 
-  .position-body-col {
-    flex: 1 1 320px;
+  .position-more {
     display: flex;
     flex-direction: column;
     gap: 8px;
     max-width: 640px;
+    margin-top: 8px;
   }
 
   .position-role-title {
+    display: block;
     font-size: 20px;
     font-weight: 600;
     line-height: 1.25;
@@ -597,12 +628,99 @@ const data = martialExperienceData[lang];
     .belt-rail-wrapper {
       display: none;
     }
+    .position-dates-col {
+      margin-bottom: 8px;
+    }
+  }
+
+  @media (min-width: 1170px) {
     .position-row {
-      flex-direction: column;
-      gap: 8px;
+      padding-left: 202px;
     }
     .position-dates-col {
-      flex: none;
+      position: absolute;
+      left: 0;
+      top: 30px;
+      width: 170px;
+      margin: 0;
+    }
+  }
+
+  /* Mobile (< 768px): each position is a collapsed log row (belt strip,
+     dates, role) that opens as a native accordion. Desktop is untouched. */
+  @media (max-width: 767px) {
+    .trayectoria-intro {
+      min-height: 0;
+      padding: 88px 0 32px;
+      gap: 14px;
+    }
+    .trayectoria-lede {
+      font-size: 16px;
+    }
+    .stage-scroll-block {
+      min-height: 0;
+      padding-top: 40px;
+      padding-bottom: 24px;
+      gap: 16px;
+    }
+    .stage-intro-header {
+      gap: 12px;
+    }
+    .stage-main-title {
+      font-size: clamp(34px, 10vw, 44px);
+    }
+    .stage-editorial-lede {
+      font-size: 17px;
+    }
+    .position-row {
+      padding: 0;
+      border-top: 1px solid rgba(28, 26, 23, 0.14);
+      border-left: 4px solid var(--chapter-tint);
+    }
+    .position-summary {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      position: relative;
+      padding: 14px 44px 14px 14px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .position-summary::after {
+      content: '+';
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--font-mono, monospace);
+      font-size: 20px;
+      line-height: 1;
+      color: #4a463f;
+    }
+    .position-row[open] > .position-summary::after {
+      transform: translateY(-50%) rotate(45deg);
+    }
+    .position-summary:focus-visible {
+      outline: 2px solid #1c1a17;
+      outline-offset: -2px;
+    }
+    .position-dates-col {
+      margin: 0;
+      font-size: 12px;
+    }
+    .position-role-title {
+      font-size: 17px;
+    }
+    .position-more {
+      margin: 0;
+      padding: 0 14px 18px;
+    }
+    .position-desc-text {
+      font-size: 15px;
+    }
+    .position-comp-badge {
+      flex-direction: column;
+      gap: 4px;
     }
   }
 
@@ -742,5 +860,12 @@ const data = martialExperienceData[lang];
     margin: 0;
     font-size: 16px;
     color: #cfc7b8;
+  }
+
+  @media (max-width: 767px) {
+    .black-belt-scene {
+      height: 180vh;
+      margin-top: 2rem;
+    }
   }
 </style>

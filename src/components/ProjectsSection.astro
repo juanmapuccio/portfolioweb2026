@@ -33,6 +33,12 @@ const auto = automationsContent[lang];
 
   <!-- Escenas pinned de proyectos estilo Claude Design -->
   <div class="projects-pinned-container">
+    <!-- Franja negra con barras de dan: una se enciende por proyecto visto -->
+    <div class="dan-band" aria-hidden="true">
+      <div class="dan-bars" data-dan-bars>
+        {projects.map(() => <span class="dan-bar"></span>)}
+      </div>
+    </div>
     {projects.map((pr, index) => {
       const num = String(index + 1).padStart(2, '0');
       const total = String(projects.length).padStart(2, '0');
@@ -66,6 +72,10 @@ const auto = automationsContent[lang];
             <div class="project-grid-main">
               <!-- Technical Wireframe / Blueprint Display -->
               <div class="project-visual-col">
+                <details class="project-tech-detail" open>
+                <summary class="project-tech-summary">
+                  {lang === 'es' ? 'Ver detalle técnico' : lang === 'en' ? 'View technical detail' : 'Ver detalhe técnico'}
+                </summary>
                 <div class="mockup-frame technical-blueprint">
                   <div class="blueprint-window-header">
                     <div class="window-controls">
@@ -124,6 +134,7 @@ const auto = automationsContent[lang];
                     <span>ACTIVE · {pr.id}</span>
                   </div>
                 </div>
+                </details>
               </div>
 
               <!-- Pasos de Scrollytelling interactivo -->
@@ -221,9 +232,41 @@ const auto = automationsContent[lang];
   import { gsap } from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
+  import { initResponsiveDetails } from '../scripts/responsiveDetails';
+
   gsap.registerPlugin(ScrollTrigger);
 
+  // Dan bars: each project scene entering view lights the next bar (once).
+  function setupDanBars() {
+    const bars = document.querySelectorAll<HTMLElement>('[data-dan-bars] .dan-bar');
+    const scenes = document.querySelectorAll<HTMLElement>('.project-scene[data-project-scene]');
+    if (!bars.length || !scenes.length) return;
+
+    if (!('IntersectionObserver' in window)) {
+      bars.forEach((bar) => bar.classList.add('is-lit'));
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const index = Array.from(scenes).indexOf(entry.target as HTMLElement);
+          // Light every bar up to this project so skipping ahead stays coherent.
+          bars.forEach((bar, i) => {
+            if (i <= index) bar.classList.add('is-lit');
+          });
+          io.unobserve(entry.target);
+        }
+      },
+      { rootMargin: '0px 0px -30% 0px', threshold: 0 }
+    );
+    scenes.forEach((scene) => io.observe(scene));
+  }
+
   function setupProjectScrolly() {
+    initResponsiveDetails('.project-tech-detail');
+    setupDanBars();
     const scenes = document.querySelectorAll<HTMLElement>('.project-scene[data-project-scene]');
     if (!scenes.length) return;
 
@@ -330,6 +373,51 @@ const auto = automationsContent[lang];
     max-width: 640px;
     line-height: 1.6;
     margin: 0;
+  }
+
+
+  /* Dan band: black strip pinned under the header while browsing projects */
+  .dan-band {
+    position: sticky;
+    top: 60px;
+    z-index: 5;
+    height: 14px;
+    background: #1c1a17;
+    display: flex;
+    align-items: center;
+    padding: 0 clamp(20px, 5vw, 72px);
+    pointer-events: none;
+  }
+
+  .dan-bars {
+    display: flex;
+    gap: 6px;
+  }
+
+  .dan-bar {
+    width: 28px;
+    height: 4px;
+    background: rgba(242, 238, 230, 0.16);
+    transition: background-color 0.5s ease;
+  }
+
+  .dan-bar.is-lit {
+    background: oklch(0.84 0.15 90);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dan-bar {
+      transition: none;
+    }
+  }
+
+  /* One markup: details stay open and the summary is hidden on desktop. */
+  .project-tech-detail {
+    width: 100%;
+  }
+
+  .project-tech-summary {
+    display: none;
   }
 
   /* Pinned Scrollytelling Scenes */
@@ -825,6 +913,154 @@ const auto = automationsContent[lang];
 
     .pane-text {
       font-size: 1.15rem;
+    }
+  }
+
+  /* Mobile (< 768px): compact project cards. Name, role, story and stack are
+     always visible; the terminal/metrics mockup lives in a native accordion. */
+  @media (max-width: 767px) {
+    .projects-scrolly-section {
+      padding-bottom: 4rem;
+    }
+
+    .projects-intro {
+      padding: 80px 20px 32px;
+    }
+
+    .project-scene {
+      height: auto;
+    }
+
+    .project-sticky-wrapper {
+      position: static;
+      height: auto;
+      overflow: visible;
+      padding: 32px 20px 36px;
+      gap: 20px;
+    }
+
+    .project-topbar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.9rem;
+      margin-bottom: 0;
+    }
+
+    .project-display-title {
+      font-size: 2.4rem;
+    }
+
+    .project-grid-main {
+      gap: 1.25rem;
+    }
+
+    .project-narrative-col {
+      padding-left: 0;
+      gap: 1.1rem;
+    }
+
+    .narrative-progress-bars {
+      display: none;
+    }
+
+    .narrative-content-slot {
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .narrative-pane {
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
+      transition: none;
+    }
+
+    .pane-text {
+      font-size: 1rem;
+      line-height: 1.45;
+    }
+
+    .project-visual-col {
+      order: 2;
+      height: auto;
+      display: block;
+    }
+
+    .project-tech-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      list-style: none;
+      cursor: pointer;
+      padding: 12px 14px;
+      border: 1px solid rgba(242, 238, 230, 0.2);
+      font-family: var(--font-mono, monospace);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #f2eee6;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .project-tech-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .project-tech-summary::after {
+      content: '+';
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .project-tech-detail[open] > .project-tech-summary::after {
+      transform: rotate(45deg);
+    }
+
+    .project-tech-summary:focus-visible {
+      outline: 2px solid #f2eee6;
+      outline-offset: 2px;
+    }
+
+    .project-tech-detail[open] > .mockup-frame {
+      margin-top: 12px;
+    }
+
+    .mockup-frame {
+      height: auto;
+      min-height: 0;
+    }
+
+    /* Fix: the ACTIVE badge sat over the window header/URL. Flow it below. */
+    .screen-tag {
+      position: static;
+      align-self: flex-start;
+      margin: 0 1.25rem 1.25rem;
+    }
+
+    .window-title-address {
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .address-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .automations-wrapper {
+      margin-top: 3rem;
+      padding-top: 3rem;
+    }
+
+    .auto-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .architecture-wrapper {
+      margin-top: 3rem;
     }
   }
 </style>

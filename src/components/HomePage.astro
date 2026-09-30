@@ -354,4 +354,64 @@ const t = useTranslations(lang);
       margin-inline: auto;
     }
   }
+
+  /* Mobile (< 768px): compact hero. Long paragraph hidden, small portrait
+     beside the name so photo + CTAs fit in the first viewport. */
+  @media (max-width: 767px) {
+    .hero-pinned-scene {
+      height: auto;
+    }
+
+    .hero-sticky-container {
+      position: relative;
+      min-height: 0;
+      justify-content: flex-start;
+      gap: 18px;
+      padding: 84px 20px 64px;
+    }
+
+    .hero-location-text,
+    .hero-body-claim,
+    .hero-scroll-cue,
+    .portrait-caption-row {
+      display: none;
+    }
+
+    .hero-headline-name {
+      font-size: clamp(38px, 11vw, 46px);
+      padding-right: 116px;
+      min-height: 84px;
+    }
+
+    .hero-portrait-col {
+      position: absolute;
+      top: 116px;
+      right: 20px;
+      width: 96px;
+    }
+
+    .hero-bottom-grid {
+      gap: 0;
+    }
+
+    .hero-narrative-block {
+      gap: 14px;
+    }
+
+    .hero-italic-quote {
+      font-size: 26px;
+    }
+
+    .hero-buttons-row {
+      flex-wrap: nowrap;
+      margin-top: 8px;
+    }
+
+    .hero-btn-dark,
+    .hero-btn-outline {
+      flex: 1 1 0;
+      text-align: center;
+      padding-inline: 12px;
+    }
+  }
 </style>

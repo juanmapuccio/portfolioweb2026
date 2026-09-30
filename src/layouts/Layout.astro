@@ -76,7 +76,7 @@ const canonicalUrl = siteUrl + localePaths[lang];
           <!-- Indicador dinámico de grado marcial actual -->
           <div class="header-grade-pill">
             <span class="header-belt-swatch" id="header-belt-indicator"></span>
-            <span class="header-gup-text" id="header-gup-indicator">10º gup</span>
+            <span class="header-gup-text" id="header-gup-indicator">10º<span class="header-gup-word"> gup</span></span>
           </div>
 
           <!-- Selector de idioma compacto -->
@@ -100,7 +100,8 @@ const canonicalUrl = siteUrl + localePaths[lang];
 
           <!-- Descargar CV -->
           <a href={CV_URL} target="_blank" rel="noopener noreferrer" class="header-cv-btn">
-            {lang === 'es' ? 'Descargar CV' : lang === 'en' ? 'Download CV' : 'Baixar CV'}
+            <span class="cv-long">{lang === 'es' ? 'Descargar CV' : lang === 'en' ? 'Download CV' : 'Baixar CV'}</span>
+            <span class="cv-short" aria-hidden="true">CV</span>
           </a>
         </div>
       </div>
@@ -282,6 +283,18 @@ const canonicalUrl = siteUrl + localePaths[lang];
     transform: translateY(-1px);
   }
 
+  .header-gup-text {
+    white-space: nowrap;
+  }
+
+  .cv-short {
+    display: none;
+  }
+
+  .header-cv-btn {
+    white-space: nowrap;
+  }
+
   .header-scroll-progress {
     position: absolute;
     left: 0;
@@ -318,6 +331,43 @@ const canonicalUrl = siteUrl + localePaths[lang];
     color: #12161c;
     border: 1px solid var(--accent-amber);
     font-family: var(--font-mono);
+  }
+
+  /* Mobile (< 768px): one-line header. Belt chip = swatch + grade number,
+     CV collapses to a short button. The 3px progress bar keeps the belt tint. */
+  @media (max-width: 767px) {
+    .site-header {
+      padding: 0 16px;
+    }
+    .header-right-group {
+      gap: 12px;
+    }
+    .header-grade-pill {
+      gap: 6px;
+      font-size: 11px;
+    }
+    .header-gup-text :global(.header-gup-word) {
+      display: none;
+    }
+    .lang-switch-minimal {
+      gap: 2px;
+    }
+    .header-cv-btn {
+      padding: 9px 12px;
+    }
+    .cv-long {
+      display: none;
+    }
+    .cv-short {
+      display: inline;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .header-scroll-progress,
+    .header-belt-swatch {
+      transition: none;
+    }
   }
 
   @media (max-width: 768px) {
