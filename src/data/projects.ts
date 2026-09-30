@@ -28,7 +28,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       solution: 'Desarrollo de sistemas propietarios desplegados en infraestructura cloud propia (Linux, Docker, GitHub Actions) con integraciones fiscales.',
       impact: 'Clientes activos en producción (Satori Dojo, Don Pizza) con monitoreo y control de versiones centralizado, y consultoría IT y gestión de base de datos para Seiton Motors.',
       url: 'https://nodosur.dev',
-      tech: ['TypeScript', 'React', 'Docker', 'Linux Cloud', 'CI/CD'],
+      tech: ['Astro', 'TypeScript', 'Docker', 'Linux Cloud', 'CI/CD'],
       featured: true
     },
     {
@@ -42,7 +42,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       solution: 'Plataforma ágil con dashboard operativo en tiempo real, alertas de cuotas vencidas y métricas de retención de alumnos.',
       impact: 'En producción activa reduciendo a cero las horas de conciliación manual de cobros y accesos.',
       url: 'https://nodofit.com.ar',
-      tech: ['Next.js', 'PostgreSQL', 'Tailwind', 'REST APIs', 'Supabase'],
+      tech: ['Next.js', 'Supabase', 'Cron Jobs', 'REST APIs'],
       featured: false
     },
     {
@@ -56,7 +56,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       solution: 'Portal unificado con seguimiento pedagógico marcial, control de asistencia y pasarela de comunicación con las familias.',
       impact: 'Implementado y en producción, optimizando el tiempo de gestión del equipo docente.',
       url: 'https://satoridojo.vercel.app',
-      tech: ['Astro', 'TypeScript', 'Responsive UI', 'Vercel Edge'],
+      tech: ['Next.js', 'Supabase', 'Supabase Edge', 'Cron Jobs'],
       featured: false
     },
     {
@@ -70,7 +70,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       solution: 'Aplicación ultra-rápida pensada para smartphones, con catálogo dinámico y canal directo a cocina/despacho.',
       impact: 'En producción real, validando UX móvil y velocidad de carga en un entorno de alta demanda.',
       url: 'https://donpizzarosario.vercel.app',
-      tech: ['React', 'Mobile First', 'Fast Checkout', 'Cloud'],
+      tech: ['Next.js', 'Mobile First', 'Fast Checkout', 'Cloud'],
       featured: false
     }
   ],
@@ -86,7 +86,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       solution: 'Proprietary systems deployed on our own cloud infrastructure (Linux, Docker, GitHub Actions) with fiscal integrations.',
       impact: 'Active production clients (Satori Dojo, Don Pizza) with centralized versioning and monitoring, plus IT consulting and database management for Seiton Motors.',
       url: 'https://nodosur.dev',
-      tech: ['TypeScript', 'React', 'Docker', 'Linux Cloud', 'CI/CD'],
+      tech: ['Astro', 'TypeScript', 'Docker', 'Linux Cloud', 'CI/CD'],
       featured: true
     },
     {
@@ -100,7 +100,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       solution: 'Agile platform with a real-time operational dashboard, overdue-fee alerts, and student retention metrics.',
       impact: 'Live in production, reducing to zero the hours of manual reconciliation of payments and access.',
       url: 'https://nodofit.com.ar',
-      tech: ['Next.js', 'PostgreSQL', 'Tailwind', 'REST APIs', 'Supabase'],
+      tech: ['Next.js', 'Supabase', 'Cron Jobs', 'REST APIs'],
       featured: false
     },
     {
@@ -114,7 +114,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       solution: 'Unified portal with martial pedagogical tracking, attendance control, and a communication channel with families.',
       impact: "Implemented and live in production, optimizing the teaching staff's management time.",
       url: 'https://satoridojo.vercel.app',
-      tech: ['Astro', 'TypeScript', 'Responsive UI', 'Vercel Edge'],
+      tech: ['Next.js', 'Supabase', 'Supabase Edge', 'Cron Jobs'],
       featured: false
     },
     {
@@ -128,7 +128,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       solution: 'Ultra-fast smartphone-first app with a dynamic catalog and a direct channel to kitchen/dispatch.',
       impact: 'Live in production, validating mobile UX and load performance under real high-demand conditions.',
       url: 'https://donpizzarosario.vercel.app',
-      tech: ['React', 'Mobile First', 'Fast Checkout', 'Cloud'],
+      tech: ['Next.js', 'Mobile First', 'Fast Checkout', 'Cloud'],
       featured: false
     }
   ],
@@ -144,7 +144,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       solution: 'Sistemas proprietários implantados em infraestrutura cloud própria (Linux, Docker, GitHub Actions) com integrações fiscais.',
       impact: 'Clientes ativos em produção (Satori Dojo, Don Pizza) com monitoramento e controle de versões centralizado, e consultoria de TI e gestão de banco de dados para a Seiton Motors.',
       url: 'https://nodosur.dev',
-      tech: ['TypeScript', 'React', 'Docker', 'Linux Cloud', 'CI/CD'],
+      tech: ['Astro', 'TypeScript', 'Docker', 'Linux Cloud', 'CI/CD'],
       featured: true
     },
     {
@@ -158,7 +158,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       solution: 'Plataforma ágil com dashboard operacional em tempo real, alertas de mensalidades vencidas e métricas de retenção de alunos.',
       impact: 'Em produção ativa, reduzindo a zero as horas de conciliação manual de cobranças e acessos.',
       url: 'https://nodofit.com.ar',
-      tech: ['Next.js', 'PostgreSQL', 'Tailwind', 'REST APIs', 'Supabase'],
+      tech: ['Next.js', 'Supabase', 'Cron Jobs', 'REST APIs'],
       featured: false
     },
     {
@@ -172,7 +172,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       solution: 'Portal unificado com acompanhamento pedagógico marcial, controle de frequência e canal de comunicação com as famílias.',
       impact: 'Implantado e em produção, otimizando o tempo de gestão da equipe docente.',
       url: 'https://satoridojo.vercel.app',
-      tech: ['Astro', 'TypeScript', 'Responsive UI', 'Vercel Edge'],
+      tech: ['Next.js', 'Supabase', 'Supabase Edge', 'Cron Jobs'],
       featured: false
     },
     {
@@ -186,7 +186,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       solution: 'Aplicação ultra-rápida pensada para smartphones, com catálogo dinâmico e canal direto com cozinha/expedição.',
       impact: 'Em produção real, validando UX móvel e velocidade em um ambiente de alta demanda.',
       url: 'https://donpizzarosario.vercel.app',
-      tech: ['React', 'Mobile First', 'Fast Checkout', 'Cloud'],
+      tech: ['Next.js', 'Mobile First', 'Fast Checkout', 'Cloud'],
       featured: false
     }
   ]
