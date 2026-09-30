@@ -87,22 +87,22 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
         id: 'backend',
         title: 'Backend, Automation & Data',
         badge: 'Business Logic',
-        description: 'Eliminating manual bottlenecks through automated accounting parsers, typed APIs, and fiscal integrations.',
+        description: 'Resolving operational friction through accounting analysis scripts, typed APIs, and government integrations.',
         items: ['Python', 'PostgreSQL', 'Node.js / Bun', 'REST APIs', 'ARCA (AFIP) Webservices', 'PDF & Data Processing']
       },
       {
         id: 'devops',
         title: 'Cloud, Infrastructure & DevOps',
         badge: 'Servers & CI/CD',
-        description: 'Autonomous deployments on self-hosted cloud instances without expensive black-box lock-in.',
+        description: 'Autonomous deployments on your own cloud environments without relying on expensive black boxes or bloated architectures.',
         items: ['Linux (Ubuntu Server)', 'Docker & Compose', 'GitHub Actions', 'Nginx Reverse Proxy', 'Vercel Edge', 'Security & SSL']
       },
       {
         id: 'business',
-        title: 'Frontline Operations & Business Reality',
-        badge: 'Business Acumen',
-        description: 'Speaking directly with healthcare directors, warehouse clerks, and business owners without middleman noise.',
-        items: ['Healthcare Billing & Auditing', 'Commercial Logistics & VAT', 'Massive Operations (ANSES)', 'Inventory Control', 'Commercial Living Lab']
+        title: 'Field Operations & the Trenches',
+        badge: 'Business Vision',
+        description: 'Ability to speak on equal terms with sanatorium directors, maintenance staff, or shop owners.',
+        items: ['Medical Auditing & Fee Schedule', 'Accounting Billing & VAT', 'Mass Case Management (ANSES)', 'Logistics & Real Stock', 'Commercial Living Lab']
       },
       {
         id: 'certifications',
@@ -122,7 +122,7 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
       {
         title: 'Leadership, Discipline & Martial Composure',
         subtitle: 'International Taekwondo ITF Instructor (+10 years)',
-        description: 'Over a decade teaching youth and adults. Martial instruction builds daily consistency, pedagogical patience for non-technical stakeholders, and composure during critical operational pressure.',
+        description: 'Over a decade teaching children, young people, and adults. Martial instruction builds daily consistency, pedagogical patience to explain technical concepts to business users, and calm under high demand or service outages.',
         quote: 'Discipline outperforms improvisation; composure resolves urgency.'
       }
     ]
@@ -133,29 +133,29 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
         id: 'frontend',
         title: 'Core Frontend & Arquitetura UI',
         badge: 'UI / UX & Performance',
-        description: 'Construção de interfaces resilientes, acessíveis e ultrarrápidas com sobrecarga mínima de JavaScript.',
+        description: 'Construção de interfaces resilientes, acessíveis e de carregamento imediato, com sobrecarga mínima de JavaScript.',
         items: ['TypeScript Estrito', 'React', 'Next.js', 'Astro 7', 'Tailwind CSS', 'HTML5 Semântico', 'Zero CLS / Web Vitals']
       },
       {
         id: 'backend',
         title: 'Backend, Automação & Dados',
         badge: 'Lógica de Negócios',
-        description: 'Resolução de fricções operacionais com robôs em Python, APIs tipadas e integrações governamentais.',
-        items: ['Python', 'PostgreSQL', 'Node.js / Bun', 'REST APIs', 'Webservices Fiscais (ARCA)', 'Processamento de PDFs e Dados']
+        description: 'Resolução de fricções operacionais mediante scripts de análise contábil, APIs tipadas e integrações governamentais.',
+        items: ['Python', 'PostgreSQL', 'Node.js / Bun', 'REST APIs', 'Webservices ARCA (AFIP)', 'Processamento de PDFs e Dados']
       },
       {
         id: 'devops',
         title: 'Cloud, Infraestrutura & DevOps',
         badge: 'Servidores & CI/CD',
-        description: 'Implantações autônomas em servidores cloud próprios sem dependência de plataformas proprietárias caras.',
+        description: 'Implantações autônomas em ambientes cloud próprios, sem depender de caixas-pretas caras nem de arquiteturas inchadas.',
         items: ['Linux (Ubuntu Server)', 'Docker & Compose', 'GitHub Actions', 'Nginx Reverse Proxy', 'Vercel Edge', 'Segurança & SSL']
       },
       {
         id: 'business',
-        title: 'Operação de Campo & Vivência Comercial',
-        badge: 'Visão Prática',
-        description: 'Comunicação direta com diretores hospitalares, equipes operacionais e empresários locais sem intermediários.',
-        items: ['Auditoria Hospitalar e Faturamento', 'Gestão Financeira & Impostos', 'Operação em Massa (ANSES)', 'Logística & Estoque Real', 'Living Lab Gastronômico']
+        title: 'Operação de Campo & Trincheira',
+        badge: 'Visão de Negócio',
+        description: 'Capacidade de dialogar de igual para igual com diretores de sanatórios, equipe de manutenção ou donos de comércios.',
+        items: ['Auditoria Médica & Nomenclador', 'Faturamento Contábil & IVA', 'Gestão em Massa (ANSES)', 'Logística & Estoque Real', 'Living Lab Comercial']
       },
       {
         id: 'certifications',
@@ -175,7 +175,7 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
       {
         title: 'Liderança, Disciplina & Autocontrole Marcial',
         subtitle: 'Professor Internacional de Taekwondo ITF (+10 anos)',
-        description: 'Mais de uma década formando crianças e adultos. A docência marcial constrói constância diária, didática com usuários não técnicos e serenidade em situações de alta pressão.',
+        description: 'Mais de uma década formando crianças, jovens e adultos. A docência marcial forja constância diária, paciência pedagógica para explicar conceitos técnicos a usuários de negócio e calma sob alta demanda ou queda de serviços.',
         quote: 'A disciplina supera o improviso; o autocontrole resolve a urgência.'
       }
     ]

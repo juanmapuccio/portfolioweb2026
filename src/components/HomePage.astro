@@ -29,7 +29,7 @@ const t = useTranslations(lang);
           <span class="status-dot"></span>
           <span>{lang === 'es' ? 'Disponible · full-time' : lang === 'en' ? 'Available · full-time' : 'Disponível · full-time'}</span>
         </span>
-        <span class="hero-location-text">Rosario, Santa Fe, Argentina</span>
+        <span class="hero-location-text">{lang === 'pt' ? 'Rosário' : 'Rosario'}, Santa Fe, Argentina</span>
       </div>
 
       <h1 class="hero-headline-name">Juan Manuel<br />Puccio</h1>
@@ -46,8 +46,8 @@ const t = useTranslations(lang);
             {lang === 'es' 
               ? 'Diseño, despliego y estabilizo software de negocio en producción, con usuarios reales. Esa capacidad de construir sistemas confiables, que siguen funcionando una vez entregados, es la que quiero poner al servicio de un equipo, con dedicación full-time.'
               : lang === 'en'
-              ? 'I design, deploy, and stabilize production business software with real active users. That capability to build resilient systems that run autonomously after delivery is what I want to bring to an engineering team full-time.'
-              : 'Projeto, implanto e estabilizo software de negócios em produção, com usuários reais. Essa capacidade de construir sistemas confiáveis, que continuam funcionando após a entrega, é o que quero colocar a serviço de uma equipe, com dedicação em tempo integral.'}
+              ? 'I design, deploy, and stabilize production business software with real users. That capability to build reliable systems that keep working once delivered is what I want to bring to a team, full-time.'
+              : 'Projeto, implanto e estabilizo software de negócios em produção, com usuários reais. Essa capacidade de construir sistemas confiáveis, que continuam funcionando após a entrega, é o que quero colocar a serviço de uma equipe, com dedicação full-time.'}
           </p>
           <div class="hero-buttons-row">
             <a href={CV_URL} target="_blank" rel="noopener noreferrer" class="hero-btn-dark">
@@ -70,7 +70,7 @@ const t = useTranslations(lang);
           </div>
           <div class="portrait-caption-row">
             <span>Fig. 01</span>
-            <span>Rosario, 2026</span>
+            <span>{lang === 'pt' ? 'Rosário' : 'Rosario'}, 2026</span>
           </div>
         </div>
       </div>

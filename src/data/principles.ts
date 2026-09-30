@@ -15,7 +15,7 @@ export interface PrinciplesContent {
 
 export const principlesData: Record<Lang, PrinciplesContent> = {
   es: {
-    label: 'PRINCIPIOS DEL TAEKWON-DO',
+    label: 'PRINCIPIOS DEL TAEKWONDO',
     items: [
       { key: 'courtesy', hangul: '예의', name: 'Cortesía', line: 'Trato con stakeholders y usuarios.' },
       { key: 'integrity', hangul: '염치', name: 'Integridad', line: 'Solo muestro lo que construí.' },
@@ -25,7 +25,7 @@ export const principlesData: Record<Lang, PrinciplesContent> = {
     ]
   },
   en: {
-    label: 'TAEKWON-DO TENETS',
+    label: 'TAEKWONDO TENETS',
     items: [
       { key: 'courtesy', hangul: '예의', name: 'Courtesy', line: 'How I treat stakeholders and users.' },
       { key: 'integrity', hangul: '염치', name: 'Integrity', line: 'I only show what I built.' },
@@ -35,7 +35,7 @@ export const principlesData: Record<Lang, PrinciplesContent> = {
     ]
   },
   pt: {
-    label: 'PRINCÍPIOS DO TAEKWON-DO',
+    label: 'PRINCÍPIOS DO TAEKWONDO',
     items: [
       { key: 'courtesy', hangul: '예의', name: 'Cortesia', line: 'Trato com stakeholders e usuários.' },
       { key: 'integrity', hangul: '염치', name: 'Integridade', line: 'Só mostro o que construí.' },
