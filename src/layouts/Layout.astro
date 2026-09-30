@@ -3,6 +3,7 @@ import '../styles/global.css';
 import type { Lang } from '../i18n/ui';
 import { languages, useTranslations } from '../i18n/ui';
 import { CV_URL } from '../data/contact';
+import BeltKnot from '../components/BeltKnot.astro';
 
 interface Props {
   title: string;
@@ -80,6 +81,7 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
           <div class="header-grade-pill">
             <span class="header-grade-label">{t('header.grade')}</span>
             <span class="header-belt-swatch" id="header-belt-indicator"></span>
+            <BeltKnot class="header-belt-knot" />
             <span class="header-gup-text" id="header-gup-indicator">10º<span class="header-gup-word"> gup</span></span>
           </div>
 
@@ -163,6 +165,21 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     progressBar.style.width = `${progress * 100}%`;
   }
 
+  const headerGradePill = document.querySelector<HTMLElement>('.header-grade-pill');
+  function setHeaderBeltColor(color: string) {
+    headerGradePill?.style.setProperty('--active-belt-color', color);
+  }
+
+  const initialBeltColor = document.documentElement.dataset.activeBeltColor;
+  if (initialBeltColor) setHeaderBeltColor(initialBeltColor);
+
+  function syncHeaderBeltColor(event: Event) {
+    const color = (event as CustomEvent<{ color?: string }>).detail?.color;
+    if (color) setHeaderBeltColor(color);
+  }
+
+  window.addEventListener('belt:change', syncHeaderBeltColor);
+
   window.addEventListener('scroll', updateHeaderProgress, { passive: true });
   window.addEventListener('resize', updateHeaderProgress);
   updateHeaderProgress();
@@ -183,6 +200,7 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
 
   .header-inner {
     display: flex;
+    flex-wrap: nowrap;
     justify-content: space-between;
     align-items: center;
     height: 100%;
@@ -271,6 +289,16 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     transition: background 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
+  :global(.header-belt-knot) {
+    display: none;
+    width: 22px;
+    height: 18px;
+    flex: 0 0 auto;
+    pointer-events: none;
+    --knot-fill: var(--active-belt-color, #f8f6f0);
+    --knot-stroke: #1c1a17;
+  }
+
   .header-gup-text {
     white-space: nowrap;
     color: #1c1a17;
@@ -349,6 +377,14 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
   @media (max-width: 1023px) {
     .header-grade-label {
       display: none;
+    }
+
+    .header-belt-swatch {
+      display: none;
+    }
+
+    :global(.header-belt-knot) {
+      display: block;
     }
   }
 

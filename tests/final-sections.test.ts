@@ -7,11 +7,49 @@ import { skillsData } from '../src/data/skills';
 const skillsComponent = await readFile(new URL('../src/components/SkillsPhilosophySection.astro', import.meta.url), 'utf8');
 const contactComponent = await readFile(new URL('../src/components/ContactSection.astro', import.meta.url), 'utf8');
 const homePage = await readFile(new URL('../src/components/HomePage.astro', import.meta.url), 'utf8');
+const beltKnot = await readFile(new URL('../src/components/BeltKnot.astro', import.meta.url), 'utf8');
 const belt3d = await readFile(new URL('../src/components/Belt3D.astro', import.meta.url), 'utf8');
 const martialTimeline = await readFile(new URL('../src/components/MartialExperienceTimeline.astro', import.meta.url), 'utf8');
 const layout = await readFile(new URL('../src/layouts/Layout.astro', import.meta.url), 'utf8');
 
 describe('final portfolio sections', () => {
+  test('keeps the compact header knot stroke stable without changing the mobile header geometry', () => {
+    expect(layout).toContain('--knot-stroke: #1c1a17');
+    expect(layout).toContain('height: 60px;');
+    expect(layout).toContain('flex-wrap: nowrap;');
+    expect(layout).toContain('min-height: 44px;');
+    const mobileHeaderStyles = layout.slice(layout.indexOf('@media (max-width: 767px)'), layout.indexOf('@media (max-width: 640px)'));
+    expect(mobileHeaderStyles).toContain('.lang-min-link {\n      display: inline-flex;\n      align-items: center;\n      justify-content: center;\n      min-width: 32px;\n      min-height: 44px;');
+    expect(mobileHeaderStyles).toContain('.header-cv-btn {\n      display: inline-flex;\n      align-items: center;\n      justify-content: center;\n      min-width: 44px;\n      min-height: 44px;');
+  });
+
+  test('renders a static active-color belt knot on the compact header without weakening the 3D gate', () => {
+    expect(layout).toContain("import BeltKnot from '../components/BeltKnot.astro';");
+    expect(layout).toContain('<BeltKnot class="header-belt-knot" />');
+    expect(layout).toContain("dataset.activeBeltColor");
+    expect(layout).toContain("window.addEventListener('belt:change', syncHeaderBeltColor)");
+    expect(layout).toContain("setProperty('--active-belt-color', color)");
+    expect(layout).toContain('.header-grade-pill');
+    const tabletHeaderStyles = layout.slice(layout.indexOf('@media (max-width: 1023px)'), layout.indexOf('/* Mobile:'));
+    expect(tabletHeaderStyles).toContain('.header-belt-swatch {\n      display: none;');
+    expect(tabletHeaderStyles).toContain(':global(.header-belt-knot) {\n      display: block;');
+    expect(layout).toContain('--knot-fill: var(--active-belt-color, #f8f6f0)');
+    expect(layout).toContain('--knot-stroke: #1c1a17');
+    expect(beltKnot).toContain("aria-hidden={label ? undefined : 'true'}");
+    expect(beltKnot).toContain('focusable="false"');
+    expect(beltKnot).not.toContain('<script');
+    expect(beltKnot).not.toContain('<animate');
+
+    const eligibilityGuardIndex = belt3d.indexOf('if (dispose || starting || !root || !canvas || !eligible()) return;');
+    const threeImportIndex = belt3d.indexOf("import('three')");
+    const glbRequestIndex = belt3d.indexOf("new GLTFLoader().load(");
+    expect(belt3d).toContain('return desktopMq.matches && !reducedMq.matches && hasWebGL();');
+    expect(eligibilityGuardIndex >= 0).toBe(true);
+    expect(eligibilityGuardIndex).toBeLessThan(threeImportIndex);
+    expect(threeImportIndex).toBeLessThan(glbRequestIndex);
+    expect(belt3d).toContain("'/models/cinturon-itf.glb'");
+  });
+
   test('binds black-stage metadata from the current locale data before threshold synchronization', () => {
     expect(martialTimeline).toContain("const blackStage = data.stages.find((stage) => stage.beltKey === 'negro');");
     for (const binding of [
