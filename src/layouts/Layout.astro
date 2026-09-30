@@ -254,7 +254,7 @@ const canonicalUrl = siteUrl + localePaths[lang];
     font-family: var(--font-mono, monospace);
     font-size: 11px;
     letter-spacing: 0.08em;
-    color: #7a746a;
+    color: #6a645a;
     text-decoration: none;
     padding: 2px 4px;
     transition: color 0.2s;
@@ -349,11 +349,34 @@ const canonicalUrl = siteUrl + localePaths[lang];
     .header-gup-text :global(.header-gup-word) {
       display: none;
     }
+    /* Touch targets: at least 44px tall. The active language keeps its
+       underline as text-decoration so it stays next to the glyph. */
+    .brand-title {
+      min-height: 44px;
+    }
     .lang-switch-minimal {
-      gap: 2px;
+      gap: 0;
+    }
+    .lang-min-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      min-height: 44px;
+      padding: 0 4px;
+    }
+    .lang-min-link.active {
+      border-bottom: 0;
+      text-decoration: underline;
+      text-underline-offset: 5px;
     }
     .header-cv-btn {
-      padding: 9px 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 44px;
+      min-height: 44px;
+      padding: 0 12px;
     }
     .cv-long {
       display: none;

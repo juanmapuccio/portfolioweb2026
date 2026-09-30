@@ -65,9 +65,9 @@ Valores verificados contra `src/styles/global.css`.
 
   --text-main:  #1c1a17;  /* Tinta carbón profunda */
   --text-muted: #4a463f;  /* Tono intermedio editorial */
-  --text-dim:   #7a746a;  /* Metadatos, fechas, etiquetas */
+  --text-dim:   #6a645a;  /* Metadatos, fechas, etiquetas */
 
-  --accent-cyan:    #0284c7;            /* Azul técnico refinado */
+  --accent-cyan:    #0369a1;            /* Azul técnico refinado */
   --accent-blue:    #2563eb;            /* Confiabilidad */
   --accent-emerald: oklch(0.58 0.12 150); /* Producción y estabilidad */
   --accent-amber:   oklch(0.84 0.15 90);  /* Fricción y alertas */
@@ -101,7 +101,7 @@ html[data-theme='dark'] {
 
   --text-main:  #edf2f7;
   --text-muted: #a0aec0;
-  --text-dim:   #718096;
+  --text-dim:   #8492a6;
 
   --accent-cyan:    #38bdf8;
   --accent-blue:    #60a5fa;

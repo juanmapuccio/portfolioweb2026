@@ -351,7 +351,7 @@ const data = martialExperienceData[lang];
     font-size: 12px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #7a746a;
+    color: #6a645a;
   }
 
   .trayectoria-headline {
@@ -451,7 +451,7 @@ const data = martialExperienceData[lang];
   .belt-caption {
     font-family: var(--font-mono, monospace);
     font-size: 12px;
-    color: #7a746a;
+    color: #6a645a;
     max-width: 340px;
     line-height: 1.5;
     margin: 0;
@@ -519,8 +519,21 @@ const data = martialExperienceData[lang];
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: #4a463f;
-    padding-left: 14px;
-    border-left: 3px solid var(--chapter-tint);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  /* Belt-colour stripe: a horizontal belt band ahead of the label (replaces
+     the former 3px side border). The hairline ring keeps the white belt visible. */
+  .stage-symbolism::before {
+    content: '';
+    flex: none;
+    width: 28px;
+    height: 6px;
+    margin-top: 0.4em;
+    background: var(--chapter-tint);
+    box-shadow: inset 0 0 0 1px rgba(28, 26, 23, 0.25);
   }
 
   .stage-editorial-lede {
@@ -564,7 +577,7 @@ const data = martialExperienceData[lang];
     margin-bottom: 10px;
     font-family: var(--font-mono, monospace);
     font-size: 13px;
-    color: #7a746a;
+    color: #6a645a;
   }
 
   .position-more {
@@ -612,7 +625,7 @@ const data = martialExperienceData[lang];
     font-size: 11px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #7a746a;
+    color: #6a645a;
     flex: none;
   }
 
@@ -672,10 +685,25 @@ const data = martialExperienceData[lang];
     .stage-editorial-lede {
       font-size: 17px;
     }
+    .black-nodosur-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
     .position-row {
       padding: 0;
       border-top: 1px solid rgba(28, 26, 23, 0.14);
-      border-left: 4px solid var(--chapter-tint);
+    }
+    /* Belt tab on the row's top edge: keeps the belt colour without a side border. */
+    .position-row::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 0;
+      width: 44px;
+      height: 3px;
+      background: var(--chapter-tint);
+      box-shadow: inset 0 0 0 1px rgba(28, 26, 23, 0.18);
     }
     .position-summary {
       display: flex;
