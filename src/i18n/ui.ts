@@ -14,6 +14,9 @@ export const ui = {
     'meta.description': 'Desarrollador Full Stack especializado en optimización operativa, automatizaciones con Python e IA, y sistemas de gestión en producción (NodoSur).',
     'hero.btn.cv': 'Descargar CV',
     'contact.shortcut': 'Contactar',
+    'header.role': 'Desarrollador Full Stack',
+    'header.grade': 'Grado',
+    'header.lang': 'Idioma',
     'skills.readMore': 'Leer más',
   },
   en: {
@@ -21,6 +24,9 @@ export const ui = {
     'meta.description': 'Full Stack Developer specialized in operational optimization, Python & AI automations, and production systems (NodoSur).',
     'hero.btn.cv': 'Download CV',
     'contact.shortcut': 'Contact',
+    'header.role': 'Full Stack Developer',
+    'header.grade': 'Grade',
+    'header.lang': 'Language',
     'skills.readMore': 'Read more',
   },
   pt: {
@@ -28,6 +34,9 @@ export const ui = {
     'meta.description': 'Desenvolvedor Full Stack especializado em otimização operacional, automações com Python e IA, e sistemas em produção (NodoSur).',
     'hero.btn.cv': 'Baixar CV',
     'contact.shortcut': 'Contato',
+    'header.role': 'Desenvolvedor Full Stack',
+    'header.grade': 'Grau',
+    'header.lang': 'Idioma',
     'skills.readMore': 'Ler mais',
   }
 } as const;

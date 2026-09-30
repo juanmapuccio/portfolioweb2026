@@ -3,7 +3,6 @@ import '../styles/global.css';
 import type { Lang } from '../i18n/ui';
 import { languages, useTranslations } from '../i18n/ui';
 import { CV_URL } from '../data/contact';
-import BeltKnot from '../components/BeltKnot.astro';
 
 interface Props {
   title: string;
@@ -69,19 +68,21 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     <header class="site-header">
       <div class="header-inner">
         <a href={lang === 'es' ? '#top' : `/${lang}#top`} class="brand-title" aria-label="Juan Manuel Puccio">
-          <BeltKnot class="brand-knot" label="JMP" />
           <span class="brand-name">Juan Manuel Puccio</span>
+          <span class="brand-initials" aria-hidden="true">JMP</span>
+          <span class="brand-role" aria-hidden="true">{t('header.role')}</span>
         </a>
 
         <div class="header-right-group">
-          <!-- Indicador dinámico de grado marcial actual -->
+          <!-- Current martial grade, updated by the trajectory timeline script -->
           <div class="header-grade-pill">
+            <span class="header-grade-label">{t('header.grade')}</span>
             <span class="header-belt-swatch" id="header-belt-indicator"></span>
             <span class="header-gup-text" id="header-gup-indicator">10º<span class="header-gup-word"> gup</span></span>
           </div>
 
-          <!-- Selector de idioma compacto -->
-          <div class="lang-switch-minimal" role="group" aria-label={lang === 'es' ? 'Idioma' : lang === 'en' ? 'Language' : 'Idioma'}>
+          <!-- Typographic language switch -->
+          <div class="lang-switch-minimal" role="group" aria-label={t('header.lang')}>
             {Object.entries(languages).map(([code]) => {
               const targetPath = code === 'es' ? '/' : `/${code}`;
               const isActive = code === lang;
@@ -166,7 +167,6 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
 </script>
 
 <style>
-
   .site-header {
     position: fixed;
     top: 0;
@@ -174,9 +174,8 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     right: 0;
     z-index: 50;
     height: 60px;
-    background: rgba(242, 238, 230, 0.92);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid rgba(28, 26, 23, 0.12);
+    background: #f2eee6;
+    border-bottom: 1px solid rgba(28, 26, 23, 0.22);
     padding: 0 clamp(20px, 5vw, 72px);
   }
 
@@ -186,114 +185,153 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     align-items: center;
     height: 100%;
     width: 100%;
-    max-width: 100%;
   }
 
+  /* Wordmark: serif name over a quiet mono descriptor. */
   .brand-title {
     display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    font-family: var(--font-serif, 'Source Serif 4', serif);
-    font-size: 19px;
-    letter-spacing: -0.01em;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
     color: #1c1a17;
     text-decoration: none;
-    font-weight: 400;
-    transition: opacity 0.2s;
+    min-height: 44px;
   }
 
-  .brand-title:hover {
-    opacity: 0.7;
+  .brand-name {
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-size: 19px;
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: 0.01em;
+    font-variant-caps: small-caps;
+    font-feature-settings: 'smcp' 1, 'c2sc' 0;
   }
 
-  .brand-title :global(.brand-knot) {
-    width: 44px;
-    height: auto;
-    color: #1c1a17;
-    --knot-fill: #1c1a17;
-    --knot-stroke: #1c1a17;
-    --knot-label: #f2eee6;
+  .brand-role {
+    font-family: var(--font-mono, monospace);
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #6a645a;
   }
 
-  @media (max-width: 640px) {
-    .brand-name {
-      display: none;
-    }
+  .brand-initials {
+    display: none;
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-size: 19px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+  }
+
+  .brand-title:hover .brand-name,
+  .brand-title:hover .brand-initials {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+  }
+
+  .brand-title:focus-visible,
+  .lang-min-link:focus-visible,
+  .header-cv-btn:focus-visible {
+    outline: 2px solid #1c1a17;
+    outline-offset: 3px;
   }
 
   .header-right-group {
     display: flex;
     align-items: center;
-    gap: clamp(14px, 2.5vw, 24px);
+    gap: clamp(16px, 2.5vw, 28px);
   }
 
+  /* Grade: mono label, slim belt-colour tick, grade number. */
   .header-grade-pill {
     display: flex;
     align-items: center;
     gap: 8px;
     font-family: var(--font-mono, monospace);
-    font-size: 12px;
-    letter-spacing: 0.06em;
+    font-size: 11px;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: #4a463f;
   }
 
+  .header-grade-label {
+    color: #6a645a;
+  }
+
   .header-belt-swatch {
     width: 18px;
-    height: 8px;
-    border: 1px solid rgba(28, 26, 23, 0.35);
+    height: 5px;
+    border: 1px solid rgba(28, 26, 23, 0.4);
     background: #f8f6f0;
     transition: background 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
+  .header-gup-text {
+    white-space: nowrap;
+    color: #1c1a17;
+  }
+
+  /* Language: "ES · EN · PT", active one underlined. */
   .lang-switch-minimal {
     display: flex;
-    gap: 8px;
+    align-items: center;
   }
 
   .lang-min-link {
+    position: relative;
     font-family: var(--font-mono, monospace);
     font-size: 11px;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.12em;
     color: #6a645a;
     text-decoration: none;
-    padding: 2px 4px;
+    padding: 2px 7px;
     transition: color 0.2s;
+  }
+
+  .lang-min-link + .lang-min-link::before {
+    content: '·' / '';
+    position: absolute;
+    left: -2px;
+    color: #6a645a;
+  }
+
+  .lang-min-link:hover {
+    color: #1c1a17;
   }
 
   .lang-min-link.active {
     color: #1c1a17;
-    font-weight: 700;
-    border-bottom: 1px solid #1c1a17;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
   }
 
+  /* CV: outlined rectangle, inverts on hover. */
   .header-cv-btn {
     font-family: var(--font-mono, monospace);
-    font-size: 12px;
-    letter-spacing: 0.06em;
+    font-size: 11px;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    background: #1c1a17;
-    color: #f2eee6;
-    padding: 10px 14px;
+    white-space: nowrap;
+    color: #1c1a17;
+    background: transparent;
+    border: 1px solid #1c1a17;
+    padding: 9px 14px;
     text-decoration: none;
-    transition: opacity 0.2s, transform 0.2s;
+    transition: background 0.2s, color 0.2s;
   }
 
   .header-cv-btn:hover {
-    opacity: 0.85;
-    transform: translateY(-1px);
-  }
-
-  .header-gup-text {
-    white-space: nowrap;
+    background: #1c1a17;
+    color: #f2eee6;
   }
 
   .cv-short {
     display: none;
-  }
-
-  .header-cv-btn {
-    white-space: nowrap;
   }
 
   .header-scroll-progress {
@@ -306,57 +344,25 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     transition: background 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
-  .lang-switch {
-    display: flex;
-    gap: 0.2rem;
-    background: var(--bg-surface);
-    padding: 0.2rem;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-subtle);
+  @media (max-width: 1023px) {
+    .header-grade-label {
+      display: none;
+    }
   }
 
-  .lang-link {
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.25rem 0.6rem;
-    border-radius: var(--radius-sm);
-    color: var(--text-muted);
-  }
-
-  .lang-link:hover {
-    color: var(--text-main);
-  }
-
-  .lang-link.active {
-    background: var(--accent-amber);
-    color: #12161c;
-    border: 1px solid var(--accent-amber);
-    font-family: var(--font-mono);
-  }
-
-  /* Mobile (< 768px): one-line header. Belt chip = swatch + grade number,
-     CV collapses to a short button. The 3px progress bar keeps the belt tint. */
+  /* Mobile: initials wordmark, grade number + tick, ES EN PT, short CV. */
   @media (max-width: 767px) {
     .site-header {
       padding: 0 16px;
     }
     .header-right-group {
-      gap: 12px;
+      gap: 8px;
     }
     .header-grade-pill {
       gap: 6px;
-      font-size: 11px;
     }
     .header-gup-text :global(.header-gup-word) {
       display: none;
-    }
-    /* Touch targets: at least 44px tall. The active language keeps its
-       underline as text-decoration so it stays next to the glyph. */
-    .brand-title {
-      min-height: 44px;
-    }
-    .lang-switch-minimal {
-      gap: 0;
     }
     .lang-min-link {
       display: inline-flex;
@@ -366,10 +372,8 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
       min-height: 44px;
       padding: 0 4px;
     }
-    .lang-min-link.active {
-      border-bottom: 0;
-      text-decoration: underline;
-      text-underline-offset: 5px;
+    .lang-min-link + .lang-min-link::before {
+      left: -3px;
     }
     .header-cv-btn {
       display: inline-flex;
@@ -377,7 +381,7 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
       justify-content: center;
       min-width: 44px;
       min-height: 44px;
-      padding: 0 12px;
+      padding: 0 10px;
     }
     .cv-long {
       display: none;
@@ -387,19 +391,22 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .header-scroll-progress,
-    .header-belt-swatch {
-      transition: none;
+  @media (max-width: 640px) {
+    .brand-name,
+    .brand-role {
+      display: none;
+    }
+    .brand-initials {
+      display: inline;
     }
   }
 
-  @media (max-width: 768px) {
-    .main-nav {
-      display: none;
-    }
-    .brand-sub {
-      display: none;
+  @media (prefers-reduced-motion: reduce) {
+    .header-scroll-progress,
+    .header-belt-swatch,
+    .lang-min-link,
+    .header-cv-btn {
+      transition: none;
     }
   }
 </style>
