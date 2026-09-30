@@ -8,6 +8,7 @@ interface Props {
 
 const { lang } = Astro.props;
 const data = martialExperienceData[lang];
+const blackStage = data.stages.find((stage) => stage.beltKey === 'negro');
 ---
 
 <section id="trayectoria" class="martial-timeline-section" data-screen-label="03 Trayectoria">
@@ -74,7 +75,17 @@ const data = martialExperienceData[lang];
 </section>
 
   <!-- Escena Pinned de Black Belt Transition (Claude Design v2) -->
-  <div class="black-belt-scene" id="black-belt-transition" data-black-belt-scene>
+  <div
+    class="black-belt-scene"
+    id="black-belt-transition"
+    data-black-belt-scene
+    data-belt-key={BELTS.negro.key}
+    data-gup={BELTS.negro.gup}
+    data-years={blackStage?.years}
+    data-belt-name={BELTS.negro.beltName[lang]}
+    data-belt-color={BELTS.negro.color}
+    data-belt-line={BELTS.negro.line}
+  >
     <div class="black-belt-sticky-wrapper">
       <div class="black-expanding-canvas" id="black-canvas"></div>
       
@@ -132,6 +143,8 @@ const data = martialExperienceData[lang];
     const monitorBeltName = document.getElementById('monitor-belt-name');
     const monitorStrap = document.getElementById('monitor-strap');
     const dotBars = document.querySelectorAll<HTMLElement>('.belt-dot-bar[data-belt-step]');
+    const railLinks = document.querySelectorAll<HTMLAnchorElement>('.belt-stage-link[data-belt-key]');
+    const blackScene = document.querySelector<HTMLElement>('[data-black-belt-scene]');
     
     // Header elements sync
     const headerBeltSwatch = document.getElementById('header-belt-indicator');
@@ -154,6 +167,29 @@ const data = martialExperienceData[lang];
 
     if (!stageBlocks.length || !monitorGup || !monitorYears || !monitorBeltName || !monitorStrap) {
       return;
+    }
+
+    let lastNonBlackStage: {
+      key: string;
+      gup?: string;
+      years?: string;
+      name?: string;
+      color?: string;
+      line?: string;
+      activeIndex: number;
+    } | null = null;
+    let blackBeltActive = false;
+
+    function setActiveRailStage(key: string) {
+      railLinks.forEach((link) => {
+        const isActive = link.dataset.beltKey === key;
+        link.classList.toggle('is-active', isActive);
+        if (isActive) {
+          link.setAttribute('aria-current', 'step');
+        } else {
+          link.removeAttribute('aria-current');
+        }
+      });
     }
 
     // Set initial active state on first belt
@@ -194,6 +230,7 @@ const data = martialExperienceData[lang];
       activeIndex: number = 0
     ) {
       if (!key) return;
+      setActiveRailStage(key);
       if (monitorGup && gup) monitorGup.textContent = gup;
       if (monitorYears && years) monitorYears.textContent = years;
       if (monitorBeltName && name) monitorBeltName.textContent = name;
@@ -219,6 +256,10 @@ const data = martialExperienceData[lang];
         window.dispatchEvent(new CustomEvent('belt:change', { detail: { key, color } }));
       }
 
+      if (key !== blackScene?.dataset.beltKey) {
+        lastNonBlackStage = { key, gup, years, name, color, line, activeIndex };
+      }
+
       // Sync 6 dot bars with opacity: 1 (current), 0.55 (passed), 0.2 (upcoming)
       dotBars.forEach((bar, i) => {
         if (i === activeIndex) {
@@ -232,12 +273,12 @@ const data = martialExperienceData[lang];
     }
 
     // GSAP ScrollTrigger para la transición a Cinturón Negro
-    const blackScene = document.querySelector<HTMLElement>('[data-black-belt-scene]');
     const blackCanvas = document.getElementById('black-canvas');
     const blackPreText = document.getElementById('black-pre-text');
     const blackReveal = document.getElementById('black-reveal-content');
 
     if (blackScene && blackCanvas && blackPreText && blackReveal) {
+      const blackStageIndex = Array.from(dotBars).findIndex((bar) => bar.dataset.beltStep === blackScene.dataset.beltKey);
       ScrollTrigger.create({
         trigger: blackScene,
         start: 'top top',
@@ -260,20 +301,29 @@ const data = martialExperienceData[lang];
           blackReveal.style.opacity = `${revealOpacity}`;
           blackReveal.style.transform = `translateY(${revealTranslate}px)`;
 
-          // When passing into black belt scene, sync header to black belt
-          if (p > 0.4) {
-            if (headerBeltSwatch) headerBeltSwatch.style.backgroundColor = '#1c1a17';
-            if (headerGupText) setHeaderGup('1º dan');
-            if (headerProgressBar) headerProgressBar.style.backgroundColor = '#1c1a17';
-          } else {
-            // Restore previous belt (rojo - stageBlocks[stageBlocks.length - 1])
-            const lastStage = stageBlocks[stageBlocks.length - 1];
-            if (lastStage && headerBeltSwatch && headerGupText && headerProgressBar) {
-              const prevColor = lastStage.dataset.beltColor || 'oklch(0.56 0.17 28)';
-              const prevLine = lastStage.dataset.beltLine || prevColor;
-              headerBeltSwatch.style.backgroundColor = prevColor;
-              setHeaderGup(lastStage.dataset.gup || '2º gup');
-              headerProgressBar.style.backgroundColor = prevLine;
+          const shouldShowBlackBelt = p > 0.4;
+          if (shouldShowBlackBelt !== blackBeltActive) {
+            blackBeltActive = shouldShowBlackBelt;
+            if (blackBeltActive) {
+              updateMonitor(
+                blackScene.dataset.beltKey,
+                blackScene.dataset.gup,
+                blackScene.dataset.years,
+                blackScene.dataset.beltName,
+                blackScene.dataset.beltColor,
+                blackScene.dataset.beltLine,
+                blackStageIndex
+              );
+            } else if (lastNonBlackStage) {
+              updateMonitor(
+                lastNonBlackStage.key,
+                lastNonBlackStage.gup,
+                lastNonBlackStage.years,
+                lastNonBlackStage.name,
+                lastNonBlackStage.color,
+                lastNonBlackStage.line,
+                lastNonBlackStage.activeIndex
+              );
             }
           }
         }

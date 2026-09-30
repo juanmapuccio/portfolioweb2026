@@ -40,9 +40,6 @@
 
 <script>
   import { gsap } from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-  gsap.registerPlugin(ScrollTrigger);
 
   const SIZE = 340;
   const FIT = 2.9;
@@ -213,32 +210,16 @@
 
     // Active belt: same source of truth as the header indicator (CustomEvent from the timeline).
     let activeColor = document.documentElement.dataset.activeBeltColor || '#f8f6f0';
-    let inBlackScene = false;
-    const applyColor = (animate: boolean) => setTarget(inBlackScene ? '#1c1a17' : activeColor, animate);
+    const applyColor = (animate: boolean) => setTarget(activeColor, animate);
     applyColor(false);
     const onBelt = (e: Event) => {
       const c = (e as CustomEvent<{ color?: string }>).detail?.color;
       if (!c || c === activeColor) return;
       activeColor = c;
-      if (!inBlackScene) applyColor(true);
+      applyColor(true);
     };
     window.addEventListener('belt:change', onBelt);
 
-    const triggers: ScrollTrigger[] = [];
-    const blackScene = document.querySelector<HTMLElement>('[data-black-belt-scene]');
-    if (blackScene) {
-      triggers.push(
-        ScrollTrigger.create({
-          trigger: blackScene,
-          start: 'top 60%',
-          end: 'bottom top',
-          onToggle: (self) => {
-            inBlackScene = self.isActive;
-            applyColor(true);
-          },
-        })
-      );
-    }
     // Drag: rotate Y only, eases back on release. No wheel handling.
     let dragging = false;
     let lastX = 0;
@@ -301,7 +282,6 @@
       canvas!.removeEventListener('pointermove', onMove);
       canvas!.removeEventListener('pointerup', onUp);
       canvas!.removeEventListener('pointercancel', onUp);
-      triggers.forEach((tr) => tr.kill());
       gsap.killTweensOf(state);
       alive = false;
       if (loaded) disposeTree(loaded);

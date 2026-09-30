@@ -12,6 +12,43 @@ const martialTimeline = await readFile(new URL('../src/components/MartialExperie
 const layout = await readFile(new URL('../src/layouts/Layout.astro', import.meta.url), 'utf8');
 
 describe('final portfolio sections', () => {
+  test('binds black-stage metadata from the current locale data before threshold synchronization', () => {
+    expect(martialTimeline).toContain("const blackStage = data.stages.find((stage) => stage.beltKey === 'negro');");
+    for (const binding of [
+      'data-belt-key={BELTS.negro.key}',
+      'data-gup={BELTS.negro.gup}',
+      'data-years={blackStage?.years}',
+      'data-belt-name={BELTS.negro.beltName[lang]}',
+      'data-belt-color={BELTS.negro.color}',
+      'data-belt-line={BELTS.negro.line}',
+    ]) {
+      expect(martialTimeline).toContain(binding);
+    }
+
+    for (const field of ['beltKey', 'gup', 'years', 'beltName', 'beltColor', 'beltLine']) {
+      expect(martialTimeline).toContain(`blackScene.dataset.${field}`);
+    }
+  });
+
+  test('tracks the active belt rail and black-scene threshold in both scroll directions', () => {
+    expect(homePage).toContain('data-belt-key={stage.beltKey}');
+    expect(homePage).toContain("aria-current={stage.beltKey === beltStages[0]?.beltKey ? 'step' : undefined}");
+    expect(homePage).toContain('.belt-stage-link.is-active');
+
+    expect(martialTimeline).toContain('function setActiveRailStage(key: string)');
+    expect(martialTimeline).toContain('link.dataset.beltKey === key');
+    expect(martialTimeline).toContain("link.setAttribute('aria-current', 'step')");
+    expect(martialTimeline).toContain("link.removeAttribute('aria-current')");
+    expect(martialTimeline).toContain('setActiveRailStage(key);');
+    expect(martialTimeline).toContain('onEnter: () => updateMonitor(beltKey, gup, years, beltName, beltColor, beltLine, index)');
+    expect(martialTimeline).toContain('onEnterBack: () => updateMonitor(beltKey, gup, years, beltName, beltColor, beltLine, index)');
+
+    expect(martialTimeline).toContain('if (shouldShowBlackBelt !== blackBeltActive)');
+    expect(martialTimeline).toContain('data-belt-key={BELTS.negro.key}');
+    expect(martialTimeline).toContain('lastNonBlackStage.key,');
+    expect(belt3d).not.toContain("document.querySelector<HTMLElement>('[data-black-belt-scene]')");
+  });
+
   test('keeps the belt monitor label outside the page heading hierarchy', () => {
     expect(homePage).not.toContain('<h2 class="belt-display-name" id="monitor-belt-name">');
     expect(homePage).toContain('<p class="belt-display-name" id="monitor-belt-name">{BELTS.blanco.beltName[lang]}</p>');

@@ -53,7 +53,12 @@ const beltStages = martialExperienceData[lang].stages;
             const belt = BELTS[stage.beltKey];
             const target = stage.beltKey === 'negro' ? 'black-belt-transition' : `stage-${stage.beltKey}`;
             return (
-              <a class="belt-stage-link" href={`#${target}`}>
+              <a
+                class="belt-stage-link"
+                data-belt-key={stage.beltKey}
+                aria-current={stage.beltKey === beltStages[0]?.beltKey ? 'step' : undefined}
+                href={`#${target}`}
+              >
                 <span class="belt-stage-swatch" style={`--stage-color: ${belt.color};`} aria-hidden="true"></span>
                 <span>{belt.gup}</span>
                 <span class="belt-stage-name">{belt.beltName[lang]}</span>
@@ -271,6 +276,15 @@ const beltStages = martialExperienceData[lang].stages;
 
   .belt-stage-link:hover {
     color: #1c1a17;
+  }
+
+  .belt-stage-link.is-active,
+  .belt-stage-link.is-active .belt-stage-name {
+    color: #1c1a17;
+  }
+
+  .belt-stage-link.is-active {
+    font-weight: 600;
   }
 
   .belt-stage-link:focus-visible {
