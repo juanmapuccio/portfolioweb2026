@@ -21,3 +21,5 @@ T16 dates overlap, T17 pandemic range, P11 Seiton Motors, P4/P10 quantified clai
 - Verification: rg leftovers clean (sozinha, Boutique, TAEKWON-DO, 99.98, 45ms, Desplazá, literal Descargar CV outside ui.ts, prose em-dashes). Preview es/en/pt at 375 and 1440: no horizontal overflow, 0 console errors; es heights 375=15003, 1440=28668 (unchanged).
 - [x] C5 Hero headline -> 'Audito procesos de empresas y los resuelvo con código' (es/en/pt); Seiton Motors as IT consulting + database management client. Route: inline (mechanical). Checks: bun test 5 pass, astro check 0 errors, build OK. Commit 059b5f1.
 - Flags resolved by user: T16, T17, P4/P10, S10 confirmed as-is; M2, M4 still open.
+- [x] O1 Meta title aligned (es/en/pt). Commit 8b0d8bf.
+- [x] O2+O3 OG image public/og/og-juan-puccio.png (1200x630, JMP Portfolio + photo, legible at 300px) and og/twitter image tags. Checks: bun test 5 pass, astro check 0 errors, build OK, absolute URLs confirmed in dist es/en/pt. Commit dd3c775. Pending user step: LinkedIn Post Inspector after deploy.
