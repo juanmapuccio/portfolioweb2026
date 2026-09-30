@@ -18,6 +18,8 @@ const siteUrl = (Astro.site ?? new URL('https://juanpuccio.vercel.app')).toStrin
 const localePaths: Record<Lang, string> = { es: '/', en: '/en/', pt: '/pt/' };
 const ogLocales: Record<Lang, string> = { es: 'es_AR', en: 'en_US', pt: 'pt_BR' };
 const canonicalUrl = siteUrl + localePaths[lang];
+const ogImageUrl = siteUrl + '/og/og-juan-puccio.png';
+const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
 ---
 
 <!doctype html>
@@ -34,12 +36,20 @@ const canonicalUrl = siteUrl + localePaths[lang];
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:locale" content={ogLocales[lang]} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt} />
     <link rel="canonical" href={canonicalUrl} />
     {Object.keys(localePaths).map((code) => (
       <link rel="alternate" hreflang={code} href={siteUrl + localePaths[code as Lang]} />
     ))}
     <link rel="alternate" hreflang="x-default" href={siteUrl + localePaths.es} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
 
     <!-- Google Fonts: Source Serif 4, Hanken Grotesk, IBM Plex Mono, Noto Sans KR for hangul (Claude Design Aesthetic) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
