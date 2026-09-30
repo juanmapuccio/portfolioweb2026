@@ -17,8 +17,6 @@ export interface ContactData {
   title: string;
   subtitle: string;
   ctaButtonText: string;
-  statusText: string;
-  locationText: string;
   channels: ContactChannel[];
 }
 
@@ -28,8 +26,6 @@ export const contactData: Record<Lang, ContactData> = {
     title: 'Busco sumarme a un equipo técnico con desafíos reales.',
     subtitle: 'Busco sumarme como Desarrollador Full Stack en un equipo técnico de alto impacto, con disponibilidad full-time. Diseño, despliego y estabilizo software de negocio en producción: esa es la prueba de ingeniería que quiero poner al servicio de tu equipo.',
     ctaButtonText: 'Conversar por WhatsApp',
-    statusText: 'Disponible para incorporación a equipos de producto & ingeniería',
-    locationText: 'Rosario, Santa Fe, Argentina · Modalidad Remota / Híbrida / On-site',
     channels: [
       {
         id: 'whatsapp',
@@ -74,8 +70,6 @@ export const contactData: Record<Lang, ContactData> = {
     title: 'Looking to join a technical team with real challenges.',
     subtitle: 'Looking to join a high-impact technical team as a Full Stack Developer, with full-time availability. I design, ship, and stabilize production business software: that is the engineering proof I want to bring to your team.',
     ctaButtonText: 'Chat on WhatsApp',
-    statusText: 'Available for full-time engineering & product roles',
-    locationText: 'Rosario, Argentina · Remote / Hybrid / On-site',
     channels: [
       {
         id: 'whatsapp',
@@ -120,8 +114,6 @@ export const contactData: Record<Lang, ContactData> = {
     title: 'Busco ingressar em uma equipe técnica com desafios reais.',
     subtitle: 'Busco ingressar como Desenvolvedor Full Stack em uma equipe técnica de alto impacto, com disponibilidade full-time. Projeto, implanto e estabilizo software de negócio em produção: essa é a prova de engenharia que quero colocar a serviço da sua equipe.',
     ctaButtonText: 'Conversar pelo WhatsApp',
-    statusText: 'Disponível para contratação em equipes de produto & engenharia',
-    locationText: 'Rosário, Argentina · Remoto / Híbrido / Presencial',
     channels: [
       {
         id: 'whatsapp',

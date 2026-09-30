@@ -38,7 +38,9 @@ describe('final portfolio sections', () => {
   test('renders a dark editorial contact panel and retains localized outbound links', () => {
     expect(contactComponent).toContain('contact-section');
     expect(contactComponent).toContain('contact-row');
-    expect(contactComponent).toContain('CONVERSAR POR WHATSAPP');
+    expect(contactComponent).toContain('ctaButtonText');
+    expect(contactComponent).toContain("t('hero.btn.cv')");
+    expect(contactComponent).not.toContain('wa.me');
     for (const lang of ['es', 'en', 'pt'] as const) {
       expect(contactData[lang].channels).toHaveLength(5);
       expect(contactData[lang].channels.every(({ url }) => url.length > 0)).toBe(true);

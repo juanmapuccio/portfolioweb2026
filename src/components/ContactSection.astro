@@ -11,9 +11,10 @@ interface Props {
 const { lang } = Astro.props;
 const data = contactData[lang];
 const t = useTranslations(lang);
-const location = lang === 'es' ? 'Rosario, Argentina' : lang === 'en' ? 'Rosario, Argentina' : 'Rosário, Argentina';
-const whatsappLabel = lang === 'es' ? 'CONVERSAR POR WHATSAPP' : lang === 'en' ? 'CHAT ON WHATSAPP' : 'CONVERSAR PELO WHATSAPP';
-const cvLabel = lang === 'es' ? 'DESCARGAR CV' : lang === 'en' ? 'DOWNLOAD CV' : 'BAIXAR CV';
+const location = lang === 'pt' ? 'Rosário, Argentina' : 'Rosario, Argentina';
+const whatsapp = data.channels.find((channel) => channel.primary);
+const whatsappLabel = data.ctaButtonText.toUpperCase();
+const cvLabel = t('hero.btn.cv').toUpperCase();
 ---
 
 <section id="contacto" class="contact-section" aria-labelledby="contact-title">
@@ -23,9 +24,11 @@ const cvLabel = lang === 'es' ? 'DESCARGAR CV' : lang === 'en' ? 'DOWNLOAD CV' :
       <h2 id="contact-title" class="contact-title">{data.title}</h2>
       <p class="contact-subtitle">{data.subtitle}</p>
       <div class="contact-actions">
-        <a href="https://wa.me/5493413192179" target="_blank" rel="noopener noreferrer" class="contact-action action-primary">
-          {whatsappLabel}<ArrowUpRight size={17} aria-hidden="true" />
-        </a>
+        {whatsapp && (
+          <a href={whatsapp.url} target="_blank" rel="noopener noreferrer" class="contact-action action-primary">
+            {whatsappLabel}<ArrowUpRight size={17} aria-hidden="true" />
+          </a>
+        )}
         <a href={CV_URL} target="_blank" rel="noopener noreferrer" class="contact-action action-secondary">
           {cvLabel}<ArrowUpRight size={17} aria-hidden="true" />
         </a>

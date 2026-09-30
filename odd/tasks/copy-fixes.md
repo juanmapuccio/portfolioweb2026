@@ -8,7 +8,7 @@ Decisions: remove fake mockup metrics; es register neutral/tuteo.
 - [x] C1 Visible errors: pt gender, mockup metrics removed + localized, Desplázate. Route: delegated writer.
 - [x] C2 en/pt/es parity with es meaning. Route: delegated writer.
 - [x] C3 Em-dashes in prose (date ranges exempt). Route: delegated writer.
-- [ ] C4 Consolidation: CV label via t(), contact labels from contactData, dead copy, curly quotes. Route: delegated writer.
+- [x] C4 Consolidation: CV label via t(), contact labels from contactData, dead copy, curly quotes. Route: delegated writer.
 
 ## Flag only (awaiting user facts)
 T16 dates overlap, T17 pandemic range, P11 Seiton Motors, P4/P10 quantified claims, S10 +10 years, M2 Process Consultant, M4 og:image.
@@ -16,4 +16,5 @@ T16 dates overlap, T17 pandemic range, P11 Seiton Motors, P4/P10 quantified clai
 ## Progress
 - C1 done: skills.ts (pt gender), ProjectsSection.astro (fake 99.98%/<45ms/HTTP 200 OK removed; STACK/STATUS/ENV cards + terminal strings localized), HomePage.astro (Desplázate). Checks: bun test 5 pass, astro check 0 errors, build ok. Commit: 190893d
 - C2 done: ui.ts, contact.ts, skills.ts, projects.ts, martialExperience.ts, principles.ts, ArchitectureDiagram/HomePage/Manifesto/Timeline/Skills/Projects components. en/pt aligned to es (removed added claims), es meta title and Presente, pt Rosário, Taekwondo, Linter label localized. Checks: bun test 5 pass, astro check 0 errors, build ok. Commit: a1e9577
-- C3 done: prose em-dashes replaced in skills.ts (certs ' · ', B2 ':', UNR ', ', quote), HomePage hero role, martialExperience roles; test expectation updated (UNR, en curso). Date-range dashes kept. Checks: bun test 5 pass, astro check 0 errors, build ok. Commit: PENDING_C3
+- C3 done: prose em-dashes replaced in skills.ts (certs ' · ', B2 ':', UNR ', ', quote), HomePage hero role, martialExperience roles; test expectation updated (UNR, en curso). Date-range dashes kept. Checks: bun test 5 pass, astro check 0 errors, build ok. Commit: 548d121
+- C4 done: Layout.astro and ContactSection.astro use t('hero.btn.cv'); WhatsApp label and URL from contactData (primary channel); dead statusText/locationText removed; curly quotes in ProjectsSection; test updated. Checks: bun test 5 pass, astro check 0 errors, build ok. Commit: see git log (refactor: source contact and cv labels from shared copy)

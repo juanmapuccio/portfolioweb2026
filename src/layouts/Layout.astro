@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 import type { Lang } from '../i18n/ui';
-import { languages } from '../i18n/ui';
+import { languages, useTranslations } from '../i18n/ui';
 import { CV_URL } from '../data/contact';
 import BeltKnot from '../components/BeltKnot.astro';
 
@@ -12,6 +12,7 @@ interface Props {
 }
 
 const { title, description, lang = 'es' } = Astro.props;
+const t = useTranslations(lang);
 
 const siteUrl = (Astro.site ?? new URL('https://juanpuccio.vercel.app')).toString().replace(/\/$/, '');
 const localePaths: Record<Lang, string> = { es: '/', en: '/en/', pt: '/pt/' };
@@ -90,7 +91,7 @@ const canonicalUrl = siteUrl + localePaths[lang];
 
           <!-- Descargar CV -->
           <a href={CV_URL} target="_blank" rel="noopener noreferrer" class="header-cv-btn">
-            <span class="cv-long">{lang === 'es' ? 'Descargar CV' : lang === 'en' ? 'Download CV' : 'Baixar CV'}</span>
+            <span class="cv-long">{t('hero.btn.cv')}</span>
             <span class="cv-short" aria-hidden="true">CV</span>
           </a>
         </div>
