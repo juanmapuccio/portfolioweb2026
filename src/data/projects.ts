@@ -26,7 +26,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       description: 'Plataforma institucional y espacio de trabajo cooperativo para desplegar software a medida, sistemas de gestión y automatizaciones de negocio.',
       problem: 'Empresas y comercios operaban con software genérico desintegrado y altos costos de licenciamiento.',
       solution: 'Desarrollo de sistemas propietarios desplegados en infraestructura cloud propia (Linux, Docker, GitHub Actions) con integraciones fiscales.',
-      impact: 'Clientes activos en producción (Seiton Motors, Satori Dojo, Don Pizza) con monitoreo y control de versiones centralizado.',
+      impact: 'Clientes activos en producción (Satori Dojo, Don Pizza) con monitoreo y control de versiones centralizado, y consultoría IT y gestión de base de datos para Seiton Motors.',
       url: 'https://nodosur.dev',
       tech: ['TypeScript', 'React', 'Docker', 'Linux Cloud', 'CI/CD'],
       featured: true
@@ -84,7 +84,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       description: 'Institutional platform and cooperative workspace to deploy custom software, business systems, and business automation.',
       problem: 'Companies and shops operated with disconnected generic software and high licensing costs.',
       solution: 'Proprietary systems deployed on our own cloud infrastructure (Linux, Docker, GitHub Actions) with fiscal integrations.',
-      impact: 'Active production clients (Seiton Motors, Satori Dojo, Don Pizza) with centralized versioning and monitoring.',
+      impact: 'Active production clients (Satori Dojo, Don Pizza) with centralized versioning and monitoring, plus IT consulting and database management for Seiton Motors.',
       url: 'https://nodosur.dev',
       tech: ['TypeScript', 'React', 'Docker', 'Linux Cloud', 'CI/CD'],
       featured: true
@@ -142,7 +142,7 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       description: 'Plataforma institucional e espaço de trabalho cooperativo para implantar software sob medida, sistemas de gestão e automações de negócio.',
       problem: 'Empresas e comércios operavam com software genérico desintegrado e altos custos de licenciamento.',
       solution: 'Sistemas proprietários implantados em infraestrutura cloud própria (Linux, Docker, GitHub Actions) com integrações fiscais.',
-      impact: 'Clientes ativos em produção (Seiton Motors, Satori Dojo, Don Pizza) com monitoramento e controle de versões centralizado.',
+      impact: 'Clientes ativos em produção (Satori Dojo, Don Pizza) com monitoramento e controle de versões centralizado, e consultoria de TI e gestão de banco de dados para a Seiton Motors.',
       url: 'https://nodosur.dev',
       tech: ['TypeScript', 'React', 'Docker', 'Linux Cloud', 'CI/CD'],
       featured: true

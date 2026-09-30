@@ -177,7 +177,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Jun 2025 — Presente',
             role: 'Fundador y Desarrollador',
             org: 'NodoSur',
-            description: 'Software factory de soluciones a medida, servidores cloud autoadministrados en Linux con Docker y flujo CI/CD con GitHub Actions. Plataformas vivas: NodoFit (SaaS), Satori Dojo, Don Pizza y Seiton Motors. Disponibilidad full-time real para sumarme a un equipo.',
+            description: 'Software factory de soluciones a medida, servidores cloud autoadministrados en Linux con Docker y flujo CI/CD con GitHub Actions. Plataformas vivas: NodoFit (SaaS), Satori Dojo y Don Pizza. Consultoría IT y gestión de base de datos para Seiton Motors. Disponibilidad full-time real para sumarme a un equipo.',
             transferableCompetency: 'Arquitectura de software en producción, capacidad de entregar y sostener sistemas confiables, liderazgo y disciplina ética.'
           }
         ]
@@ -317,7 +317,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Jun 2025 — Present',
             role: 'Founder and Developer',
             org: 'NodoSur',
-            description: 'Bespoke software factory with self-managed cloud servers on Linux, Docker containers, and GitHub Actions CI/CD. Production systems: NodoFit (SaaS), Satori Dojo, Don Pizza, and Seiton Motors. Real full-time availability to join a team.',
+            description: 'Bespoke software factory with self-managed cloud servers on Linux, Docker containers, and GitHub Actions CI/CD. Production systems: NodoFit (SaaS), Satori Dojo, and Don Pizza. IT consulting and database management for Seiton Motors. Real full-time availability to join a team.',
             transferableCompetency: 'Production software architecture, ability to deliver and sustain reliable systems, leadership, and ethical discipline.'
           }
         ]
@@ -457,7 +457,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Jun 2025 — Presente',
             role: 'Fundador e Desenvolvedor',
             org: 'NodoSur',
-            description: 'Software factory com servidores Linux próprios, Docker e pipelines CI/CD com GitHub Actions. Sistemas em produção: NodoFit (SaaS), Satori Dojo, Don Pizza e Seiton Motors. Disponibilidade full-time real para me somar a uma equipe.',
+            description: 'Software factory com servidores Linux próprios, Docker e pipelines CI/CD com GitHub Actions. Sistemas em produção: NodoFit (SaaS), Satori Dojo e Don Pizza. Consultoria de TI e gestão de banco de dados para a Seiton Motors. Disponibilidade full-time real para me somar a uma equipe.',
             transferableCompetency: 'Arquitetura de software em produção, capacidade de entregar e sustentar sistemas confiáveis, liderança e ética.'
           }
         ]
