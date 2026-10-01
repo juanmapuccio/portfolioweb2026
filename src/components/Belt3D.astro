@@ -46,7 +46,7 @@
 
   const W0 = 900;
   const H0 = 600;
-  const FIT = 2.9;
+  const FIT = 2.35;
   const MODEL_ROT: [number, number, number] = [0, 0, 0];
 
   const root = document.getElementById('belt3d-root') as HTMLElement | null;
@@ -104,20 +104,20 @@
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(30, W0 / H0, 0.1, 50);
-    camera.position.set(0, 0.4, 4.8);
+    camera.position.set(0, 0, 5.2);
     camera.lookAt(0, 0, 0);
 
     // Dynamic key, ambient, and rim lighting
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8478, 0.35));
-    const key = new THREE.DirectionalLight(0xffffff, 0.95);
-    key.position.set(2.5, 3, 4);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8478, 0.4));
+    const key = new THREE.DirectionalLight(0xffffff, 1.0);
+    key.position.set(2.5, 3.5, 4.5);
     scene.add(key);
-    const rim = new THREE.DirectionalLight(0xdfe8ff, 0.45);
+    const rim = new THREE.DirectionalLight(0xdfe8ff, 0.5);
     rim.position.set(-3, 2, -3);
     scene.add(rim);
 
     const belt = new THREE.Group();
-    belt.position.y = 0.1;
+    belt.position.set(0, -0.04, 0);
     scene.add(belt);
 
     // Realistic reflections and fabric sheen
