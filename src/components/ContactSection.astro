@@ -1,7 +1,6 @@
 ---
 import type { Lang } from '../i18n/ui';
 import { contactData, CV_URL } from '../data/contact';
-import { ArrowUpRight, ArrowDown } from 'lucide-astro';
 import { useTranslations } from '../i18n/ui';
 
 interface Props {
@@ -17,236 +16,331 @@ const whatsappLabel = data.ctaButtonText.toUpperCase();
 const cvLabel = t('hero.btn.cv').toUpperCase();
 ---
 
-<section id="contacto" class="contact-section" aria-labelledby="contact-title">
-  <div class="container contact-container">
-    <div class="contact-intro">
-      <p class="contact-eyebrow"><span class="status-dot" aria-hidden="true"></span>{data.badge}</p>
-      <h2 id="contact-title" class="contact-title">{data.title}</h2>
-      <p class="contact-subtitle">{data.subtitle}</p>
-      <div class="contact-actions">
-        {whatsapp && (
-          <a href={whatsapp.url} target="_blank" rel="noopener noreferrer" class="contact-action action-primary">
-            {whatsappLabel}<ArrowUpRight size={17} aria-hidden="true" />
+<footer
+  id="contacto"
+  data-fx="k"
+  data-zone="kimono"
+  data-ch="6"
+  class="kimono-contact-footer"
+>
+  <div class="kimono-sticky-stage">
+    <!-- Revealed Contact Content in the Background -->
+    <div class="kimono-revealed-plane">
+      <div class="kimono-content-top">
+        <span class="mono-badge">
+          {lang === 'es' ? 'DISPONIBILIDAD & CONTRATACIÓN' : lang === 'en' ? 'AVAILABILITY & HIRING' : 'DISPONIBILIDADE & CONTRATAÇÃO'}
+        </span>
+        <h2 class="kimono-title">{data.title}</h2>
+        <p class="kimono-subtitle">{data.subtitle}</p>
+        <div class="kimono-actions-row">
+          {whatsapp && (
+            <a
+              href={whatsapp.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="kimono-btn-primary"
+            >
+              {whatsappLabel}
+            </a>
+          )}
+          <a
+            href={CV_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="kimono-btn-secondary"
+          >
+            {cvLabel}
           </a>
-        )}
-        <a href={CV_URL} target="_blank" rel="noopener noreferrer" class="contact-action action-secondary">
-          {cvLabel}<ArrowUpRight size={17} aria-hidden="true" />
-        </a>
+        </div>
+      </div>
+
+      <!-- Contact Channels Grid -->
+      <nav class="kimono-channels-grid" aria-label={lang === 'es' ? 'Canales de contacto' : lang === 'en' ? 'Contact channels' : 'Canais de contato'}>
+        {data.channels.map((channel) => (
+          <a
+            href={channel.url}
+            target={channel.id === 'email' ? undefined : '_blank'}
+            rel={channel.id === 'email' ? undefined : 'noopener noreferrer'}
+            class="kimono-channel-card"
+          >
+            <span class="ch-name">{channel.name}</span>
+            <span class="ch-val">{channel.label} ↗</span>
+          </a>
+        ))}
+      </nav>
+
+      <div class="kimono-legal-bar">
+        <span>{location} · Remoto / Híbrido / On-site</span>
+        <span>Kyong-ye · © 2026 Juan Manuel Puccio</span>
       </div>
     </div>
 
-    <nav class="contact-rows" aria-label={lang === 'es' ? 'Canales de contacto' : lang === 'en' ? 'Contact channels' : 'Canais de contato'}>
-      {data.channels.map((channel) => (
-        <a
-          class="contact-row"
-          href={channel.url}
-          target={channel.id === 'email' ? undefined : '_blank'}
-          rel={channel.id === 'email' ? undefined : 'noopener noreferrer'}
-          aria-label={`${channel.name}: ${channel.label}`}
-        >
-          <span class="contact-row-label">{channel.name}</span>
-          <span class="contact-row-value">{channel.label}<ArrowUpRight size={20} aria-hidden="true" /></span>
-        </a>
-      ))}
-    </nav>
+    <!-- Dobok Kimono Left Fold -->
+    <div class="dobok-fold dobok-fold-left" aria-hidden="true">
+      <div class="dobok-inner dobok-inner-left"></div>
+      <div class="dobok-badge-label dobok-badge-left">Dobok · 1º dan</div>
+    </div>
 
-    <footer class="contact-footer">
-      <span>{location}</span>
-      <span>© 2026 Juan Manuel Puccio</span>
-    </footer>
+    <!-- Dobok Kimono Right Fold -->
+    <div class="dobok-fold dobok-fold-right" aria-hidden="true">
+      <div class="dobok-inner dobok-inner-right"></div>
+      <div class="dobok-badge-label dobok-badge-right">
+        {lang === 'es' ? 'Contacto ↓' : lang === 'en' ? 'Contact ↓' : 'Contato ↓'}
+      </div>
+    </div>
+
+    <!-- 3D Belt Landing Slot (Waist of Dobok) -->
+    <div data-slot="1" class="kimono-belt-slot" aria-hidden="true"></div>
   </div>
-</section>
-
-<!-- Mobile-only shortcut to the contact section. Hidden while the section is in view. -->
-<a href="#contacto" class="contact-shortcut" data-contact-shortcut aria-hidden="true" tabindex="-1">
-  {t('contact.shortcut')}<ArrowDown size={16} aria-hidden="true" />
-</a>
-
-<script>
-  function initContactShortcut() {
-    const shortcut = document.querySelector<HTMLAnchorElement>('[data-contact-shortcut]');
-    const target = document.getElementById('contacto');
-    if (!shortcut || !target || shortcut.dataset.ready === 'true') return;
-    shortcut.dataset.ready = 'true';
-
-    let pastIntro = false;
-    let contactInView = false;
-
-    const render = () => {
-      const visible = pastIntro && !contactInView;
-      shortcut.classList.toggle('is-visible', visible);
-      shortcut.setAttribute('aria-hidden', visible ? 'false' : 'true');
-      shortcut.tabIndex = visible ? 0 : -1;
-    };
-
-    // Appears once the hero (which has its own contact CTAs) has scrolled away.
-    const onScroll = () => {
-      const next = window.scrollY > window.innerHeight * 0.8;
-      if (next !== pastIntro) {
-        pastIntro = next;
-        render();
-      }
-    };
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        contactInView = entries.some((entry) => entry.isIntersecting);
-        render();
-      },
-      { threshold: 0.05 }
-    );
-    observer.observe(target);
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initContactShortcut);
-  } else {
-    initContactShortcut();
-  }
-</script>
+</footer>
 
 <style>
-  .contact-section {
-    padding: clamp(5rem, 10vw, 10rem) 0 max(2rem, env(safe-area-inset-bottom));
+  .kimono-contact-footer {
+    height: 220vh;
+    position: relative;
     background: #1c1a17;
     color: #f2eee6;
+    margin-top: -1px;
+    box-sizing: border-box;
   }
-  .contact-container { max-width: 1600px; }
-  .contact-intro { max-width: 57rem; }
-  .contact-eyebrow, .contact-row-label, .contact-action, .contact-footer {
-    font-family: var(--font-mono, monospace);
+
+  .kimono-sticky-stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+    background: #1c1a17;
   }
-  .contact-eyebrow {
+
+  /* Background Revealed Plane */
+  .kimono-revealed-plane {
+    position: absolute;
+    inset: 0;
+    padding: clamp(80px, 11vh, 100px) clamp(20px, 5vw, 72px) 28px;
+    box-sizing: border-box;
     display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    margin-bottom: 1.5rem;
-    color: #d2cbbf;
-    font-size: 0.7rem;
-    letter-spacing: 0.1em;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 24px;
+    max-width: 1600px;
+    margin: 0 auto;
+    opacity: clamp(0, calc((var(--p, 0) - 0.25) * 2.5), 1);
+    transform: scale(calc(0.96 + clamp(0, var(--p, 0), 1) * 0.04));
+    transition: opacity 0.05s linear, transform 0.05s linear;
   }
-  .status-dot { width: 0.48rem; height: 0.48rem; flex: 0 0 auto; border-radius: 50%; background: #6d9c73; }
-  .contact-title {
-    max-width: 16ch;
-    font-family: var(--font-serif, Georgia, serif);
-    font-size: clamp(3rem, 7vw, 6.7rem);
-    font-weight: 400;
-    letter-spacing: -0.035em;
-    line-height: 0.98;
+
+  .kimono-content-top {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 1100px;
+  }
+
+  .mono-badge {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #c9c3b7;
+  }
+
+  .kimono-title {
+    margin: 0;
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-weight: 300;
+    font-size: clamp(38px, 5vw, 84px);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: #f2eee6;
     text-wrap: balance;
   }
-  .contact-subtitle {
-    max-width: 66ch;
-    margin-top: 1.6rem;
-    color: #d2cbbf;
-    font-size: clamp(1rem, 1.5vw, 1.2rem);
-    line-height: 1.7;
-  }
-  .contact-actions { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 2.3rem; }
-  .contact-action {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.8rem;
-    min-height: 3.4rem;
-    padding: 0.9rem 1.2rem;
-    font-size: 0.68rem;
-    letter-spacing: 0.04em;
-    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
-  }
-  .action-primary { background: #f2eee6; color: #1c1a17; border: 1px solid #f2eee6; }
-  .action-secondary { color: #f2eee6; border: 1px solid rgba(242, 238, 230, 0.5); }
-  .action-primary:hover { background: #d9d1c3; border-color: #d9d1c3; }
-  .action-secondary:hover { background: rgba(242, 238, 230, 0.1); }
-  .contact-action:focus-visible, .contact-row:focus-visible { outline: 2px solid #b6d3b8; outline-offset: 5px; }
 
-  .contact-rows { margin-top: clamp(5rem, 10vw, 10rem); border-top: 1px solid rgba(242, 238, 230, 0.32); }
-  .contact-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 2rem;
-    min-height: 6.3rem;
-    padding: 1.2rem 0;
-    border-bottom: 1px solid rgba(242, 238, 230, 0.25);
-    transition: color 180ms ease;
+  .kimono-subtitle {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.6;
+    color: #c9c3b7;
+    max-width: 720px;
+    text-wrap: pretty;
   }
-  .contact-row:hover { color: #c9d8c7; }
-  .contact-row-label { color: #c6bfb3; font-size: 0.68rem; letter-spacing: 0.06em; }
-  .contact-row-value {
+
+  .kimono-actions-row {
     display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    font-family: var(--font-serif, Georgia, serif);
-    font-size: clamp(1.35rem, 3vw, 2.35rem);
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-top: 8px;
+  }
+
+  .kimono-btn-primary {
+    background: #f2eee6;
+    color: #1c1a17;
+    padding: 15px 26px;
+    text-decoration: none;
+    font-family: var(--font-mono, monospace);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+  }
+
+  .kimono-btn-primary:hover {
+    transform: translateY(-2px);
+    background: #ffffff;
+    color: #1c1a17;
+  }
+
+  .kimono-btn-secondary {
+    border: 1px solid rgba(242, 238, 230, 0.4);
+    color: #f2eee6;
+    padding: 15px 26px;
+    text-decoration: none;
+    font-family: var(--font-mono, monospace);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .kimono-btn-secondary:hover {
+    transform: translateY(-2px);
+    border-color: #f2eee6;
+    color: #f2eee6;
+  }
+
+  /* Channels Grid */
+  .kimono-channels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    border-top: 1px solid rgba(242, 238, 230, 0.18);
+  }
+
+  .kimono-channel-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 18px 16px 18px 0;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(242, 238, 230, 0.18);
+    transition: transform 0.2s ease;
+  }
+
+  .kimono-channel-card:hover {
+    transform: translateX(4px);
+  }
+
+  .ch-name {
+    font-family: var(--font-mono, monospace);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #c9c3b7;
+  }
+
+  .ch-val {
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-weight: 400;
+    font-size: clamp(17px, 1.4vw, 21px);
     line-height: 1.2;
+    color: #f2eee6;
     overflow-wrap: anywhere;
-    text-align: right;
   }
-  .contact-row-value :global(svg) { flex: 0 0 auto; }
-  .contact-footer {
+
+  .kimono-legal-bar {
     display: flex;
     justify-content: space-between;
-    gap: 1rem;
-    padding-top: 1.5rem;
-    color: #c6bfb3;
-    font-size: 0.65rem;
-    letter-spacing: 0.03em;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #c9c3b7;
+    padding-top: 8px;
   }
-  .contact-shortcut { display: none; }
 
-  @media (max-width: 640px) {
-    .contact-actions { flex-direction: column; align-items: stretch; }
-    .contact-action { width: 100%; min-height: 3.5rem; }
-    .contact-row { align-items: flex-start; flex-direction: column; gap: 0.6rem; min-height: 3.5rem; }
-    .contact-row-value { text-align: left; }
-    .contact-footer { flex-direction: column; }
+  /* Dobok Flaps / Folds */
+  .dobok-fold {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 53%;
+    background: #1c1a17;
+    pointer-events: none;
+    will-change: transform;
+    z-index: 2;
   }
-  @media (max-width: 767px) {
-    .contact-section { padding-top: 4rem; }
-    .contact-actions { margin-top: 1.75rem; }
-    .contact-rows { margin-top: 3rem; }
-    .contact-row { padding: 1rem 0; }
 
-    .contact-shortcut {
-      position: fixed;
-      right: max(1rem, env(safe-area-inset-right));
-      bottom: max(1rem, env(safe-area-inset-bottom));
-      z-index: 40;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      min-height: 44px;
-      min-width: 44px;
-      padding: 0 1rem;
-      background: #1c1a17;
-      color: #f2eee6;
-      border: 1px solid rgba(242, 238, 230, 0.35);
-      box-shadow: 0 6px 16px rgba(28, 26, 23, 0.28);
-      font-family: var(--font-mono, monospace);
-      font-size: 0.72rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      opacity: 0;
-      transform: translateY(8px);
-      visibility: hidden;
-      pointer-events: none;
-      transition: opacity 220ms cubic-bezier(0.16, 1, 0.3, 1), transform 220ms cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 220ms;
-    }
-    .contact-shortcut.is-visible {
-      opacity: 1;
-      transform: none;
-      visibility: visible;
-      pointer-events: auto;
-      transition-delay: 0s;
-    }
-    .contact-shortcut:focus-visible { outline: 2px solid #b6d3b8; outline-offset: 3px; }
+  .dobok-fold-left {
+    left: 0;
+    clip-path: polygon(0 0, 78% 0, 100% 44%, 100% 100%, 0 100%);
+    transform: translateX(calc(clamp(0, calc(var(--p, 0) * 1.6), 1) * -104%));
+    box-shadow: 0 0 0 1px #1c1a17;
   }
+
+  .dobok-inner-left {
+    position: absolute;
+    inset: 0 0 7vh 0;
+    background: #faf8f3;
+    clip-path: polygon(0 0, 70% 0, 92% 44%, 92% 100%, 0 100%);
+  }
+
+  .dobok-badge-left {
+    left: clamp(20px, 5vw, 72px);
+  }
+
+  .dobok-fold-right {
+    right: 0;
+    clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%, 0 44%);
+    transform: translateX(calc(clamp(0, calc(var(--p, 0) * 1.6), 1) * 104%));
+  }
+
+  .dobok-inner-right {
+    position: absolute;
+    inset: 0 0 7vh 0;
+    background: #f2eee6;
+    clip-path: polygon(30% 0, 100% 0, 100% 100%, 8% 100%, 8% 44%);
+  }
+
+  .dobok-badge-right {
+    right: clamp(20px, 5vw, 72px);
+  }
+
+  .dobok-badge-label {
+    position: absolute;
+    top: 96px;
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #4a463f;
+    z-index: 3;
+  }
+
+  /* Belt Slot on the Kimono Waist */
+  .kimono-belt-slot {
+    position: absolute;
+    left: 18vw;
+    right: 18vw;
+    top: 48vh;
+    height: 30vh;
+    pointer-events: none;
+    z-index: 3;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .contact-action, .contact-row, .contact-shortcut { transition: none; }
-    .contact-shortcut { transform: none; }
+    .dobok-fold-left,
+    .dobok-fold-right {
+      display: none;
+    }
+
+    .kimono-revealed-plane {
+      opacity: 1 !important;
+      transform: none !important;
+    }
   }
 </style>
