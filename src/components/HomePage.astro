@@ -2,6 +2,8 @@
 import Layout from '../layouts/Layout.astro';
 import { CV_URL } from '../data/contact';
 import { useTranslations, type Lang } from '../i18n/ui';
+import { Image } from 'astro:assets';
+import fotoPerfil from '../assets/fotojmPerfil.png';
 import ProjectsSection from './ProjectsSection.astro';
 import ManifestoScrollytelling from './ManifestoScrollytelling.astro';
 import MartialExperienceTimeline from './MartialExperienceTimeline.astro';
@@ -64,11 +66,16 @@ const t = useTranslations(lang);
 
         <figure class="hero-portrait-col">
           <div class="portrait-slot">
-            <img
-              src="/fotojmPerfil.PNG"
+            <Image
+              src={fotoPerfil}
               alt="Juan Manuel Puccio"
               class="portrait-img"
+              width={700}
+              height={875}
+              format="webp"
+              quality={85}
               loading="eager"
+              fetchpriority="high"
             />
           </div>
           <figcaption class="portrait-caption-row">
