@@ -44,10 +44,10 @@ const words = manifestoText.split(' ').map((w, i, arr) => ({
     const section = document.querySelector<HTMLElement>('.manifesto-scroll-section');
     const words = document.querySelectorAll<HTMLElement>('.manifesto-word');
     if (!section || !words.length || section.dataset.manifestoReady === 'true') return;
-    section.dataset.manifestoReady = 'true';
 
     // Reduced motion: the text stays fully readable, no scroll-driven reveal.
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    section.dataset.manifestoReady = 'true';
 
     // Desktop pins the section; mobile does not, so the range follows the viewport.
     const isMobile = window.matchMedia('(max-width: 767px)').matches;
@@ -56,7 +56,8 @@ const words = manifestoText.split(' ').map((w, i, arr) => ({
       trigger: section,
       start: isMobile ? 'top 80%' : 'top top',
       end: isMobile ? 'bottom 45%' : 'bottom bottom',
-      scrub: 0.5,
+      // Lenis already smooths the scroll; a scrub delay would add lag on top.
+      scrub: true,
       onUpdate: (self) => {
         const p = self.progress;
         words.forEach((w) => {
@@ -93,6 +94,7 @@ const words = manifestoText.split(' ').map((w, i, arr) => ({
     position: sticky;
     top: 0;
     height: 100vh;
+    height: 100svh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -118,7 +120,7 @@ const words = manifestoText.split(' ').map((w, i, arr) => ({
     gap: 0 0.27em;
     font-family: var(--font-serif, 'Source Serif 4', serif);
     font-weight: 300;
-    font-size: clamp(22px, 3.1vw, 48px);
+    font-size: clamp(22px, min(3.1vw, 5.2vh), 48px);
     line-height: 1.22;
     letter-spacing: -0.015em;
     color: #1c1a17;
@@ -126,6 +128,10 @@ const words = manifestoText.split(' ').map((w, i, arr) => ({
 
   .manifesto-word {
     display: inline-block;
+  }
+
+  /* Dim words only once the scroll reveal is armed, so text stays readable without JS. */
+  .manifesto-scroll-section[data-manifesto-ready] .manifesto-word {
     opacity: 0.12;
   }
 

@@ -309,6 +309,8 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
       smoothWheel: true,
       autoRaf: false,
       anchors: { offset: -80 },
+      // Let nested scrollers (e.g. mobile project cards) scroll natively.
+      allowNestedScroll: true,
     });
 
     (window as unknown as { __lenis?: Lenis }).__lenis = lenis;
