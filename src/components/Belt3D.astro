@@ -1,6 +1,6 @@
 ---
 // Desktop-only 3D belt rendered inside the page-level sticky viewer.
-// three.js is imported dynamically after desktop + WebGL + motion checks pass.
+// three.js and GLTFLoader are imported dynamically after desktop + WebGL + motion checks pass.
 ---
 
 <div id="belt3d-root" class="belt3d-root" aria-hidden="true" hidden>
@@ -18,7 +18,7 @@
     pointer-events: none;
     transform-origin: 0 0;
     opacity: 0;
-    filter: drop-shadow(0 0 18px rgba(255, 255, 255, 0.22)) drop-shadow(0 0 2px rgba(255, 255, 255, 0.35));
+    filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.35)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.2));
   }
   .belt3d-root[hidden] {
     display: none;
@@ -70,7 +70,6 @@
     return desktopMq.matches && !reducedMq.matches && hasWebGL();
   }
 
-  // Resolves any CSS color (including oklch) to an sRGB triple through a 2D canvas.
   const swatch = document.createElement('canvas');
   swatch.width = swatch.height = 1;
   const swatchCtx = swatch.getContext('2d', { willReadFrequently: true });
@@ -87,10 +86,10 @@
   async function start() {
     if (dispose || starting || !root || !canvas || !eligible()) return;
     starting = true;
-    const [THREE, { RoomEnvironment }, { createProceduralBelt }] = await Promise.all([
+    const [THREE, { RoomEnvironment }, { GLTFLoader }] = await Promise.all([
       import('three'),
       import('three/examples/jsm/environments/RoomEnvironment.js'),
-      import('../scripts/proceduralBelt'),
+      import('three/examples/jsm/loaders/GLTFLoader.js'),
     ]);
     starting = false;
     if (dispose || !eligible()) return;
@@ -101,19 +100,19 @@
     renderer.setClearColor(0x000000, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.9;
+    renderer.toneMappingExposure = 0.95;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(30, W0 / H0, 0.1, 50);
     camera.position.set(0, 0.4, 4.8);
     camera.lookAt(0, 0, 0);
 
-    // Lighting that reads on light and dark pages.
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8478, 0.3));
-    const key = new THREE.DirectionalLight(0xffffff, 0.9);
+    // Dynamic key, ambient, and rim lighting
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8478, 0.35));
+    const key = new THREE.DirectionalLight(0xffffff, 0.95);
     key.position.set(2.5, 3, 4);
     scene.add(key);
-    const rim = new THREE.DirectionalLight(0xdfe8ff, 0.4);
+    const rim = new THREE.DirectionalLight(0xdfe8ff, 0.45);
     rim.position.set(-3, 2, -3);
     scene.add(rim);
 
@@ -121,40 +120,94 @@
     belt.position.y = 0.1;
     scene.add(belt);
 
-    // Environment lighting so sheen and bump detail read.
+    // Realistic reflections and fabric sheen
     const pmrem = new THREE.PMREMGenerator(renderer);
     const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04);
     scene.environment = envRT.texture;
-    scene.environmentIntensity = 0.4;
+    scene.environmentIntensity = 0.45;
 
-    let activeColor = document.documentElement.dataset.activeBeltColor || '#f8f6f0';
+    let activeColor = document.documentElement.dataset.activeBeltColor || '#ffffff';
     const cur = new THREE.Color(activeColor);
 
-    // Procedural 3D belt instance
-    const proceduralBelt = createProceduralBelt({ color: activeColor });
-    const model = proceduralBelt.group;
+    const cloth: Array<InstanceType<typeof THREE.MeshStandardMaterial>> = [];
+    const applyTint = () => {
+      for (const m of cloth) {
+        m.color.copy(cur);
+        const sheen = (m as unknown as { sheenColor?: InstanceType<typeof THREE.Color> }).sheenColor;
+        if (sheen) sheen.copy(cur);
+      }
+    };
 
-    // Center and fit to the camera framing.
-    const box = new THREE.Box3().setFromObject(model);
-    const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
-    model.position.sub(center);
+    let alive = true;
+    let loaded: InstanceType<typeof THREE.Group> | null = null;
 
-    const wrap = new THREE.Group();
-    wrap.add(model);
-    wrap.scale.setScalar(Math.min(FIT / size.x, FIT / size.y));
-    wrap.rotation.set(MODEL_ROT[0], MODEL_ROT[1], MODEL_ROT[2]);
-    belt.add(wrap);
-    root.hidden = false;
+    new GLTFLoader().load(
+      '/models/cinturon-itfv2.glb',
+      (gltf) => {
+        if (!alive) {
+          disposeTree(gltf.scene);
+          return;
+        }
+        const model = gltf.scene;
+        model.traverse((o) => {
+          const mesh = o as InstanceType<typeof THREE.Mesh>;
+          if (!mesh.isMesh) return;
+          const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+          for (const m of mats) {
+            if (m.name === 'belt_cloth' && !cloth.includes(m as never)) {
+              cloth.push(m as never);
+            }
+          }
+        });
+
+        // Center and fit to camera framing
+        const box = new THREE.Box3().setFromObject(model);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        model.position.sub(center);
+
+        const wrap = new THREE.Group();
+        wrap.add(model);
+        wrap.scale.setScalar(Math.min(FIT / size.x, FIT / size.y));
+        wrap.rotation.set(MODEL_ROT[0], MODEL_ROT[1], MODEL_ROT[2]);
+        belt.add(wrap);
+        loaded = wrap;
+        applyTint();
+        root.hidden = false;
+      },
+      undefined,
+      (err) => {
+        console.warn('Failed to load cinturon-itfv2.glb', err);
+        if (root) root.hidden = true;
+      }
+    );
+
+    function disposeTree(obj: InstanceType<typeof THREE.Object3D>) {
+      const seen = new Set<unknown>();
+      obj.traverse((o) => {
+        const mesh = o as InstanceType<typeof THREE.Mesh>;
+        if (!mesh.isMesh) return;
+        mesh.geometry?.dispose();
+        const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        for (const m of mats) {
+          if (!m || seen.has(m)) continue;
+          seen.add(m);
+          for (const v of Object.values(m as unknown as Record<string, unknown>)) {
+            if (v && (v as { isTexture?: boolean }).isTexture) (v as { dispose(): void }).dispose();
+          }
+          m.dispose();
+        }
+      });
+    }
 
     // State driven by GSAP (drag only).
     const state = { drag: 0 };
-    const to = new THREE.Color(0xf8f6f0);
+    const to = new THREE.Color(0xffffff);
     const setTarget = (css: string) => {
       const [r, g, b] = cssToRgb(css);
       to.setRGB(r, g, b, THREE.SRGBColorSpace);
       cur.copy(to);
-      proceduralBelt.setColors({ color: cur });
+      applyTint();
     };
 
     setTarget(activeColor);
@@ -176,11 +229,11 @@
       scrubFrom.setRGB(fr, fg, fb, THREE.SRGBColorSpace);
       scrubTo.setRGB(tr, tg, tb, THREE.SRGBColorSpace);
       cur.copy(scrubFrom).lerp(scrubTo, d.mix);
-      proceduralBelt.setColors({ color: cur });
+      applyTint();
     };
     window.addEventListener('belt:black-progress', onBlackProgress);
 
-    // Drag: rotate Y only, eases back on release. No wheel handling.
+    // Drag: rotate Y only, eases back on release.
     let dragging = false;
     let lastX = 0;
     const onDown = (e: PointerEvent) => {
@@ -207,7 +260,7 @@
     canvas!.addEventListener('pointerup', onUp);
     canvas!.addEventListener('pointercancel', onUp);
 
-    // Render loop, paused when the tab is hidden.
+    // Render loop and slot tracking
     let raf = 0;
     let t0 = performance.now();
     let lastT = 0;
@@ -232,7 +285,7 @@
           tgt = r;
           const zn = activeZone?.dataset.zone;
           const p = parseFloat(activeZone?.style.getPropertyValue('--p') || '0');
-          op = zn === 'curtain' ? Math.min(1, Math.max(0, (p - (activeZone?.dataset.ch === '6' ? 0.6 : 0.32)) * 3)) : zn === 'kimono' ? Math.max(0, 1 - p * 2.2) : 1;
+          op = zn === 'curtain' ? Math.min(1, Math.max(0, (p - (activeZone?.dataset.ch === '6' ? 0.6 : 0.32)) * 3)) : 1;
         }
       }
 
@@ -259,12 +312,13 @@
       raf = requestAnimationFrame(frame);
       const t = (performance.now() - t0) / 1000;
       lastT = t;
-      const auto = dragging ? 0 : Math.sin(t * 0.6) * THREE.MathUtils.degToRad(12);
+      const auto = dragging ? 0 : Math.sin(t * 0.6) * THREE.MathUtils.degToRad(10);
       belt.rotation.y = state.drag + auto;
       belt.scale.setScalar(1.01 + 0.01 * Math.sin(t * 1.2));
       updateBeltPosition();
       renderer.render(scene, camera);
     };
+
     const onVis = () => {
       cancelAnimationFrame(raf);
       if (!document.hidden) {
@@ -285,13 +339,14 @@
       canvas!.removeEventListener('pointerup', onUp);
       canvas!.removeEventListener('pointercancel', onUp);
       gsap.killTweensOf(state);
-      proceduralBelt.dispose();
+      alive = false;
+      if (loaded) disposeTree(loaded);
       envRT.dispose();
       pmrem.dispose();
       scene.environment = null;
       renderer.dispose();
       renderer.forceContextLoss();
-      root!.hidden = true;
+      if (root) root.hidden = true;
       dispose = null;
     };
   }

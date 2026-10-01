@@ -18,85 +18,87 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
 
 <footer
   id="contacto"
-  data-fx="k"
-  data-zone="kimono"
+  data-fx="c"
+  data-zone="curtain"
   data-ch="6"
-  class="kimono-contact-footer"
+  class="cinematic-contact-footer"
 >
-  <div class="kimono-sticky-stage">
-    <!-- Revealed Contact Content in the Background -->
-    <div class="kimono-revealed-plane">
-      <div class="kimono-content-top">
+  <div class="contact-sticky-stage">
+    <!-- Atmospheric Lighting & Background Vignette -->
+    <div class="contact-ambient-halo" aria-hidden="true"></div>
+    <div class="contact-gold-beam" aria-hidden="true"></div>
+
+    <div class="contact-main-wrapper">
+      <!-- Top Meta Row -->
+      <div class="contact-top-meta">
         <span class="mono-badge">
           {lang === 'es' ? 'DISPONIBILIDAD & CONTRATACIÓN' : lang === 'en' ? 'AVAILABILITY & HIRING' : 'DISPONIBILIDADE & CONTRATAÇÃO'}
         </span>
-        <h2 class="kimono-title">{data.title}</h2>
-        <p class="kimono-subtitle">{data.subtitle}</p>
-        <div class="kimono-actions-row">
-          {whatsapp && (
+        <span class="belt-dan-label">1º DAN · CINTURÓN NEGRO ITF</span>
+      </div>
+
+      <!-- Main Headline & Belt Showcase Grid -->
+      <div class="contact-hero-grid">
+        <div class="contact-narrative-col">
+          <h2 class="contact-display-title">{data.title}</h2>
+          <p class="contact-lead-desc">{data.subtitle}</p>
+
+          <div class="contact-actions-row">
+            {whatsapp && (
+              <a
+                href={whatsapp.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="contact-btn-primary"
+              >
+                {whatsappLabel}
+              </a>
+            )}
             <a
-              href={whatsapp.url}
+              href={CV_URL}
               target="_blank"
               rel="noopener noreferrer"
-              class="kimono-btn-primary"
+              class="contact-btn-secondary"
             >
-              {whatsappLabel}
+              {cvLabel}
             </a>
-          )}
-          <a
-            href={CV_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="kimono-btn-secondary"
-          >
-            {cvLabel}
-          </a>
+          </div>
+        </div>
+
+        <!-- 3D Black Belt Dedicated Landing Target -->
+        <div class="contact-belt-col">
+          <div data-slot="1" class="contact-belt-slot" aria-hidden="true"></div>
+          <div class="belt-shadow-disk" aria-hidden="true"></div>
         </div>
       </div>
 
-      <!-- Contact Channels Grid -->
-      <nav class="kimono-channels-grid" aria-label={lang === 'es' ? 'Canales de contacto' : lang === 'en' ? 'Contact channels' : 'Canais de contato'}>
+      <!-- Contact Channels Minimalist Row -->
+      <nav class="contact-channels-grid" aria-label={lang === 'es' ? 'Canales de contacto' : lang === 'en' ? 'Contact channels' : 'Canais de contato'}>
         {data.channels.map((channel) => (
           <a
             href={channel.url}
             target={channel.id === 'email' ? undefined : '_blank'}
             rel={channel.id === 'email' ? undefined : 'noopener noreferrer'}
-            class="kimono-channel-card"
+            class="contact-channel-card"
           >
-            <span class="ch-name">{channel.name}</span>
-            <span class="ch-val">{channel.label} ↗</span>
+            <span class="ch-meta-label">{channel.name}</span>
+            <span class="ch-value-link">{channel.label} ↗</span>
           </a>
         ))}
       </nav>
 
-      <div class="kimono-legal-bar">
+      <!-- Bottom Bar -->
+      <div class="contact-bottom-legal">
         <span>{location} · Remoto / Híbrido / On-site</span>
         <span>Kyong-ye · © 2026 Juan Manuel Puccio</span>
       </div>
     </div>
-
-    <!-- Dobok Kimono Left Fold -->
-    <div class="dobok-fold dobok-fold-left" aria-hidden="true">
-      <div class="dobok-inner dobok-inner-left"></div>
-      <div class="dobok-badge-label dobok-badge-left">Dobok · 1º dan</div>
-    </div>
-
-    <!-- Dobok Kimono Right Fold -->
-    <div class="dobok-fold dobok-fold-right" aria-hidden="true">
-      <div class="dobok-inner dobok-inner-right"></div>
-      <div class="dobok-badge-label dobok-badge-right">
-        {lang === 'es' ? 'Contacto ↓' : lang === 'en' ? 'Contact ↓' : 'Contato ↓'}
-      </div>
-    </div>
-
-    <!-- 3D Belt Landing Slot (Waist of Dobok) -->
-    <div data-slot="1" class="kimono-belt-slot" aria-hidden="true"></div>
   </div>
 </footer>
 
 <style>
-  .kimono-contact-footer {
-    height: 220vh;
+  .cinematic-contact-footer {
+    height: 190vh;
     position: relative;
     background: #1c1a17;
     color: #f2eee6;
@@ -104,97 +106,154 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
     box-sizing: border-box;
   }
 
-  .kimono-sticky-stage {
+  .contact-sticky-stage {
     position: sticky;
     top: 0;
     height: 100vh;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: #1c1a17;
   }
 
-  /* Background Revealed Plane */
-  .kimono-revealed-plane {
+  /* Atmospheric Lights */
+  .contact-ambient-halo {
     position: absolute;
-    inset: 0;
-    padding: clamp(80px, 11vh, 100px) clamp(20px, 5vw, 72px) 28px;
+    width: min(80vw, 750px);
+    height: min(80vw, 750px);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.12) 0%, rgba(212, 175, 55, 0.03) 45%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  .contact-gold-beam {
+    position: absolute;
+    top: 0;
+    left: clamp(20px, 5vw, 72px);
+    right: clamp(20px, 5vw, 72px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(212, 175, 55, 0.4) 50%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .contact-main-wrapper {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 1600px;
+    padding: clamp(70px, 9vh, 90px) clamp(20px, 5vw, 72px) clamp(24px, 4vh, 40px);
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    gap: 24px;
-    max-width: 1600px;
-    margin: 0 auto;
-    opacity: clamp(0, calc((var(--p, 0) - 0.25) * 2.5), 1);
-    transform: scale(calc(0.96 + clamp(0, var(--p, 0), 1) * 0.04));
+    height: 100%;
+    opacity: clamp(0, calc((var(--p, 0) - 0.15) * 3), 1);
+    transform: translateY(calc(30px * (1 - clamp(0, var(--p, 0), 1))));
     transition: opacity 0.05s linear, transform 0.05s linear;
   }
 
-  .kimono-content-top {
+  .contact-top-meta {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
     gap: 16px;
-    max-width: 1100px;
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
   }
 
   .mono-badge {
-    font-family: var(--font-mono, monospace);
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
     color: #c9c3b7;
+    font-weight: 600;
   }
 
-  .kimono-title {
+  .belt-dan-label {
+    color: #fbbf24;
+    font-weight: 600;
+  }
+
+  /* Grid Layout: Left Narrative + Right 3D Belt Showcase */
+  .contact-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: clamp(24px, 4vw, 64px);
+    align-items: center;
+    margin-block: auto;
+  }
+
+  @media (max-width: 900px) {
+    .contact-hero-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    .contact-belt-col {
+      display: none;
+    }
+  }
+
+  .contact-narrative-col {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(14px, 2vh, 22px);
+    max-width: 780px;
+  }
+
+  .contact-display-title {
     margin: 0;
     font-family: var(--font-serif, 'Source Serif 4', serif);
     font-weight: 300;
-    font-size: clamp(38px, 5vw, 84px);
-    line-height: 1;
+    font-size: clamp(36px, 4.4vw, 76px);
+    line-height: 1.02;
     letter-spacing: -0.03em;
     color: #f2eee6;
     text-wrap: balance;
   }
 
-  .kimono-subtitle {
+  .contact-lead-desc {
     margin: 0;
-    font-size: 17px;
+    font-size: clamp(15px, 1.2vw, 17px);
     line-height: 1.6;
     color: #c9c3b7;
-    max-width: 720px;
+    max-width: 680px;
     text-wrap: pretty;
   }
 
-  .kimono-actions-row {
+  .contact-actions-row {
     display: flex;
-    gap: 12px;
+    gap: 14px;
     flex-wrap: wrap;
     padding-top: 8px;
   }
 
-  .kimono-btn-primary {
+  .contact-btn-primary {
     background: #f2eee6;
     color: #1c1a17;
-    padding: 15px 26px;
+    padding: 15px 28px;
     text-decoration: none;
     font-family: var(--font-mono, monospace);
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    transition: transform 0.2s ease, background-color 0.2s ease;
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
   }
 
-  .kimono-btn-primary:hover {
+  .contact-btn-primary:hover {
     transform: translateY(-2px);
     background: #ffffff;
+    box-shadow: 0 8px 24px -4px rgba(255, 255, 255, 0.2);
     color: #1c1a17;
   }
 
-  .kimono-btn-secondary {
-    border: 1px solid rgba(242, 238, 230, 0.4);
+  .contact-btn-secondary {
+    border: 1px solid rgba(242, 238, 230, 0.35);
     color: #f2eee6;
-    padding: 15px 26px;
+    padding: 15px 28px;
     text-decoration: none;
     font-family: var(--font-mono, monospace);
     font-size: 12px;
@@ -204,34 +263,65 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
     transition: transform 0.2s ease, border-color 0.2s ease;
   }
 
-  .kimono-btn-secondary:hover {
+  .contact-btn-secondary:hover {
     transform: translateY(-2px);
     border-color: #f2eee6;
     color: #f2eee6;
   }
 
-  /* Channels Grid */
-  .kimono-channels-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
-    border-top: 1px solid rgba(242, 238, 230, 0.18);
+  /* 3D Belt Target Slot */
+  .contact-belt-col {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .kimono-channel-card {
+  .contact-belt-slot {
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .belt-shadow-disk {
+    position: absolute;
+    bottom: 12%;
+    width: 60%;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    filter: blur(12px);
+    pointer-events: none;
+  }
+
+  /* Channels Grid */
+  .contact-channels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+    border-top: 1px solid rgba(242, 238, 230, 0.16);
+    gap: 1px;
+    background: rgba(242, 238, 230, 0.16);
+    margin-top: 16px;
+  }
+
+  .contact-channel-card {
+    background: #1c1a17;
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding: 18px 16px 18px 0;
+    padding: 16px 20px;
     text-decoration: none;
-    border-bottom: 1px solid rgba(242, 238, 230, 0.18);
-    transition: transform 0.2s ease;
+    transition: background-color 0.2s ease, transform 0.2s ease;
   }
 
-  .kimono-channel-card:hover {
-    transform: translateX(4px);
+  .contact-channel-card:hover {
+    background: #25221e;
+    transform: translateY(-2px);
   }
 
-  .ch-name {
+  .ch-meta-label {
     font-family: var(--font-mono, monospace);
     font-size: 10px;
     font-weight: 600;
@@ -240,16 +330,17 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
     color: #c9c3b7;
   }
 
-  .ch-val {
+  .ch-value-link {
     font-family: var(--font-serif, 'Source Serif 4', serif);
     font-weight: 400;
-    font-size: clamp(17px, 1.4vw, 21px);
+    font-size: clamp(16px, 1.3vw, 20px);
     line-height: 1.2;
     color: #f2eee6;
     overflow-wrap: anywhere;
   }
 
-  .kimono-legal-bar {
+  /* Bottom Legal Bar */
+  .contact-bottom-legal {
     display: flex;
     justify-content: space-between;
     gap: 12px;
@@ -258,99 +349,12 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
     font-size: 11px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #c9c3b7;
-    padding-top: 8px;
-  }
-
-  /* Dobok Flaps / Folds */
-  .dobok-fold {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 53%;
-    background: #1c1a17;
-    pointer-events: none;
-    will-change: transform;
-    z-index: 2;
-    box-shadow: none;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    transform-style: preserve-3d;
-  }
-
-  .dobok-fold-left {
-    left: 0;
-    clip-path: polygon(0 0, 82% 0, 100% 100%, 0 100%);
-    -webkit-clip-path: polygon(0 0, 82% 0, 100% 100%, 0 100%);
-    transform: translateX(calc(clamp(0, calc(var(--p, 0) * 1.6), 1) * -104%));
-  }
-
-  .dobok-inner {
-    position: absolute;
-    inset: 0;
-    box-shadow: none;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    transform-style: preserve-3d;
-  }
-
-  .dobok-inner-left {
-    background: #faf8f3;
-    clip-path: polygon(0 0, 76% 0, 94% 100%, 0 100%);
-    -webkit-clip-path: polygon(0 0, 76% 0, 94% 100%, 0 100%);
-  }
-
-  .dobok-badge-left {
-    left: clamp(20px, 5vw, 72px);
-  }
-
-  .dobok-fold-right {
-    right: 0;
-    clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 100%);
-    -webkit-clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 100%);
-    transform: translateX(calc(clamp(0, calc(var(--p, 0) * 1.6), 1) * 104%));
-  }
-
-  .dobok-inner-right {
-    background: #f2eee6;
-    clip-path: polygon(24% 0, 100% 0, 100% 100%, 6% 100%);
-    -webkit-clip-path: polygon(24% 0, 100% 0, 100% 100%, 6% 100%);
-  }
-
-  .dobok-badge-right {
-    right: clamp(20px, 5vw, 72px);
-  }
-
-  .dobok-badge-label {
-    position: absolute;
-    top: 96px;
-    font-family: var(--font-mono, monospace);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #4a463f;
-    z-index: 3;
-  }
-
-  /* Belt Slot on the Kimono Waist */
-  .kimono-belt-slot {
-    position: absolute;
-    left: 18vw;
-    right: 18vw;
-    top: 48vh;
-    height: 30vh;
-    pointer-events: none;
-    z-index: 3;
+    color: #8c857b;
+    padding-top: 16px;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .dobok-fold-left,
-    .dobok-fold-right {
-      display: none;
-    }
-
-    .kimono-revealed-plane {
+    .contact-main-wrapper {
       opacity: 1 !important;
       transform: none !important;
     }

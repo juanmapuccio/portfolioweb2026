@@ -63,17 +63,16 @@ const t = useTranslations(lang);
         </div>
 
         <figure class="hero-portrait-col">
-          <div data-slot="1" class="hero-slot-target"></div>
+          <div class="portrait-slot">
+            <img
+              src="/fotojmPerfil.PNG"
+              alt="Juan Manuel Puccio"
+              class="portrait-img"
+              loading="eager"
+            />
+          </div>
           <figcaption class="portrait-caption-row">
-            <span class="fig-label">
-              <img
-                src="/fotojmPerfil.PNG"
-                alt="Juan Manuel Puccio"
-                class="portrait-micro-thumb"
-                loading="eager"
-              />
-              Fig. 01 · {lang === 'pt' ? 'Rosário' : 'Rosario'}, 2026
-            </span>
+            <span class="fig-label">Fig. 01 · {lang === 'pt' ? 'Rosário' : 'Rosario'}, 2026</span>
             <span class="fig-cue">10º gup → 1º dan · {lang === 'es' ? 'Desplázate' : lang === 'en' ? 'Scroll' : 'Role'} ↓</span>
           </figcaption>
         </figure>
@@ -426,18 +425,31 @@ const t = useTranslations(lang);
   .hero-portrait-col {
     justify-self: end;
     width: 100%;
-    max-width: 540px;
+    max-width: 440px;
     margin: 0;
     display: flex;
     flex-direction: column;
     gap: 12px;
   }
 
-  .hero-slot-target {
+  .portrait-slot {
     width: 100%;
-    aspect-ratio: 3 / 2;
-    border: 1px solid rgba(28, 26, 23, 0.12);
+    aspect-ratio: 4 / 5;
+    border: 1px solid rgba(28, 26, 23, 0.18);
     background: #ffffff;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 16px 40px -12px rgba(28, 26, 23, 0.12);
+  }
+
+  .portrait-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+    filter: grayscale(1) contrast(1.06);
+    mix-blend-mode: multiply;
   }
 
   .portrait-caption-row {
@@ -457,15 +469,6 @@ const t = useTranslations(lang);
     display: flex;
     align-items: center;
     gap: 10px;
-  }
-
-  .portrait-micro-thumb {
-    width: 36px;
-    height: 44px;
-    object-fit: cover;
-    object-position: 50% 20%;
-    filter: grayscale(0.2);
-    border: 1px solid rgba(28, 26, 23, 0.15);
   }
 
   .fig-cue {
