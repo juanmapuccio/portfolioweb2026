@@ -126,7 +126,32 @@
     scene.environment = envRT.texture;
     scene.environmentIntensity = 0.45;
 
-    let activeColor = document.documentElement.dataset.activeBeltColor || '#ffffff';
+    const CHAPTER_KEYS = ['blanco', 'blanco', 'amarillo', 'verde', 'azul', 'rojo', 'negro'];
+    const CHAPTER_COLORS: Record<string, string> = {
+      blanco: '#ffffff',
+      amarillo: '#fbbf24',
+      verde: '#10b981',
+      azul: '#0284c7',
+      rojo: '#ef4444',
+      negro: '#1c1a17',
+    };
+
+    function getInitialColor(): string {
+      const mid = window.innerHeight / 2;
+      const zones = Array.from(document.querySelectorAll<HTMLElement>('[data-zone]'));
+      const activeZone = zones.find((el) => {
+        const r = el.getBoundingClientRect();
+        return r.top <= mid && r.bottom > mid;
+      });
+      if (activeZone) {
+        const ch = parseInt(activeZone.dataset.ch || '0', 10);
+        const k = CHAPTER_KEYS[ch] || 'blanco';
+        return CHAPTER_COLORS[k] || '#ffffff';
+      }
+      return document.documentElement.dataset.activeBeltColor || '#ffffff';
+    }
+
+    let activeColor = getInitialColor();
     const cur = new THREE.Color(activeColor);
 
     const cloth: Array<InstanceType<typeof THREE.MeshStandardMaterial>> = [];
@@ -154,7 +179,7 @@
           if (!mesh.isMesh) return;
           const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
           for (const m of mats) {
-            if (m.name === 'belt_cloth' && !cloth.includes(m as never)) {
+            if ((m.name === 'belt_cloth' || m.name === 'belt_stitch') && !cloth.includes(m as never)) {
               cloth.push(m as never);
             }
           }
@@ -172,6 +197,10 @@
         wrap.rotation.set(MODEL_ROT[0], MODEL_ROT[1], MODEL_ROT[2]);
         belt.add(wrap);
         loaded = wrap;
+
+        // Ensure current active color is applied on load (handles F5 reload)
+        activeColor = getInitialColor();
+        setTarget(activeColor);
         applyTint();
         root.hidden = false;
       },
@@ -274,6 +303,16 @@
         const r = el.getBoundingClientRect();
         return r.top <= mid && r.bottom > mid;
       }) ?? null;
+
+      if (activeZone) {
+        const ch = parseInt(activeZone.dataset.ch || '0', 10);
+        const k = CHAPTER_KEYS[ch] || 'blanco';
+        const expectedColor = CHAPTER_COLORS[k];
+        if (expectedColor && expectedColor !== activeColor && activeZone.dataset.zone !== 'dark' && ch < 6) {
+          activeColor = expectedColor;
+          setTarget(expectedColor);
+        }
+      }
 
       let tgt: DOMRect | null = null;
       let op = 0;

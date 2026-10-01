@@ -302,10 +302,11 @@ const CHAPTER_CONFIG = [
 
       if (activeZone) {
         const ch = parseInt(activeZone.dataset.ch || '0', 10);
+        const beltKey = CHAPTER_KEYS[ch] || 'blanco';
+        const color = CHAPTER_COLORS[beltKey] || '#ffffff';
+        document.documentElement.dataset.activeBeltColor = color;
         if (ch !== lastCh) {
           lastCh = ch;
-          const beltKey = CHAPTER_KEYS[ch] || 'blanco';
-          const color = CHAPTER_COLORS[beltKey] || '#ffffff';
           window.dispatchEvent(
             new CustomEvent('belt:change', {
               detail: { beltKey, color },
@@ -320,8 +321,11 @@ const CHAPTER_CONFIG = [
     requestAnimationFrame(tick);
   }
 
-  if (document.readyState === 'complete') initScrollytelling();
-  else window.addEventListener('load', initScrollytelling, { once: true });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScrollytelling, { once: true });
+  } else {
+    initScrollytelling();
+  }
 </script>
 
 <style>
