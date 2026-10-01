@@ -115,7 +115,7 @@ const CHAPTER_CONFIG = [
                 <span class="curtain-word">{cfg.word}</span>
                 <span class="curtain-meaning">{cfg.meaning}</span>
               </div>
-              <span class="curtain-lede">{stage.lede}</span>
+              <span class="curtain-stage-lede">{stage.lede}</span>
             </div>
           </div>
         </section>
@@ -128,9 +128,9 @@ const CHAPTER_CONFIG = [
               <div class="split-side-footer">
                 <div class="split-stage-tag">
                   <span class="stage-tag-swatch" style={`background: ${cfg.hex};`}></span>
-                  {belt.gup} · {stage.title}
+                  {belt.gup} · {stage.years}
                 </div>
-                <div class="split-stage-line">{stage.lede}</div>
+                <div class="split-stage-line">{stage.title}</div>
               </div>
             </div>
 
@@ -166,9 +166,9 @@ const CHAPTER_CONFIG = [
                   <div class="h-intro-text">
                     <div class="h-intro-tag">
                       <span class="stage-tag-swatch" style={`background: ${cfg.hex};`}></span>
-                      {belt.gup} · {stage.title} · {stage.years}
+                      {belt.gup} · {stage.years}
                     </div>
-                    <div class="h-intro-headline">{stage.lede}</div>
+                    <div class="h-intro-headline">{stage.title}</div>
                     <div class="h-intro-count">
                       {stage.positions.length} {lang === 'es' ? 'etapas · seguí bajando →' : lang === 'en' ? 'stages · scroll down →' : 'etapas · continue descendo →'}
                     </div>
