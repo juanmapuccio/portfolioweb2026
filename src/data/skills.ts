@@ -62,14 +62,14 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
     philosophy: [
       {
         title: 'Pensamiento Crítico y Ética de Sistemas',
-        subtitle: 'Licenciatura en Filosofía (UNR, en curso)',
-        description: 'La facturación fiscal con ARCA (ex AFIP) que integré nunca corre sola: cada comprobante pasa por validación humana antes de emitirse. Prefiero un sistema más lento y auditable a uno rápido que nadie entiende cuando falla.',
+        subtitle: 'Licenciatura en Filosofía (UNR, en curso) · Criterio Humano en el Loop',
+        description: 'Ninguna automatización crítica debería correr a ciegas. En flujos sensibles —como la facturación fiscal con ARCA (ex AFIP)— el código valida, calcula y estructura, pero la última palabra siempre la tiene una persona. Construir software responsable no es acelerar procesos hasta que se rompan sin que nadie sepa por qué, sino diseñar herramientas transparentes, auditables y gobernables por quienes las operan.',
         quote: 'Un bot que automatiza sin nadie revisando el resultado no es una solución, es un riesgo nuevo.'
       },
       {
         title: 'Liderazgo, Disciplina y Templanza Marcial',
-        subtitle: 'Profesor Internacional de Taekwondo ITF (+10 años)',
-        description: 'Más de una década formando a niños, jóvenes y adultos. La docencia marcial forja constancia diaria, paciencia pedagógica para explicar conceptos técnicos a usuarios de negocio y calma bajo situaciones de alta demanda o caída de servicios.',
+        subtitle: 'Profesor Internacional de Taekwondo ITF (+10 años) · 1º Dan en Producción',
+        description: 'Más de diez años al frente de clases para niños, jóvenes y adultos enseñan lo que ningún manual de ingeniería explica: la paciencia pedagógica para traducir lo complejo a un lenguaje simple, la disciplina para sostener estándares cuando nadie está mirando, y el temple para diagnosticar y resolver con cabeza fría cuando un servicio productivo entra en crisis.',
         quote: 'La constancia vence a la improvisación; la templanza resuelve la urgencia.'
       }
     ]
@@ -115,15 +115,15 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
     philosophy: [
       {
         title: 'Critical Thinking & Systems Ethics',
-        subtitle: 'Undergraduate in Philosophy (UNR, in progress)',
-        description: "The ARCA (ex AFIP) fiscal invoicing I integrated never runs unsupervised: every receipt passes through human validation before it's issued. I'd rather ship a slower, auditable system than a fast one nobody understands when it breaks.",
+        subtitle: 'Undergraduate in Philosophy (UNR, in progress) · Human in the Loop',
+        description: "No mission-critical automation should ever run blind. In sensitive domains—like fiscal compliance with tax authorities (ARCA/AFIP)—code validates, formats, and speeds up the workflow, but the final verdict stays human. Responsible engineering isn't about moving fast and breaking things without an audit trail; it's about building transparent, resilient systems that empower people rather than replace oversight.",
         quote: "A bot that automates without anyone checking the output isn't a solution, it's a new risk."
       },
       {
         title: 'Leadership, Discipline & Martial Composure',
-        subtitle: 'International Taekwondo ITF Instructor (+10 years)',
-        description: 'Over a decade teaching children, young people, and adults. Martial instruction builds daily consistency, pedagogical patience to explain technical concepts to business users, and calm under high demand or service outages.',
-        quote: 'Discipline outperforms improvisation; composure resolves urgency.'
+        subtitle: 'International Taekwondo ITF Instructor (+10 years) · 1st Dan in Production',
+        description: 'Over a decade instructing children, youth, and adults instills what no technical manual can: the pedagogical patience to bridge complex logic with real business needs, the discipline to uphold code quality under pressure, and the absolute composure required to troubleshoot cleanly when a production outage strikes.',
+        quote: 'Consistency beats improvisation; composure resolves urgency.'
       }
     ]
   },
@@ -168,15 +168,15 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
     philosophy: [
       {
         title: 'Pensamento Crítico & Ética de Sistemas',
-        subtitle: 'Graduação em Filosofia (UNR, em andamento)',
-        description: 'O faturamento fiscal com ARCA (ex AFIP) que integrei nunca roda sozinho: cada nota passa por validação humana antes de ser emitida. Prefiro um sistema mais lento e auditável a um rápido que ninguém entende quando falha.',
+        subtitle: 'Graduação em Filosofia (UNR, em andamento) · Critério Humano no Loop',
+        description: 'Nenhuma automação crítica deve rodar às cegas. Em fluxos sensíveis — como a integração fiscal com a ARCA (ex AFIP) —, o código valida, calcula e estrutura, mas a decisão final é humana. Engenharia responsável não é acelerar processos até que quebrem sem explicação; é construir sistemas auditáveis, claros e governados por quem opera.',
         quote: 'Um bot que automatiza sem ninguém revisando o resultado não é uma solução, é um risco novo.'
       },
       {
         title: 'Liderança, Disciplina & Autocontrole Marcial',
-        subtitle: 'Professor Internacional de Taekwondo ITF (+10 anos)',
-        description: 'Mais de uma década formando crianças, jovens e adultos. A docência marcial forja constância diária, paciência pedagógica para explicar conceitos técnicos a usuários de negócio e calma sob alta demanda ou queda de serviços.',
-        quote: 'A disciplina supera o improviso; o autocontrole resolve a urgência.'
+        subtitle: 'Professor Internacional de Taekwondo ITF (+10 anos) · 1º Dan em Produção',
+        description: 'Mais de dez anos liderando turmas de crianças, jovens e adultos ensinam o que nenhum manual técnico traz: a paciência didática para traduzir o complexo em linguagem de negócios, a disciplina diária para manter padrões rigorosos e a serenidade para agir com clareza em incidentes de produção.',
+        quote: 'A constância supera o improviso; a serenidade resolve a urgência.'
       }
     ]
   }
