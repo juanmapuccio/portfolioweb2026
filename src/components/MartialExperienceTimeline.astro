@@ -107,17 +107,14 @@ const CHAPTER_CONFIG = [
               <div class="curtain-title">{belt.philosophicalTitle[lang]}</div>
             </div>
 
-            <div class="curtain-ribbon" style={`background: ${cfg.hex};`}>
-              <div class="curtain-ribbon-overlay"></div>
-            </div>
-            
+            <div class="curtain-ribbon" style={`background: ${cfg.hex};`}></div>
             <div data-slot="1" class="curtain-slot"></div>
 
-            <div class="curtain-meta-center">
-              <div class="curtain-meaning-badge">
-                <span class="curtain-word">{cfg.word}</span>
-                <span class="curtain-meaning-sep" aria-hidden="true">—</span>
-                <span class="curtain-meaning">{cfg.meaning}</span>
+            <div class="curtain-editorial-block">
+              <div class="curtain-meta-row">
+                <span class="curtain-word-title">{cfg.word}</span>
+                <span class="curtain-sep" aria-hidden="true">·</span>
+                <span class="curtain-meaning-text">{cfg.meaning}</span>
               </div>
               <p class="curtain-stage-lede">{stage.lede}</p>
             </div>
@@ -435,8 +432,8 @@ const CHAPTER_CONFIG = [
     position: absolute;
     left: 0;
     right: 0;
-    top: 44vh;
-    height: 38vh;
+    top: 36vh;
+    height: 30vh;
     border-top: 1px solid #1c1a17;
     border-bottom: 1px solid #1c1a17;
     transform-origin: 0 50%;
@@ -448,13 +445,13 @@ const CHAPTER_CONFIG = [
     position: absolute;
     left: 20vw;
     right: 20vw;
-    top: 45vh;
-    height: 26vh;
+    top: 37vh;
+    height: 28vh;
     pointer-events: none;
     z-index: 2;
   }
 
-  .curtain-meta-center {
+  .curtain-editorial-block {
     position: absolute;
     left: clamp(20px, 6vw, 120px);
     right: clamp(20px, 6vw, 120px);
@@ -466,49 +463,56 @@ const CHAPTER_CONFIG = [
     gap: 12px;
     z-index: 3;
     opacity: clamp(0, calc((var(--p, 0) - 0.35) * 3.5), 1);
-    transform: translateY(calc((1 - clamp(0, calc((var(--p, 0) - 0.35) * 3.5), 1)) * 24px));
+    transform: translateY(calc((1 - clamp(0, calc((var(--p, 0) - 0.35) * 3.5), 1)) * 18px));
     transition: opacity 0.1s linear, transform 0.1s linear;
   }
 
-  .curtain-meaning-badge {
+  .curtain-meta-row {
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    background: rgba(28, 26, 23, 0.04);
-    border: 1px solid rgba(28, 26, 23, 0.16);
-    padding: 6px 20px;
-    backdrop-filter: blur(4px);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #4a463f;
+    border-bottom: 1px solid rgba(28, 26, 23, 0.2);
+    padding-bottom: 6px;
     flex-wrap: wrap;
     justify-content: center;
   }
 
-  .curtain-word {
+  .curtain-word-title {
     font-family: var(--font-serif);
     font-size: clamp(20px, 2.2vw, 28px);
     font-style: italic;
     font-weight: 500;
-    line-height: 1.1;
     color: #1c1a17;
+    text-transform: none;
+    letter-spacing: 0;
   }
 
-  .curtain-meaning-sep {
-    color: rgba(28, 26, 23, 0.4);
+  .curtain-sep {
+    color: #6a645a;
     font-size: 14px;
   }
 
-  .curtain-meaning {
-    font-family: var(--font-sans);
-    font-size: clamp(14px, 1.2vw, 16px);
-    font-weight: 500;
+  .curtain-meaning-text {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     color: #4a463f;
   }
 
   .curtain-stage-lede {
     font-family: var(--font-serif);
-    font-size: clamp(18px, 1.8vw, 26px);
-    line-height: 1.4;
-    max-width: 840px;
-    margin: 0 auto;
+    font-size: clamp(18px, 1.8vw, 25px);
+    font-weight: 400;
+    line-height: 1.45;
+    max-width: 780px;
+    margin: 4px auto 0;
     color: #1c1a17;
     letter-spacing: -0.01em;
   }
