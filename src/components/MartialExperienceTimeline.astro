@@ -406,26 +406,28 @@ const CHAPTER_CONFIG = [
     position: absolute;
     left: clamp(20px, 4vw, 64px);
     right: clamp(20px, 4vw, 64px);
-    top: 14vh;
-    height: 30vh;
+    top: 9vh;
+    height: 24vh;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: center;
-    overflow: hidden;
+    overflow: visible;
     pointer-events: none;
+    z-index: 5;
   }
 
   .curtain-title {
     font-family: var(--font-serif);
-    font-size: clamp(38px, 5.2vw, 92px);
+    font-size: clamp(34px, 4.8vw, 84px);
     font-weight: 300;
     line-height: 1.05;
     letter-spacing: -0.02em;
     color: #1c1a17;
     white-space: nowrap;
     text-align: center;
-    transform: translateY(calc((1 - clamp(0, calc((var(--p, 0) - 0.3) * 3), 1)) * 110%));
-    transition: transform 0.1s linear;
+    opacity: clamp(0, calc(var(--p, 0) * 3.5), 1);
+    transform: translateY(calc((1 - clamp(0, calc(var(--p, 0) * 3), 1)) * 24px));
+    transition: transform 0.1s linear, opacity 0.1s linear;
   }
 
   .curtain-ribbon {

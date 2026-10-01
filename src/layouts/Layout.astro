@@ -13,6 +13,7 @@ import '@fontsource/ibm-plex-mono/400.css';
 import '@fontsource/ibm-plex-mono/600.css';
 import '@fontsource/noto-sans-kr/400.css';
 import '@fontsource/noto-sans-kr/700.css';
+import 'lenis/dist/lenis.css';
 import type { Lang } from '../i18n/ui';
 import { languages, useTranslations } from '../i18n/ui';
 import { CV_URL } from '../data/contact';
@@ -243,6 +244,26 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
       const found = colorMap[detail.color.toLowerCase()];
       if (found) updateActiveBelt(found);
     }
+  }
+
+  import Lenis from 'lenis';
+
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    lenis.on('scroll', () => {
+      updateHeaderProgress();
+    });
   }
 
   window.addEventListener('belt:change', syncHeaderBeltColor);
