@@ -12,9 +12,15 @@ Portar la dirección de arte, el motor procedural Three.js del cinturón 3D y la
 
 ## Tareas
 
-- [x] `task-1`: **Motor y Malla Procedural del Cinturón 3D** en `src/components/Belt3D.astro` y `src/scripts/proceduralBelt.ts` con textura de sarga, costuras dobles y colas dinámicas.
-- [x] `task-2`: **Tokens de Diseño y Fuentes** en `src/styles/` y `src/layouts/Layout.astro` (`Source Serif 4`, `Hanken Grotesk`, `IBM Plex Mono`).
-- [x] `task-3`: **Header Fijo con Nav Ticks y Hero Section** en `src/components/HomePage.astro` y `src/layouts/Layout.astro`.
-- [x] `task-4`: **Scrollytelling Marcial (Cortinas y Pistas Horizontales)** en `src/components/MartialExperienceTimeline.astro` con datos de `src/data/martialExperience.ts`.
-- [ ] `task-5`: **Transición a Modo Oscuro y Proyectos en Producción** en `src/components/ProjectsSection.astro`.
-- [ ] `task-6`: **Stack, Filosofía y Footer Kimono Dobok** en `src/components/SkillsPhilosophySection.astro` y `src/components/ContactSection.astro`.
+- [x] `task-1`: **Motor y Malla Procedural del Cinturón 3D** en `src/components/Belt3D.astro` y `src/scripts/proceduralBelt.ts` con textura de sarga, costuras dobles y colas dinámicas. (Commit `ece452a`)
+- [x] `task-2`: **Tokens de Diseño y Fuentes** en `src/styles/` y `src/layouts/Layout.astro` (`Source Serif 4`, `Hanken Grotesk`, `IBM Plex Mono`). (Commit `054f0fd`)
+- [x] `task-3`: **Header Fijo con Nav Ticks y Hero Section** en `src/components/HomePage.astro` y `src/layouts/Layout.astro`. (Commit `054f0fd`)
+- [x] `task-4`: **Scrollytelling Marcial (Cortinas y Pistas Horizontales)** en `src/components/MartialExperienceTimeline.astro` con datos de `src/data/martialExperience.ts`. (Commit `e441ab1`)
+- [x] `task-5`: **Transición a Modo Oscuro y Proyectos en Producción** en `src/components/ProjectsSection.astro` con pista horizontal, 3 columnas de métricas (Fricción/Solución/Impacto) y bots de negocio. (Commit `6580778`)
+- [x] `task-6`: **Stack, Filosofía y Footer Kimono Dobok** en `src/components/SkillsPhilosophySection.astro` y `src/components/ContactSection.astro` con principios coreanos y apertura del Dobok en scroll. (Commit `6580778`)
+- [x] `task-7`: **Verificación Visual E2E & Limpieza** con browser subagent, `astro check` y `astro build`.
+
+## Evidencia de Verificación
+- `npm run check`: 25 files, 0 errors, 0 warnings.
+- `npm run build`: 3 páginas estáticas generadas (`/`, `/en/`, `/pt/`) en ~826ms.
+- Validación en navegador (`http://localhost:4321/`): navegación continua, seguimiento del cinturón 3D procedural por slots, apertura del Dobok y reactividad móvil comprobada.
