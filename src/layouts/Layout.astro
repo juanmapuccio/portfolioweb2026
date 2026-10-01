@@ -214,14 +214,30 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
 </html>
 
 <script>
-  // Actualización dinámica de la barra de progreso del header y color de cinturón
+  import Lenis from 'lenis';
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Header progress bar: scaleX on a full-width bar (compositor-friendly).
+  const progressBar = document.getElementById('header-scroll-progress');
+  let progressQueued = false;
+
   function updateHeaderProgress() {
-    const progressBar = document.getElementById('header-scroll-progress');
+    progressQueued = false;
     if (!progressBar) return;
     const doc = document.documentElement;
     const total = Math.max(1, doc.scrollHeight - window.innerHeight);
     const progress = Math.min(1, Math.max(0, window.scrollY / total));
-    progressBar.style.width = `${progress * 100}%`;
+    progressBar.style.transform = `scaleX(${progress.toFixed(4)})`;
+  }
+
+  // Coalesce scroll/resize bursts into at most one update per frame.
+  function scheduleHeaderProgress() {
+    if (progressQueued) return;
+    progressQueued = true;
+    requestAnimationFrame(updateHeaderProgress);
   }
 
   const siteHeader = document.querySelector<HTMLElement>('.site-header');
@@ -285,29 +301,26 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     }
   }
 
-  import Lenis from 'lenis';
-
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // Lenis is driven by the GSAP ticker so smooth scroll and ScrollTrigger share one rAF.
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
+      autoRaf: false,
+      anchors: { offset: -80 },
     });
 
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
+    (window as unknown as { __lenis?: Lenis }).__lenis = lenis;
 
-    lenis.on('scroll', () => {
-      updateHeaderProgress();
-    });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
   }
 
   window.addEventListener('belt:change', syncHeaderBeltColor);
-  window.addEventListener('scroll', updateHeaderProgress, { passive: true });
-  window.addEventListener('resize', updateHeaderProgress);
+  window.addEventListener('scroll', scheduleHeaderProgress, { passive: true });
+  window.addEventListener('resize', scheduleHeaderProgress);
   updateHeaderProgress();
 </script>
 
@@ -657,7 +670,10 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     left: 0;
     bottom: -1px;
     height: 3px;
-    width: 0%;
+    width: 100%;
+    transform-origin: left center;
+    transform: scaleX(0);
+    will-change: transform;
     background: #bdb4a4;
     transition: background 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
