@@ -403,23 +403,26 @@ const CHAPTER_CONFIG = [
 
   .curtain-title-wrap {
     position: absolute;
-    left: 0;
-    right: 0;
+    left: clamp(20px, 4vw, 64px);
+    right: clamp(20px, 4vw, 64px);
     top: 14vh;
     height: 30vh;
     display: flex;
     align-items: flex-end;
     justify-content: center;
     overflow: hidden;
+    pointer-events: none;
   }
 
   .curtain-title {
     font-family: var(--font-serif);
-    font-size: clamp(64px, 12vw, 220px);
+    font-size: clamp(38px, 5.2vw, 92px);
     font-weight: 300;
-    line-height: 1;
-    letter-spacing: -0.04em;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
     color: #1c1a17;
+    white-space: nowrap;
+    text-align: center;
     transform: translateY(calc((1 - clamp(0, calc((var(--p, 0) - 0.3) * 3), 1)) * 110%));
     transition: transform 0.1s linear;
   }
@@ -892,23 +895,26 @@ const CHAPTER_CONFIG = [
 
   .black-title-wrap {
     position: absolute;
-    left: 0;
-    right: 0;
-    top: 12vh;
-    height: 32vh;
+    left: clamp(20px, 4vw, 64px);
+    right: clamp(20px, 4vw, 64px);
+    top: 14vh;
+    height: 30vh;
     display: flex;
     align-items: flex-end;
     justify-content: center;
     overflow: hidden;
+    pointer-events: none;
   }
 
   .black-title {
     font-family: var(--font-serif);
-    font-size: clamp(64px, 12vw, 220px);
+    font-size: clamp(38px, 5.2vw, 92px);
     font-weight: 300;
-    line-height: 1;
+    line-height: 1.05;
     color: #f2eee6;
-    letter-spacing: calc(0.3em - clamp(0, calc((var(--p, 0) - 0.55) * 3), 1) * 0.34em);
+    letter-spacing: calc(0.12em - clamp(0, calc((var(--p, 0) - 0.55) * 3), 1) * 0.14em);
+    white-space: nowrap;
+    text-align: center;
     opacity: clamp(0, calc((var(--p, 0) - 0.55) * 4), 1);
     transform: translateY(calc((1 - clamp(0, calc((var(--p, 0) - 0.55) * 3), 1)) * 30%));
   }
@@ -989,6 +995,11 @@ const CHAPTER_CONFIG = [
   }
 
   @media (max-width: 900px) {
+    .curtain-title,
+    .black-title {
+      font-size: clamp(28px, 6.5vw, 48px);
+      white-space: normal;
+    }
     .split-section {
       grid-template-columns: minmax(0, 1fr);
     }
