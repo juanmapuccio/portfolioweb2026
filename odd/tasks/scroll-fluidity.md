@@ -19,13 +19,13 @@ Out of scope: content, visual design, Belt3D render loop internals.
 - TDD: off (no test runner in project; source: package.json has no test script). Checks: `npx astro check`, `npm run build`.
 
 ## Tasks
-- [ ] T1 — Single, synced scroll engine (route: delegated writer; trigger: 2 non-trivial files Layout + Timeline)
+- [x] T1 — Single, synced scroll engine (route: delegated writer; trigger: 2 non-trivial files Layout + Timeline)
   - Lenis driven by `gsap.ticker`, `lenis.on('scroll', ScrollTrigger.update)`, `anchors` enabled with header offset.
   - `tick` runs only when scroll/resize happen (not perpetual), caches nodes, reads all rects first then writes, skips unchanged `--p`.
   - Header progress updated once per frame (no double call).
   - Remove `transition: … linear` on `--p`-driven properties (Timeline, Projects, Contact, Manifesto words).
-- [ ] T2 — Red→black handoff: header/belt switch to `negro` only when the expanding circle actually covers the header (route: inline, 1 file).
-- [ ] T3 — Mobile robustness (route: inline/mechanical CSS across files)
+- [x] T2 — Red→black handoff: header/belt switch to `negro` only when the expanding circle actually covers the header (route: inline, 1 file).
+- [x] T3 — Mobile robustness (route: inline/mechanical CSS across files)
   - Sticky panels: `100vh` → keep fallback + `100svh`.
   - Fix dead mobile selectors in Timeline (`curtain-meta-bottom/curtain-word/curtain-meaning` → real classes).
   - Manifesto: cap font size by viewport height on short desktops; readable without JS.
@@ -41,7 +41,16 @@ Out of scope: content, visual design, Belt3D render loop internals.
 Strategy: ask-on-risk. Forecast ~200 authored lines (under budget).
 
 ## Progress / Evidence
-(updated per task)
+- Pre-work commit `066794b` (contact channels + QR, previously uncommitted) split out so scroll commits stay focused.
+- T1 `331bebf` — delegated writer. `astro check` 0 errors, `npm run build` Complete. No self-rescheduling rAF in timeline; no `linear` transitions left on `--p` props. Review assess: medium, `under_budget`; RDD globally off → `disabled/unmanaged`.
+- T2 `1e88d84` — inline. Black curtain resolves to `rojo` until circle radius (`clamp((p-0.14)*4)*2000px`) ≥ `hypot(W/2,H/2)`; `belt:change` deduped by belt key. `astro check` 0 errors.
+- T3 `369531d` — inline mechanical CSS. `100svh` on sticky panels (Timeline ×4, Projects, Contact, Skills, Manifesto); mobile selectors repointed to `curtain-editorial-block` / `curtain-word-title`; manifesto `min(3.1vw, 5.2vh)`, dims only when armed (readable without JS), `scrub: true`; Lenis `allowNestedScroll`. `astro check` 0 errors, build Complete.
+- Not verified: real-browser scroll feel, real-device mobile URL-bar behaviour.
+
+## Known leftovers (out of scope)
+- `Belt3D.astro` keeps its own rAF loop reading zone rects and renders while invisible.
+- `belt:black-progress` listener in `Belt3D.astro` never receives a dispatch (dead code).
+- Desktop curtain keeps ~85vh static tail after content completes (design pacing decision).
 
 ## Next step
-T1.
+Manual browser pass (desktop + phone) through white → black; then decide on Belt3D loop gating.
