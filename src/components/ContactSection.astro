@@ -272,20 +272,32 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
     pointer-events: none;
     will-change: transform;
     z-index: 2;
+    box-shadow: none;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform-style: preserve-3d;
   }
 
   .dobok-fold-left {
     left: 0;
-    clip-path: polygon(0 0, 78% 0, 100% 44%, 100% 100%, 0 100%);
+    clip-path: polygon(0 0, 82% 0, 100% 100%, 0 100%);
+    -webkit-clip-path: polygon(0 0, 82% 0, 100% 100%, 0 100%);
     transform: translateX(calc(clamp(0, calc(var(--p, 0) * 1.6), 1) * -104%));
-    box-shadow: 0 0 0 1px #1c1a17;
+  }
+
+  .dobok-inner {
+    position: absolute;
+    inset: 0;
+    box-shadow: none;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform-style: preserve-3d;
   }
 
   .dobok-inner-left {
-    position: absolute;
-    inset: 0 0 7vh 0;
     background: #faf8f3;
-    clip-path: polygon(0 0, 70% 0, 92% 44%, 92% 100%, 0 100%);
+    clip-path: polygon(0 0, 76% 0, 94% 100%, 0 100%);
+    -webkit-clip-path: polygon(0 0, 76% 0, 94% 100%, 0 100%);
   }
 
   .dobok-badge-left {
@@ -294,15 +306,15 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
 
   .dobok-fold-right {
     right: 0;
-    clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%, 0 44%);
+    clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 100%);
+    -webkit-clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 100%);
     transform: translateX(calc(clamp(0, calc(var(--p, 0) * 1.6), 1) * 104%));
   }
 
   .dobok-inner-right {
-    position: absolute;
-    inset: 0 0 7vh 0;
     background: #f2eee6;
-    clip-path: polygon(30% 0, 100% 0, 100% 100%, 8% 100%, 8% 44%);
+    clip-path: polygon(24% 0, 100% 0, 100% 100%, 6% 100%);
+    -webkit-clip-path: polygon(24% 0, 100% 0, 100% 100%, 6% 100%);
   }
 
   .dobok-badge-right {
