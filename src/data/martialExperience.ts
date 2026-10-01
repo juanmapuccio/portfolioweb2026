@@ -166,7 +166,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Dic 2015 — Mar 2019',
             role: 'Administrativo Integral (contratado)',
             org: 'ANSES',
-            description: 'Primera etapa en ANSES: gestión de miles de expedientes, control documental estricto y aplicación de normativa legal previsional. Salida por reestructuración estatal de contratos, no por desempeño.',
+            description: 'Primera etapa en ANSES: gestión de miles de expedientes, control documental estricto y aplicación de normativa legal previsional. Salida por reestructuración estatal de contratos.',
             transferableCompetency: 'Rigor normativo, gestión documental masiva y servicio al ciudadano en entornos regulados.'
           }
         ]
@@ -306,7 +306,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Dec 2015 — Mar 2019',
             role: 'Operations Administrator (contract)',
             org: 'ANSES',
-            description: 'First stage at ANSES: handling thousands of case files, strict document control, and application of social security regulations. Departure due to state restructuring of contracts, not performance.',
+            description: 'First stage at ANSES: handling thousands of case files, strict document control, and application of social security regulations. Departure due to state restructuring of contracts.',
             transferableCompetency: 'Regulatory compliance, massive case file handling, and citizen service in regulated environments.'
           }
         ]
@@ -446,7 +446,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Dez 2015 — Mar 2019',
             role: 'Administrativo Operacional (contratado)',
             org: 'ANSES',
-            description: 'Primeira etapa no ANSES: gestão de milhares de processos, controle documental rigoroso e aplicação da normativa legal previdenciária. Saída por reestruturação estatal de contratos, e não por desempenho.',
+            description: 'Primeira etapa no ANSES: gestão de milhares de processos, controle documental rigoroso e aplicação da normativa legal previdenciária. Saída por reestruturação estatal de contratos.',
             transferableCompetency: 'Rigor documental, gestão de processos em massa e atendimento público regulado.'
           }
         ]
