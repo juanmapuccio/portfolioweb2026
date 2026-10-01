@@ -84,10 +84,10 @@
   async function start() {
     if (dispose || starting || !root || !canvas || !eligible()) return;
     starting = true;
-    const [THREE, { GLTFLoader }, { RoomEnvironment }] = await Promise.all([
+    const [THREE, { RoomEnvironment }, { createProceduralBelt }] = await Promise.all([
       import('three'),
-      import('three/examples/jsm/loaders/GLTFLoader.js'),
       import('three/examples/jsm/environments/RoomEnvironment.js'),
+      import('../scripts/proceduralBelt'),
     ]);
     starting = false;
     if (dispose || !eligible()) return;
@@ -124,83 +124,36 @@
     scene.environment = envRT.texture;
     scene.environmentIntensity = 0.4;
 
-    // Current tint (kept outside the material so it survives until the model loads).
-    const cur = new THREE.Color(0xf8f6f0);
-    const cloth: Array<InstanceType<typeof THREE.MeshStandardMaterial>> = [];
-    const applyTint = () => {
-      for (const m of cloth) {
-        m.color.copy(cur);
-        const sheen = (m as unknown as { sheenColor?: InstanceType<typeof THREE.Color> }).sheenColor;
-        if (sheen) sheen.copy(cur);
-      }
-    };
-    let alive = true;
-    new GLTFLoader().load(
-      '/models/cinturon-itf.glb',
-      (gltf) => {
-        if (!alive) {
-          disposeTree(gltf.scene);
-          return;
-        }
-        const model = gltf.scene;
-        model.traverse((o) => {
-          const mesh = o as InstanceType<typeof THREE.Mesh>;
-          if (!mesh.isMesh) return;
-          const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-          for (const m of mats) if (m.name === 'belt_cloth' && !cloth.includes(m as never)) cloth.push(m as never);
-        });
-        // Center and fit to the camera framing.
-        const box = new THREE.Box3().setFromObject(model);
-        const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-        model.position.sub(center);
-        const wrap = new THREE.Group();
-        wrap.add(model);
-        wrap.scale.setScalar(Math.min(FIT / size.x, FIT / size.y));
-        wrap.rotation.set(MODEL_ROT[0], MODEL_ROT[1], MODEL_ROT[2]);
-        belt.add(wrap);
-        loaded = wrap;
-        applyTint();
-        root.hidden = false;
-      },
-      undefined,
-      () => {
-        if (root) root.hidden = true;
-      }
-    );
-    let loaded: InstanceType<typeof THREE.Group> | null = null;
-    function disposeTree(obj: InstanceType<typeof THREE.Object3D>) {
-      const seen = new Set<unknown>();
-      obj.traverse((o) => {
-        const mesh = o as InstanceType<typeof THREE.Mesh>;
-        if (!mesh.isMesh) return;
-        mesh.geometry?.dispose();
-        const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-        for (const m of mats) {
-          if (!m || seen.has(m)) continue;
-          seen.add(m);
-          for (const v of Object.values(m as unknown as Record<string, unknown>)) {
-            if (v && (v as { isTexture?: boolean }).isTexture) (v as { dispose(): void }).dispose();
-          }
-          m.dispose();
-        }
-      });
-    }
+    let activeColor = document.documentElement.dataset.activeBeltColor || '#f8f6f0';
+    const cur = new THREE.Color(activeColor);
 
-    // State driven by GSAP (drag only). Belt color is never wall-clock
-    // animated: stage changes apply immediately from belt:change, and the
-    // red-to-black transition is scrubbed from scroll progress below.
+    // Procedural 3D belt instance
+    const proceduralBelt = createProceduralBelt({ color: activeColor });
+    const model = proceduralBelt.group;
+
+    // Center and fit to the camera framing.
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    model.position.sub(center);
+
+    const wrap = new THREE.Group();
+    wrap.add(model);
+    wrap.scale.setScalar(Math.min(FIT / size.x, FIT / size.y));
+    wrap.rotation.set(MODEL_ROT[0], MODEL_ROT[1], MODEL_ROT[2]);
+    belt.add(wrap);
+    root.hidden = false;
+
+    // State driven by GSAP (drag only).
     const state = { drag: 0 };
     const to = new THREE.Color(0xf8f6f0);
     const setTarget = (css: string) => {
       const [r, g, b] = cssToRgb(css);
       to.setRGB(r, g, b, THREE.SRGBColorSpace);
       cur.copy(to);
-      applyTint();
+      proceduralBelt.setColors({ color: cur });
     };
 
-    // Active belt: same source of truth as the header indicator (CustomEvent from the timeline).
-    let activeColor = document.documentElement.dataset.activeBeltColor || '#f8f6f0';
     setTarget(activeColor);
     const onBelt = (e: Event) => {
       const c = (e as CustomEvent<{ color?: string }>).detail?.color;
@@ -210,10 +163,6 @@
     };
     window.addEventListener('belt:change', onBelt);
 
-    // Black-scene progress: MartialExperienceTimeline's scrubbed ScrollTrigger
-    // emits one signal that already drives the scene visuals and the grade
-    // metadata; the tint reads the same progress, so forward, reverse, and
-    // fast scrolling keep model and monitor coherent.
     const scrubFrom = new THREE.Color();
     const scrubTo = new THREE.Color();
     const onBlackProgress = (e: Event) => {
@@ -224,7 +173,7 @@
       scrubFrom.setRGB(fr, fg, fb, THREE.SRGBColorSpace);
       scrubTo.setRGB(tr, tg, tb, THREE.SRGBColorSpace);
       cur.copy(scrubFrom).lerp(scrubTo, d.mix);
-      applyTint();
+      proceduralBelt.setColors({ color: cur });
     };
     window.addEventListener('belt:black-progress', onBlackProgress);
 
@@ -288,8 +237,7 @@
       canvas!.removeEventListener('pointerup', onUp);
       canvas!.removeEventListener('pointercancel', onUp);
       gsap.killTweensOf(state);
-      alive = false;
-      if (loaded) disposeTree(loaded);
+      proceduralBelt.dispose();
       envRT.dispose();
       pmrem.dispose();
       scene.environment = null;
