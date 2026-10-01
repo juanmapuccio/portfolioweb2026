@@ -1,7 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { CV_URL } from '../data/contact';
-import { BELTS, martialExperienceData } from '../data/martialExperience';
 import { useTranslations, type Lang } from '../i18n/ui';
 import ProjectsSection from './ProjectsSection.astro';
 import ManifestoScrollytelling from './ManifestoScrollytelling.astro';
@@ -9,7 +8,6 @@ import MartialExperienceTimeline from './MartialExperienceTimeline.astro';
 import SkillsPhilosophySection from './SkillsPhilosophySection.astro';
 import ContactSection from './ContactSection.astro';
 import Belt3D from './Belt3D.astro';
-import BeltKnot from './BeltKnot.astro';
 
 interface Props {
   lang: Lang;
@@ -17,9 +15,6 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = useTranslations(lang);
-const beltStages = martialExperienceData[lang].stages;
-const initialBeltStage = beltStages[0];
-const initialBelt = BELTS[initialBeltStage?.beltKey ?? 'blanco'];
 ---
 
 <Layout
@@ -104,71 +99,18 @@ const initialBelt = BELTS[initialBeltStage?.beltKey ?? 'blanco'];
   <!-- Scene 08: Contact & call to action -->
   <ContactSection lang={lang} />
     </main>
-
-    <aside class="belt-console-column" aria-label={martialExperienceData[lang].sectionBadge}>
-      <div class="belt-console">
-        <div class="belt-sticky-monitor" id="belt-sticky-monitor">
-          <span class="belt-gup-row" id="monitor-meta">
-            <span id="monitor-gup">{initialBelt.gup}</span> · <span id="monitor-years">{initialBeltStage?.years}</span>
-          </span>
-          <p class="belt-display-name" id="monitor-belt-name">{BELTS.blanco.beltName[lang]}</p>
-          <div class="belt-strap" id="monitor-strap"></div>
-          <div class="belt-dots-row" aria-hidden="true">
-            {beltStages.map((stage) => {
-              const belt = BELTS[stage.beltKey];
-              return <span class="belt-dot-bar" data-belt-step={stage.beltKey} style={`--dot-color: ${belt.color};`} />;
-            })}
-          </div>
-          <p class="belt-caption">
-            {lang === 'es'
-              ? 'Los grados del Taekwondo ITF, del blanco al negro, como mapa de cada etapa.'
-              : lang === 'en'
-              ? 'Taekwondo ITF belt ranks, from white to black, as a blueprint of each milestone.'
-              : 'As graduações do Taekwondo ITF, da branca à preta, como mapa de cada etapa.'}
-          </p>
-        </div>
-
-        <div class="belt-console-model-stage">
-          <Belt3D />
-          <BeltKnot class="belt-console-fallback" />
-        </div>
-
-        <nav class="belt-stage-navigation" aria-label={martialExperienceData[lang].sectionBadge}>
-          {beltStages.map((stage) => {
-            const belt = BELTS[stage.beltKey];
-            const target = stage.beltKey === 'negro' ? 'black-belt-transition' : `stage-${stage.beltKey}`;
-            return (
-              <a
-                class="belt-stage-link"
-                data-belt-key={stage.beltKey}
-                aria-current={stage.beltKey === beltStages[0]?.beltKey ? 'step' : undefined}
-                href={`#${target}`}
-              >
-                <span class="belt-stage-swatch" style={`--stage-color: ${belt.color};`} aria-hidden="true"></span>
-                <span>{belt.gup}</span>
-                <span class="belt-stage-name">{belt.beltName[lang]}</span>
-              </a>
-            );
-          })}
-        </nav>
-      </div>
-    </aside>
   </div>
 </Layout>
 
 <style>
   .portfolio-shell {
-    width: min(100%, 1920px);
+    width: 100%;
     margin-inline: auto;
-    padding-inline: clamp(20px, 2.5vw, 40px);
-    display: grid;
-    grid-template-columns: minmax(0, 1.45fr) minmax(360px, 0.9fr);
-    gap: clamp(24px, 3vw, 56px);
-    align-items: stretch;
+    display: block;
   }
 
-  .portfolio-main-column,
-  .belt-console-column {
+  .portfolio-main-column {
+    width: 100%;
     min-width: 0;
   }
 
