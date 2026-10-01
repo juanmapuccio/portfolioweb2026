@@ -123,7 +123,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
       {
         beltKey: 'amarillo',
         years: '2012 — 2015',
-        title: 'La calle',
+        title: 'Trinchera comercial',
         lede: 'Desarrollé habilidades de negociación directa en la calle, empatía inmediata con el cliente, capacidad de persuasión y un entendimiento profundo de la cadena comercial sin timidez operativa.',
         positions: [
           {
@@ -263,7 +263,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
       {
         beltKey: 'amarillo',
         years: '2012 — 2015',
-        title: 'The Streets',
+        title: 'Commercial Trenches',
         lede: 'Built direct street-level negotiation skills, immediate client empathy, persuasion, and a deep understanding of the commercial chain without operational hesitation.',
         positions: [
           {
@@ -403,7 +403,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
       {
         beltKey: 'amarillo',
         years: '2012 — 2015',
-        title: 'A Rua',
+        title: 'Trincheira Comercial',
         lede: 'Desenvolvi habilidades de negociação direta na rua, empatia imediata com o cliente, capacidade de persuasão e um entendimento profundo da cadeia comercial, sem timidez operacional.',
         positions: [
           {
