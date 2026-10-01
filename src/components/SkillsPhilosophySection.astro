@@ -136,10 +136,9 @@ const GLYPHS: Record<string, string> = {
 
   .skills-philo-split-layout {
     display: grid;
-    /* align-items: start is CRITICAL — without it both cells stretch to equal height
-       and the sticky column has nothing to scroll against */
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: start;
+    /* No align-items override — default stretch fills both cells to row height.
+       align-self:start on the sticky column lets sticky work against the section. */
     max-width: 1600px;
     margin: 0 auto;
   }
@@ -155,6 +154,9 @@ const GLYPHS: Record<string, string> = {
     position: sticky;
     top: 0;
     height: 100vh;
+    /* align-self:start so this cell's height = 100vh (not stretched to match
+       the row), keeping the sticky track alive while the section scrolls */
+    align-self: start;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -207,7 +209,9 @@ const GLYPHS: Record<string, string> = {
   .skills-scrolling-column {
     display: flex;
     flex-direction: column;
-    padding: clamp(80px, 10vh, 120px) clamp(20px, 3.5vw, 56px) clamp(80px, 10vh, 120px);
+    justify-content: center;         /* vertically center the card track */
+    min-height: 100vh;               /* match the sticky column viewport height */
+    padding: 0 clamp(20px, 3.5vw, 56px);
     border-left: 1px solid rgba(242, 238, 230, 0.18);
     box-sizing: border-box;
     min-width: 0;
