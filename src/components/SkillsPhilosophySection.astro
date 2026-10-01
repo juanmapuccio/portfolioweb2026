@@ -76,24 +76,36 @@ const GLYPHS: Record<string, string> = {
     </div>
   </div>
 
-  <!-- ── Part 2: Full-width vertical section — Fuera del Código ── -->
+  <!-- ── Part 2: Fuera del Código — Cinematic Two-Act Experience ── -->
   <div class="human-dimension-section">
     <div class="human-dimension-inner">
-      <div class="human-dimension-header">
+      <header class="human-dimension-header">
         <span class="mono-badge">
           {lang === 'es' ? 'FUERA DEL CÓDIGO' : lang === 'en' ? 'BEYOND THE CODE' : 'ALÉM DO CÓDIGO'}
         </span>
         <h3 class="human-title">
           {lang === 'es' ? 'La Dimensión Humana & Ética Operativa' : lang === 'en' ? 'The Human Dimension & Operational Ethics' : 'A Dimensão Humana & Ética Operacional'}
         </h3>
-      </div>
+        <p class="human-lead">
+          {lang === 'es'
+            ? 'La excelencia técnica no nace únicamente del dominio de sintaxis o librerías, sino del criterio para decidir cuándo automatizar, cómo proteger al usuario y con qué templanza responder ante una crisis en producción.'
+            : lang === 'en'
+            ? 'Technical excellence does not stem solely from mastering syntax or libraries, but from the judgment to know when to automate, how to protect the user, and with what composure to respond during a production crisis.'
+            : 'A excelência técnica não nasce apenas do domínio de sintaxes ou bibliotecas, mas do critério para decidir quando automatizar, como proteger o usuário e com que compostura responder em uma crise em produção.'}
+        </p>
+      </header>
 
-      <!-- Philosophy Articles -->
-      <div class="philosophy-items-list">
-        {philosophy.map((ph) => (
-          <article class="philosophy-card">
-            <h4 class="philosophy-card-title">{ph.title}</h4>
-            <span class="philosophy-card-sub">{ph.subtitle}</span>
+      <!-- Act I: Philosophy Pillars (Editorial Manifestos) -->
+      <div class="philosophy-manifestos-grid">
+        {philosophy.map((ph, idx) => (
+          <article class="philosophy-manifesto-card">
+            <div class="manifesto-card-header">
+              <span class="manifesto-idx">0{idx + 1}</span>
+              <div class="manifesto-titles">
+                <h4 class="philosophy-card-title">{ph.title}</h4>
+                <span class="philosophy-card-sub">{ph.subtitle}</span>
+              </div>
+            </div>
             <p class="philosophy-card-desc">{ph.description}</p>
             <blockquote class="philosophy-quote">
               "{ph.quote}"
@@ -102,19 +114,26 @@ const GLYPHS: Record<string, string> = {
         ))}
       </div>
 
-      <!-- 5 Korean Martial Tenets / Principles -->
+      <!-- Act II: Martial Tenets Banner (TKD Principles) -->
       <div class="tkd-principles-block">
-        <span class="mono-badge">{principles.label}</span>
+        <div class="principles-header">
+          <span class="mono-badge">{principles.label}</span>
+          <span class="principles-subnote">
+            {lang === 'es' ? 'Disciplina aplicada a la arquitectura de software' : lang === 'en' ? 'Discipline applied to software engineering' : 'Disciplina aplicada à arquitetura de software'}
+          </span>
+        </div>
         <div class="principles-grid">
           {principles.items.map((pr) => {
-            const fontSize = pr.hangul.length > 2 ? '13px' : '19px';
+            const fontSize = pr.hangul.length > 2 ? '13px' : '18px';
             return (
               <div class="principle-card">
                 <div class="principle-seal-box" style={`font-size: ${fontSize};`}>
                   {pr.hangul}
                 </div>
-                <span class="principle-name">{pr.name}</span>
-                <span class="principle-line">{pr.line}</span>
+                <div class="principle-content">
+                  <span class="principle-name">{pr.name}</span>
+                  <span class="principle-line">{pr.line}</span>
+                </div>
               </div>
             );
           })}
@@ -307,138 +326,243 @@ const GLYPHS: Record<string, string> = {
     border-top: 1px solid rgba(242, 238, 230, 0.08);
   }
 
-  /* ── Part 2: Fuera del Código — full-width vertical section ── */
+  /* ── Part 2: Fuera del Código — Cinematic Two-Act Experience ── */
   .human-dimension-section {
-    border-top: 1px solid rgba(242, 238, 230, 0.18);
-    padding: clamp(64px, 10vh, 120px) clamp(20px, 5vw, 72px);
+    position: relative;
+    border-top: 1px solid rgba(242, 238, 230, 0.14);
+    background: radial-gradient(circle at 50% 0%, #25221d 0%, #171512 85%);
+    padding: clamp(80px, 12vh, 160px) clamp(24px, 5vw, 72px);
+    overflow: hidden;
   }
 
   .human-dimension-inner {
-    max-width: 1600px;
+    max-width: 1400px;
     margin: 0 auto;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 48px clamp(40px, 6vw, 96px);
-    align-items: start;
-  }
-
-  @media (max-width: 991px) {
-    .human-dimension-inner {
-      grid-template-columns: 1fr;
-      gap: 40px;
-    }
-  }
-
-  /* Header spans full width */
-  .human-dimension-header {
-    grid-column: 1 / -1;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid rgba(242, 238, 230, 0.12);
+    gap: clamp(64px, 10vh, 110px);
+  }
+
+  /* Header */
+  .human-dimension-header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 820px;
   }
 
   .human-title {
     margin: 0;
     font-family: var(--font-serif, 'Source Serif 4', serif);
     font-weight: 300;
-    font-size: clamp(32px, 3.5vw, 56px);
+    font-size: clamp(34px, 4.2vw, 64px);
     line-height: 1.05;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
     color: #f2eee6;
   }
 
-  .philosophy-items-list {
-    display: flex;
-    flex-direction: column;
-    gap: 28px;
+  .human-lead {
+    margin: 4px 0 0 0;
+    font-size: clamp(15px, 1.2vw, 17.5px);
+    line-height: 1.65;
+    color: #a8a29e;
   }
 
-  .philosophy-card {
+  /* Act I: Philosophy Manifestos Grid */
+  .philosophy-manifestos-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(28px, 4vw, 56px);
+  }
+
+  @media (max-width: 880px) {
+    .philosophy-manifestos-grid {
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+  }
+
+  .philosophy-manifesto-card {
+    background: rgba(35, 32, 28, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(242, 238, 230, 0.1);
+    border-radius: 4px;
+    padding: clamp(32px, 4vw, 48px);
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 20px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, transform 0.3s ease, background 0.3s ease;
+  }
+
+  .philosophy-manifesto-card:hover {
+    border-color: rgba(251, 191, 36, 0.35);
+    background: rgba(40, 36, 32, 0.85);
+    transform: translateY(-3px);
+  }
+
+  .manifesto-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .manifesto-idx {
+    font-family: var(--font-mono, monospace);
+    font-size: 14px;
+    font-weight: 700;
+    color: #fbbf24;
+    letter-spacing: 0.1em;
+    padding-top: 4px;
+  }
+
+  .manifesto-titles {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
   }
 
   .philosophy-card-title {
     margin: 0;
     font-family: var(--font-serif, 'Source Serif 4', serif);
     font-weight: 400;
-    font-size: 22px;
-    line-height: 1.2;
+    font-size: clamp(22px, 2vw, 28px);
+    line-height: 1.15;
     color: #f2eee6;
   }
 
   .philosophy-card-sub {
     font-family: var(--font-mono, monospace);
     font-size: 11px;
-    color: #c9c3b7;
+    letter-spacing: 0.05em;
+    color: #928d84;
+    text-transform: uppercase;
   }
 
   .philosophy-card-desc {
     margin: 0;
-    font-size: 15px;
-    line-height: 1.55;
+    font-size: 15.5px;
+    line-height: 1.65;
     color: #c9c3b7;
   }
 
   .philosophy-quote {
-    margin: 8px 0 0 0;
+    margin: 12px 0 0 0;
     font-family: var(--font-serif, 'Source Serif 4', serif);
     font-weight: 300;
     font-style: italic;
-    font-size: 19px;
-    line-height: 1.35;
-    color: #f2eee6;
-    border-left: 2px solid #f2eee6;
-    padding-left: 14px;
+    font-size: clamp(17px, 1.3vw, 20px);
+    line-height: 1.45;
+    color: #fbbf24;
+    border-left: 2px solid #fbbf24;
+    padding-left: 18px;
   }
 
-  /* TKD Principles */
+  /* Act II: TKD Principles / Martial Tenets */
   .tkd-principles-block {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    padding-top: 12px;
+    gap: 28px;
+    padding: clamp(32px, 4vw, 44px);
+    background: #12110f;
+    border: 1px solid rgba(242, 238, 230, 0.08);
+    border-radius: 4px;
+  }
+
+  .principles-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(242, 238, 230, 0.08);
+  }
+
+  .principles-subnote {
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: #78716c;
+    text-transform: uppercase;
   }
 
   .principles-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: clamp(16px, 2.5vw, 28px);
+  }
+
+  @media (max-width: 1024px) {
+    .principles-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .principles-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
   .principle-card {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 16px;
+    padding: 20px 16px;
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(242, 238, 230, 0.06);
+    border-radius: 3px;
+    transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  }
+
+  .principle-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(239, 68, 68, 0.35);
+    background: rgba(239, 68, 68, 0.03);
   }
 
   .principle-seal-box {
-    width: 60px;
-    height: 60px;
-    border: 2px solid #ef4444;
+    width: 48px;
+    height: 48px;
+    border: 1.5px solid rgba(239, 68, 68, 0.65);
+    background: rgba(239, 68, 68, 0.06);
     color: #ef4444;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
     box-sizing: border-box;
+    border-radius: 2px;
+    letter-spacing: -0.05em;
+    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .principle-card:hover .principle-seal-box {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.14);
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.25);
+  }
+
+  .principle-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
   }
 
   .principle-name {
     font-family: var(--font-mono, monospace);
     font-size: 11px;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: #f2eee6;
   }
 
   .principle-line {
     font-size: 13px;
-    line-height: 1.45;
-    color: #c9c3b7;
+    line-height: 1.55;
+    color: #928d84;
   }
 </style>
