@@ -353,6 +353,47 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
     padding-top: 16px;
   }
 
+  @media (max-width: 767px) {
+    .cinematic-contact-footer {
+      height: 140vh;
+    }
+
+    .contact-main-wrapper {
+      padding: 72px 20px 32px;
+      gap: 24px;
+    }
+
+    .contact-display-title {
+      font-size: clamp(30px, 8vw, 44px);
+    }
+
+    .contact-lead-desc {
+      font-size: 14.5px;
+    }
+
+    .contact-actions-row {
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .contact-btn-primary,
+    .contact-btn-secondary {
+      width: 100%;
+      text-align: center;
+      padding: 14px 20px;
+    }
+
+    .contact-channels-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .contact-bottom-legal {
+      flex-direction: column;
+      gap: 8px;
+      font-size: 10px;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .contact-main-wrapper {
       opacity: 1 !important;

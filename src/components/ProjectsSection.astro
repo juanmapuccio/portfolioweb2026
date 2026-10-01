@@ -539,6 +539,91 @@ const auto = automationsContent[lang];
     padding-top: 48px;
   }
 
+  @media (max-width: 767px) {
+    .projects-horizontal-section {
+      height: 320vh;
+    }
+
+    .project-track-intro {
+      width: 84vw;
+      gap: 10px;
+    }
+
+    .project-track-title {
+      font-size: clamp(30px, 8vw, 42px);
+    }
+
+    .project-track-desc {
+      font-size: 14.5px;
+    }
+
+    .project-editorial-card {
+      width: 90vw;
+      height: min(84vh, 620px);
+      padding: 18px 16px;
+      gap: 12px;
+      overflow-y: auto;
+    }
+
+    .project-card-name {
+      font-size: clamp(28px, 7vw, 42px);
+    }
+
+    .project-card-description {
+      font-size: 13.5px;
+      line-height: 1.45;
+    }
+
+    .project-card-columns {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .metric-col {
+      padding-top: 4px;
+    }
+
+    .metric-col-val {
+      font-size: 12.5px;
+      line-height: 1.35;
+    }
+
+    .project-card-action-row {
+      padding-top: 10px;
+      gap: 10px;
+    }
+
+    .project-live-btn {
+      width: 100%;
+      text-align: center;
+      padding: 12px 16px;
+    }
+
+    .automations-section {
+      padding: 64px 20px 80px;
+    }
+
+    .automations-container {
+      gap: 32px;
+    }
+
+    .automations-title {
+      font-size: clamp(28px, 7.5vw, 40px);
+    }
+
+    .automations-subtitle {
+      font-size: 15px;
+    }
+
+    .architecture-section {
+      padding: 0 16px 64px;
+    }
+
+    .architecture-container {
+      padding-top: 24px;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .projects-track-rail {
       transform: none !important;
