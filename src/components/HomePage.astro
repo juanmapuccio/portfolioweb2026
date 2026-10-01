@@ -38,7 +38,7 @@ const t = useTranslations(lang);
 
       <h1 class="hero-headline-name">Juan Manuel Puccio</h1>
 
-      <div class="hero-bottom-grid">
+      <div class="hero-editorial-layout">
         <div class="hero-narrative-block">
           <span class="hero-role-headline">
             {lang === 'es' ? 'Desarrollador Full Stack · Disponibilidad full-time' : lang === 'en' ? 'Full Stack Developer · Full-time availability' : 'Desenvolvedor Full Stack · Disponibilidade full-time'}
@@ -60,6 +60,22 @@ const t = useTranslations(lang);
             <a href="#contacto" class="hero-btn-outline">
               {lang === 'es' ? 'Contacto' : lang === 'en' ? 'Contact' : 'Contato'}
             </a>
+          </div>
+          <div class="hero-proof-strip">
+            <div class="proof-item">
+              <span class="proof-num">04</span>
+              <span class="proof-label">{lang === 'es' ? 'Sistemas en producción' : lang === 'en' ? 'Production systems' : 'Sistemas em produção'}</span>
+            </div>
+            <div class="proof-sep" aria-hidden="true">/</div>
+            <div class="proof-item">
+              <span class="proof-num">ITF</span>
+              <span class="proof-label">10º gup → 1º dan</span>
+            </div>
+            <div class="proof-sep" aria-hidden="true">/</div>
+            <div class="proof-item">
+              <span class="proof-num">ARCA</span>
+              <span class="proof-label">{lang === 'es' ? 'Integraciones & Bots' : lang === 'en' ? 'Integrations & Bots' : 'Integrações & Bots'}</span>
+            </div>
           </div>
         </div>
 
@@ -292,6 +308,11 @@ const t = useTranslations(lang);
     .belt-console-column {
       display: none;
     }
+
+    .hero-editorial-layout {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
   }
 
   .hero-pinned-scene {
@@ -347,11 +368,50 @@ const t = useTranslations(lang);
     color: #1c1a17;
   }
 
-  .hero-bottom-grid {
+  .hero-editorial-layout {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
-    gap: 32px 64px;
-    align-items: end;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: clamp(24px, 4vw, 56px);
+    align-items: center;
+    flex: 1;
+  }
+
+  .hero-proof-strip {
+    display: flex;
+    align-items: center;
+    gap: clamp(12px, 1.8vw, 24px);
+    margin-top: clamp(10px, 1.8vh, 20px);
+    padding-top: 14px;
+    border-top: 1px solid rgba(28, 26, 23, 0.16);
+    flex-wrap: wrap;
+  }
+
+  .proof-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .proof-num {
+    font-family: var(--font-mono, monospace);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #1c1a17;
+  }
+
+  .proof-label {
+    font-family: var(--font-mono, monospace);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6a645a;
+  }
+
+  .proof-sep {
+    color: rgba(28, 26, 23, 0.25);
+    font-family: var(--font-mono, monospace);
+    font-size: 14px;
   }
 
   .hero-narrative-block {
