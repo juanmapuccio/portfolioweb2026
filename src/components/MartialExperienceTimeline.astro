@@ -99,12 +99,12 @@ const CHAPTER_CONFIG = [
         <section data-fx="c" data-zone="curtain" data-ch={chIndex} class="curtain-scene">
           <div class="curtain-sticky">
             <div class="curtain-meta-top">
-              <span>Capítulo {cfg.num} · {cfg.ko} · {stage.title}</span>
+              <span>Capítulo {cfg.num} · {cfg.ko} · {belt.beltName[lang]}</span>
               <span>{belt.gup} · {stage.years}</span>
             </div>
 
             <div class="curtain-title-wrap">
-              <div class="curtain-title">{belt.beltName[lang]}</div>
+              <div class="curtain-title">{belt.philosophicalTitle[lang]}</div>
             </div>
 
             <div class="curtain-ribbon" style={`background: ${cfg.hex};`}></div>
@@ -221,12 +221,12 @@ const CHAPTER_CONFIG = [
         </div>
 
         <div class="black-meta-top">
-          <span>Capítulo 06 · 검은 띠 · {lang === 'es' ? 'Producción' : lang === 'en' ? 'Production' : 'Produção'}</span>
+          <span>Capítulo 06 · 검은 띠 · {BELTS.negro.beltName[lang]}</span>
           <span>1º dan · Jun 2025 — Presente</span>
         </div>
 
         <div class="black-title-wrap">
-          <div class="black-title">{BELTS.negro.beltName[lang]}</div>
+          <div class="black-title">{BELTS.negro.philosophicalTitle[lang]}</div>
         </div>
 
         <div class="black-gold-line"></div>

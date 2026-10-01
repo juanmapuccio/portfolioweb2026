@@ -7,16 +7,71 @@ export interface MartialBelt {
   line: string;
   gup: string;
   beltName: Record<Lang, string>;
+  philosophicalTitle: Record<Lang, string>;
   symbolism: Record<Lang, string>;
 }
 
 export const BELTS: Record<string, MartialBelt> = {
-  blanco: { key: 'blanco', color: '#f8f6f0', badgeColor: '#e5e0d3', line: '#bdb4a4', gup: '10º gup', beltName: { es: 'Cinturón blanco', en: 'White belt', pt: 'Faixa branca' }, symbolism: { es: 'Inocencia: todo por aprender.', en: 'Innocence: everything still to learn.', pt: 'Inocência: tudo por aprender.' } },
-  amarillo: { key: 'amarillo', color: 'oklch(0.84 0.15 90)', badgeColor: 'oklch(0.78 0.15 90)', line: 'oklch(0.78 0.15 90)', gup: '8º gup', beltName: { es: 'Cinturón amarillo', en: 'Yellow belt', pt: 'Faixa amarela' }, symbolism: { es: 'Tierra y raíces: donde empieza a crecer.', en: 'Earth and roots: where growth begins.', pt: 'Terra e raízes: onde o crescimento começa.' } },
-  verde: { key: 'verde', color: 'oklch(0.58 0.12 150)', badgeColor: 'oklch(0.58 0.12 150)', line: 'oklch(0.58 0.12 150)', gup: '6º gup', beltName: { es: 'Cinturón verde', en: 'Green belt', pt: 'Faixa verde' }, symbolism: { es: 'Crecimiento: la planta toma forma.', en: 'Growth: the plant takes shape.', pt: 'Crescimento: a planta ganha forma.' } },
-  azul: { key: 'azul', color: 'oklch(0.5 0.13 255)', badgeColor: 'oklch(0.5 0.13 255)', line: 'oklch(0.5 0.13 255)', gup: '4º gup', beltName: { es: 'Cinturón azul', en: 'Blue belt', pt: 'Faixa azul' }, symbolism: { es: 'Cielo: hacia dónde apunta lo aprendido.', en: 'Heaven: where learning points to.', pt: 'Céu: para onde aponta o aprendizado.' } },
-  rojo: { key: 'rojo', color: 'oklch(0.56 0.17 28)', badgeColor: 'oklch(0.56 0.17 28)', line: 'oklch(0.56 0.17 28)', gup: '2º gup', beltName: { es: 'Cinturón rojo', en: 'Red belt', pt: 'Faixa vermelha' }, symbolism: { es: 'Cautela y control: saber cuándo frenar.', en: 'Caution and control: knowing when to hold back.', pt: 'Cautela e controle: saber quando frear.' } },
-  negro: { key: 'negro', color: '#1c1a17', badgeColor: '#1c1a17', line: '#1c1a17', gup: '1º dan', beltName: { es: 'Cinturón negro', en: 'Black belt', pt: 'Faixa preta' }, symbolism: { es: 'Madurez: la calma de quien ya no necesita demostrar.', en: 'Maturity: the calm of no longer needing to prove.', pt: 'Maturidade: a calma de quem não precisa provar.' } }
+  blanco: {
+    key: 'blanco',
+    color: '#f8f6f0',
+    badgeColor: '#e5e0d3',
+    line: '#bdb4a4',
+    gup: '10º gup',
+    beltName: { es: 'Cinturón blanco', en: 'White belt', pt: 'Faixa branca' },
+    philosophicalTitle: { es: 'El inicio del camino', en: 'The Beginning of the Path', pt: 'O Início do Caminho' },
+    symbolism: { es: 'Inocencia: todo por aprender.', en: 'Innocence: everything still to learn.', pt: 'Inocência: tudo por aprender.' }
+  },
+  amarillo: {
+    key: 'amarillo',
+    color: 'oklch(0.84 0.15 90)',
+    badgeColor: 'oklch(0.78 0.15 90)',
+    line: 'oklch(0.78 0.15 90)',
+    gup: '8º gup',
+    beltName: { es: 'Cinturón amarillo', en: 'Yellow belt', pt: 'Faixa amarela' },
+    philosophicalTitle: { es: 'Tierra & Raíces', en: 'Earth & Roots', pt: 'Terra & Raízes' },
+    symbolism: { es: 'Tierra y raíces: donde empieza a crecer.', en: 'Earth and roots: where growth begins.', pt: 'Terra e raízes: onde o crescimento começa.' }
+  },
+  verde: {
+    key: 'verde',
+    color: 'oklch(0.58 0.12 150)',
+    badgeColor: 'oklch(0.58 0.12 150)',
+    line: 'oklch(0.58 0.12 150)',
+    gup: '6º gup',
+    beltName: { es: 'Cinturón verde', en: 'Green belt', pt: 'Faixa verde' },
+    philosophicalTitle: { es: 'Crecimiento', en: 'Growth', pt: 'Crescimento' },
+    symbolism: { es: 'Crecimiento: la planta toma forma.', en: 'Growth: the plant takes shape.', pt: 'Crescimento: a planta ganha forma.' }
+  },
+  azul: {
+    key: 'azul',
+    color: 'oklch(0.5 0.13 255)',
+    badgeColor: 'oklch(0.5 0.13 255)',
+    line: 'oklch(0.5 0.13 255)',
+    gup: '4º gup',
+    beltName: { es: 'Cinturón azul', en: 'Blue belt', pt: 'Faixa azul' },
+    philosophicalTitle: { es: 'Maduración & Horizonte', en: 'Maturation & Horizon', pt: 'Maturação & Horizonte' },
+    symbolism: { es: 'Cielo: hacia dónde apunta lo aprendido.', en: 'Heaven: where learning points to.', pt: 'Céu: para onde aponta o aprendizado.' }
+  },
+  rojo: {
+    key: 'rojo',
+    color: 'oklch(0.56 0.17 28)',
+    badgeColor: 'oklch(0.56 0.17 28)',
+    line: 'oklch(0.56 0.17 28)',
+    gup: '2º gup',
+    beltName: { es: 'Cinturón rojo', en: 'Red belt', pt: 'Faixa vermelha' },
+    philosophicalTitle: { es: 'Control & Temple', en: 'Control & Tempering', pt: 'Controle & Têmpera' },
+    symbolism: { es: 'Cautela y control: saber cuándo frenar.', en: 'Caution and control: knowing when to hold back.', pt: 'Cautela e controle: saber quando frear.' }
+  },
+  negro: {
+    key: 'negro',
+    color: '#1c1a17',
+    badgeColor: '#1c1a17',
+    line: '#1c1a17',
+    gup: '1º dan',
+    beltName: { es: 'Cinturón negro', en: 'Black belt', pt: 'Faixa preta' },
+    philosophicalTitle: { es: 'Maestría & Producción', en: 'Mastery & Production', pt: 'Mestria & Produção' },
+    symbolism: { es: 'Madurez: la calma de quien ya no necesita demostrar.', en: 'Maturity: the calm of no longer needing to prove.', pt: 'Maturidade: a calma de quem não precisa provar.' }
+  }
 };
 
 export interface MartialPosition {
@@ -72,18 +127,11 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Desarrollé habilidades de negociación directa en la calle, empatía inmediata con el cliente, capacidad de persuasión y un entendimiento profundo de la cadena comercial sin timidez operativa.',
         positions: [
           {
-            dates: 'Mar 2015 — Sep 2015',
-            role: 'Vendedor Viajante de Servicios de Salud',
-            org: 'AS MED S.A.',
-            description: 'Venta puerta a puerta de planes y servicios de salud, con negociación directa cara a cara.',
-            transferableCompetency: 'Negociación directa, empatía con el cliente y comunicación cara a cara.'
-          },
-          {
-            dates: 'May 2013 — Ene 2014',
-            role: 'Vendedor Viajante de Planes de Ahorro',
-            org: 'Providus S.A.',
-            description: 'Venta directa puerta a puerta de planes de capitalización y ahorro con seguimiento comercial de cartera.',
-            transferableCompetency: 'Persuasión ética, constancia diaria y resiliencia comercial.'
+            dates: 'Ene 2012 — Ene 2013',
+            role: 'Vendedor y Atención al Público',
+            org: 'Grido Helados',
+            description: 'Mi primer trabajo formal: atención en local de alto tránsito, arqueo de caja y alta rotación de clientes.',
+            transferableCompetency: 'Responsabilidad de caja, velocidad de despacho y empatía.'
           },
           {
             dates: 'Feb 2013 — Abr 2013',
@@ -93,11 +141,18 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Coordinación operativa y templanza en momentos de pico de atención.'
           },
           {
-            dates: 'Ene 2012 — Ene 2013',
-            role: 'Vendedor y Atención al Público',
-            org: 'Grido Helados',
-            description: 'Mi primer trabajo formal: atención en local de alto tránsito, arqueo de caja y alta rotación de clientes.',
-            transferableCompetency: 'Responsabilidad de caja, velocidad de despacho y empatía.'
+            dates: 'May 2013 — Ene 2014',
+            role: 'Vendedor Viajante de Planes de Ahorro',
+            org: 'Providus S.A.',
+            description: 'Venta directa puerta a puerta de planes de capitalización y ahorro con seguimiento comercial de cartera.',
+            transferableCompetency: 'Persuasión ética, constancia diaria y resiliencia comercial.'
+          },
+          {
+            dates: 'Mar 2015 — Sep 2015',
+            role: 'Vendedor Viajante de Servicios de Salud',
+            org: 'AS MED S.A.',
+            description: 'Venta puerta a puerta de planes y servicios de salud, con negociación directa cara a cara.',
+            transferableCompetency: 'Negociación directa, empatía con el cliente y comunicación cara a cara.'
           }
         ]
       },
@@ -123,18 +178,18 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Frente a la reestructuración estatal, emprendí de forma autónoma en el rubro audiovisual corporativo, y luego reingresé a ANSES por concurso de mérito a planta permanente, dando soporte técnico a racks de servidores.',
         positions: [
           {
-            dates: 'Dic 2021 — Mar 2024',
-            role: 'Administrativo Integral y Gestión de Datos (planta permanente)',
-            org: 'ANSES',
-            description: 'Reconvocado tras la etapa freelance, rendí y aprobé concursos de mérito hasta efectivizarme en planta permanente. Mesa de ayuda regional, soporte a racks de servidores del Estado Nacional y desarrollo de sistema interno de métricas.',
-            transferableCompetency: 'Tolerancia a la alta demanda masiva, infraestructura de red/servidores y rigor normativo.'
-          },
-          {
             dates: 'Mar 2019 — Ene 2020',
             role: 'Fotógrafo y Filmmaker Freelance',
             org: 'Emprendimiento propio',
             description: 'Producción audiovisual y cobertura corporativa para clientes de primera línea (Santander, Federada Salud, ExpoAgro). Profundización autodidacta intensiva en programación moderna durante la pandemia.',
             transferableCompetency: 'Autogestión, resiliencia frente a la incertidumbre y reinvención técnica autodidacta.'
+          },
+          {
+            dates: 'Dic 2021 — Mar 2024',
+            role: 'Administrativo Integral y Gestión de Datos (planta permanente)',
+            org: 'ANSES',
+            description: 'Reconvocado tras la etapa freelance, rendí y aprobé concursos de mérito hasta efectivizarme en planta permanente. Mesa de ayuda regional, soporte a racks de servidores del Estado Nacional y desarrollo de sistema interno de métricas.',
+            transferableCompetency: 'Tolerancia a la alta demanda masiva, infraestructura de red/servidores y rigor normativo.'
           }
         ]
       },
@@ -145,11 +200,11 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Vivir en primera persona la ineficiencia de los sistemas arcaicos de salud y comercio me confirmó que mi verdadero aporte estaba en la automatización con software moderno e integraciones.',
         positions: [
           {
-            dates: 'Jun 2025 — Oct 2025',
-            role: 'Administrativo Contable y Logística',
-            org: 'Repuestos JL SRL',
-            description: 'Despacho de mercadería, stock, facturación y cobranzas. Desarrollé en Python un bot lector de extractos bancarios en PDF que detecta alícuotas de IVA y totaliza liquidaciones en segundos en lugar de horas manuales.',
-            transferableCompetency: 'Resolución de cuellos de botella administrativos con código en Python e iniciativa de mejora continua.'
+            dates: 'May 2024 — Ene 2025',
+            role: 'Administrativo, Gestión en Salud',
+            org: 'Sanatorio Delta',
+            description: 'Admisión general, turnos, admisión de oncología, recepción de laboratorios y caja con el sistema Algoritmo y nomenclador nacional de salud.',
+            transferableCompetency: 'Auditoría médica, tolerancia a la alta demanda y visión de optimización de procesos.'
           },
           {
             dates: 'Ene 2025 — Abr 2025',
@@ -159,11 +214,11 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Auditoría administrativa en salud, atención al detalle y manejo de sistemas médicos.'
           },
           {
-            dates: 'May 2024 — Ene 2025',
-            role: 'Administrativo, Gestión en Salud',
-            org: 'Sanatorio Delta',
-            description: 'Admisión general, turnos, admisión de oncología, recepción de laboratorios y caja con el sistema Algoritmo y nomenclador nacional de salud.',
-            transferableCompetency: 'Auditoría médica, tolerancia a la alta demanda y visión de optimización de procesos.'
+            dates: 'Jun 2025 — Oct 2025',
+            role: 'Administrativo Contable y Logística',
+            org: 'Repuestos JL SRL',
+            description: 'Despacho de mercadería, stock, facturación y cobranzas. Desarrollé en Python un bot lector de extractos bancarios en PDF que detecta alícuotas de IVA y totaliza liquidaciones en segundos en lugar de horas manuales.',
+            transferableCompetency: 'Resolución de cuellos de botella administrativos con código en Python e iniciativa de mejora continua.'
           }
         ]
       },
@@ -212,18 +267,11 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Built direct street-level negotiation skills, immediate client empathy, persuasion, and a deep understanding of the commercial chain without operational hesitation.',
         positions: [
           {
-            dates: 'Mar 2015 — Sep 2015',
-            role: 'Field Sales Representative, Healthcare Services',
-            org: 'AS MED S.A.',
-            description: 'Door-to-door sales of healthcare plans, handling face-to-face commercial closing.',
-            transferableCompetency: 'Direct negotiation, client empathy, and resilient communication.'
-          },
-          {
-            dates: 'May 2013 — Jan 2014',
-            role: 'Field Sales Representative, Savings Plans',
-            org: 'Providus S.A.',
-            description: 'Direct sales of capitalization and savings plans with active pipeline follow-up.',
-            transferableCompetency: 'Ethical persuasion, daily discipline, and sales resilience.'
+            dates: 'Jan 2012 — Jan 2013',
+            role: 'Customer Service & Cashier',
+            org: 'Grido Helados',
+            description: 'My first formal job: service at a high-traffic shop, cash register reconciliation, and high customer turnover.',
+            transferableCompetency: 'Cash register accountability, order dispatch speed, and hospitality.'
           },
           {
             dates: 'Feb 2013 — Apr 2013',
@@ -233,11 +281,18 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Operational coordination and composure during peak service pressure.'
           },
           {
-            dates: 'Jan 2012 — Jan 2013',
-            role: 'Customer Service & Cashier',
-            org: 'Grido Helados',
-            description: 'My first formal job: service at a high-traffic shop, cash register reconciliation, and high customer turnover.',
-            transferableCompetency: 'Cash register accountability, order dispatch speed, and hospitality.'
+            dates: 'May 2013 — Jan 2014',
+            role: 'Field Sales Representative, Savings Plans',
+            org: 'Providus S.A.',
+            description: 'Direct sales of capitalization and savings plans with active pipeline follow-up.',
+            transferableCompetency: 'Ethical persuasion, daily discipline, and sales resilience.'
+          },
+          {
+            dates: 'Mar 2015 — Sep 2015',
+            role: 'Field Sales Representative, Healthcare Services',
+            org: 'AS MED S.A.',
+            description: 'Door-to-door sales of healthcare plans, handling face-to-face commercial closing.',
+            transferableCompetency: 'Direct negotiation, client empathy, and resilient communication.'
           }
         ]
       },
@@ -263,18 +318,18 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Faced with state restructuring, I went independent in corporate audiovisual work, then rejoined ANSES through a merit competition into a permanent position, providing technical support for server racks.',
         positions: [
           {
-            dates: 'Dec 2021 — Mar 2024',
-            role: 'Full-Cycle Administrator & Data Management (permanent staff)',
-            org: 'ANSES',
-            description: 'Called back after the freelance stage, I passed merit competitions until becoming permanent staff. Regional help desk, support for National State server racks, and development of an internal metrics system.',
-            transferableCompetency: 'Resilience under high-volume pressure, server rack infrastructure management, and compliance rigor.'
-          },
-          {
             dates: 'Mar 2019 — Jan 2020',
             role: 'Freelance Photographer and Filmmaker',
             org: 'Self-employed',
             description: 'Audiovisual production and corporate coverage for top-tier clients (Santander, Federada Salud, ExpoAgro). Intensive self-taught study of modern programming during the pandemic.',
             transferableCompetency: 'Autonomous business management, career resilience, and self-directed technical education.'
+          },
+          {
+            dates: 'Dec 2021 — Mar 2024',
+            role: 'Full-Cycle Administrator & Data Management (permanent staff)',
+            org: 'ANSES',
+            description: 'Called back after the freelance stage, I passed merit competitions until becoming permanent staff. Regional help desk, support for National State server racks, and development of an internal metrics system.',
+            transferableCompetency: 'Resilience under high-volume pressure, server rack infrastructure management, and compliance rigor.'
           }
         ]
       },
@@ -285,11 +340,11 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Living the inefficiency of archaic healthcare and commerce systems first-hand confirmed that my real contribution lay in automation with modern software and integrations.',
         positions: [
           {
-            dates: 'Jun 2025 — Oct 2025',
-            role: 'Accounting and Logistics Administrator',
-            org: 'Repuestos JL SRL',
-            description: 'Merchandise dispatch, inventory, invoicing, and collections. Built in Python a bot that reads bank statement PDFs, detects VAT rates, and totals settlements in seconds instead of manual hours.',
-            transferableCompetency: 'Automating administrative bottlenecks with Python code and proactive process optimization.'
+            dates: 'May 2024 — Jan 2025',
+            role: 'Healthcare Administrator',
+            org: 'Sanatorio Delta',
+            description: 'General admissions, scheduling, oncology admissions, laboratory reception, and cashier with the Algoritmo system and the national health fee schedule.',
+            transferableCompetency: 'Medical auditing, operational tolerance under heavy patient volume, and systems optimization.'
           },
           {
             dates: 'Jan 2025 — Apr 2025',
@@ -299,11 +354,11 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Healthcare administrative auditing, regulatory precision, and patient management workflows.'
           },
           {
-            dates: 'May 2024 — Jan 2025',
-            role: 'Healthcare Administrator',
-            org: 'Sanatorio Delta',
-            description: 'General admissions, scheduling, oncology admissions, laboratory reception, and cashier with the Algoritmo system and the national health fee schedule.',
-            transferableCompetency: 'Medical auditing, operational tolerance under heavy patient volume, and systems optimization.'
+            dates: 'Jun 2025 — Oct 2025',
+            role: 'Accounting and Logistics Administrator',
+            org: 'Repuestos JL SRL',
+            description: 'Merchandise dispatch, inventory, invoicing, and collections. Built in Python a bot that reads bank statement PDFs, detects VAT rates, and totals settlements in seconds instead of manual hours.',
+            transferableCompetency: 'Automating administrative bottlenecks with Python code and proactive process optimization.'
           }
         ]
       },
@@ -352,18 +407,11 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Desenvolvi habilidades de negociação direta na rua, empatia imediata com o cliente, capacidade de persuasão e um entendimento profundo da cadeia comercial, sem timidez operacional.',
         positions: [
           {
-            dates: 'Mar 2015 — Set 2015',
-            role: 'Representante Comercial, Serviços de Saúde',
-            org: 'AS MED S.A.',
-            description: 'Vendas presenciais porta a porta de planos de saúde e fechamento comercial direto.',
-            transferableCompetency: 'Negociação direta, empatia com o cliente e comunicação interpessoal.'
-          },
-          {
-            dates: 'Mai 2013 — Jan 2014',
-            role: 'Representante Comercial, Planos de Capitalização',
-            org: 'Providus S.A.',
-            description: 'Venda direta porta a porta de planos de capitalização e poupança, com acompanhamento comercial de carteira.',
-            transferableCompetency: 'Persuasão ética, disciplina diária e resiliência comercial.'
+            dates: 'Jan 2012 — Jan 2013',
+            role: 'Atendente e Operador de Caixa',
+            org: 'Grido Helados',
+            description: 'Meu primeiro emprego formal: atendimento em loja de alto fluxo, fechamento de caixa e alta rotação de clientes.',
+            transferableCompetency: 'Responsabilidade financeira, agilidade de atendimento e empatia.'
           },
           {
             dates: 'Fev 2013 — Abr 2013',
@@ -373,11 +421,18 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Coordenação operacional e equilíbrio em momentos de pico.'
           },
           {
-            dates: 'Jan 2012 — Jan 2013',
-            role: 'Atendente e Operador de Caixa',
-            org: 'Grido Helados',
-            description: 'Meu primeiro emprego formal: atendimento em loja de alto fluxo, fechamento de caixa e alta rotação de clientes.',
-            transferableCompetency: 'Responsabilidade financeira, agilidade de atendimento e empatia.'
+            dates: 'Mai 2013 — Jan 2014',
+            role: 'Representante Comercial, Planos de Capitalização',
+            org: 'Providus S.A.',
+            description: 'Venda direta porta a porta de planos de capitalização e poupança, com acompanhamento comercial de carteira.',
+            transferableCompetency: 'Persuasão ética, disciplina diária e resiliência comercial.'
+          },
+          {
+            dates: 'Mar 2015 — Set 2015',
+            role: 'Representante Comercial, Serviços de Saúde',
+            org: 'AS MED S.A.',
+            description: 'Vendas presenciais porta a porta de planos de saúde e fechamento comercial direto.',
+            transferableCompetency: 'Negociação direta, empatia com o cliente e comunicação interpessoal.'
           }
         ]
       },
@@ -403,18 +458,18 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Diante da reestruturação estatal, empreendi de forma autônoma na área audiovisual corporativa e depois reingressei no ANSES por concurso de mérito para o quadro permanente, dando suporte técnico a racks de servidores.',
         positions: [
           {
-            dates: 'Dez 2021 — Mar 2024',
-            role: 'Administrativo e Gestão de Dados (efetivo)',
-            org: 'ANSES',
-            description: 'Reconvocado após a etapa freelance, prestei e fui aprovado em concursos de mérito até ser efetivado no quadro permanente. Central de ajuda regional, suporte a racks de servidores do Estado Nacional e desenvolvimento de sistema interno de métricas.',
-            transferableCompetency: 'Resiliência sob alta demanda, suporte a servidores/redes e rigor regulatório.'
-          },
-          {
             dates: 'Mar 2019 — Jan 2020',
             role: 'Fotógrafo e Produtor Audiovisual Freelance',
             org: 'Empreendimento próprio',
             description: 'Produção audiovisual e cobertura corporativa para clientes de primeira linha (Santander, Federada Salud, ExpoAgro). Aprofundamento autodidata intensivo em programação moderna durante a pandemia.',
             transferableCompetency: 'Autogestão, resiliência profissional e aprendizado técnico autodidata.'
+          },
+          {
+            dates: 'Dez 2021 — Mar 2024',
+            role: 'Administrativo e Gestão de Dados (efetivo)',
+            org: 'ANSES',
+            description: 'Reconvocado após a etapa freelance, prestei e fui aprovado em concursos de mérito até ser efetivado no quadro permanente. Central de ajuda regional, suporte a racks de servidores do Estado Nacional e desenvolvimento de sistema interno de métricas.',
+            transferableCompetency: 'Resiliência sob alta demanda, suporte a servidores/redes e rigor regulatório.'
           }
         ]
       },
@@ -425,11 +480,11 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Viver na pele a ineficiência dos sistemas arcaicos de saúde e comércio confirmou que minha verdadeira contribuição estava na automação com software moderno e integrações.',
         positions: [
           {
-            dates: 'Jun 2025 — Out 2025',
-            role: 'Administrativo Contábil e Logística',
-            org: 'Repuestos JL SRL',
-            description: 'Expedição de mercadorias, estoque, faturamento e cobranças. Desenvolvi em Python um bot leitor de extratos bancários em PDF que detecta alíquotas de IVA e totaliza liquidações em segundos, em vez de horas manuais.',
-            transferableCompetency: 'Eliminação de gargalos burocráticos com Python e iniciativa de melhoria contínua.'
+            dates: 'Mai 2024 — Jan 2025',
+            role: 'Administrativo Hospitalar',
+            org: 'Sanatorio Delta',
+            description: 'Admissão geral, agendamentos, admissão de oncologia, recepção de laboratórios e caixa com o sistema Algoritmo e nomenclador nacional de saúde.',
+            transferableCompetency: 'Auditoria médica, tolerância à alta rotina hospitalar e otimização de rotinas.'
           },
           {
             dates: 'Jan 2025 — Abr 2025',
@@ -439,11 +494,11 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Auditoria administrativa médica, precisão regulatória e gestão de sistemas hospitalares.'
           },
           {
-            dates: 'Mai 2024 — Jan 2025',
-            role: 'Administrativo Hospitalar',
-            org: 'Sanatorio Delta',
-            description: 'Admissão geral, agendamentos, admissão de oncologia, recepção de laboratórios e caixa com o sistema Algoritmo e nomenclador nacional de saúde.',
-            transferableCompetency: 'Auditoria médica, tolerância à alta rotina hospitalar e otimização de rotinas.'
+            dates: 'Jun 2025 — Out 2025',
+            role: 'Administrativo Contábil e Logística',
+            org: 'Repuestos JL SRL',
+            description: 'Expedição de mercadorias, estoque, faturamento e cobranças. Desenvolvi em Python um bot leitor de extratos bancários em PDF que detecta alíquotas de IVA e totaliza liquidações em segundos, em vez de horas manuais.',
+            transferableCompetency: 'Eliminação de gargalos burocráticos com Python e iniciativa de melhoria contínua.'
           }
         ]
       },

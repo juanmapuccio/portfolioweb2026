@@ -224,14 +224,16 @@ const auto = automationsContent[lang];
     flex: none;
     width: min(980px, 68vw);
     height: min(76vh, 720px);
-    background: #f2eee6;
-    color: #1c1a17;
+    background: #25221e;
+    color: #f2eee6;
+    border: 1px solid rgba(242, 238, 230, 0.12);
+    box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
     padding: clamp(20px, 2.4vw, 36px);
     box-sizing: border-box;
     display: grid;
     grid-template-rows: auto 1fr auto;
     gap: 18px;
-    border-radius: 2px;
+    border-radius: 3px;
   }
 
   @media (max-width: 899px) {
@@ -252,14 +254,14 @@ const auto = automationsContent[lang];
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #6a645a;
+    color: #a8a29e;
   }
 
   .project-card-status {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #1c1a17;
+    color: #f2eee6;
   }
 
   .status-pulse-dot {
@@ -283,21 +285,21 @@ const auto = automationsContent[lang];
     font-size: clamp(42px, 5.2vw, 92px);
     line-height: 0.95;
     letter-spacing: -0.03em;
-    color: #1c1a17;
+    color: #f2eee6;
   }
 
   .project-card-role-meta {
     font-family: var(--font-mono, monospace);
     font-size: 12px;
     font-weight: 600;
-    color: #4a463f;
+    color: #fbbf24;
   }
 
   .project-card-description {
     margin: 0;
     font-size: 15px;
     line-height: 1.55;
-    color: #4a463f;
+    color: #c9c3b7;
     max-width: 640px;
   }
 
@@ -326,7 +328,7 @@ const auto = automationsContent[lang];
   }
 
   .metric-solution {
-    border-top: 3px solid #0369a1;
+    border-top: 3px solid #38bdf8;
   }
 
   .metric-impact {
@@ -337,13 +339,13 @@ const auto = automationsContent[lang];
     font-family: var(--font-mono, monospace);
     font-size: 11px;
     font-weight: 600;
-    color: #6a645a;
+    color: #a8a29e;
   }
 
   .metric-col-val {
     font-size: 13.5px;
     line-height: 1.45;
-    color: #1c1a17;
+    color: #e5e0d8;
   }
 
   .project-card-action-row {
@@ -352,7 +354,7 @@ const auto = automationsContent[lang];
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
-    border-top: 1px solid rgba(28, 26, 23, 0.12);
+    border-top: 1px solid rgba(242, 238, 230, 0.12);
     padding-top: 14px;
   }
 
@@ -365,29 +367,31 @@ const auto = automationsContent[lang];
   .tech-tag-mono {
     font-family: var(--font-mono, monospace);
     font-size: 11px;
-    color: #4a463f;
-    background: rgba(28, 26, 23, 0.05);
+    color: #c9c3b7;
+    background: rgba(242, 238, 230, 0.08);
+    border: 1px solid rgba(242, 238, 230, 0.1);
     padding: 2px 7px;
     border-radius: 2px;
   }
 
   .project-live-btn {
-    background: #1c1a17;
-    color: #f2eee6;
-    padding: 10px 16px;
+    background: #f2eee6;
+    color: #1c1a17;
+    padding: 10px 18px;
     text-decoration: none;
     font-family: var(--font-mono, monospace);
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    border-radius: 2px;
+    transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
   }
 
   .project-live-btn:hover {
-    opacity: 0.9;
+    background: #fbbf24;
+    color: #1c1a17;
     transform: translateY(-1px);
-    color: #f2eee6;
   }
 
   /* Scrolly Progress Bar */
