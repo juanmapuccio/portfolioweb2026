@@ -129,16 +129,18 @@ const GLYPHS: Record<string, string> = {
     background: #1c1a17;
     color: #f2eee6;
     border-top: 1px solid rgba(242, 238, 230, 0.18);
-    position: relative;
+    /* NO overflow:hidden here — it would break position:sticky */
     box-sizing: border-box;
   }
 
   .skills-philo-split-layout {
     display: grid;
+    /* align-items: start is CRITICAL — without it both cells stretch to equal height
+       and the sticky column has nothing to scroll against */
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
     max-width: 1600px;
     margin: 0 auto;
-    position: relative;
   }
 
   @media (max-width: 991px) {
@@ -204,7 +206,7 @@ const GLYPHS: Record<string, string> = {
   .skills-scrolling-column {
     display: flex;
     flex-direction: column;
-    padding: clamp(60px, 8vh, 100px) clamp(20px, 3.5vw, 56px);
+    padding: clamp(80px, 10vh, 120px) clamp(20px, 3.5vw, 56px) clamp(80px, 10vh, 120px);
     border-left: 1px solid rgba(242, 238, 230, 0.18);
     box-sizing: border-box;
     min-width: 0;
