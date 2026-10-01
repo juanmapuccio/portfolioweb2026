@@ -284,13 +284,21 @@ const CHAPTER_CONFIG = [
     }));
     const zones = Array.from(document.querySelectorAll<HTMLElement>('[data-zone]'));
 
-    let lastCh = -1;
+    let lastBeltKey = '';
     let queued = false;
     let measureWidths = true;
 
-    // Maps the active zone to a belt key. Kept separate so handoff rules can be extended.
-    function resolveBeltKey(zone: HTMLElement, _rect: DOMRect, _H: number, _W: number): string {
+    // Maps the active zone to a belt key. The black curtain stays "rojo" until its
+    // expanding circle (see .black-expanding-circle: 10px * 400 at full scale) covers
+    // the viewport corners, so the header never turns dark over a cream background.
+    const BLACK_CIRCLE_MAX_RADIUS = 2000;
+    function resolveBeltKey(zone: HTMLElement, rect: DOMRect, H: number, W: number): string {
       const ch = parseInt(zone.dataset.ch || '0', 10);
+      if (zone.classList.contains('black-curtain-scene') && !isReduced) {
+        const p = Math.min(1, Math.max(0, -rect.top / Math.max(1, rect.height - H)));
+        const radius = Math.min(1, Math.max(0, (p - 0.14) * 4)) * BLACK_CIRCLE_MAX_RADIUS;
+        if (radius < Math.hypot(W / 2, H / 2)) return CHAPTER_KEYS[5];
+      }
       return CHAPTER_KEYS[ch] || 'blanco';
     }
 
@@ -338,12 +346,11 @@ const CHAPTER_CONFIG = [
       const activeIdx = zoneRects.findIndex((r) => r.top <= mid && r.bottom > mid);
       if (activeIdx !== -1) {
         const zone = zones[activeIdx];
-        const ch = parseInt(zone.dataset.ch || '0', 10);
         const beltKey = resolveBeltKey(zone, zoneRects[activeIdx], H, W);
         const color = CHAPTER_COLORS[beltKey] || '#ffffff';
         document.documentElement.dataset.activeBeltColor = color;
-        if (ch !== lastCh) {
-          lastCh = ch;
+        if (beltKey !== lastBeltKey) {
+          lastBeltKey = beltKey;
           window.dispatchEvent(
             new CustomEvent('belt:change', {
               detail: { beltKey, color },
