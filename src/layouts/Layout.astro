@@ -1,4 +1,5 @@
 ---
+import QRCode from 'qrcode';
 import '../styles/global.css';
 import '@fontsource/source-serif-4/300.css';
 import '@fontsource/source-serif-4/400.css';
@@ -31,6 +32,18 @@ const siteUrl = (Astro.site ?? new URL('https://juanpuccio.vercel.app')).toStrin
 const localePaths: Record<Lang, string> = { es: '/', en: '/en/', pt: '/pt/' };
 const ogLocales: Record<Lang, string> = { es: 'es_AR', en: 'en_US', pt: 'pt_BR' };
 const canonicalUrl = siteUrl + localePaths[lang];
+const qrSvg = await QRCode.toString(canonicalUrl, {
+  type: 'svg',
+  margin: 2,
+  errorCorrectionLevel: 'M',
+  color: { dark: '#1c1a17', light: '#ffffff' },
+});
+const qrDownloadHref = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(qrSvg);
+const qrText = {
+  es: { btn: 'Mostrar código QR', title: 'Escaneá para abrir el portfolio', download: 'Descargar QR', close: 'Cerrar' },
+  en: { btn: 'Show QR code', title: 'Scan to open the portfolio', download: 'Download QR', close: 'Close' },
+  pt: { btn: 'Mostrar código QR', title: 'Escaneie para abrir o portfólio', download: 'Baixar QR', close: 'Fechar' },
+}[lang];
 const ogImageUrl = siteUrl + '/og/og-juan-puccio.png';
 const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
 ---
@@ -124,6 +137,15 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
             {lang === 'es' ? 'Contactar' : lang === 'en' ? 'Contact' : 'Contato'}
           </a>
 
+          <!-- Código QR -->
+          <button type="button" class="header-qr-btn" id="qr-open" aria-label={qrText.btn} title={qrText.btn}>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
+              <path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20h1" />
+            </svg>
+            <span class="qr-label">QR</span>
+          </button>
+
           <!-- Descargar CV -->
           <a href={CV_URL} target="_blank" rel="noopener noreferrer" class="header-cv-btn">
             <span class="cv-long">{t('hero.btn.cv')}</span>
@@ -135,9 +157,26 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
       <div class="header-scroll-progress" id="header-scroll-progress"></div>
     </header>
 
+    <dialog class="qr-dialog" id="qr-dialog" aria-labelledby="qr-title">
+      <p class="qr-title" id="qr-title">{qrText.title}</p>
+      <div class="qr-box" set:html={qrSvg} />
+      <p class="qr-url">{canonicalUrl}</p>
+      <div class="qr-actions">
+        <a class="qr-download" href={qrDownloadHref} download="qr-juan-puccio.svg">{qrText.download}</a>
+        <button type="button" class="qr-close" id="qr-close">{qrText.close}</button>
+      </div>
+    </dialog>
+
     <main>
       <slot />
     </main>
+
+    <script>
+      const qrDialog = document.getElementById('qr-dialog') as HTMLDialogElement | null;
+      document.getElementById('qr-open')?.addEventListener('click', () => qrDialog?.showModal());
+      document.getElementById('qr-close')?.addEventListener('click', () => qrDialog?.close());
+      qrDialog?.addEventListener('click', (e) => { if (e.target === qrDialog) qrDialog.close(); });
+    </script>
 
     <script>
       // Keep the current #hash when switching language.
@@ -175,14 +214,30 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
 </html>
 
 <script>
-  // Actualización dinámica de la barra de progreso del header y color de cinturón
+  import Lenis from 'lenis';
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Header progress bar: scaleX on a full-width bar (compositor-friendly).
+  const progressBar = document.getElementById('header-scroll-progress');
+  let progressQueued = false;
+
   function updateHeaderProgress() {
-    const progressBar = document.getElementById('header-scroll-progress');
+    progressQueued = false;
     if (!progressBar) return;
     const doc = document.documentElement;
     const total = Math.max(1, doc.scrollHeight - window.innerHeight);
     const progress = Math.min(1, Math.max(0, window.scrollY / total));
-    progressBar.style.width = `${progress * 100}%`;
+    progressBar.style.transform = `scaleX(${progress.toFixed(4)})`;
+  }
+
+  // Coalesce scroll/resize bursts into at most one update per frame.
+  function scheduleHeaderProgress() {
+    if (progressQueued) return;
+    progressQueued = true;
+    requestAnimationFrame(updateHeaderProgress);
   }
 
   const siteHeader = document.querySelector<HTMLElement>('.site-header');
@@ -192,7 +247,7 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
   const BELT_ORDER = ['blanco', 'amarillo', 'verde', 'azul', 'rojo', 'negro'];
   const BELT_LABELS: Record<string, string> = {
     blanco: '10º GUP · CIMIENTOS',
-    amarillo: '9º — 8º GUP · LA CALLE',
+    amarillo: '9º — 8º GUP · TRINCHERA COMERCIAL',
     verde: '7º — 6º GUP · EL ESTADO',
     azul: '5º — 4º GUP · RECONVERSIÓN',
     rojo: '3º — 1º GUP · LA FRICCIÓN',
@@ -246,29 +301,28 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     }
   }
 
-  import Lenis from 'lenis';
-
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // Lenis is driven by the GSAP ticker so smooth scroll and ScrollTrigger share one rAF.
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
+      autoRaf: false,
+      anchors: { offset: -80 },
+      // Let nested scrollers (e.g. mobile project cards) scroll natively.
+      allowNestedScroll: true,
     });
 
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
+    (window as unknown as { __lenis?: Lenis }).__lenis = lenis;
 
-    lenis.on('scroll', () => {
-      updateHeaderProgress();
-    });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
   }
 
   window.addEventListener('belt:change', syncHeaderBeltColor);
-  window.addEventListener('scroll', updateHeaderProgress, { passive: true });
-  window.addEventListener('resize', updateHeaderProgress);
+  window.addEventListener('scroll', scheduleHeaderProgress, { passive: true });
+  window.addEventListener('resize', scheduleHeaderProgress);
   updateHeaderProgress();
 </script>
 
@@ -358,6 +412,84 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     text-decoration: none;
     transition: color 0.4s;
   }
+
+  .header-qr-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    background: none;
+    border: 1px solid rgba(28, 26, 23, 0.25);
+    color: #1c1a17;
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: color 0.3s, border-color 0.3s;
+  }
+
+  .header-qr-btn:hover {
+    color: #0369a1;
+    border-color: #0369a1;
+  }
+
+  @media (max-width: 640px) {
+    .qr-label { display: none; }
+  }
+
+  .qr-dialog {
+    border: 0;
+    padding: 28px;
+    background: #fff;
+    color: #1c1a17;
+    text-align: center;
+    max-width: min(92vw, 340px);
+  }
+
+  .qr-dialog::backdrop {
+    background: rgba(28, 26, 23, 0.72);
+  }
+
+  .qr-title {
+    margin: 0 0 14px;
+    font-family: var(--font-serif, serif);
+    font-size: 18px;
+  }
+
+  .qr-box :global(svg) {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .qr-url {
+    margin: 10px 0 16px;
+    font-family: var(--font-mono, monospace);
+    font-size: 10px;
+    color: #5c564d;
+    overflow-wrap: anywhere;
+  }
+
+  .qr-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .qr-download, .qr-close {
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .qr-download { background: #1c1a17; color: #f2eee6; border: 1px solid #1c1a17; }
+  .qr-close { background: none; color: #1c1a17; border: 1px solid rgba(28, 26, 23, 0.35); }
 
   .header-contact-link:hover {
     color: #0369a1;
@@ -540,7 +672,10 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     left: 0;
     bottom: -1px;
     height: 3px;
-    width: 0%;
+    width: 100%;
+    transform-origin: left center;
+    transform: scaleX(0);
+    will-change: transform;
     background: #bdb4a4;
     transition: background 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
   }

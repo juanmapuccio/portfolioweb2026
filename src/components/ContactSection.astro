@@ -63,6 +63,11 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
               {cvLabel}
             </a>
           </div>
+
+          <p class="contact-location">
+            <span class="contact-location-dot" aria-hidden="true"></span>
+            {location} · Remoto / Híbrido / On-site
+          </p>
         </div>
 
         <!-- 3D Black Belt Dedicated Landing Target -->
@@ -81,16 +86,18 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
             rel={channel.id === 'email' ? undefined : 'noopener noreferrer'}
             class="contact-channel-card"
           >
-            <span class="ch-meta-label">{channel.name}</span>
-            <span class="ch-value-link">{channel.label} ↗</span>
+            <span class="ch-head">
+              <span class="ch-meta-label">{channel.name}</span>
+              <span class="ch-arrow" aria-hidden="true">↗</span>
+            </span>
+            <span class="ch-value-link">{channel.label}</span>
           </a>
         ))}
       </nav>
 
       <!-- Bottom Bar -->
       <div class="contact-bottom-legal">
-        <span>{location} · Remoto / Híbrido / On-site</span>
-        <span>Kyong-ye · © 2026 Juan Manuel Puccio</span>
+        <span>© 2026 Juan Manuel Puccio</span>
       </div>
     </div>
   </div>
@@ -110,6 +117,7 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
     position: sticky;
     top: 0;
     height: 100vh;
+    height: 100svh;
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -152,7 +160,6 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
     height: 100%;
     opacity: clamp(0, calc((var(--p, 0) - 0.15) * 3), 1);
     transform: translateY(calc(30px * (1 - clamp(0, var(--p, 0), 1))));
-    transition: opacity 0.05s linear, transform 0.05s linear;
   }
 
   .contact-top-meta {
@@ -307,18 +314,77 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
   }
 
   .contact-channel-card {
+    position: relative;
     background: #1c1a17;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    padding: 16px 20px;
+    gap: 14px;
+    padding: 20px 22px 22px;
     text-decoration: none;
-    transition: background-color 0.2s ease, transform 0.2s ease;
+    transition: background-color 0.25s ease;
   }
 
-  .contact-channel-card:hover {
+  .contact-channel-card::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: #fbbf24;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+
+  .contact-channel-card:hover,
+  .contact-channel-card:focus-visible {
     background: #25221e;
-    transform: translateY(-2px);
+    outline: none;
+  }
+
+  .contact-channel-card:hover::after,
+  .contact-channel-card:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  .ch-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ch-arrow {
+    color: #8c857b;
+    font-size: 14px;
+    transition: color 0.2s ease, transform 0.2s ease;
+  }
+
+  .contact-channel-card:hover .ch-arrow {
+    color: #fbbf24;
+    transform: translate(2px, -2px);
+  }
+
+  .contact-location {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 6px 0 0;
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #c9c3b7;
+  }
+
+  .contact-location-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.15);
+    flex: none;
   }
 
   .ch-meta-label {
@@ -333,10 +399,10 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
   .ch-value-link {
     font-family: var(--font-serif, 'Source Serif 4', serif);
     font-weight: 400;
-    font-size: clamp(16px, 1.3vw, 20px);
-    line-height: 1.2;
+    font-size: clamp(14px, 1.05vw, 17px);
+    line-height: 1.25;
     color: #f2eee6;
-    overflow-wrap: anywhere;
+    white-space: nowrap;
   }
 
   /* Bottom Legal Bar */
@@ -351,6 +417,7 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
     text-transform: uppercase;
     color: #8c857b;
     padding-top: 16px;
+    justify-content: flex-end;
   }
 
   @media (max-width: 767px) {
@@ -387,9 +454,13 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
       grid-template-columns: 1fr;
     }
 
+    .ch-value-link {
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
     .contact-bottom-legal {
-      flex-direction: column;
-      gap: 8px;
+      justify-content: center;
       font-size: 10px;
     }
   }

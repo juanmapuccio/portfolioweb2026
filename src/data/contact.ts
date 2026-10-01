@@ -29,7 +29,7 @@ export const contactData: Record<Lang, ContactData> = {
     channels: [
       {
         id: 'whatsapp',
-        name: 'WhatsApp Directo',
+        name: 'WhatsApp',
         label: '+54 9 341 319-2179',
         value: '+5493413192179',
         url: 'https://wa.me/5493413192179',
@@ -37,7 +37,7 @@ export const contactData: Record<Lang, ContactData> = {
       },
       {
         id: 'email',
-        name: 'Email Directo',
+        name: 'Email',
         label: 'juan.pucciom@gmail.com',
         value: 'juan.pucciom@gmail.com',
         url: 'mailto:juan.pucciom@gmail.com'
@@ -58,7 +58,7 @@ export const contactData: Record<Lang, ContactData> = {
       },
       {
         id: 'nodosur',
-        name: 'NodoSur (Prueba de Producción)',
+        name: 'NodoSur',
         label: 'nodosur.dev',
         value: 'nodosur.dev',
         url: 'https://nodosur.dev/'
@@ -73,7 +73,7 @@ export const contactData: Record<Lang, ContactData> = {
     channels: [
       {
         id: 'whatsapp',
-        name: 'WhatsApp Direct',
+        name: 'WhatsApp',
         label: '+54 9 341 319-2179',
         value: '+5493413192179',
         url: 'https://wa.me/5493413192179',
@@ -81,7 +81,7 @@ export const contactData: Record<Lang, ContactData> = {
       },
       {
         id: 'email',
-        name: 'Direct Email',
+        name: 'Email',
         label: 'juan.pucciom@gmail.com',
         value: 'juan.pucciom@gmail.com',
         url: 'mailto:juan.pucciom@gmail.com'
@@ -102,7 +102,7 @@ export const contactData: Record<Lang, ContactData> = {
       },
       {
         id: 'nodosur',
-        name: 'NodoSur (Production Evidence)',
+        name: 'NodoSur',
         label: 'nodosur.dev',
         value: 'nodosur.dev',
         url: 'https://nodosur.dev/'
@@ -117,7 +117,7 @@ export const contactData: Record<Lang, ContactData> = {
     channels: [
       {
         id: 'whatsapp',
-        name: 'WhatsApp Direto',
+        name: 'WhatsApp',
         label: '+54 9 341 319-2179',
         value: '+5493413192179',
         url: 'https://wa.me/5493413192179',
@@ -125,7 +125,7 @@ export const contactData: Record<Lang, ContactData> = {
       },
       {
         id: 'email',
-        name: 'E-mail Direto',
+        name: 'E-mail',
         label: 'juan.pucciom@gmail.com',
         value: 'juan.pucciom@gmail.com',
         url: 'mailto:juan.pucciom@gmail.com'
@@ -146,7 +146,7 @@ export const contactData: Record<Lang, ContactData> = {
       },
       {
         id: 'nodosur',
-        name: 'NodoSur (Evidência de Produção)',
+        name: 'NodoSur',
         label: 'nodosur.dev',
         value: 'nodosur.dev',
         url: 'https://nodosur.dev/'
