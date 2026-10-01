@@ -1,14 +1,15 @@
 ---
-import QRCode from 'qrcode';
 import Layout from '../layouts/Layout.astro';
 import { CV_URL } from '../data/contact';
 import { useTranslations, type Lang } from '../i18n/ui';
+import { Image } from 'astro:assets';
+import fotoPerfil from '../assets/fotojmPerfil.png';
 import ProjectsSection from './ProjectsSection.astro';
 import ManifestoScrollytelling from './ManifestoScrollytelling.astro';
 import MartialExperienceTimeline from './MartialExperienceTimeline.astro';
 import SkillsPhilosophySection from './SkillsPhilosophySection.astro';
-import EducationSection from './EducationSection.astro';
 import ContactSection from './ContactSection.astro';
+import Belt3D from './Belt3D.astro';
 
 interface Props {
   lang: Lang;
@@ -16,18 +17,6 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = useTranslations(lang);
-
-const localePath = lang === 'es' ? '' : `/${lang}`;
-const siteHost = new URL(Astro.site ?? 'https://juanpuccio.vercel.app').host;
-const qrUrl = `https://${siteHost}${localePath}`;
-const qrDisplay = `${siteHost}${localePath}`;
-const qrSvgRaw = await QRCode.toString(qrUrl, { type: 'svg', margin: 1 });
-// Themed via dedicated QR tokens, never the surface/text tokens: those
-// swap polarity in dark mode and would render an inverted (unscannable
-// on many readers) code. See --qr-bg / --qr-fg in global.css.
-const qrSvg = qrSvgRaw
-  .replace(/fill="#ffffff"/g, 'fill="var(--qr-bg)"')
-  .replace(/stroke="#000000"/g, 'stroke="var(--qr-fg)"');
 ---
 
 <Layout
@@ -35,32 +24,35 @@ const qrSvg = qrSvgRaw
   description={t('meta.description')}
   lang={lang}
 >
-  <section id="top" class="hero-pinned-scene">
+  <Belt3D />
+  <div class="portfolio-shell">
+    <main class="portfolio-main-column">
+  <section id="top" data-zone="hero" data-ch="0" class="hero-pinned-scene">
     <div class="hero-sticky-container">
       <div class="hero-top-status-row">
         <span class="hero-status-pill">
           <span class="status-dot"></span>
           <span>{lang === 'es' ? 'Disponible · full-time' : lang === 'en' ? 'Available · full-time' : 'Disponível · full-time'}</span>
         </span>
-        <span class="hero-location-text">Rosario, Santa Fe, Argentina</span>
+        <span class="hero-location-text">{lang === 'pt' ? 'Rosário' : 'Rosario'}, Santa Fe, Argentina</span>
       </div>
 
-      <h1 class="hero-headline-name">Juan Manuel<br />Puccio</h1>
+      <h1 class="hero-headline-name">Juan Manuel Puccio</h1>
 
       <div class="hero-bottom-grid">
         <div class="hero-narrative-block">
           <span class="hero-role-headline">
-            {lang === 'es' ? 'Desarrollador Full Stack — Disponibilidad full-time' : lang === 'en' ? 'Full Stack Developer — Full-time availability' : 'Desenvolvedor Full Stack — Disponibilidade full-time'}
+            {lang === 'es' ? 'Desarrollador Full Stack · Disponibilidad full-time' : lang === 'en' ? 'Full Stack Developer · Full-time availability' : 'Desenvolvedor Full Stack · Disponibilidade full-time'}
           </span>
           <p class="hero-italic-quote">
-            {lang === 'es' ? 'Construyo sistemas que siguen funcionando sin mí.' : lang === 'en' ? 'I build systems that keep working without me.' : 'Construo sistemas que continuam funcionando sem mim.'}
+            {lang === 'es' ? 'Audito procesos de empresas y los resuelvo con código.' : lang === 'en' ? 'I audit business processes and solve them with code.' : 'Audito processos de empresas e os resolvo com código.'}
           </p>
           <p class="hero-body-claim">
             {lang === 'es' 
               ? 'Diseño, despliego y estabilizo software de negocio en producción, con usuarios reales. Esa capacidad de construir sistemas confiables, que siguen funcionando una vez entregados, es la que quiero poner al servicio de un equipo, con dedicación full-time.'
               : lang === 'en'
-              ? 'I design, deploy, and stabilize production business software with real active users. That capability to build resilient systems that run autonomously after delivery is what I want to bring to an engineering team full-time.'
-              : 'Projeto, implanto e estabilizo software de negócios em produção, com usuários reais. Essa capacidade de construir sistemas confiáveis, que continuam funcionando após a entrega, é o que quero colocar a serviço de uma equipe, com dedicação em tempo integral.'}
+              ? 'I design, deploy, and stabilize production business software with real users. That capability to build reliable systems that keep working once delivered is what I want to bring to a team, full-time.'
+              : 'Projeto, implanto e estabilizo software de negócios em produção, com usuários reais. Essa capacidade de construir sistemas confiáveis, que continuam funcionando após a entrega, é o que quero colocar a serviço de uma equipe, com dedicação full-time.'}
           </p>
           <div class="hero-buttons-row">
             <a href={CV_URL} target="_blank" rel="noopener noreferrer" class="hero-btn-dark">
@@ -72,24 +64,29 @@ const qrSvg = qrSvgRaw
           </div>
         </div>
 
-        <div class="hero-portrait-col">
+        <figure class="hero-portrait-col">
           <div class="portrait-slot">
-            <img
-              src="/fotojmPerfil.PNG"
+            <Image
+              src={fotoPerfil}
               alt="Juan Manuel Puccio"
               class="portrait-img"
+              width={700}
+              height={875}
+              format="webp"
+              quality={85}
               loading="eager"
+              fetchpriority="high"
             />
           </div>
-          <div class="portrait-caption-row">
-            <span>Fig. 01</span>
-            <span>Rosario, 2026</span>
-          </div>
-        </div>
+          <figcaption class="portrait-caption-row">
+            <span class="fig-label">Fig. 01 · {lang === 'pt' ? 'Rosário' : 'Rosario'}, 2026</span>
+            <span class="fig-cue">10º gup → 1º dan · {lang === 'es' ? 'Desplázate' : lang === 'en' ? 'Scroll' : 'Role'} ↓</span>
+          </figcaption>
+        </figure>
       </div>
 
       <div class="hero-belt-track"></div>
-      <div class="hero-scroll-cue">Scroll ↓</div>
+      <div class="hero-scroll-cue">{lang === 'es' ? 'Desplázate' : lang === 'en' ? 'Scroll' : 'Role'} ↓</div>
     </div>
   </section>
 
@@ -105,43 +102,199 @@ const qrSvg = qrSvgRaw
   <!-- Scene 06 & 07: Tech stack, skills & practical philosophy -->
   <SkillsPhilosophySection lang={lang} />
 
-  <!-- Education, Certifications & Continuous Learning -->
-  <EducationSection lang={lang} />
-
   <!-- Scene 08: Contact & call to action -->
   <ContactSection lang={lang} />
-
-  <!-- Accessible native dialog for the QR code -->
-  <dialog id="qr-modal" class="qr-dialog">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>{t('qr.modal.title')}</h3>
-        <button id="close-qr-btn" class="close-btn" aria-label={t('qr.modal.close')}>✕</button>
-      </div>
-      <p class="modal-desc">{t('qr.modal.desc')}</p>
-      <div class="qr-preview">
-        <div class="qr-image" role="img" aria-label={t('qr.modal.title')} set:html={qrSvg} />
-      </div>
-      <div class="modal-actions">
-        <a href={qrUrl} target="_blank" class="direct-link">{qrDisplay}</a>
-      </div>
-    </div>
-  </dialog>
+    </main>
+  </div>
 </Layout>
 
-<script>
-  const openBtn = document.getElementById('open-qr-btn');
-  const closeBtn = document.getElementById('close-qr-btn');
-  const dialog = document.getElementById('qr-modal') as HTMLDialogElement | null;
-
-  openBtn?.addEventListener('click', () => dialog?.showModal());
-  closeBtn?.addEventListener('click', () => dialog?.close());
-  dialog?.addEventListener('click', (e) => {
-    if (e.target === dialog) dialog.close();
-  });
-</script>
-
 <style>
+  .portfolio-shell {
+    width: 100%;
+    margin-inline: auto;
+    display: block;
+  }
+
+  .portfolio-main-column {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .belt-console {
+    position: sticky;
+    top: 76px;
+    box-sizing: border-box;
+    width: min(100%, 680px, 78vh);
+    aspect-ratio: 1;
+    margin-inline: auto;
+    overflow: hidden;
+    background: #f8f6f0;
+    border: 1px solid rgba(28, 26, 23, 0.2);
+  }
+
+  .belt-sticky-monitor {
+    position: absolute;
+    z-index: 2;
+    top: clamp(16px, 2vw, 28px);
+    left: clamp(16px, 2vw, 28px);
+    right: clamp(16px, 2vw, 28px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 76px;
+    gap: 8px 12px;
+    padding: 0 0 10px;
+    background: #f8f6f0;
+  }
+
+  .belt-gup-row,
+  .belt-caption,
+  .belt-stage-link {
+    font-family: var(--font-mono, monospace);
+    color: #4a463f;
+  }
+
+  .belt-gup-row {
+    grid-column: 1;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .belt-display-name {
+    grid-column: 1;
+    margin: 0;
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-size: clamp(21px, 2vw, 30px);
+    font-weight: 300;
+    line-height: 1.05;
+    text-wrap: balance;
+  }
+
+  .belt-strap {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    width: 76px;
+    height: 18px;
+    border: 1px solid rgba(28, 26, 23, 0.22);
+    background-color: #f8f6f0;
+    background-image: repeating-linear-gradient(0deg, transparent 0 6px, rgba(28, 26, 23, 0.08) 6px 7px);
+    transition: background-color 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .belt-dots-row {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 4px;
+  }
+
+  .belt-dot-bar {
+    flex: 1;
+    height: 6px;
+    border: 1px solid rgba(28, 26, 23, 0.25);
+    background: var(--dot-color);
+    opacity: 0.2;
+    transition: opacity 0.4s ease;
+  }
+
+  .belt-caption {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-size: 10px;
+    line-height: 1.5;
+    text-wrap: pretty;
+  }
+
+  .belt-console-model-stage {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  :global(.belt-console-fallback) {
+    position: absolute;
+    z-index: 1;
+    width: min(42%, 220px);
+    height: auto;
+    pointer-events: none;
+    --knot-fill: var(--active-belt-color, #f8f6f0);
+    --knot-stroke: #1c1a17;
+  }
+
+  :global(.belt3d-root:not([hidden]) ~ .belt-console-fallback) {
+    display: none;
+  }
+
+  .belt-stage-navigation {
+    position: absolute;
+    z-index: 2;
+    left: clamp(16px, 2vw, 28px);
+    right: clamp(16px, 2vw, 28px);
+    bottom: clamp(16px, 2vw, 28px);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px clamp(8px, 1.2vw, 16px);
+    padding-top: 8px;
+    background: #f8f6f0;
+  }
+
+  .belt-stage-link {
+    display: grid;
+    grid-template-columns: 12px 1fr;
+    align-items: center;
+    column-gap: 8px;
+    min-height: 38px;
+    border-top: 1px solid var(--border-subtle);
+    color: #4a463f;
+    font-size: 10px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .belt-stage-name {
+    grid-column: 2;
+    color: #6a645a;
+    font-size: 9px;
+    line-height: 1.2;
+  }
+
+  .belt-stage-swatch {
+    grid-row: span 2;
+    width: 12px;
+    height: 5px;
+    border: 1px solid rgba(28, 26, 23, 0.28);
+    background: var(--stage-color);
+  }
+
+  .belt-stage-link:hover {
+    color: #1c1a17;
+  }
+
+  .belt-stage-link.is-active,
+  .belt-stage-link.is-active .belt-stage-name {
+    color: #1c1a17;
+  }
+
+  .belt-stage-link.is-active {
+    font-weight: 600;
+  }
+
+  .belt-stage-link:focus-visible {
+    outline: 2px solid #1c1a17;
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 1023px) {
+    .portfolio-shell {
+      display: block;
+      padding: 0;
+    }
+
+    .belt-console-column {
+      display: none;
+    }
+  }
+
   .hero-pinned-scene {
     position: relative;
     height: 140vh;
@@ -278,34 +431,55 @@ const qrSvg = qrSvgRaw
 
   .hero-portrait-col {
     justify-self: end;
-    width: clamp(140px, min(17vw, 30vh), 250px);
+    width: 100%;
+    max-width: 440px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
 
   .portrait-slot {
     width: 100%;
     aspect-ratio: 4 / 5;
-    background: rgba(28, 26, 23, 0.08);
+    border: 1px solid rgba(28, 26, 23, 0.18);
+    background: #ffffff;
     overflow: hidden;
+    position: relative;
+    box-shadow: 0 16px 40px -12px rgba(28, 26, 23, 0.12);
   }
 
   .portrait-img {
-    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center top;
+    display: block;
     filter: grayscale(1) contrast(1.06);
     mix-blend-mode: multiply;
   }
 
   .portrait-caption-row {
-    margin-top: 10px;
+    margin-top: 4px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    gap: 12px;
     font-family: var(--font-mono, monospace);
     font-size: 11px;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #7a746a;
+    color: #6a645a;
+  }
+
+  .fig-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .fig-cue {
+    text-align: right;
   }
 
   .hero-belt-track {
@@ -329,7 +503,7 @@ const qrSvg = qrSvgRaw
     font-size: 11px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #7a746a;
+    color: #6a645a;
   }
 
   .btn-secondary:hover {
@@ -378,95 +552,6 @@ const qrSvg = qrSvgRaw
     font-weight: 600;
   }
 
-  /* Modal Dialog */
-  .qr-dialog {
-    border: none;
-    background: transparent;
-    padding: 0;
-    max-width: 90vw;
-    /* Restores the centering the UA gives a modal dialog; the global
-       `* { margin: 0 }` reset strips it. */
-    margin: auto;
-    /* The UA stylesheet sets `color: CanvasText` on dialog, an explicit
-       declaration that beats inheritance from the themed ancestors. Left
-       alone it tracks the OS theme instead of ours, rendering near-black
-       text on the dark card. */
-    color: var(--text-main);
-  }
-
-  .qr-dialog::backdrop {
-    background: rgba(10, 12, 16, 0.75);
-    backdrop-filter: blur(8px);
-  }
-
-  .modal-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    width: 320px;
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
-  }
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-  }
-
-  .close-btn {
-    font-size: 1.2rem;
-    color: var(--text-dim);
-  }
-
-  .close-btn:hover {
-    color: var(--text-main);
-  }
-
-  .modal-desc {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin-bottom: 1rem;
-  }
-
-  .qr-preview {
-    display: grid;
-    place-items: center;
-    background: var(--bg-surface-elevated);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    padding: 1rem;
-  }
-
-  .qr-image {
-    display: block;
-    width: 220px;
-    height: 220px;
-    border-radius: var(--radius-sm);
-    /* Light card in both themes, with padding that widens the quiet zone
-       the generator only renders one module wide. */
-    background: var(--qr-bg);
-    padding: 0.5rem;
-  }
-
-  .qr-image :global(svg) {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-
-  .modal-actions {
-    margin-top: 1rem;
-    text-align: center;
-  }
-
-  .direct-link {
-    font-size: 0.85rem;
-    color: var(--accent-cyan);
-    text-decoration: underline;
-  }
-
   @media (max-width: 768px) {
     .hero-grid {
       grid-template-columns: 1fr;
@@ -484,6 +569,66 @@ const qrSvg = qrSvgRaw
     .avatar-card {
       max-width: 300px;
       margin-inline: auto;
+    }
+  }
+
+  /* Mobile (< 768px): compact hero. Long paragraph hidden, small portrait
+     beside the name so photo + CTAs fit in the first viewport. */
+  @media (max-width: 767px) {
+    .hero-pinned-scene {
+      height: auto;
+    }
+
+    .hero-sticky-container {
+      position: relative;
+      min-height: 0;
+      justify-content: flex-start;
+      gap: 18px;
+      padding: 84px 20px 64px;
+    }
+
+    .hero-location-text,
+    .hero-body-claim,
+    .hero-scroll-cue,
+    .portrait-caption-row {
+      display: none;
+    }
+
+    .hero-headline-name {
+      font-size: clamp(38px, 11vw, 46px);
+      padding-right: 116px;
+      min-height: 84px;
+    }
+
+    .hero-portrait-col {
+      position: absolute;
+      top: 116px;
+      right: 20px;
+      width: 96px;
+    }
+
+    .hero-bottom-grid {
+      gap: 0;
+    }
+
+    .hero-narrative-block {
+      gap: 14px;
+    }
+
+    .hero-italic-quote {
+      font-size: 26px;
+    }
+
+    .hero-buttons-row {
+      flex-wrap: nowrap;
+      margin-top: 8px;
+    }
+
+    .hero-btn-dark,
+    .hero-btn-outline {
+      flex: 1 1 0;
+      text-align: center;
+      padding-inline: 12px;
     }
   }
 </style>

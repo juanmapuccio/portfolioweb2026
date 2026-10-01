@@ -1,7 +1,7 @@
 ---
 import type { Lang } from '../i18n/ui';
-import { contactData } from '../data/contact';
-import { MessageCircle, Mail, Linkedin, Github, Globe, Send, MapPin, Sparkles, ArrowRight } from 'lucide-astro';
+import { contactData, CV_URL } from '../data/contact';
+import { useTranslations } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
@@ -9,285 +9,395 @@ interface Props {
 
 const { lang } = Astro.props;
 const data = contactData[lang];
-
-const channelIcons: Record<string, typeof MessageCircle> = {
-  whatsapp: MessageCircle,
-  email: Mail,
-  linkedin: Linkedin,
-  github: Github,
-  nodosur: Globe,
-};
+const t = useTranslations(lang);
+const location = lang === 'pt' ? 'Rosário, Argentina' : 'Rosario, Argentina';
+const whatsapp = data.channels.find((channel) => channel.primary);
+const whatsappLabel = data.ctaButtonText.toUpperCase();
+const cvLabel = t('hero.btn.cv').toUpperCase();
 ---
 
-<section id="contacto" class="contact-section">
-  <div class="container">
-    <div class="contact-card" data-reveal>
-      <div class="contact-glow"></div>
+<footer
+  id="contacto"
+  data-fx="c"
+  data-zone="curtain"
+  data-ch="6"
+  class="cinematic-contact-footer"
+>
+  <div class="contact-sticky-stage">
+    <!-- Atmospheric Lighting & Background Vignette -->
+    <div class="contact-ambient-halo" aria-hidden="true"></div>
+    <div class="contact-gold-beam" aria-hidden="true"></div>
 
-      <div class="contact-header">
-        <div class="contact-badge">
-          <Sparkles size={14} class="badge-icon" />
-          <span>{data.badge}</span>
-        </div>
-        <h2 class="contact-title">{data.title}</h2>
-        <p class="contact-subtitle">{data.subtitle}</p>
+    <div class="contact-main-wrapper">
+      <!-- Top Meta Row -->
+      <div class="contact-top-meta">
+        <span class="mono-badge">
+          {lang === 'es' ? 'DISPONIBILIDAD & CONTRATACIÓN' : lang === 'en' ? 'AVAILABILITY & HIRING' : 'DISPONIBILIDADE & CONTRATAÇÃO'}
+        </span>
+        <span class="belt-dan-label">1º DAN · CINTURÓN NEGRO ITF</span>
       </div>
 
-      <div class="contact-meta-bar">
-        <div class="status-pill">
-          <span class="status-dot"></span>
-          <span>{data.statusText}</span>
-        </div>
-        <div class="location-pill">
-          <MapPin size={14} class="location-icon" />
-          <span>{data.locationText}</span>
-        </div>
-      </div>
+      <!-- Main Headline & Belt Showcase Grid -->
+      <div class="contact-hero-grid">
+        <div class="contact-narrative-col">
+          <h2 class="contact-display-title">{data.title}</h2>
+          <p class="contact-lead-desc">{data.subtitle}</p>
 
-      <div class="cta-action-wrapper">
-        <a 
-          href="https://wa.me/5493413192179" 
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn-cta-main btn-cta-whatsapp"
-          aria-label="Contactar a Juan Manuel Puccio por WhatsApp"
-        >
-          <MessageCircle size={20} class="whatsapp-icon" />
-          <span>{data.ctaButtonText}</span>
-          <ArrowRight size={16} class="arrow-icon" />
-        </a>
-      </div>
-
-      <div class="channels-grid">
-        {data.channels.map((ch, i) => {
-          const IconComponent = channelIcons[ch.id] || Send;
-          return (
+          <div class="contact-actions-row">
+            {whatsapp && (
+              <a
+                href={whatsapp.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="contact-btn-primary"
+              >
+                {whatsappLabel}
+              </a>
+            )}
             <a
-              href={ch.url}
-              target={ch.id === 'email' ? '_self' : '_blank'}
-              rel={ch.id === 'email' ? '' : 'noopener noreferrer'}
-              class:list={['channel-item', { 'primary-channel': ch.primary }]}
-              aria-label={ch.name}
-              data-reveal
-              style={`--reveal-delay: ${i}`}
+              href={CV_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="contact-btn-secondary"
             >
-              <div class="channel-icon-wrap">
-                <IconComponent size={18} />
-              </div>
-              <div class="channel-info">
-                <span class="channel-name">{ch.name}</span>
-                <span class="channel-value">{ch.label}</span>
-              </div>
+              {cvLabel}
             </a>
-          );
-        })}
+          </div>
+        </div>
+
+        <!-- 3D Black Belt Dedicated Landing Target -->
+        <div class="contact-belt-col">
+          <div data-slot="1" class="contact-belt-slot" aria-hidden="true"></div>
+          <div class="belt-shadow-disk" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <!-- Contact Channels Minimalist Row -->
+      <nav class="contact-channels-grid" aria-label={lang === 'es' ? 'Canales de contacto' : lang === 'en' ? 'Contact channels' : 'Canais de contato'}>
+        {data.channels.map((channel) => (
+          <a
+            href={channel.url}
+            target={channel.id === 'email' ? undefined : '_blank'}
+            rel={channel.id === 'email' ? undefined : 'noopener noreferrer'}
+            class="contact-channel-card"
+          >
+            <span class="ch-meta-label">{channel.name}</span>
+            <span class="ch-value-link">{channel.label} ↗</span>
+          </a>
+        ))}
+      </nav>
+
+      <!-- Bottom Bar -->
+      <div class="contact-bottom-legal">
+        <span>{location} · Remoto / Híbrido / On-site</span>
+        <span>Kyong-ye · © 2026 Juan Manuel Puccio</span>
       </div>
     </div>
   </div>
-</section>
+</footer>
 
 <style>
-  .contact-section {
-    padding: 6.5rem 0 7.5rem;
-    background: color-mix(in srgb, var(--bg-surface-elevated) 30%, var(--bg-primary));
-    border-top: 1px solid var(--border-subtle);
-  }
-
-  .contact-card {
+  .cinematic-contact-footer {
+    height: 190vh;
     position: relative;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg);
-    padding: 3.5rem 3rem;
-    text-align: center;
-    overflow: hidden;
-    box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.15);
+    background: #1c1a17;
+    color: #f2eee6;
+    margin-top: -1px;
+    box-sizing: border-box;
   }
 
-  .contact-glow {
+  .contact-sticky-stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1c1a17;
+  }
+
+  /* Atmospheric Lights */
+  .contact-ambient-halo {
+    position: absolute;
+    width: min(80vw, 750px);
+    height: min(80vw, 750px);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.12) 0%, rgba(212, 175, 55, 0.03) 45%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  .contact-gold-beam {
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--accent-amber);
+    left: clamp(20px, 5vw, 72px);
+    right: clamp(20px, 5vw, 72px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(212, 175, 55, 0.4) 50%, transparent 100%);
+    pointer-events: none;
   }
 
-  .contact-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-family: var(--font-mono, monospace);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    margin-bottom: 0.85rem;
-  }
-
-  .badge-icon {
-    color: var(--accent-emerald);
-  }
-
-  .contact-title {
-    font-family: var(--font-serif, 'Source Serif 4', serif);
-    font-size: clamp(2.2rem, 4.5vw, 3.8rem);
-    font-weight: 300;
-    color: var(--text-main);
-    letter-spacing: -0.03em;
-    max-width: 780px;
-    margin: 0 auto 1rem;
-    line-height: 1.05;
-  }
-
-  .contact-subtitle {
-    font-size: 1.05rem;
-    color: var(--text-muted);
-    max-width: 650px;
-    margin: 0 auto 2.5rem;
-    line-height: 1.7;
-  }
-
-  .contact-meta-bar {
-    display: flex;
-    justify-content: center;
-    gap: 1.25rem;
-    flex-wrap: wrap;
-    margin-bottom: 2.5rem;
-  }
-
-  .status-pill, .location-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--text-main);
-    background: var(--bg-surface-elevated);
-    border: 1px solid var(--border-subtle);
-    padding: 0.4rem 0.9rem;
-    border-radius: var(--radius-sm);
-  }
-
-  .status-dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    background-color: var(--accent-emerald);
-    box-shadow: 0 0 8px var(--accent-emerald);
-  }
-
-  .location-icon {
-    color: var(--accent-cyan);
-  }
-
-  .cta-action-wrapper {
-    margin-bottom: 3.5rem;
-  }
-
-  .btn-cta-main {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.9rem 2.2rem;
-    border-radius: var(--radius-sm);
-    font-weight: 700;
-    font-family: var(--font-mono);
-    font-size: 1rem;
-    /* Flat fill in the narrow-purpose "available/production" color, not
-       a gradient — this button signals status, it doesn't decorate. */
-    background: var(--accent-emerald);
-    color: #0a120e;
-    transition: transform var(--transition);
-  }
-
-  .btn-cta-main:hover {
-    transform: translateY(-2px);
-  }
-
-  .arrow-icon {
-    transition: transform var(--transition);
-  }
-
-  .btn-cta-main:hover .arrow-icon {
-    transform: translateX(4px);
-  }
-
-  .channels-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1rem;
-    max-width: 960px;
-    margin: 0 auto;
-    border-top: 1px solid var(--border-subtle);
-    padding-top: 2.5rem;
-  }
-
-  .channel-item {
-    display: flex;
-    align-items: center;
-    gap: 0.85rem;
-    background: var(--bg-surface-elevated);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-sm);
-    padding: 0.9rem 1.1rem;
-    text-align: left;
-    transition: border-color var(--transition), transform var(--transition), background var(--transition);
-  }
-
-  .channel-item:hover {
-    border-color: var(--accent-amber);
-    transform: translateY(-2px);
-    background: color-mix(in srgb, var(--accent-amber) 6%, var(--bg-surface-elevated));
-  }
-
-  .channel-icon-wrap {
-    width: 2.2rem;
-    height: 2.2rem;
-    border-radius: var(--radius-sm);
-    background: color-mix(in srgb, var(--accent-amber) 12%, transparent);
-    color: var(--accent-amber);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .channel-info {
+  .contact-main-wrapper {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 1600px;
+    padding: clamp(70px, 9vh, 90px) clamp(20px, 5vw, 72px) clamp(24px, 4vh, 40px);
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    justify-content: space-between;
+    height: 100%;
+    opacity: clamp(0, calc((var(--p, 0) - 0.15) * 3), 1);
+    transform: translateY(calc(30px * (1 - clamp(0, var(--p, 0), 1))));
+    transition: opacity 0.05s linear, transform 0.05s linear;
   }
 
-  .channel-name {
-    font-size: 0.76rem;
-    font-weight: 700;
-    color: var(--text-muted);
+  .contact-top-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
 
-  .channel-value {
-    font-size: 0.86rem;
+  .mono-badge {
+    color: #c9c3b7;
     font-weight: 600;
-    color: var(--text-main);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
-  @media (max-width: 768px) {
-    .contact-card {
-      padding: 2.5rem 1.5rem;
+  .belt-dan-label {
+    color: #fbbf24;
+    font-weight: 600;
+  }
+
+  /* Grid Layout: Left Narrative + Right 3D Belt Showcase */
+  .contact-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: clamp(24px, 4vw, 64px);
+    align-items: center;
+    margin-block: auto;
+  }
+
+  @media (max-width: 900px) {
+    .contact-hero-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
     }
-    .contact-title {
-      font-size: 1.7rem;
+
+    .contact-belt-col {
+      display: none;
     }
-    .contact-meta-bar {
+  }
+
+  .contact-narrative-col {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(14px, 2vh, 22px);
+    max-width: 780px;
+  }
+
+  .contact-display-title {
+    margin: 0;
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-weight: 300;
+    font-size: clamp(36px, 4.4vw, 76px);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    color: #f2eee6;
+    text-wrap: balance;
+  }
+
+  .contact-lead-desc {
+    margin: 0;
+    font-size: clamp(15px, 1.2vw, 17px);
+    line-height: 1.6;
+    color: #c9c3b7;
+    max-width: 680px;
+    text-wrap: pretty;
+  }
+
+  .contact-actions-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding-top: 8px;
+  }
+
+  .contact-btn-primary {
+    background: #f2eee6;
+    color: #1c1a17;
+    padding: 15px 28px;
+    text-decoration: none;
+    font-family: var(--font-mono, monospace);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .contact-btn-primary:hover {
+    transform: translateY(-2px);
+    background: #ffffff;
+    box-shadow: 0 8px 24px -4px rgba(255, 255, 255, 0.2);
+    color: #1c1a17;
+  }
+
+  .contact-btn-secondary {
+    border: 1px solid rgba(242, 238, 230, 0.35);
+    color: #f2eee6;
+    padding: 15px 28px;
+    text-decoration: none;
+    font-family: var(--font-mono, monospace);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .contact-btn-secondary:hover {
+    transform: translateY(-2px);
+    border-color: #f2eee6;
+    color: #f2eee6;
+  }
+
+  /* 3D Belt Target Slot */
+  .contact-belt-col {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .contact-belt-slot {
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .belt-shadow-disk {
+    position: absolute;
+    bottom: 12%;
+    width: 60%;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    filter: blur(12px);
+    pointer-events: none;
+  }
+
+  /* Channels Grid */
+  .contact-channels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+    border-top: 1px solid rgba(242, 238, 230, 0.16);
+    gap: 1px;
+    background: rgba(242, 238, 230, 0.16);
+    margin-top: 16px;
+  }
+
+  .contact-channel-card {
+    background: #1c1a17;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px 20px;
+    text-decoration: none;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .contact-channel-card:hover {
+    background: #25221e;
+    transform: translateY(-2px);
+  }
+
+  .ch-meta-label {
+    font-family: var(--font-mono, monospace);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #c9c3b7;
+  }
+
+  .ch-value-link {
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-weight: 400;
+    font-size: clamp(16px, 1.3vw, 20px);
+    line-height: 1.2;
+    color: #f2eee6;
+    overflow-wrap: anywhere;
+  }
+
+  /* Bottom Legal Bar */
+  .contact-bottom-legal {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8c857b;
+    padding-top: 16px;
+  }
+
+  @media (max-width: 767px) {
+    .cinematic-contact-footer {
+      height: 140vh;
+    }
+
+    .contact-main-wrapper {
+      padding: 72px 20px 32px;
+      gap: 24px;
+    }
+
+    .contact-display-title {
+      font-size: clamp(30px, 8vw, 44px);
+    }
+
+    .contact-lead-desc {
+      font-size: 14.5px;
+    }
+
+    .contact-actions-row {
       flex-direction: column;
-      align-items: center;
-      gap: 0.6rem;
+      gap: 10px;
+    }
+
+    .contact-btn-primary,
+    .contact-btn-secondary {
+      width: 100%;
+      text-align: center;
+      padding: 14px 20px;
+    }
+
+    .contact-channels-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .contact-bottom-legal {
+      flex-direction: column;
+      gap: 8px;
+      font-size: 10px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contact-main-wrapper {
+      opacity: 1 !important;
+      transform: none !important;
     }
   }
 </style>

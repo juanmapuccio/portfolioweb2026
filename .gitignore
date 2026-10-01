@@ -29,9 +29,12 @@ pnpm-debug.log*
 # Private career strategy — interview answers, recruiter-bias analysis and
 # positioning notes. These stay local: a recruiter reading the playbook that
 # was written about them defeats its whole purpose.
-docs/Narrativa.md
-docs/Storytelling.md
-docs/narrativa-original.md
+rules/
+
+# Reference content and assets (original HTML bundles, 3D models, source docs).
+# Local-only: the public repo ships code, not raw reference material.
+content/
+
 odd/tasks/docs-stoky-y-reencuadre-empleo.md
 odd/tasks/tres-puertas-y-reencuadre-sitio.md
 odd/tasks/alineacion-cv-real-y-aire-visual.md

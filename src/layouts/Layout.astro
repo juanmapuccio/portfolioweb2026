@@ -1,7 +1,20 @@
 ---
 import '../styles/global.css';
+import '@fontsource/source-serif-4/300.css';
+import '@fontsource/source-serif-4/400.css';
+import '@fontsource/source-serif-4/600.css';
+import '@fontsource/source-serif-4/700.css';
+import '@fontsource/hanken-grotesk/300.css';
+import '@fontsource/hanken-grotesk/400.css';
+import '@fontsource/hanken-grotesk/600.css';
+import '@fontsource/hanken-grotesk/700.css';
+import '@fontsource/hanken-grotesk/800.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/600.css';
+import '@fontsource/noto-sans-kr/400.css';
+import '@fontsource/noto-sans-kr/700.css';
 import type { Lang } from '../i18n/ui';
-import { languages } from '../i18n/ui';
+import { languages, useTranslations } from '../i18n/ui';
 import { CV_URL } from '../data/contact';
 
 interface Props {
@@ -11,36 +24,46 @@ interface Props {
 }
 
 const { title, description, lang = 'es' } = Astro.props;
+const t = useTranslations(lang);
+
+const siteUrl = (Astro.site ?? new URL('https://juanpuccio.vercel.app')).toString().replace(/\/$/, '');
+const localePaths: Record<Lang, string> = { es: '/', en: '/en/', pt: '/pt/' };
+const ogLocales: Record<Lang, string> = { es: 'es_AR', en: 'en_US', pt: 'pt_BR' };
+const canonicalUrl = siteUrl + localePaths[lang];
+const ogImageUrl = siteUrl + '/og/og-juan-puccio.png';
+const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
 ---
 
 <!doctype html>
 <html lang={lang}>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:locale" content={ogLocales[lang]} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt} />
+    <link rel="canonical" href={canonicalUrl} />
+    {Object.keys(localePaths).map((code) => (
+      <link rel="alternate" hreflang={code} href={siteUrl + localePaths[code as Lang]} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={siteUrl + localePaths.es} />
     <meta name="twitter:card" content="summary_large_image" />
-
-    <!-- Google Fonts: Source Serif 4, Hanken Grotesk, IBM Plex Mono (Claude Design Aesthetic) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..700;1,300..700&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&display=swap" rel="stylesheet" />
-
-    <!-- Script inline: Claro por defecto absoluto a menos que el usuario haya elegido 'dark' explícitamente -->
-    <script is:inline>
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      } else {
-        document.documentElement.removeAttribute('data-theme');
-      }
-    </script>
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
 
     <!-- Reveal-on-scroll gate: added early so [data-reveal] only starts
          hidden once JS is confirmed running, preventing any no-JS flash. -->
@@ -54,25 +77,39 @@ const { title, description, lang = 'es' } = Astro.props;
   <body>
     <header class="site-header">
       <div class="header-inner">
-        <a href={lang === 'es' ? '#top' : `/${lang}#top`} class="brand-title">
-          Juan Manuel Puccio
+        <a href={lang === 'es' ? '#top' : `/${lang}#top`} class="brand-title" aria-label="Juan Manuel Puccio">
+          <span class="brand-name">Juan Manuel Puccio</span>
+          <span class="brand-initials" aria-hidden="true">JMP</span>
+          <span class="brand-role" aria-hidden="true">{t('header.role')}</span>
         </a>
 
+        <!-- 6 Nav Ticks correspondientes a los 6 capítulos marciales (Claude Design) -->
+        <nav class="header-ticks" id="header-ticks" aria-label="Capítulos del portfolio">
+          <a href="#blanco" title="Blanco · 10º gup" class="tick-link is-active" data-belt="blanco" style="--tick-color: #ffffff;"></a>
+          <a href="#amarillo" title="Amarillo · 9º — 8º gup" class="tick-link" data-belt="amarillo" style="--tick-color: #fbbf24;"></a>
+          <a href="#verde" title="Verde · 7º — 6º gup" class="tick-link" data-belt="verde" style="--tick-color: #10b981;"></a>
+          <a href="#azul" title="Azul · 5º — 4º gup" class="tick-link" data-belt="azul" style="--tick-color: #0284c7;"></a>
+          <a href="#rojo" title="Rojo · 3º — 1º gup" class="tick-link" data-belt="rojo" style="--tick-color: #ef4444;"></a>
+          <a href="#negro" title="Negro · 1º dan" class="tick-link" data-belt="negro" style="--tick-color: #1c1a17;"></a>
+        </nav>
+
         <div class="header-right-group">
-          <!-- Indicador dinámico de grado marcial actual -->
-          <div class="header-grade-pill">
-            <span class="header-belt-swatch" id="header-belt-indicator"></span>
-            <span class="header-gup-text" id="header-gup-indicator">10º gup</span>
+          <!-- Indicador dinámico del capítulo activo -->
+          <div class="header-active-ch" id="header-active-ch" aria-live="polite">
+            10º GUP · INICIO
           </div>
 
-          <!-- Selector de idioma compacto -->
-          <div class="lang-switch-minimal">
+          <!-- Typographic language switch -->
+          <div class="lang-switch-minimal" role="group" aria-label={t('header.lang')}>
             {Object.entries(languages).map(([code]) => {
               const targetPath = code === 'es' ? '/' : `/${code}`;
               const isActive = code === lang;
               return (
-                <a 
-                  href={targetPath} 
+                <a
+                  href={targetPath}
+                  hreflang={code}
+                  lang={code}
+                  aria-current={isActive ? 'page' : undefined}
                   class:list={['lang-min-link', { active: isActive }]}
                 >
                   {code.toUpperCase()}
@@ -81,9 +118,15 @@ const { title, description, lang = 'es' } = Astro.props;
             })}
           </div>
 
+          <!-- Contactar enlace rápido -->
+          <a href="#contacto" class="header-contact-link">
+            {lang === 'es' ? 'Contactar' : lang === 'en' ? 'Contact' : 'Contato'}
+          </a>
+
           <!-- Descargar CV -->
           <a href={CV_URL} target="_blank" rel="noopener noreferrer" class="header-cv-btn">
-            {lang === 'es' ? 'Descargar CV' : lang === 'en' ? 'Download CV' : 'Baixar CV'}
+            <span class="cv-long">{t('hero.btn.cv')}</span>
+            <span class="cv-short" aria-hidden="true">CV</span>
           </a>
         </div>
       </div>
@@ -95,23 +138,15 @@ const { title, description, lang = 'es' } = Astro.props;
       <slot />
     </main>
 
-    <footer class="site-footer">
-      <div class="container footer-inner">
-        <p>© 2026 Juan Manuel Puccio · Desarrollador Full Stack & Fundador de NodoSur</p>
-      </div>
-    </footer>
-
     <script>
-      const toggle = document.getElementById('theme-toggle');
-      toggle?.addEventListener('click', () => {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        if (isDark) {
-          document.documentElement.removeAttribute('data-theme');
-          localStorage.setItem('theme', 'light');
-        } else {
-          document.documentElement.setAttribute('data-theme', 'dark');
-          localStorage.setItem('theme', 'dark');
-        }
+      // Keep the current #hash when switching language.
+      document.querySelectorAll<HTMLAnchorElement>('.lang-min-link').forEach((link) => {
+        link.addEventListener('click', () => {
+          if (location.hash) {
+            const base = link.getAttribute('href')?.split('#')[0] ?? '';
+            link.setAttribute('href', base + location.hash);
+          }
+        });
       });
     </script>
 
@@ -149,13 +184,74 @@ const { title, description, lang = 'es' } = Astro.props;
     progressBar.style.width = `${progress * 100}%`;
   }
 
+  const siteHeader = document.querySelector<HTMLElement>('.site-header');
+  const activeChLabel = document.getElementById('header-active-ch');
+  const tickLinks = document.querySelectorAll<HTMLAnchorElement>('.tick-link');
+
+  const BELT_ORDER = ['blanco', 'amarillo', 'verde', 'azul', 'rojo', 'negro'];
+  const BELT_LABELS: Record<string, string> = {
+    blanco: '10º GUP · CIMIENTOS',
+    amarillo: '9º — 8º GUP · LA CALLE',
+    verde: '7º — 6º GUP · EL ESTADO',
+    azul: '5º — 4º GUP · RECONVERSIÓN',
+    rojo: '3º — 1º GUP · LA FRICCIÓN',
+    negro: '1º DAN · PRODUCCIÓN',
+  };
+
+  function updateActiveBelt(beltKey: string) {
+    if (!beltKey) return;
+    const key = beltKey.toLowerCase();
+    const idx = BELT_ORDER.indexOf(key);
+
+    tickLinks.forEach((tick, i) => {
+      if (i === idx) {
+        tick.classList.add('is-active');
+        tick.classList.remove('is-passed');
+      } else if (i < idx) {
+        tick.classList.remove('is-active');
+        tick.classList.add('is-passed');
+      } else {
+        tick.classList.remove('is-active', 'is-passed');
+      }
+    });
+
+    if (activeChLabel && BELT_LABELS[key]) {
+      activeChLabel.textContent = BELT_LABELS[key];
+    }
+
+    if (key === 'negro') {
+      siteHeader?.classList.add('is-dark');
+    } else {
+      siteHeader?.classList.remove('is-dark');
+    }
+  }
+
+  function syncHeaderBeltColor(event: Event) {
+    const detail = (event as CustomEvent<{ color?: string; stageKey?: string; beltKey?: string }>).detail;
+    if (detail?.beltKey) {
+      updateActiveBelt(detail.beltKey);
+    } else if (detail?.color) {
+      const colorMap: Record<string, string> = {
+        '#ffffff': 'blanco',
+        '#ece8df': 'blanco',
+        '#fbbf24': 'amarillo',
+        '#10b981': 'verde',
+        '#0284c7': 'azul',
+        '#ef4444': 'rojo',
+        '#1c1a17': 'negro',
+      };
+      const found = colorMap[detail.color.toLowerCase()];
+      if (found) updateActiveBelt(found);
+    }
+  }
+
+  window.addEventListener('belt:change', syncHeaderBeltColor);
   window.addEventListener('scroll', updateHeaderProgress, { passive: true });
   window.addEventListener('resize', updateHeaderProgress);
   updateHeaderProgress();
 </script>
 
 <style>
-
   .site-header {
     position: fixed;
     top: 0;
@@ -163,96 +259,259 @@ const { title, description, lang = 'es' } = Astro.props;
     right: 0;
     z-index: 50;
     height: 60px;
-    background: rgba(242, 238, 230, 0.92);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid rgba(28, 26, 23, 0.12);
+    background: #f2eee6;
+    border-bottom: 1px solid rgba(28, 26, 23, 0.18);
     padding: 0 clamp(20px, 5vw, 72px);
+    transition: background 0.5s, color 0.5s, border-color 0.5s;
+  }
+
+  .site-header.is-dark {
+    background: rgba(28, 26, 23, 0.88);
+    border-bottom: 1px solid rgba(242, 238, 230, 0.14);
+    backdrop-filter: blur(10px);
+  }
+
+  .site-header.is-dark .brand-name,
+  .site-header.is-dark .brand-initials,
+  .site-header.is-dark .header-contact-link,
+  .site-header.is-dark .lang-min-link {
+    color: #f2eee6;
+  }
+
+  .site-header.is-dark .header-active-ch,
+  .site-header.is-dark .brand-role {
+    color: #c9c3b7;
+  }
+
+  .site-header.is-dark .tick-link {
+    border-color: #f2eee6;
+  }
+
+  .site-header.is-dark .header-cv-btn {
+    background: #f2eee6;
+    color: #1c1a17;
+  }
+
+  .header-ticks {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .tick-link {
+    display: block;
+    height: 8px;
+    width: 14px;
+    background: var(--tick-color);
+    border: 1px solid #1c1a17;
+    opacity: 0.35;
+    transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s, border-color 0.4s;
+  }
+
+  .tick-link.is-active {
+    width: 34px;
+    opacity: 1;
+  }
+
+  .tick-link.is-passed {
+    opacity: 1;
+  }
+
+  .header-active-ch {
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #4a463f;
+    transition: color 0.4s;
+  }
+
+  .header-contact-link {
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #1c1a17;
+    text-decoration: none;
+    transition: color 0.4s;
+  }
+
+  .header-contact-link:hover {
+    color: #0369a1;
+  }
+
+  @media (max-width: 768px) {
+    .header-active-ch, .header-contact-link {
+      display: none;
+    }
   }
 
   .header-inner {
     display: flex;
+    flex-wrap: nowrap;
     justify-content: space-between;
     align-items: center;
     height: 100%;
     width: 100%;
-    max-width: 100%;
   }
 
+  /* Wordmark: serif name over a quiet mono descriptor. */
   .brand-title {
-    font-family: var(--font-serif, 'Source Serif 4', serif);
-    font-size: 19px;
-    letter-spacing: -0.01em;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
     color: #1c1a17;
     text-decoration: none;
-    font-weight: 400;
-    transition: opacity 0.2s;
+    min-height: 44px;
   }
 
-  .brand-title:hover {
-    opacity: 0.7;
+  .brand-name {
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-size: 19px;
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: 0.01em;
+    font-variant-caps: small-caps;
+    font-feature-settings: 'smcp' 1, 'c2sc' 0;
+  }
+
+  .brand-role {
+    font-family: var(--font-mono, monospace);
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #6a645a;
+  }
+
+  .brand-initials {
+    display: none;
+    font-family: var(--font-serif, 'Source Serif 4', serif);
+    font-size: 19px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+  }
+
+  .brand-title:hover .brand-name,
+  .brand-title:hover .brand-initials {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+  }
+
+  .brand-title:focus-visible,
+  .lang-min-link:focus-visible,
+  .header-cv-btn:focus-visible {
+    outline: 2px solid #1c1a17;
+    outline-offset: 3px;
   }
 
   .header-right-group {
     display: flex;
     align-items: center;
-    gap: clamp(14px, 2.5vw, 24px);
+    gap: clamp(16px, 2.5vw, 28px);
   }
 
+  /* Grade: mono label, slim belt-colour tick, grade number. */
   .header-grade-pill {
     display: flex;
     align-items: center;
     gap: 8px;
     font-family: var(--font-mono, monospace);
-    font-size: 12px;
-    letter-spacing: 0.06em;
+    font-size: 11px;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: #4a463f;
   }
 
+  .header-grade-label {
+    color: #6a645a;
+  }
+
   .header-belt-swatch {
     width: 18px;
-    height: 8px;
-    border: 1px solid rgba(28, 26, 23, 0.35);
+    height: 5px;
+    border: 1px solid rgba(28, 26, 23, 0.4);
     background: #f8f6f0;
     transition: background 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
+  :global(.header-belt-knot) {
+    display: none;
+    width: 22px;
+    height: 18px;
+    flex: 0 0 auto;
+    pointer-events: none;
+    --knot-fill: var(--active-belt-color, #f8f6f0);
+    --knot-stroke: #1c1a17;
+  }
+
+  .header-gup-text {
+    white-space: nowrap;
+    color: #1c1a17;
+  }
+
+  /* Language: "ES · EN · PT", active one underlined. */
   .lang-switch-minimal {
     display: flex;
-    gap: 8px;
+    align-items: center;
   }
 
   .lang-min-link {
+    position: relative;
     font-family: var(--font-mono, monospace);
     font-size: 11px;
-    letter-spacing: 0.08em;
-    color: #7a746a;
+    letter-spacing: 0.12em;
+    color: #6a645a;
     text-decoration: none;
-    padding: 2px 4px;
+    padding: 2px 7px;
     transition: color 0.2s;
+  }
+
+  .lang-min-link + .lang-min-link::before {
+    content: '·' / '';
+    position: absolute;
+    left: -2px;
+    color: #6a645a;
+  }
+
+  .lang-min-link:hover {
+    color: #1c1a17;
   }
 
   .lang-min-link.active {
     color: #1c1a17;
-    font-weight: 700;
-    border-bottom: 1px solid #1c1a17;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
   }
 
+  /* CV: outlined rectangle, inverts on hover. */
   .header-cv-btn {
     font-family: var(--font-mono, monospace);
-    font-size: 12px;
-    letter-spacing: 0.06em;
+    font-size: 11px;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    background: #1c1a17;
-    color: #f2eee6;
-    padding: 10px 14px;
+    white-space: nowrap;
+    color: #1c1a17;
+    background: transparent;
+    border: 1px solid #1c1a17;
+    padding: 9px 14px;
     text-decoration: none;
-    transition: opacity 0.2s, transform 0.2s;
+    transition: background 0.2s, color 0.2s;
   }
 
   .header-cv-btn:hover {
-    opacity: 0.85;
-    transform: translateY(-1px);
+    background: #1c1a17;
+    color: #f2eee6;
+  }
+
+  .cv-short {
+    display: none;
   }
 
   .header-scroll-progress {
@@ -265,63 +524,77 @@ const { title, description, lang = 'es' } = Astro.props;
     transition: background 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
-  .theme-toggle-btn:hover {
-    background: var(--bg-surface-elevated);
-    border-color: var(--border-strong);
-    transform: translateY(-1px);
-  }
-
-  /* Control de iconos sol/luna según data-theme */
-  :global(html:not([data-theme='dark'])) .dark-icon {
-    display: none;
-  }
-  :global(html[data-theme='dark']) .light-icon {
-    display: none;
-  }
-
-  .lang-switch {
-    display: flex;
-    gap: 0.2rem;
-    background: var(--bg-surface);
-    padding: 0.2rem;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-subtle);
-  }
-
-  .lang-link {
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.25rem 0.6rem;
-    border-radius: var(--radius-sm);
-    color: var(--text-muted);
-  }
-
-  .lang-link:hover {
-    color: var(--text-main);
-  }
-
-  .lang-link.active {
-    background: var(--accent-amber);
-    color: #12161c;
-    border: 1px solid var(--accent-amber);
-    font-family: var(--font-mono);
-  }
-
-  .site-footer {
-    margin-top: auto;
-    border-top: 1px solid var(--border-subtle);
-    padding: 2.5rem 0;
-    text-align: center;
-    font-size: 0.875rem;
-    color: var(--text-dim);
-  }
-
-  @media (max-width: 768px) {
-    .main-nav {
+  @media (max-width: 1023px) {
+    .header-grade-label {
       display: none;
     }
-    .brand-sub {
+
+    .header-belt-swatch {
       display: none;
+    }
+
+    :global(.header-belt-knot) {
+      display: block;
+    }
+  }
+
+  /* Mobile: initials wordmark, grade number + tick, ES EN PT, short CV. */
+  @media (max-width: 767px) {
+    .site-header {
+      padding: 0 16px;
+    }
+    .header-right-group {
+      gap: 8px;
+    }
+    .header-grade-pill {
+      gap: 6px;
+    }
+    .header-gup-text :global(.header-gup-word) {
+      display: none;
+    }
+    .lang-min-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      min-height: 44px;
+      padding: 0 4px;
+    }
+    .lang-min-link + .lang-min-link::before {
+      left: -3px;
+    }
+    .header-cv-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 44px;
+      min-height: 44px;
+      padding: 0 10px;
+    }
+    .cv-long {
+      display: none;
+    }
+    .cv-short {
+      display: inline;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .brand-name,
+    .brand-role {
+      display: none;
+    }
+    .brand-initials {
+      display: inline;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .header-scroll-progress,
+    .header-belt-swatch,
+    .lang-min-link,
+    .header-cv-btn {
+      transition: none;
     }
   }
 </style>

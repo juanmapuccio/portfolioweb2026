@@ -15,16 +15,13 @@
 
   --text-main: #1c1a17;           /* Tinta carbón profunda Claude Design */
   --text-muted: #4a463f;          /* Tono intermedio editorial */
-  --text-dim: #7a746a;            /* Fechas, metadatos y etiquetas */
+  --text-dim: #6a645a;            /* Fechas, metadatos y etiquetas */
 
-  --accent-cyan: #0284c7;         /* Azul técnico refinado */
+  --accent-cyan: #0369a1;         /* Azul técnico refinado */
   --accent-blue: #2563eb;         /* Confiabilidad */
   --accent-emerald: oklch(0.58 0.12 150); /* Estado en producción Claude Design */
   --accent-amber: oklch(0.84 0.15 90);   /* Fricción y alertas de negocio */
   --shadow-card: 0 4px 20px rgba(28, 26, 23, 0.04);
-
-  --qr-bg: #ffffff;
-  --qr-fg: #1c1a17;
 
   --max-width: 1600px;
   --radius-sm: 0px;
@@ -43,37 +40,6 @@
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 }
 
-/* =========================================================
-   TEMA OSCURO (EyeCare Muted Slate & Warm Graphite)
-   ========================================================= */
-html[data-theme='dark'] {
-  color-scheme: dark;
-
-  --bg-primary: #15181c;          /* Grafito neutro suave (no negro #000) */
-  --bg-surface: #1d2127;          /* Tarjetas mate de descanso visual */
-  --bg-surface-elevated: #242932; /* Sub-bloques con contraste descansado */
-  --bg-surface-hover: #2c323d;    /* Hover suave */
-
-  --border-subtle: #2d3440;       /* Micro-bordes sutiles */
-  --border-strong: #434d5e;
-
-  --text-main: #edf2f7;           /* Blanco marfil descansado (evita resplandor) */
-  --text-muted: #a0aec0;          /* Gris medio equilibrado */
-  --text-dim: #718096;            /* Metadatos */
-
-  --accent-cyan: #38bdf8;         /* Azul cielo suave */
-  --accent-blue: #60a5fa;
-  --accent-emerald: #34d399;      /* Esmeralda suave */
-  --accent-amber: #fbbf24;        /* Ámbar suave */
-  --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.25);
-
-  /* La polaridad NO se invierte en oscuro. El fondo baja apenas a un
-     blanco roto para no deslumbrar en el tema EyeCare, conservando un
-     contraste muy por encima del mínimo que necesita un lector. */
-  --qr-bg: #f2f4f7;
-  --qr-fg: #12161c;
-}
-
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -90,10 +56,20 @@ html {
   transition: background-color var(--transition), color var(--transition);
 }
 
-h1, h2, h3, h4, .brand-name {
-  font-family: var(--font-sans);
-  font-weight: 800;
+h1, h2, h3, h4 {
+  font-family: var(--font-serif);
+  font-weight: 400;
   letter-spacing: -0.02em;
+}
+
+.brand-name, .brand-initials {
+  font-family: var(--font-serif);
+  font-weight: 600;
+}
+
+::selection {
+  background: #1c1a17;
+  color: #f2eee6;
 }
 
 /* Data/metadata register: dates, badges, tech tags, stats, status text —
@@ -228,5 +204,36 @@ html.js-reveal [data-reveal='fade'].is-revealed {
 
   html.js-reveal [data-reveal].is-revealed {
     animation: none;
+  }
+}
+
+/* =========================================================
+   Custom Editorial Scrollbar
+   WebKit (Chrome, Safari, iOS, Edge) ─ full control
+   ========================================================= */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1c1a17;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(242, 238, 230, 0.22);
+  border-radius: 4px;
+  border: 1px solid rgba(28, 26, 23, 0.5);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(251, 191, 36, 0.6);
+}
+
+/* Firefox ─ progressive enhancement, intentionally unsupported by WebKit */
+@supports (scrollbar-width: thin) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(242, 238, 230, 0.22) #1c1a17;
   }
 }
