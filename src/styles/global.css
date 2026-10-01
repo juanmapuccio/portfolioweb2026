@@ -56,10 +56,20 @@ html {
   transition: background-color var(--transition), color var(--transition);
 }
 
-h1, h2, h3, h4, .brand-name {
-  font-family: var(--font-sans);
-  font-weight: 800;
+h1, h2, h3, h4 {
+  font-family: var(--font-serif);
+  font-weight: 400;
   letter-spacing: -0.02em;
+}
+
+.brand-name, .brand-initials {
+  font-family: var(--font-serif);
+  font-weight: 600;
+}
+
+::selection {
+  background: #1c1a17;
+  color: #f2eee6;
 }
 
 /* Data/metadata register: dates, badges, tech tags, stats, status text —

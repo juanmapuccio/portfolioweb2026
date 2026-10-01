@@ -27,9 +27,10 @@ const initialBelt = BELTS[initialBeltStage?.beltKey ?? 'blanco'];
   description={t('meta.description')}
   lang={lang}
 >
+  <Belt3D />
   <div class="portfolio-shell">
     <main class="portfolio-main-column">
-  <section id="top" class="hero-pinned-scene">
+  <section id="top" data-zone="hero" data-ch="0" class="hero-pinned-scene">
     <div class="hero-sticky-container">
       <div class="hero-top-status-row">
         <span class="hero-status-pill">
@@ -39,7 +40,7 @@ const initialBelt = BELTS[initialBeltStage?.beltKey ?? 'blanco'];
         <span class="hero-location-text">{lang === 'pt' ? 'Rosário' : 'Rosario'}, Santa Fe, Argentina</span>
       </div>
 
-      <h1 class="hero-headline-name">Juan Manuel<br />Puccio</h1>
+      <h1 class="hero-headline-name">Juan Manuel Puccio</h1>
 
       <div class="hero-bottom-grid">
         <div class="hero-narrative-block">
@@ -66,20 +67,21 @@ const initialBelt = BELTS[initialBeltStage?.beltKey ?? 'blanco'];
           </div>
         </div>
 
-        <div class="hero-portrait-col">
-          <div class="portrait-slot">
-            <img
-              src="/fotojmPerfil.PNG"
-              alt="Juan Manuel Puccio"
-              class="portrait-img"
-              loading="eager"
-            />
-          </div>
-          <div class="portrait-caption-row">
-            <span>Fig. 01</span>
-            <span>{lang === 'pt' ? 'Rosário' : 'Rosario'}, 2026</span>
-          </div>
-        </div>
+        <figure class="hero-portrait-col">
+          <div data-slot="1" class="hero-slot-target"></div>
+          <figcaption class="portrait-caption-row">
+            <span class="fig-label">
+              <img
+                src="/fotojmPerfil.PNG"
+                alt="Juan Manuel Puccio"
+                class="portrait-micro-thumb"
+                loading="eager"
+              />
+              Fig. 01 · {lang === 'pt' ? 'Rosário' : 'Rosario'}, 2026
+            </span>
+            <span class="fig-cue">10º gup → 1º dan · {lang === 'es' ? 'Desplázate' : lang === 'en' ? 'Scroll' : 'Role'} ↓</span>
+          </figcaption>
+        </figure>
       </div>
 
       <div class="hero-belt-track"></div>
@@ -481,34 +483,51 @@ const initialBelt = BELTS[initialBeltStage?.beltKey ?? 'blanco'];
 
   .hero-portrait-col {
     justify-self: end;
-    width: clamp(140px, min(17vw, 30vh), 250px);
+    width: 100%;
+    max-width: 540px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
 
-  .portrait-slot {
+  .hero-slot-target {
     width: 100%;
-    aspect-ratio: 4 / 5;
-    background: rgba(28, 26, 23, 0.08);
-    overflow: hidden;
-  }
-
-  .portrait-img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: grayscale(1) contrast(1.06);
-    mix-blend-mode: multiply;
+    aspect-ratio: 3 / 2;
+    border: 1px solid rgba(28, 26, 23, 0.12);
+    background: #ffffff;
   }
 
   .portrait-caption-row {
-    margin-top: 10px;
+    margin-top: 4px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    gap: 12px;
     font-family: var(--font-mono, monospace);
     font-size: 11px;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: #6a645a;
+  }
+
+  .fig-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .portrait-micro-thumb {
+    width: 36px;
+    height: 44px;
+    object-fit: cover;
+    object-position: 50% 20%;
+    filter: grayscale(0.2);
+    border: 1px solid rgba(28, 26, 23, 0.15);
+  }
+
+  .fig-cue {
+    text-align: right;
   }
 
   .hero-belt-track {

@@ -3,7 +3,6 @@ import '../styles/global.css';
 import type { Lang } from '../i18n/ui';
 import { languages, useTranslations } from '../i18n/ui';
 import { CV_URL } from '../data/contact';
-import BeltKnot from '../components/BeltKnot.astro';
 
 interface Props {
   title: string;
@@ -76,13 +75,20 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
           <span class="brand-role" aria-hidden="true">{t('header.role')}</span>
         </a>
 
+        <!-- 6 Nav Ticks correspondientes a los 6 capítulos marciales (Claude Design) -->
+        <nav class="header-ticks" id="header-ticks" aria-label="Capítulos del portfolio">
+          <a href="#blanco" title="Blanco · 10º gup" class="tick-link is-active" data-belt="blanco" style="--tick-color: #ffffff;"></a>
+          <a href="#amarillo" title="Amarillo · 9º — 8º gup" class="tick-link" data-belt="amarillo" style="--tick-color: #fbbf24;"></a>
+          <a href="#verde" title="Verde · 7º — 6º gup" class="tick-link" data-belt="verde" style="--tick-color: #10b981;"></a>
+          <a href="#azul" title="Azul · 5º — 4º gup" class="tick-link" data-belt="azul" style="--tick-color: #0284c7;"></a>
+          <a href="#rojo" title="Rojo · 3º — 1º gup" class="tick-link" data-belt="rojo" style="--tick-color: #ef4444;"></a>
+          <a href="#negro" title="Negro · 1º dan" class="tick-link" data-belt="negro" style="--tick-color: #1c1a17;"></a>
+        </nav>
+
         <div class="header-right-group">
-          <!-- Current martial grade, updated by the trajectory timeline script -->
-          <div class="header-grade-pill">
-            <span class="header-grade-label">{t('header.grade')}</span>
-            <span class="header-belt-swatch" id="header-belt-indicator"></span>
-            <BeltKnot class="header-belt-knot" />
-            <span class="header-gup-text" id="header-gup-indicator">10º<span class="header-gup-word"> gup</span></span>
+          <!-- Indicador dinámico del capítulo activo -->
+          <div class="header-active-ch" id="header-active-ch" aria-live="polite">
+            10º GUP · INICIO
           </div>
 
           <!-- Typographic language switch -->
@@ -103,6 +109,11 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
               );
             })}
           </div>
+
+          <!-- Contactar enlace rápido -->
+          <a href="#contacto" class="header-contact-link">
+            {lang === 'es' ? 'Contactar' : lang === 'en' ? 'Contact' : 'Contato'}
+          </a>
 
           <!-- Descargar CV -->
           <a href={CV_URL} target="_blank" rel="noopener noreferrer" class="header-cv-btn">
@@ -165,22 +176,68 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     progressBar.style.width = `${progress * 100}%`;
   }
 
-  const headerGradePill = document.querySelector<HTMLElement>('.header-grade-pill');
-  function setHeaderBeltColor(color: string) {
-    headerGradePill?.style.setProperty('--active-belt-color', color);
-    document.documentElement.style.setProperty('--active-belt-color', color);
+  const siteHeader = document.querySelector<HTMLElement>('.site-header');
+  const activeChLabel = document.getElementById('header-active-ch');
+  const tickLinks = document.querySelectorAll<HTMLAnchorElement>('.tick-link');
+
+  const BELT_ORDER = ['blanco', 'amarillo', 'verde', 'azul', 'rojo', 'negro'];
+  const BELT_LABELS: Record<string, string> = {
+    blanco: '10º GUP · CIMIENTOS',
+    amarillo: '9º — 8º GUP · LA CALLE',
+    verde: '7º — 6º GUP · EL ESTADO',
+    azul: '5º — 4º GUP · RECONVERSIÓN',
+    rojo: '3º — 1º GUP · LA FRICCIÓN',
+    negro: '1º DAN · PRODUCCIÓN',
+  };
+
+  function updateActiveBelt(beltKey: string) {
+    if (!beltKey) return;
+    const key = beltKey.toLowerCase();
+    const idx = BELT_ORDER.indexOf(key);
+
+    tickLinks.forEach((tick, i) => {
+      if (i === idx) {
+        tick.classList.add('is-active');
+        tick.classList.remove('is-passed');
+      } else if (i < idx) {
+        tick.classList.remove('is-active');
+        tick.classList.add('is-passed');
+      } else {
+        tick.classList.remove('is-active', 'is-passed');
+      }
+    });
+
+    if (activeChLabel && BELT_LABELS[key]) {
+      activeChLabel.textContent = BELT_LABELS[key];
+    }
+
+    if (key === 'negro') {
+      siteHeader?.classList.add('is-dark');
+    } else {
+      siteHeader?.classList.remove('is-dark');
+    }
   }
 
-  const initialBeltColor = document.documentElement.dataset.activeBeltColor;
-  if (initialBeltColor) setHeaderBeltColor(initialBeltColor);
-
   function syncHeaderBeltColor(event: Event) {
-    const color = (event as CustomEvent<{ color?: string }>).detail?.color;
-    if (color) setHeaderBeltColor(color);
+    const detail = (event as CustomEvent<{ color?: string; stageKey?: string; beltKey?: string }>).detail;
+    if (detail?.beltKey) {
+      updateActiveBelt(detail.beltKey);
+    } else if (detail?.color) {
+      const colorMap: Record<string, string> = {
+        '#ffffff': 'blanco',
+        '#ece8df': 'blanco',
+        '#fbbf24': 'amarillo',
+        '#10b981': 'verde',
+        '#0284c7': 'azul',
+        '#ef4444': 'rojo',
+        '#1c1a17': 'negro',
+      };
+      const found = colorMap[detail.color.toLowerCase()];
+      if (found) updateActiveBelt(found);
+    }
   }
 
   window.addEventListener('belt:change', syncHeaderBeltColor);
-
   window.addEventListener('scroll', updateHeaderProgress, { passive: true });
   window.addEventListener('resize', updateHeaderProgress);
   updateHeaderProgress();
@@ -195,8 +252,92 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     z-index: 50;
     height: 60px;
     background: #f2eee6;
-    border-bottom: 1px solid rgba(28, 26, 23, 0.22);
+    border-bottom: 1px solid rgba(28, 26, 23, 0.18);
     padding: 0 clamp(20px, 5vw, 72px);
+    transition: background 0.5s, color 0.5s, border-color 0.5s;
+  }
+
+  .site-header.is-dark {
+    background: rgba(28, 26, 23, 0.88);
+    border-bottom: 1px solid rgba(242, 238, 230, 0.14);
+    backdrop-filter: blur(10px);
+  }
+
+  .site-header.is-dark .brand-name,
+  .site-header.is-dark .brand-initials,
+  .site-header.is-dark .header-contact-link,
+  .site-header.is-dark .lang-min-link {
+    color: #f2eee6;
+  }
+
+  .site-header.is-dark .header-active-ch,
+  .site-header.is-dark .brand-role {
+    color: #c9c3b7;
+  }
+
+  .site-header.is-dark .tick-link {
+    border-color: #f2eee6;
+  }
+
+  .site-header.is-dark .header-cv-btn {
+    background: #f2eee6;
+    color: #1c1a17;
+  }
+
+  .header-ticks {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .tick-link {
+    display: block;
+    height: 8px;
+    width: 14px;
+    background: var(--tick-color);
+    border: 1px solid #1c1a17;
+    opacity: 0.35;
+    transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s, border-color 0.4s;
+  }
+
+  .tick-link.is-active {
+    width: 34px;
+    opacity: 1;
+  }
+
+  .tick-link.is-passed {
+    opacity: 1;
+  }
+
+  .header-active-ch {
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #4a463f;
+    transition: color 0.4s;
+  }
+
+  .header-contact-link {
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #1c1a17;
+    text-decoration: none;
+    transition: color 0.4s;
+  }
+
+  .header-contact-link:hover {
+    color: #0369a1;
+  }
+
+  @media (max-width: 768px) {
+    .header-active-ch, .header-contact-link {
+      display: none;
+    }
   }
 
   .header-inner {
