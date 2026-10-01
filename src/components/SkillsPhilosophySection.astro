@@ -19,14 +19,13 @@ const GLYPHS: Record<string, string> = {
   business: '⌂',
   certifications: 'B2',
 };
----
-
-<section
+---<section
   id="stack-filosofia"
   data-zone="dark"
   data-ch="6"
   class="skills-philo-section"
 >
+  <!-- ── Part 1: Sticky title (left) + Horizontal stack cards (right) ── -->
   <div class="skills-philo-split-layout">
     <!-- Sticky Left Column -->
     <div class="skills-sticky-column">
@@ -47,12 +46,11 @@ const GLYPHS: Record<string, string> = {
       </div>
     </div>
 
-    <!-- Scrolling Right Column -->
+    <!-- Right Column: horizontal card track only -->
     <div class="skills-scrolling-column">
-      <!-- 5 Technical Stack Categories -->
       <div class="skills-categories-header">
         <span class="mono-badge">
-          {lang === 'es' ? 'STACK TÉCNICO · DESLIZAR HORIZONTALMENTE →' : lang === 'en' ? 'TECH STACK · SCROLL HORIZONTALLY →' : 'STACK TÉCNICO · DESLIZE HORIZONTALMENTE →'}
+          {lang === 'es' ? 'STACK TÉCNICO · DESLIZÁ PARA VER MÁS →' : lang === 'en' ? 'TECH STACK · SCROLL TO SEE MORE →' : 'STACK TÉCNICO · DESLIZE PARA VER MAIS →'}
         </span>
       </div>
       <div class="skills-categories-list">
@@ -75,54 +73,57 @@ const GLYPHS: Record<string, string> = {
           );
         })}
       </div>
+    </div>
+  </div>
 
-      <!-- Section: Fuera del Código & Dimensión Humana -->
-      <div class="human-dimension-wrapper">
-        <div class="human-header">
-          <span class="mono-badge">
-            {lang === 'es' ? 'FUERA DEL CÓDIGO' : lang === 'en' ? 'BEYOND THE CODE' : 'ALÉM DO CÓDIGO'}
-          </span>
-          <h3 class="human-title">
-            {lang === 'es' ? 'La Dimensión Humana & Ética Operativa' : lang === 'en' ? 'The Human Dimension & Operational Ethics' : 'A Dimensão Humana & Ética Operacional'}
-          </h3>
-        </div>
+  <!-- ── Part 2: Full-width vertical section — Fuera del Código ── -->
+  <div class="human-dimension-section">
+    <div class="human-dimension-inner">
+      <div class="human-dimension-header">
+        <span class="mono-badge">
+          {lang === 'es' ? 'FUERA DEL CÓDIGO' : lang === 'en' ? 'BEYOND THE CODE' : 'ALÉM DO CÓDIGO'}
+        </span>
+        <h3 class="human-title">
+          {lang === 'es' ? 'La Dimensión Humana & Ética Operativa' : lang === 'en' ? 'The Human Dimension & Operational Ethics' : 'A Dimensão Humana & Ética Operacional'}
+        </h3>
+      </div>
 
-        <!-- Philosophy Articles -->
-        <div class="philosophy-items-list">
-          {philosophy.map((ph) => (
-            <article class="philosophy-card">
-              <h4 class="philosophy-card-title">{ph.title}</h4>
-              <span class="philosophy-card-sub">{ph.subtitle}</span>
-              <p class="philosophy-card-desc">{ph.description}</p>
-              <blockquote class="philosophy-quote">
-                “{ph.quote}”
-              </blockquote>
-            </article>
-          ))}
-        </div>
+      <!-- Philosophy Articles -->
+      <div class="philosophy-items-list">
+        {philosophy.map((ph) => (
+          <article class="philosophy-card">
+            <h4 class="philosophy-card-title">{ph.title}</h4>
+            <span class="philosophy-card-sub">{ph.subtitle}</span>
+            <p class="philosophy-card-desc">{ph.description}</p>
+            <blockquote class="philosophy-quote">
+              "{ph.quote}"
+            </blockquote>
+          </article>
+        ))}
+      </div>
 
-        <!-- 5 Korean Martial Tenets / Principles -->
-        <div class="tkd-principles-block">
-          <span class="mono-badge">{principles.label}</span>
-          <div class="principles-grid">
-            {principles.items.map((pr) => {
-              const fontSize = pr.hangul.length > 2 ? '13px' : '19px';
-              return (
-                <div class="principle-card">
-                  <div class="principle-seal-box" style={`font-size: ${fontSize};`}>
-                    {pr.hangul}
-                  </div>
-                  <span class="principle-name">{pr.name}</span>
-                  <span class="principle-line">{pr.line}</span>
+      <!-- 5 Korean Martial Tenets / Principles -->
+      <div class="tkd-principles-block">
+        <span class="mono-badge">{principles.label}</span>
+        <div class="principles-grid">
+          {principles.items.map((pr) => {
+            const fontSize = pr.hangul.length > 2 ? '13px' : '19px';
+            return (
+              <div class="principle-card">
+                <div class="principle-seal-box" style={`font-size: ${fontSize};`}>
+                  {pr.hangul}
                 </div>
-              );
-            })}
-          </div>
+                <span class="principle-name">{pr.name}</span>
+                <span class="principle-line">{pr.line}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
   </div>
 </section>
+
 
 <style>
   .skills-philo-section {
@@ -334,28 +335,45 @@ const GLYPHS: Record<string, string> = {
     border-top: 1px solid rgba(242, 238, 230, 0.08);
   }
 
-  /* Human Dimension */
-  .human-dimension-wrapper {
+  /* ── Part 2: Fuera del Código — full-width vertical section ── */
+  .human-dimension-section {
     border-top: 1px solid rgba(242, 238, 230, 0.18);
-    padding-top: 48px;
-    display: flex;
-    flex-direction: column;
-    gap: 36px;
-    margin-top: 24px;
+    padding: clamp(64px, 10vh, 120px) clamp(20px, 5vw, 72px);
   }
 
-  .human-header {
+  .human-dimension-inner {
+    max-width: 1600px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 48px clamp(40px, 6vw, 96px);
+    align-items: start;
+  }
+
+  @media (max-width: 991px) {
+    .human-dimension-inner {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+  }
+
+  /* Header spans full width */
+  .human-dimension-header {
+    grid-column: 1 / -1;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 10px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(242, 238, 230, 0.12);
   }
 
   .human-title {
     margin: 0;
     font-family: var(--font-serif, 'Source Serif 4', serif);
     font-weight: 300;
-    font-size: clamp(28px, 2.6vw, 42px);
+    font-size: clamp(32px, 3.5vw, 56px);
     line-height: 1.05;
+    letter-spacing: -0.02em;
     color: #f2eee6;
   }
 
