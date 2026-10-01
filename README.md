@@ -75,26 +75,26 @@ npm run preview
 ```
 src/
 ├── components/
-│   ├── HomePage.astro          # Hero, sections, QR modal (all locales)
-│   ├── ProjectsSection.astro   # Bento grid of 4 production systems
-│   ├── ExperienceTimeline.astro # 4-milestone career arc
+│   ├── HomePage.astro                  # Hero, sections, QR modal (all locales)
+│   ├── ProjectsSection.astro           # Bento grid of 4 production systems
+│   ├── MartialExperienceTimeline.astro # Martial & career timeline scrollytelling
 │   ├── SkillsPhilosophySection.astro
 │   └── ContactSection.astro
 ├── pages/
-│   ├── index.astro             # Spanish (/), imports HomePage
-│   ├── en/index.astro          # English (/en), imports HomePage
-│   └── pt/index.astro          # Portuguese (/pt), imports HomePage
+│   ├── index.astro                     # Spanish (/), imports HomePage
+│   ├── en/index.astro                  # English (/en), imports HomePage
+│   └── pt/index.astro                  # Portuguese (/pt), imports HomePage
 ├── data/
-│   ├── projects.ts             # 4 systems + automations
-│   ├── experience.ts           # Career milestones & competencies
-│   ├── skills.ts               # Tech stack & soft skills
-│   └── contact.ts              # Links, CV URL
+│   ├── projects.ts                     # 4 systems + automations
+│   ├── martialExperience.ts            # Career milestones & TKD belts
+│   ├── skills.ts                       # Tech stack & soft skills
+│   └── contact.ts                      # Links, CV URL
 ├── i18n/
-│   └── ui.ts                   # All copy in 3 languages + CV URL
+│   └── ui.ts                           # Copy & header dictionary
 ├── layouts/
-│   └── Layout.astro            # HTML boilerplate
+│   └── Layout.astro                    # HTML boilerplate & font imports
 └── styles/
-    └── global.css              # Design tokens
+    └── global.css                      # Design tokens (Warm Editorial)
 ```
 
 ---
@@ -113,9 +113,9 @@ src/
 ## 📄 Documentation
 
 - **[AGENTS.md](AGENTS.md)** — Engineering criteria, architecture rules, skills registry
-- **[DESIGN.md](DESIGN.md)** — Design system: warm editorial light theme, color tokens
-- **[docs/ANALISIS_STACK_TECNOLOGICO.md](docs/ANALISIS_STACK_TECNOLOGICO.md)** — Stack decisions & islands strategy
-- **[docs/COPY_Y_DICCIONARIO_WEB.md](docs/COPY_Y_DICCIONARIO_WEB.md)** — All page copy (ES/EN/PT)
+- **[DESIGN.md](DESIGN.md)** — Design system: warm editorial light theme, color tokens (canonical source)
+- **[PRODUCT.md](PRODUCT.md)** — Product positioning, audiences, and strategy
+- **[rules/Copywriting.md](rules/Copywriting.md)** — All page copy (ES/EN/PT)
 
 ---
 

@@ -1,9 +1,12 @@
 # Design System: Portfolio Juan Manuel Puccio 2026
-**Editorial Organic + EyeCare Dark — Profesional de precisión técnica**
+
+> ⚠️ **DEPRECATED / ARCHIVADO HISTÓRICO**  
+> Este documento representa una iteración previa de diseño (que contemplaba tema dual y la tipografía *Anybody*).  
+> **La fuente de verdad canónica y actualizada es [`DESIGN.md`](DESIGN.md)**, la cual está 100% engranada con `src/styles/global.css` y la arquitectura actual.
 
 ---
 
-## Filosofía de Diseño
+## Filosofía de Diseño (Histórica)
 Portfolio de desarrollador full-stack que adopta una dirección **editorial, orgánica y de alta legibilidad**, diseñado para reclutadores y equipos técnicos con soporte de cambio de tema. Desecha IA genérica (gradientes morados, negros puros) en favor de claridad operativa inspirada en papel editorial de calidad, cerámica y lino técnico.
 
 **Dos temas:**
