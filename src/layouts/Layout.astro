@@ -423,15 +423,19 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
       // the native one. 0 keeps anchors aligned with a plain fragment jump: 80px
       // below the viewport top, clear of the 60px fixed header.
       anchors: { offset: 0 },
-      // Nested scrollers ([data-nested-scroll]) scroll natively ONLY while they can
-      // actually scroll; otherwise wheel events keep Lenis smoothing, so desktop
-      // (where these elements are not scrollable) has no unsmoothed dead zone.
-      // Replaces the old nested-scroll DOM sweep, which walked the tree on every
-      // scroll event.
-      prevent: (node) => {
-        const el = node instanceof Element ? node.closest<HTMLElement>('[data-nested-scroll]') : null;
-        if (!el) return false;
-        return el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1;
+      // Nested scrollers ([data-nested-scroll]) only get the gesture when their
+      // overflow matches the gesture AXIS: vertical wheel over a horizontal-only
+      // container (e.g. the architecture pipeline at desktop widths) stays on the
+      // smoothed page, touchpad/shift horizontal over it goes native, and a mobile
+      // project card still scrolls its own vertical overflow. Replaces prevent,
+      // which was axis-blind and turned the whole dark tail into unsmoothed scroll.
+      virtualScroll: ({ deltaX, deltaY, event }) => {
+        const target = event.target;
+        const el = target instanceof Element ? target.closest<HTMLElement>('[data-nested-scroll]') : null;
+        if (!el) return true;
+        const isVertical = Math.abs(deltaY) >= Math.abs(deltaX);
+        if (isVertical) return el.scrollHeight <= el.clientHeight + 1;
+        return el.scrollWidth <= el.clientWidth + 1;
       },
     });
 

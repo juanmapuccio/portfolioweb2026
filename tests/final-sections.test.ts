@@ -975,9 +975,12 @@ describe('scroll engine consolidation T4: belt3d single loop', () => {
 });
 
 describe('scroll engine consolidation T5: lenis hygiene + single-source radius', () => {
-  test('drops allowNestedScroll for a conditional prevent callback on real scrollers', () => {
+  test('drops allowNestedScroll for an axis-aware virtualScroll on real scrollers', () => {
     expect(layout).not.toContain('allowNestedScroll');
-    expect(layout).toContain('prevent: (node)');
+    // T5's prevent callback was axis-blind and killed smoothing across the dark
+    // tail (pipeline-track always overflows horizontally) — replaced in D1.
+    expect(layout).not.toContain('prevent: (node)');
+    expect(layout).toContain('virtualScroll: ({ deltaX, deltaY, event })');
     expect(layout).toContain('[data-nested-scroll]');
     expect(projectsSection).toContain('data-nested-scroll');
     expect(archDiagram).toContain('data-nested-scroll');
