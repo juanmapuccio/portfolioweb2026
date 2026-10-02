@@ -115,6 +115,15 @@ interface ZoneEntry {
   el: HTMLElement;
 }
 
+interface SceneEntry {
+  el: HTMLElement;
+  index: number;
+  last: boolean;
+  lastP: string;
+  lastV: string;
+  lastE: string;
+}
+
 const IS_BROWSER = typeof window !== 'undefined';
 
 if (IS_BROWSER) {
@@ -127,10 +136,22 @@ if (IS_BROWSER) {
 // matchMedia call (runtime mq changes were never handled upstream).
 const isReduced = IS_BROWSER && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// Mobile (<=767px) swaps the desktop scroll tree for the immersive scenes
+// (MobileImmersive.astro). The breakpoint mirrors the CSS swap in HomePage.astro:
+// on mobile only `[data-scene]` nodes register, on desktop only the `[data-fx]` /
+// `[data-zone]` nodes do, so the hidden tree is never measured. Registrations
+// skipped by the gate are parked and replayed if the viewport crosses the
+// breakpoint later (see onBreakpointChange).
+const mobileMq = IS_BROWSER ? window.matchMedia('(max-width: 767px)') : null;
+const isMobileViewport = (): boolean => mobileMq?.matches ?? false;
+const deferredForDesktop: Array<() => void> = [];
+const deferredForMobile: Array<() => void> = [];
+
 // Idempotency guards: no element can be registered twice — the WeakSet the
 // spec mandates for future ClientRouter / astro:page-load re-init flows.
 const registeredFx = new WeakSet<HTMLElement>();
 const registeredZones = new WeakSet<HTMLElement>();
+const registeredScenes = new WeakSet<Element>();
 
 // Strong lists backing the initial pass and late-registration catch-up. The
 // elements are page-lifetime nodes — the same assumption as the old engine's
@@ -256,6 +277,10 @@ function updateBlackZone(entry: ZoneEntry, p: number): void {
  *  translate3d shift. One ScrollTrigger per element, idempotent. */
 export function registerFx(el: HTMLElement, opts?: FxRegistrationOptions): void {
   if (typeof window === 'undefined') return;
+  if (isMobileViewport()) {
+    deferredForDesktop.push(() => registerFx(el, opts));
+    return;
+  }
   if (registeredFx.has(el)) return;
   registeredFx.add(el);
 
@@ -311,6 +336,10 @@ export function registerFx(el: HTMLElement, opts?: FxRegistrationOptions): void 
  *  the black curtain — also scrubs `belt:black-progress` on every update. */
 export function registerZone(el: HTMLElement): void {
   if (typeof window === 'undefined') return;
+  if (isMobileViewport()) {
+    deferredForDesktop.push(() => registerZone(el));
+    return;
+  }
   if (registeredZones.has(el)) return;
   registeredZones.add(el);
 
@@ -343,6 +372,87 @@ export function registerZone(el: HTMLElement): void {
     const mid = window.innerHeight / 2;
     if (rect.top <= mid && rect.bottom > mid) activateZone(entry);
   }
+}
+
+// ---------------------------------------------------------------------------
+// Mobile immersive scenes
+// ---------------------------------------------------------------------------
+
+const clamp01 = (x: number): number => Math.min(1, Math.max(0, x));
+const fmt = (x: number): string => clamp01(x).toFixed(4);
+
+/** Dirty-checked --p / --v / --e write. Same math as the reference design:
+ *  p = progress through the pinned span (height - 2 viewports, 1 for the last
+ *  scene), v = entrance (the layer wipes in as its top crosses the viewport),
+ *  e = exit (the layer recedes as its bottom leaves). */
+function writeScene(entry: SceneEntry): void {
+  const ih = window.innerHeight;
+  const rect = entry.el.getBoundingClientRect();
+  const span = rect.height - ih * (entry.last ? 1 : 2);
+  const p = span > 0 ? fmt(-rect.top / span) : '0.0000';
+  const v = entry.index === 0 ? '1.0000' : fmt(1 - rect.top / ih);
+  const e = entry.last ? '0.0000' : fmt((ih * 2 - rect.bottom) / ih);
+  if (p !== entry.lastP) {
+    entry.lastP = p;
+    entry.el.style.setProperty('--p', p);
+  }
+  if (v !== entry.lastV) {
+    entry.lastV = v;
+    entry.el.style.setProperty('--v', v);
+  }
+  if (e !== entry.lastE) {
+    entry.lastE = e;
+    entry.el.style.setProperty('--e', e);
+  }
+}
+
+/** Registers one mobile immersive scene (`[data-scene]` inside
+ *  `.mobile-immersive`): writes `--p`, `--v` and `--e`. One ScrollTrigger per
+ *  element, idempotent, mobile-only (parked on desktop). Reduced motion freezes
+ *  the scene at its final state (--p: 1, --v: 1, --e: 0) with no trigger. */
+export function registerScene(el: HTMLElement): void {
+  if (typeof window === 'undefined') return;
+  if (!isMobileViewport()) {
+    deferredForMobile.push(() => registerScene(el));
+    return;
+  }
+  if (registeredScenes.has(el)) return;
+  registeredScenes.add(el);
+
+  const scenes = Array.from((el.closest('.mobile-immersive') ?? document).querySelectorAll<HTMLElement>('[data-scene]'));
+  const index = Math.max(0, scenes.indexOf(el));
+  const entry: SceneEntry = { el, index, last: index === scenes.length - 1, lastP: '', lastV: '', lastE: '' };
+
+  if (isReduced) {
+    entry.lastP = '1.0000';
+    entry.lastV = '1.0000';
+    entry.lastE = '0.0000';
+    el.style.setProperty('--p', '1');
+    el.style.setProperty('--v', '1');
+    el.style.setProperty('--e', '0');
+    return;
+  }
+
+  ScrollTrigger.create({
+    trigger: el,
+    start: 'top bottom',
+    end: 'bottom top',
+    onUpdate: () => writeScene(entry),
+    // Refresh also paints the off-screen (before/after range) state once.
+    onRefresh: () => writeScene(entry),
+  });
+
+  if (booted) writeScene(entry);
+}
+
+/** Crossing the 767px breakpoint after load: replay the registrations the gate
+ *  parked for the new mode, then re-measure. Already-registered nodes of the
+ *  other mode stay registered but sit in a display:none tree (zero rects), so
+ *  they are inert. */
+function onBreakpointChange(): void {
+  const queue = isMobileViewport() ? deferredForMobile : deferredForDesktop;
+  queue.splice(0).forEach((run) => run());
+  ScrollTrigger.refresh();
 }
 
 // ---------------------------------------------------------------------------
@@ -397,6 +507,8 @@ if (IS_BROWSER) {
     const parsed = Number.parseFloat(raw);
     blackCircleMaxRadius = Number.isFinite(parsed) && parsed > 0 ? parsed : BLACK_CIRCLE_MAX_RADIUS_FALLBACK;
   });
+
+  mobileMq?.addEventListener('change', onBreakpointChange);
 
   // Web fonts change text metrics and section heights; re-measure trigger
   // positions once (same hook the manifesto used before T3 absorbs it).
