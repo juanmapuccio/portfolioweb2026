@@ -417,3 +417,21 @@ describe('immersive journey T4: lenis responsiveness', () => {
     expect(config).not.toContain('syncTouch: true');
   });
 });
+
+describe('immersive journey T5: calm 3D motion', () => {
+  test('normalizes slot smoothing to elapsed time so high-refresh displays do not race', () => {
+    // A per-frame constant applies 4x more often at 240Hz than at 60Hz, making
+    // the belt chase its slot (and the scroll) far too fast on capable machines.
+    expect(belt3d).toContain('Math.exp(-');
+    expect(belt3d).not.toContain('const k = 0.08;');
+  });
+
+  test('keeps idle sway and breathing subtle', () => {
+    const sway = /Math\.sin\(t \* [0-9.]+\) \* THREE\.MathUtils\.degToRad\(([0-9.]+)\)/.exec(belt3d);
+    expect(sway).not.toBeNull();
+    expect(Number(sway?.[1])).toBeLessThanOrEqual(6);
+    const breathing = /belt\.scale\.setScalar\([0-9.]+ \+ ([0-9.]+) \* Math\.sin/.exec(belt3d);
+    expect(breathing).not.toBeNull();
+    expect(Number(breathing?.[1])).toBeLessThanOrEqual(0.005);
+  });
+});

@@ -295,7 +295,14 @@
     let lastT = 0;
     let curSlot: { x: number; y: number; w: number; h: number; o: number } | null = null;
 
-    function updateBeltPosition() {
+    // T5: smoothing must be refresh-rate independent. A per-frame constant
+    // (e.g. k = 0.08) converges ~4x faster at 240Hz than at 60Hz, which made
+    // the belt race across the screen on high-refresh machines. Rate-based
+    // easing covers the same fraction of the gap per second at any framerate.
+    // 4.5/s ≈ 220ms time constant — matches the original 60Hz intent, calmer above it.
+    const SMOOTH_RATE = 4.5;
+
+    function updateBeltPosition(dt: number) {
       const H = window.innerHeight;
       const mid = H / 2;
       const zones = Array.from(document.querySelectorAll<HTMLElement>('[data-zone]'));
@@ -330,14 +337,14 @@
 
       if (!curSlot && tgt) curSlot = { x: tgt.left, y: tgt.top, w: tgt.width, h: tgt.height, o: 0 };
       if (!curSlot) return;
+      const k = 1 - Math.exp(-SMOOTH_RATE * dt);
       if (tgt) {
-        const k = 0.08;
         curSlot.x += (tgt.left - curSlot.x) * k;
         curSlot.y += (tgt.top - curSlot.y) * k;
         curSlot.w += (tgt.width - curSlot.w) * k;
         curSlot.h += (tgt.height - curSlot.h) * k;
       }
-      curSlot.o += (op - curSlot.o) * 0.08;
+      curSlot.o += (op - curSlot.o) * k;
       const s = Math.min(curSlot.w / W0, curSlot.h / H0) * 0.92;
       const x = curSlot.x + (curSlot.w - W0 * s) / 2;
       const y = curSlot.y + (curSlot.h - H0 * s) / 2;
@@ -350,11 +357,15 @@
     const frame = () => {
       raf = requestAnimationFrame(frame);
       const t = (performance.now() - t0) / 1000;
+      // Clamp dt so a backgrounded tab does not teleport the belt on resume.
+      const dt = Math.min(0.05, Math.max(0, t - lastT));
       lastT = t;
-      const auto = dragging ? 0 : Math.sin(t * 0.6) * THREE.MathUtils.degToRad(10);
+      // T5: idle sway halved (±10° → ±5°) and slowed (0.6 → 0.35 rad/s);
+      // breathing amplitude halved as well. Motion should whisper, not wave.
+      const auto = dragging ? 0 : Math.sin(t * 0.35) * THREE.MathUtils.degToRad(5);
       belt.rotation.y = state.drag + auto;
-      belt.scale.setScalar(1.01 + 0.01 * Math.sin(t * 1.2));
-      updateBeltPosition();
+      belt.scale.setScalar(1.005 + 0.005 * Math.sin(t * 0.6));
+      updateBeltPosition(dt);
       renderer.render(scene, camera);
     };
 
