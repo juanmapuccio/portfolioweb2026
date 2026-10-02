@@ -27,6 +27,16 @@
   --accent-amber: oklch(0.84 0.15 90);   /* Fricción y alertas de negocio */
   --shadow-card: 0 4px 20px rgba(28, 26, 23, 0.04);
 
+  /* Belt scale (DESIGN.md) and the dark panel used by the mobile immersive scenes */
+  --belt-white: #ffffff;
+  --belt-yellow: #fbbf24;
+  --belt-green: #10b981;
+  --belt-blue: #0284c7;
+  --belt-red: #ef4444;
+  --belt-black: #1c1a17;
+  --panel-dark: #1c1a17;
+  --panel-dark-fg: #f2eee6;
+
   --max-width: 1600px;
   --radius-sm: 0px;
   --radius-md: 0px;
