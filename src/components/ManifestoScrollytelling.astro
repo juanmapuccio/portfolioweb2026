@@ -1,5 +1,6 @@
 ---
 import type { Lang } from '../i18n/ui';
+import { manifestoText } from '../data/manifesto';
 
 interface Props {
   lang: Lang;
@@ -7,13 +8,7 @@ interface Props {
 
 const { lang } = Astro.props;
 
-const manifestoText = {
-  es: "Cimientos en robótica y programación, forjados en la trinchera operativa más exigente. Hoy construyo y estabilizo software de negocio en producción.",
-  en: "Foundations in robotics and programming, forged in demanding operational trenches. Today I build and stabilize production business software.",
-  pt: "Alicerce em robótica e programação, forjado na trincheira operacional mais exigente. Hoje construo e estabilizo software de negócio em produção."
-}[lang];
-
-const words = manifestoText.split(' ').map((w, i, arr) => ({
+const words = manifestoText[lang].split(' ').map((w, i, arr) => ({
   word: w,
   progressThreshold: (i / arr.length).toFixed(3)
 }));

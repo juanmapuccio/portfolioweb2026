@@ -327,11 +327,46 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     return (window as LenisWindow).__lenis;
   }
 
+  // Mobile (<=767px) swaps the desktop tree for the immersive scenes
+  // (MobileImmersive.astro), which carry their own `m-*` ids. Same breakpoint as
+  // the CSS swap in HomePage.astro; desktop resolution below is untouched.
+  const mobileNav = window.matchMedia('(max-width: 767px)');
+  const MOBILE_NAV_IDS: Record<string, string> = {
+    top: 'm-top',
+    proyectos: 'm-proyectos',
+    trayectoria: 'm-trayectoria',
+    contacto: 'm-contacto',
+  };
+  // Landing point of each mobile scene as a fraction of its pinned span: first
+  // card / first scene frame, and the contact title fully risen.
+  const MOBILE_REVEAL_FRACTIONS: Record<string, number> = { top: 0, proyectos: 0, trayectoria: 0, contacto: 0.5 };
+
+  /** Mobile resolution: the header belt ticks (#blanco...#negro) land on the
+   *  belts scene row they represent; the other owned anchors land on their scene. */
+  function resolveMobileNavTarget(id: string): NavTarget | null {
+    const beltIndex = BELT_ORDER.indexOf(id);
+    const sceneId = beltIndex >= 0 ? 'trayectoria' : id;
+    const mobileId = MOBILE_NAV_IDS[sceneId];
+    const node = mobileId ? document.getElementById(mobileId) : null;
+    if (!node) return null;
+    if (beltIndex < 0) return { node, fraction: MOBILE_REVEAL_FRACTIONS[sceneId] ?? 0 };
+    // Scene progress p maps to scroll as top + p * (height - 2vh); the shared
+    // formula uses (height - 1vh), so rescale. Row i is fully drawn at p = (i + 1) / 6.5.
+    const ih = window.innerHeight;
+    const pinned = node.offsetHeight - ih;
+    const p = Math.min(1, (beltIndex + 0.95) / 6.5);
+    return { node, fraction: pinned > 0 ? (p * (node.offsetHeight - ih * 2)) / pinned : 0 };
+  }
+
   /** Resolves a `#hash` to the reveal-driven element plus the fraction of its
    *  scroll range where the content is fully revealed. Returns null for anchors
    *  we do not own, so those keep Lenis's default anchor behavior. */
   function resolveNavTarget(hash: string): NavTarget | null {
     if (!hash.startsWith('#') || hash.length < 2) return null;
+    if (mobileNav.matches) {
+      const mobileTarget = resolveMobileNavTarget(hash.slice(1));
+      if (mobileTarget) return mobileTarget;
+    }
     const section = document.getElementById(hash.slice(1));
     if (!section) return null;
     const curtain = section.matches('[data-nav-target]')

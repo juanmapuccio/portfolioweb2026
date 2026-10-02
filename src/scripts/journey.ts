@@ -404,6 +404,21 @@ function writeScene(entry: SceneEntry): void {
     entry.lastE = e;
     entry.el.style.setProperty('--e', e);
   }
+  syncSceneBelt(entry, Number(p), Number(v));
+}
+
+/** Keeps the header chapter ticks meaningful on mobile, where the desktop belt
+ *  zones are not registered: the belts scene walks blanco -> rojo with its own
+ *  progress (negro is held back so the header never turns dark over the cream
+ *  scene) and the dark contact panel flips the header once its reveal covers
+ *  the viewport. belt:change stays deduped by applyBelt. */
+function syncSceneBelt(entry: SceneEntry, p: number, v: number): void {
+  const kind = entry.el.dataset.scene;
+  if (kind === 'belts') {
+    applyBelt(v >= 1 ? CHAPTER_KEYS[Math.min(5, Math.floor(p * 6.5) + 1)] : CHAPTER_KEYS[0]);
+  } else if (kind === 'contact' && v >= 0.7) {
+    applyBelt(CHAPTER_KEYS[6]);
+  }
 }
 
 /** Registers one mobile immersive scene (`[data-scene]` inside

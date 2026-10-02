@@ -10,6 +10,7 @@ import MartialExperienceTimeline from './MartialExperienceTimeline.astro';
 import SkillsPhilosophySection from './SkillsPhilosophySection.astro';
 import ContactSection from './ContactSection.astro';
 import Belt3D from './Belt3D.astro';
+import MobileImmersive from './MobileImmersive.astro';
 
 interface Props {
   lang: Lang;
@@ -114,6 +115,8 @@ const t = useTranslations(lang);
   <ContactSection lang={lang} />
     </main>
   </div>
+  <!-- Mobile-only (<=767px) immersive tree: sibling of the desktop column, swapped in by CSS below -->
+  <MobileImmersive lang={lang} />
 </Layout>
 
 <script>
@@ -630,6 +633,14 @@ const t = useTranslations(lang);
     .avatar-card {
       max-width: 300px;
       margin-inline: auto;
+    }
+  }
+
+  /* Mobile (<= 767px): the immersive tree (MobileImmersive.astro) replaces the
+     desktop column. It is display:none above 767px and never registered. */
+  @media (max-width: 767px) {
+    .portfolio-main-column {
+      display: none;
     }
   }
 
