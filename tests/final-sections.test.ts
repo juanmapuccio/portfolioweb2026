@@ -1068,3 +1068,116 @@ describe('dark tail polish D2: skills journey + contact beat', () => {
     expect(skillsComponent).toMatch(/@media \(prefers-reduced-motion: reduce\)\s*\{[^}]*\.skill-category-card/);
   });
 });
+
+const mobileImmersive = await readFile(new URL('../src/components/MobileImmersive.astro', import.meta.url), 'utf8');
+
+describe('mobile immersive: <=767px scenes swapped in by CSS', () => {
+  test('MobileImmersive mounts the six scenes with mobile-only ids', () => {
+    const scenes = mobileImmersive.match(/data-scene="[a-z]+"/g) ?? [];
+    expect(scenes).toEqual([
+      'data-scene="hero"',
+      'data-scene="manifesto"',
+      'data-scene="projects"',
+      'data-scene="belts"',
+      'data-scene="stack"',
+      'data-scene="contact"',
+    ]);
+    expect(mobileImmersive).toContain('class="mobile-immersive"');
+    for (const id of ['m-top', 'm-proyectos', 'm-trayectoria', 'm-contacto']) {
+      expect(mobileImmersive).toContain(`id="${id}"`);
+    }
+    // Desktop ids must not be duplicated by the hidden tree.
+    for (const id of ['top', 'proyectos', 'trayectoria', 'contacto']) {
+      expect(mobileImmersive).not.toContain(`id="${id}"`);
+    }
+    // Hidden above 767px, shown at or below it.
+    expect(mobileImmersive).toMatch(/\.mobile-immersive\s*\{\s*display:\s*none;/);
+    expect(mobileImmersive).toMatch(/@media \(max-width: 767px\)\s*\{\s*\.mobile-immersive\s*\{\s*display:\s*block;/);
+  });
+
+  test('copy comes from the data modules, not from inline strings', () => {
+    expect(mobileImmersive).toContain("from '../data/projects'");
+    expect(mobileImmersive).toContain("from '../data/martialExperience'");
+    expect(mobileImmersive).toContain("from '../data/skills'");
+    expect(mobileImmersive).toContain("from '../data/contact'");
+    expect(mobileImmersive).toContain("from '../data/manifesto'");
+    expect(mobileImmersive).toContain('projectsContent[lang]');
+    expect(mobileImmersive).toContain('martialExperienceData[lang]');
+    expect(mobileImmersive).toContain('skillsData[lang]');
+    expect(mobileImmersive).toContain('contactData[lang]');
+    expect(mobileImmersive).toContain('new URL(project.url).hostname');
+    expect(mobileImmersive).toContain('BELTS[stage.beltKey]');
+    // The manifesto paragraph lives in one module shared with the desktop scene.
+    expect(manifestoSection).toContain("from '../data/manifesto'");
+    expect(manifestoSection).not.toContain('Cimientos en rob');
+    expect(mobileImmersive).not.toContain('Cimientos en rob');
+    // Mobile perf contract: no blur filter, no mouse parallax, no nested scroller.
+    expect(mobileImmersive).not.toContain('blur(');
+    expect(mobileImmersive).not.toContain('--mx');
+    expect(mobileImmersive).not.toContain('data-nested-scroll');
+  });
+
+  test('journey registerScene writes --p/--v/--e behind the 767px gate', () => {
+    expect(journey).toContain('export function registerScene(el: HTMLElement): void');
+    expect(journey).toContain("el.style.setProperty('--p', p)");
+    expect(journey).toContain("entry.el.style.setProperty('--v', v)");
+    expect(journey).toContain("entry.el.style.setProperty('--e', e)");
+    // Same math as the reference update().
+    expect(journey).toContain('rect.height - ih * (entry.last ? 1 : 2)');
+    expect(journey).toContain("entry.index === 0 ? '1.0000' : fmt(1 - rect.top / ih)");
+    expect(journey).toContain('fmt((ih * 2 - rect.bottom) / ih)');
+    // Breakpoint gating: mobile registers scenes, desktop registers fx/zones.
+    expect(journey).toContain("window.matchMedia('(max-width: 767px)')");
+    expect(journey).toContain('deferredForDesktop.push(() => registerFx(el, opts))');
+    expect(journey).toContain('deferredForDesktop.push(() => registerZone(el))');
+    expect(journey).toContain('deferredForMobile.push(() => registerScene(el))');
+    expect(journey).toContain("mobileMq?.addEventListener('change', onBreakpointChange)");
+    expect(mobileImmersive).toContain("import { registerScene } from '../scripts/journey'");
+  });
+
+  test('one scroll engine: plugin and triggers only in journey, Lenis only in Layout', () => {
+    for (const [name, source] of [
+      ['MobileImmersive', mobileImmersive],
+      ['HomePage', homePage],
+    ] as const) {
+      expect(`${name}:${source.includes('ScrollTrigger.create')}`).toBe(`${name}:false`);
+      expect(`${name}:${source.includes('registerPlugin')}`).toBe(`${name}:false`);
+    }
+    // Layout keeps its pre-existing plugin registration for the Lenis bridge but never creates triggers.
+    expect(layout).not.toContain('ScrollTrigger.create');
+    expect((journey.match(/gsap\.registerPlugin\(/g) ?? []).length).toBe(1);
+    expect(journey).not.toContain('new Lenis');
+    expect(mobileImmersive).not.toContain('new Lenis');
+    expect((layout.match(/new Lenis\(/g) ?? []).length).toBe(1);
+    // No new loops or wheel listeners from the mobile scenes or the scene engine.
+    expect(mobileImmersive).not.toContain('requestAnimationFrame');
+    expect(mobileImmersive).not.toContain('addEventListener');
+    expect(journey).not.toContain('requestAnimationFrame');
+    expect(journey).not.toContain("addEventListener('wheel'");
+    expect(layout).not.toContain("addEventListener('wheel'");
+  });
+
+  test('HomePage swaps the desktop column at 767px and keeps one Belt3D', () => {
+    expect(homePage).toContain("import MobileImmersive from './MobileImmersive.astro'");
+    expect(homePage).toContain('<MobileImmersive lang={lang} />');
+    expect((homePage.match(/<Belt3D/g) ?? []).length).toBe(1);
+    expect(homePage).toMatch(/@media \(max-width: 767px\)\s*\{\s*\.portfolio-main-column\s*\{\s*display:\s*none;/);
+  });
+
+  test('Layout resolves header targets to the m-* scenes only on mobile', () => {
+    expect(layout).toContain("window.matchMedia('(max-width: 767px)')");
+    for (const id of ['m-top', 'm-proyectos', 'm-trayectoria', 'm-contacto']) {
+      expect(layout).toContain(`'${id}'`);
+    }
+    expect(layout).toContain('if (mobileNav.matches)');
+    // Desktop path and the mobile header rules stay.
+    expect(layout).toContain('const fallback = REVEAL_FRACTIONS[section.id];');
+    expect(layout).toContain('@media (max-width: 767px)');
+  });
+
+  test('belt and dark-panel tokens exist for the mobile scenes', () => {
+    for (const token of ['--belt-white', '--belt-yellow', '--belt-green', '--belt-blue', '--belt-red', '--belt-black', '--panel-dark', '--panel-dark-fg']) {
+      expect(globalCss).toContain(`${token}:`);
+    }
+  });
+});
