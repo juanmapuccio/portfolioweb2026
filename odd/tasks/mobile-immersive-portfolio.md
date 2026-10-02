@@ -22,7 +22,7 @@ Integrate the "Portfolio 3D inmersive" Claude Design (reference: `design/portfol
 - [x] T3 Component: `src/components/MobileImmersive.astro` with 6 scenes, data from `src/data/*`.
 - [x] T4 Wiring: mount in `HomePage.astro`, CSS swap at 767px, mobile ids + `Layout.astro` nav target resolution.
 - [x] T5 Tests: string tests for the new contract; `bun test`, `astro check`, `build` green.
-- [ ] T6 Browser verification: 375 immersive; 768/1024/1440 unchanged; reduced motion.
+- [x] T6 Browser verification: 375 immersive; 768/1024/1440 unchanged; reduced motion.
 
 ## Route declaration
 - T1-T4: delegated writer (2+ non-trivial files, writer trigger). T5-T6: inline checks.
@@ -31,7 +31,9 @@ Integrate the "Portfolio 3D inmersive" Claude Design (reference: `design/portfol
 - T1 480181f style(tokens). T2 24b800c feat(scroll) registerScene + 767px gate (parked registrations replayed on breakpoint change). T3+T4 315f685 feat(mobile) (combined: intermediate state would not build/swap). T5 dd11e79 test(mobile).
 - Checks (after T5): bun test 76 pass / 0 fail; bunx astro check 0 errors; bun run build exit 0 (one transient Windows EBUSY-style rename failure on the first T3/T4 build, passed on immediate rerun, unrelated to code).
 - Deviations: manifesto copy moved to src/data/manifesto.ts (desktop ManifestoScrollytelling now imports it, frontmatter only) to avoid duplicating copy; journey.ts also syncs header belt ticks from the mobile belts/contact scenes (syncSceneBelt); Layout maps #blanco..#negro ticks to belts-scene rows on mobile.
-- T6 pending (parent).
+- T6 (parent, Playwright + Chromium against the existing `astro preview` on :4322 serving the current `dist/`): 375x812 touch shows `.mobile-immersive` (block) and hides `.portfolio-main-column`, 6 scenes, `--p/--v/--e` progress 0..1 across the scroll, no console errors, no horizontal overflow, es and en OK. 768/1024/1440: mobile tree `display:none`, desktop column visible, no errors; 1440 hero screenshot visually matches the existing desktop. Reduced motion at 375: scenes flattened, no errors.
+- Limits: desktop was checked structurally plus one screenshot, not pixel-diffed against the base commit; no real-device or CPU-throttled performance run; pt locale not opened.
+- Known polish: on the dark contact scene the header QR button is nearly invisible (dark icon on dark header).
 
 ## Next step
-T6 browser verification (parent).
+Decide on the header QR contrast on the contact scene, then push/PR under ordinary repository policy (user decision).
