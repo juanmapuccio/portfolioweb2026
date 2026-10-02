@@ -919,6 +919,11 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     .header-qr-btn {
       min-height: 44px;
     }
+    /* Mobile immersive: the QR button stayed dark-on-dark over the contact scene. */
+    .site-header.is-dark .header-qr-btn {
+      color: #f2eee6;
+      border-color: rgba(242, 238, 230, 0.35);
+    }
     .cv-long {
       display: none;
     }
