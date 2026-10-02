@@ -7,143 +7,148 @@ import { skillsData } from '../src/data/skills';
 const skillsComponent = await readFile(new URL('../src/components/SkillsPhilosophySection.astro', import.meta.url), 'utf8');
 const contactComponent = await readFile(new URL('../src/components/ContactSection.astro', import.meta.url), 'utf8');
 const homePage = await readFile(new URL('../src/components/HomePage.astro', import.meta.url), 'utf8');
-const beltKnot = await readFile(new URL('../src/components/BeltKnot.astro', import.meta.url), 'utf8');
 const belt3d = await readFile(new URL('../src/components/Belt3D.astro', import.meta.url), 'utf8');
 const martialTimeline = await readFile(new URL('../src/components/MartialExperienceTimeline.astro', import.meta.url), 'utf8');
 const layout = await readFile(new URL('../src/layouts/Layout.astro', import.meta.url), 'utf8');
 
 describe('final portfolio sections', () => {
-  test('unifies the model, current stage console, and native navigation in one square desktop zone', () => {
-    const beltConsole = homePage.match(/<aside class="belt-console-column"[\s\S]*?<\/aside>/)?.[0] ?? '';
-    const shellStyles = homePage.match(/\.portfolio-shell\s*\{([^}]+)\}/)?.[1] ?? '';
-
-    expect(beltConsole).toContain('class="belt-console"');
-    expect(beltConsole).toContain('id="belt-sticky-monitor"');
-    expect(beltConsole).toContain('id="monitor-gup"');
-    expect(beltConsole).toContain('id="monitor-years"');
-    expect(beltConsole).toContain('id="monitor-belt-name"');
-    expect(beltConsole).toContain('id="monitor-strap"');
-    expect(beltConsole).toContain('<Belt3D />');
-    expect(beltConsole).toContain('<BeltKnot class="belt-console-fallback" />');
-    expect(homePage).toContain('const initialBelt = BELTS[initialBeltStage?.beltKey ?? \'blanco\'];');
-    expect(homePage).toContain('--knot-fill: var(--active-belt-color, #f8f6f0)');
-    expect(homePage).toContain('--knot-stroke: #1c1a17');
-    expect(beltConsole).toContain('class="belt-stage-navigation"');
-    expect(beltConsole).toContain('href={`#${target}`}');
-    expect(beltConsole).toContain('Los grados del Taekwondo ITF, del blanco al negro, como mapa de cada etapa.');
-    expect(beltConsole).toContain('Taekwondo ITF belt ranks, from white to black, as a blueprint of each milestone.');
-    expect(beltConsole).toContain('As graduações do Taekwondo ITF, da branca à preta, como mapa de cada etapa.');
-    expect((shellStyles.match(/minmax\(/g) ?? []).length).toBe(2);
-    expect(shellStyles).toContain('align-items: stretch;');
-    expect(homePage).toContain('aspect-ratio: 1;');
+  test('mounts one 3D belt for the page and reveals it only after the model loads', () => {
+    // One model, one mount: the belt is a viewport overlay that travels between
+    // per-zone landing slots. The old sticky side console (belt-console-column,
+    // monitor ids, stage rail) was deliberately replaced by the curtain+track
+    // pattern, so its markup must not come back.
+    expect((homePage.match(/<Belt3D/g) ?? []).length).toBe(1);
+    expect(homePage).toContain('class="portfolio-shell"');
+    expect(homePage).toContain('class="portfolio-main-column"');
     expect(homePage).not.toContain('class="belt-stage-rail"');
     expect(homePage).not.toContain('class="belt-viewer-column"');
+    expect(homePage).not.toContain('class="belt-console-column"');
 
+    // Every zone the belt visits exposes a data-slot landing target.
+    expect(martialTimeline).toContain('<div data-slot="1" class="curtain-slot"></div>');
+    expect(martialTimeline).toContain('<div data-slot="1" class="h-intro-slot"></div>');
+    expect(martialTimeline).toContain('<div data-slot="1" class="black-slot"></div>');
+    expect(contactComponent).toContain('<div data-slot="1" class="contact-belt-slot" aria-hidden="true"></div>');
+    expect(belt3d).toContain("activeZone.querySelector<HTMLElement>('[data-slot]')");
+
+    // Boot sequence: the root ships hidden, the reveal happens inside the GLTF
+    // load callback, and a failed load re-hides it instead of showing a blank canvas.
     const glbLoadIndex = belt3d.indexOf('new GLTFLoader().load(');
     const viewerRevealIndex = belt3d.indexOf('root.hidden = false;', glbLoadIndex);
     expect(belt3d).toContain('<div id="belt3d-root" class="belt3d-root" aria-hidden="true" hidden>');
     expect(glbLoadIndex >= 0).toBe(true);
     expect(viewerRevealIndex > glbLoadIndex).toBe(true);
+    expect(belt3d).toContain('if (root) root.hidden = true;');
   });
 
-  test('keeps the compact header knot stroke stable without changing the mobile header geometry', () => {
-    expect(layout).toContain('--knot-stroke: #1c1a17');
+  test('keeps the compact header geometry and 44px touch targets unchanged', () => {
     expect(layout).toContain('height: 60px;');
     expect(layout).toContain('flex-wrap: nowrap;');
     expect(layout).toContain('min-height: 44px;');
-    const mobileHeaderStyles = layout.slice(layout.indexOf('@media (max-width: 767px)'), layout.indexOf('@media (max-width: 640px)'));
+    // Slice to the next media query after the 767px block: a smaller breakpoint
+    // (640px, the QR label) appears earlier in the sheet, so anchoring the end on
+    // the FIRST 640px match would yield an empty window. Sources are CRLF, so
+    // normalize before matching multi-line declarations.
+    const start = layout.indexOf('@media (max-width: 767px)');
+    expect(start).toBeGreaterThan(-1);
+    const next = layout.indexOf('@media', start + 1);
+    const mobileHeaderStyles = layout
+      .slice(start, next > -1 ? next : layout.length)
+      .replace(/\r\n/g, '\n');
     expect(mobileHeaderStyles).toContain('.lang-min-link {\n      display: inline-flex;\n      align-items: center;\n      justify-content: center;\n      min-width: 32px;\n      min-height: 44px;');
     expect(mobileHeaderStyles).toContain('.header-cv-btn {\n      display: inline-flex;\n      align-items: center;\n      justify-content: center;\n      min-width: 44px;\n      min-height: 44px;');
   });
 
-  test('renders a static active-color belt knot on the compact header without weakening the 3D gate', () => {
-    expect(layout).toContain("import BeltKnot from '../components/BeltKnot.astro';");
-    expect(layout).toContain('<BeltKnot class="header-belt-knot" />');
-    expect(layout).toContain("dataset.activeBeltColor");
-    expect(layout).toContain("window.addEventListener('belt:change', syncHeaderBeltColor)");
-    expect(layout).toContain("setProperty('--active-belt-color', color)");
-    expect(layout).toContain("document.documentElement.style.setProperty('--active-belt-color', color)");
-    expect(layout).toContain('.header-grade-pill');
-    const tabletHeaderStyles = layout.slice(layout.indexOf('@media (max-width: 1023px)'), layout.indexOf('/* Mobile:'));
-    expect(tabletHeaderStyles).toContain('.header-belt-swatch {\n      display: none;');
-    expect(tabletHeaderStyles).toContain(':global(.header-belt-knot) {\n      display: block;');
-    expect(layout).toContain('--knot-fill: var(--active-belt-color, #f8f6f0)');
-    expect(layout).toContain('--knot-stroke: #1c1a17');
-    expect(beltKnot).toContain("aria-hidden={label ? undefined : 'true'}");
-    expect(beltKnot).toContain('focusable="false"');
-    expect(beltKnot).not.toContain('<script');
-    expect(beltKnot).not.toContain('<animate');
-
+  test('keeps the 3D belt behind its desktop, motion, and WebGL gate', () => {
+    // The gate decides before any three.js code is fetched, and the request for
+    // the GLTF only happens after the dynamic imports resolve.
     const eligibilityGuardIndex = belt3d.indexOf('if (dispose || starting || !root || !canvas || !eligible()) return;');
     const threeImportIndex = belt3d.indexOf("import('three')");
-    const glbRequestIndex = belt3d.indexOf("new GLTFLoader().load(");
+    const glbRequestIndex = belt3d.indexOf('new GLTFLoader().load(');
     expect(belt3d).toContain('return desktopMq.matches && !reducedMq.matches && hasWebGL();');
     expect(eligibilityGuardIndex >= 0).toBe(true);
     expect(eligibilityGuardIndex).toBeLessThan(threeImportIndex);
     expect(threeImportIndex).toBeLessThan(glbRequestIndex);
-    expect(belt3d).toContain("'/models/cinturon-itf.glb'");
+    expect(belt3d).toContain("'/models/cinturon-itfv2.glb'");
+    // The stylesheet hard-hides the canvas on phones and reduced motion too.
+    expect(belt3d).toContain('@media (max-width: 1023px), (prefers-reduced-motion: reduce)');
+    expect(belt3d).toContain('display: none !important;');
+    // The header still reacts to the same belt:change signal that drives the model
+    // (nav ticks + dark mode), and both sides register the listener explicitly.
+    expect(layout).toContain("window.addEventListener('belt:change', syncHeaderBeltColor)");
+    expect(layout).toContain('updateActiveBelt(detail.beltKey)');
+    expect(belt3d).toContain("window.addEventListener('belt:change', onBelt)");
   });
 
-  test('binds black-stage metadata from the current locale data before threshold synchronization', () => {
-    expect(martialTimeline).toContain("const blackStage = data.stages.find((stage) => stage.beltKey === 'negro');");
-    for (const binding of [
-      'data-belt-key={BELTS.negro.key}',
-      'data-gup={BELTS.negro.gup}',
-      'data-years={blackStage?.years}',
-      'data-belt-name={BELTS.negro.beltName[lang]}',
-      'data-belt-color={BELTS.negro.color}',
-      'data-belt-line={BELTS.negro.line}',
-    ]) {
-      expect(martialTimeline).toContain(binding);
-    }
+  test('binds the black chapter metadata from the locale data before the threshold synchronization', () => {
+    // The chapters resolve their stage from the current locale's data...
+    expect(martialTimeline).toContain('const stage = data.stages.find((s) => s.beltKey === cfg.key);');
+    expect(martialTimeline).toContain('{stage.lede}');
+    // ...and the black chapter binds the negro belt metadata statically from BELTS.
+    expect(martialTimeline).toContain('BELTS.negro.beltName[lang]');
+    expect(martialTimeline).toContain('BELTS.negro.philosophicalTitle[lang]');
 
-    for (const field of ['beltKey', 'gup', 'years', 'beltName', 'beltColor', 'beltLine']) {
-      expect(martialTimeline).toContain(`blackScene.dataset.${field}`);
-    }
+    // Threshold synchronization: the promotion to "negro" only lands once the
+    // expanding circle covers the viewport corners (pure geometry, direction-free).
+    expect(martialTimeline).toContain('const BLACK_CIRCLE_MAX_RADIUS = 2000;');
+    expect(martialTimeline).toContain('if (radius < Math.hypot(W / 2, H / 2)) return CHAPTER_KEYS[5];');
+
+    // The markup bindings come first; the driver that applies the threshold runs after.
+    const bindingsIndex = martialTimeline.indexOf('BELTS.negro.beltName[lang]');
+    const thresholdIndex = martialTimeline.indexOf('function resolveBeltKey');
+    expect(bindingsIndex >= 0).toBe(true);
+    expect(thresholdIndex).toBeGreaterThan(bindingsIndex);
+
+    // The driver publishes the resolved chapter color on <html> for consumers
+    // that boot after the first frame (Belt3D's getInitialColor on reload).
+    expect(martialTimeline).toContain('document.documentElement.dataset.activeBeltColor = color;');
   });
 
-  test('tracks the active belt rail and black-scene threshold in both scroll directions', () => {
-    expect(homePage).toContain('data-belt-key={stage.beltKey}');
-    expect(homePage).toContain("aria-current={stage.beltKey === beltStages[0]?.beltKey ? 'step' : undefined}");
-    expect(homePage).toContain('.belt-stage-link.is-active');
+  test('tracks the active chapter rail and the black-scene threshold in both scroll directions', () => {
+    // The header ticks are the rail (one tick per chapter). One function
+    // recomputes the whole state from the belt key, so direction never matters:
+    // forward marks passed, backward clears it — the same class ops either way.
+    expect((layout.match(/class="tick-link/g) ?? []).length).toBe(6);
+    expect(layout).toContain('function updateActiveBelt(beltKey: string)');
+    expect(layout).toContain("tick.classList.add('is-active')");
+    expect(layout).toContain("tick.classList.remove('is-passed')");
+    expect(layout).toContain("tick.classList.add('is-passed')");
+    expect(layout).toContain("tick.classList.remove('is-active', 'is-passed')");
+    expect(layout).toContain('updateActiveBelt(detail.beltKey)');
 
-    expect(martialTimeline).toContain('function setActiveRailStage(key: string)');
-    expect(martialTimeline).toContain('link.dataset.beltKey === key');
-    expect(martialTimeline).toContain("link.setAttribute('aria-current', 'step')");
-    expect(martialTimeline).toContain("link.removeAttribute('aria-current')");
-    expect(martialTimeline).toContain('setActiveRailStage(key);');
-    expect(martialTimeline).toContain('onEnter: () => updateMonitor(beltKey, gup, years, beltName, beltColor, beltLine, index)');
-    expect(martialTimeline).toContain('onEnterBack: () => updateMonitor(beltKey, gup, years, beltName, beltColor, beltLine, index)');
+    // The timeline is the only dispatcher, throttled to actual belt changes.
+    expect(martialTimeline).toContain('if (beltKey !== lastBeltKey)');
+    expect(martialTimeline).toContain("new CustomEvent('belt:change'");
+    expect(martialTimeline).toContain('detail: { beltKey, color },');
 
-    expect(martialTimeline).toContain('if (shouldShowBlackBelt !== blackBeltActive)');
-    expect(martialTimeline).toContain('data-belt-key={BELTS.negro.key}');
-    expect(martialTimeline).toContain('lastNonBlackStage.key,');
+    // The black threshold is pure geometry: the same scroll position resolves to
+    // the same belt key up or down (red until the circle swallows the corners).
+    expect(martialTimeline).toContain('const radius = Math.min(1, Math.max(0, (p - 0.14) * 4)) * BLACK_CIRCLE_MAX_RADIUS;');
+    expect(martialTimeline).toContain('if (radius < Math.hypot(W / 2, H / 2)) return CHAPTER_KEYS[5];');
+
+    // The model never reaches into a legacy black-scene node.
     expect(belt3d).not.toContain("document.querySelector<HTMLElement>('[data-black-belt-scene]')");
   });
 
   test('drives black scene, model tint, and grade metadata from one scrubbed progress signal', () => {
-    // One signal: the existing black-belt ScrollTrigger's scrubbed progress.
-    expect(martialTimeline).toContain('scrub: true,');
-    expect(martialTimeline).toContain('const BLACK_GRADE_FLIP = 0.4;');
-    expect(martialTimeline).toContain('const shouldShowBlackBelt = p > BLACK_GRADE_FLIP;');
-    expect(martialTimeline).not.toContain('p > 0.4');
-    expect(martialTimeline).toContain(
-      'const tintMix = Math.max(0, Math.min(1, (p - (BLACK_GRADE_FLIP - TINT_HALF_WIDTH)) / (TINT_HALF_WIDTH * 2)));'
-    );
-    expect(martialTimeline).toContain("window.dispatchEvent(new CustomEvent('belt:black-progress'");
-    expect(martialTimeline).toContain('progress: p,');
-    expect(martialTimeline).toContain('mix: tintMix,');
-    expect(martialTimeline).toContain('from: lastNonBlackStage?.color ?? blackScene.dataset.beltColor');
-    expect(martialTimeline).toContain('to: blackScene.dataset.beltColor');
-
-    // The progress dispatch lands after the metadata flip in the same update,
-    // so the tint has the last word at the threshold.
-    const flipIndex = martialTimeline.indexOf('if (shouldShowBlackBelt !== blackBeltActive)');
+    // One signal: the timeline's rAF write phase derives every output from the
+    // same scroll progress, in a fixed order — color on <html>, then the header
+    // event, then the tint scrub (the tint has the last word on flip frames).
+    const colorIndex = martialTimeline.indexOf('document.documentElement.dataset.activeBeltColor = color;');
+    const changeIndex = martialTimeline.indexOf("new CustomEvent('belt:change'");
     const progressIndex = martialTimeline.indexOf("new CustomEvent('belt:black-progress'");
-    expect(flipIndex >= 0).toBe(true);
-    expect(progressIndex > flipIndex).toBe(true);
+    expect(colorIndex).toBeGreaterThan(-1);
+    expect(changeIndex).toBeGreaterThan(colorIndex);
+    expect(progressIndex).toBeGreaterThan(changeIndex);
 
-    // Belt3D consumes that progress; the wall-clock tint/spin tweens are gone.
+    // The scrub mix mirrors the expanding circle the scene paints: radius/corner,
+    // clamped, with a degenerate-viewport guard instead of a divide by zero.
+    expect(martialTimeline).toContain('const radius = Math.min(1, Math.max(0, (p - 0.14) * 4)) * BLACK_CIRCLE_MAX_RADIUS;');
+    expect(martialTimeline).toContain('const corner = Math.hypot(W / 2, H / 2);');
+    expect(martialTimeline).toContain('const mix = corner > 0 ? Math.min(1, radius / corner) : 1;');
+    expect(martialTimeline).toContain('progress: p, mix, from: CHAPTER_COLORS.rojo, to: CHAPTER_COLORS.negro');
+
+    // Belt3D consumes that progress by lerp; the wall-clock tint/spin tweens are gone.
     expect(belt3d).toContain("window.addEventListener('belt:black-progress', onBlackProgress)");
     expect(belt3d).toContain('cur.copy(scrubFrom).lerp(scrubTo, d.mix);');
     expect(belt3d).toContain("window.removeEventListener('belt:black-progress', onBlackProgress)");
@@ -152,37 +157,48 @@ describe('final portfolio sections', () => {
     expect(/gsap\.to\(state,\s*\{\s*spin/.test(belt3d)).toBe(false);
   });
 
-  test('keeps the belt monitor label outside the page heading hierarchy', () => {
-    expect(homePage).not.toContain('<h2 class="belt-display-name" id="monitor-belt-name">');
-    expect(homePage).toContain('<p class="belt-display-name" id="monitor-belt-name">{BELTS.blanco.beltName[lang]}</p>');
+  test('keeps the oversized chapter display titles outside the page heading hierarchy', () => {
+    // The curtain and black titles are display art, not headings: they ship as
+    // divs so the document keeps a clean outline (single h1 in the hero, the
+    // timeline's intro as h2, the modal/skills headings below it).
+    expect(martialTimeline).toContain('<div class="curtain-title">');
+    expect(martialTimeline).toContain('<div class="black-title">');
+    expect(martialTimeline).not.toContain('<h1');
+    expect(martialTimeline).not.toContain('<h2 class="curtain-title"');
+    expect(martialTimeline).not.toContain('<h2 class="black-title"');
+    expect(homePage).toContain('<h1 class="hero-headline-name">Juan Manuel Puccio</h1>');
+    expect((homePage.match(/<h1/g) ?? []).length).toBe(1);
   });
 
-  test('places the existing page flow beside a single sticky belt console', () => {
+  test('keeps the page flow as a single column with every chapter reachable from the native nav', () => {
     expect(homePage).toContain('class="portfolio-shell"');
     expect(homePage).toContain('class="portfolio-main-column"');
-    expect(homePage).toContain('class="belt-console-column"');
-    expect(homePage).toContain('class="belt-console"');
     expect(homePage.indexOf('<div class="portfolio-shell">')).toBeLessThan(homePage.indexOf('<main class="portfolio-main-column">'));
-    expect(homePage.indexOf('<main class="portfolio-main-column">')).toBeLessThan(homePage.indexOf('<aside class="belt-console-column"'));
-    expect(/\.belt-console\s*\{[^}]*position:\s*sticky/s.test(homePage)).toBe(true);
+    // The sticky side console was deliberately removed: one full-width column,
+    // with the model as a viewport overlay instead of a second grid track.
+    expect(homePage).not.toContain('class="belt-console-column"');
 
+    // Every stage has a native anchor target and a header tick pointing at it.
     for (const stage of martialExperienceData.es.stages) {
-      expect(homePage).toContain('const target = stage.beltKey === \'negro\' ? \'black-belt-transition\' : `stage-${stage.beltKey}`;');
-      expect(homePage).toContain('href={`#${target}`}');
-      expect(homePage).toContain('data-belt-key={stage.beltKey}');
-      expect(martialTimeline.includes(stage.beltKey === 'negro' ? 'id="black-belt-transition"' : 'id={`stage-${stage.beltKey}`}')).toBe(true);
+      expect(layout).toContain(`href="#${stage.beltKey}"`);
       expect(Boolean(BELTS[stage.beltKey].beltName.es)).toBe(true);
     }
+    expect(martialTimeline).toContain('<div id={cfg.key} class="chapter-block">');
+    expect(martialTimeline).toContain('<div id="negro" class="chapter-black-wrapper">');
 
-    expect(/\.belt3d-root\s*\{[^}]*position:\s*absolute/s.test(belt3d)).toBe(true);
-    expect(/\.belt3d-root\s*\{[^}]*position:\s*fixed/s.test(belt3d)).toBe(false);
+    // Landing contract: the 5 belt chapters share the loop's 0.7 curtain target
+    // (rendered once per chapter) and the black curtain pins its own at 0.97.
+    expect(martialTimeline).toContain('CHAPTER_CONFIG.map((cfg, idx)');
+    expect(martialTimeline).toContain('data-nav-target="0.7"');
+    expect(martialTimeline).toContain('data-nav-target="0.97"');
+
+    // The model is a fixed viewport overlay driven into slots by transform,
+    // never part of the document flow, and it never hijacks the scroll driver.
+    expect(/\.belt3d-root\s*\{[^}]*position:\s*fixed/s.test(belt3d)).toBe(true);
     expect(belt3d).not.toContain('document.getElementById(\'trayectoria\')');
     expect(belt3d).not.toContain('trigger: section');
     expect(belt3d).not.toContain('const show =');
     expect(belt3d).not.toContain('const hide =');
-    expect(homePage).toContain('Los grados del Taekwondo ITF, del blanco al negro, como mapa de cada etapa.');
-    expect(homePage).toContain('Taekwondo ITF belt ranks, from white to black, as a blueprint of each milestone.');
-    expect(homePage).toContain('As graduações do Taekwondo ITF, da branca à preta, como mapa de cada etapa.');
   });
 
   test('moves directly from the technology stack to contact', () => {
@@ -194,26 +210,33 @@ describe('final portfolio sections', () => {
     expect(philosophy).toHaveLength(2);
     const martial = philosophy.find(({ title }) => title === 'Liderazgo, Disciplina y Templanza Marcial');
     const ethics = philosophy.find(({ title }) => title === 'Pensamiento Crítico y Ética de Sistemas');
-    expect(martial?.subtitle).toBe('Profesor Internacional de Taekwondo ITF (+10 años)');
-    expect(martial?.description).toContain('Más de una década formando a niños, jóvenes y adultos.');
+    // Subtitles/descriptions carry the user-approved copy as of bfe1f8d; the
+    // quotes and titles are untouched original copy.
+    expect(martial?.subtitle).toBe('Profesor Internacional de Taekwondo ITF (+10 años) · 1º Dan en Producción');
+    expect(martial?.description).toContain('Más de diez años al frente de clases para niños, jóvenes y adultos');
     expect(martial?.quote).toBe('La constancia vence a la improvisación; la templanza resuelve la urgencia.');
-    expect(ethics?.subtitle).toBe('Licenciatura en Filosofía (UNR, en curso)');
-    expect(ethics?.description).toContain('cada comprobante pasa por validación humana antes de emitirse');
+    expect(ethics?.subtitle).toBe('Licenciatura en Filosofía (UNR, en curso) · Criterio Humano en el Loop');
+    expect(ethics?.description).toContain('la última palabra siempre la tiene una persona');
     expect(ethics?.quote).toBe('Un bot que automatiza sin nadie revisando el resultado no es una solución, es un riesgo nuevo.');
   });
 
-  test('renders human rows before five open technology columns', () => {
-    expect(skillsComponent.indexOf('human-rows')).toBeLessThan(skillsComponent.indexOf('skills-grid'));
-    expect(skillsComponent).toContain('human-row');
-    expect(skillsComponent).toContain('skill-column');
+  test('renders the technology stack before the human-dimension block with five open columns', () => {
+    // Sticky stack column scrolls first, the human-dimension act follows below it.
+    const stackIndex = skillsComponent.indexOf('skills-categories-list');
+    const humanIndex = skillsComponent.indexOf('human-dimension-section');
+    expect(stackIndex).toBeGreaterThanOrEqual(0);
+    expect(humanIndex).toBeGreaterThan(stackIndex);
+    expect(skillsComponent).toContain('skill-category-card');
+    expect(skillsComponent).toContain('philosophy-manifesto-card');
     expect(skillsComponent).toContain('FUERA DEL CÓDIGO');
     expect(skillsComponent).toContain('Stack Tecnológico & Filosofía de Trabajo');
     expect(skillsData.es.categories).toHaveLength(5);
   });
 
-  test('renders a dark editorial contact panel and retains localized outbound links', () => {
-    expect(contactComponent).toContain('contact-section');
-    expect(contactComponent).toContain('contact-row');
+  test('renders a dark editorial contact footer and retains localized outbound links', () => {
+    expect(contactComponent).toContain('cinematic-contact-footer');
+    expect(contactComponent).toContain('contact-channel-card');
+    expect(contactComponent).toContain('contact-actions-row');
     expect(contactComponent).toContain('ctaButtonText');
     expect(contactComponent).toContain("t('hero.btn.cv')");
     expect(contactComponent).not.toContain('wa.me');
