@@ -297,3 +297,68 @@ describe('immersive journey T1: chapter beats', () => {
     expect(mobileBlock).toContain('calc(var(--h-section-h) * 0.57)');
   });
 });
+
+describe('immersive journey T2: job detail modal', () => {
+  // Lazy optional read: when JobDetailModal.astro does not exist yet, only the
+  // new T2 assertions fail (the baseline suite stays at its known state).
+  const readOptionalSource = async (relativePath: string): Promise<string> => {
+    try {
+      return await readFile(new URL(relativePath, import.meta.url), 'utf8');
+    } catch {
+      return '';
+    }
+  };
+
+  test('mounts a single accessible job detail dialog in the timeline', async () => {
+    const modal = await readOptionalSource('../src/components/JobDetailModal.astro');
+    expect(modal.length).toBeGreaterThan(0);
+    expect(modal).toContain('<dialog');
+    expect(modal).toContain('aria-modal="true"');
+    expect(modal).toContain('data-job-modal');
+    // Exactly one mount, inside the timeline (never duplicated per chapter).
+    expect(martialTimeline).toContain("import JobDetailModal from './JobDetailModal.astro';");
+    const mounts = martialTimeline.match(/<JobDetailModal[^>]*\/>/g) ?? [];
+    expect(mounts.length).toBe(1);
+  });
+
+  test('opens the matching job detail through delegation on the existing data-job buttons', async () => {
+    const modal = await readOptionalSource('../src/components/JobDetailModal.astro');
+    expect(modal).toContain("closest<HTMLElement>('[data-job]')");
+    expect(modal).toContain('showModal()');
+    expect(modal).toContain('data-job-detail');
+    // The T1 card contract is the entry point, unchanged.
+    expect(martialTimeline).toContain('data-job={`');
+  });
+
+  test('closes on Escape, backdrop click, and the close button through one cleanup path', async () => {
+    const modal = await readOptionalSource('../src/components/JobDetailModal.astro');
+    expect(modal).toContain("event.key === 'Escape'");
+    expect(modal).toContain('event.target === dialog');
+    expect(modal).toContain('data-modal-close');
+    expect(modal).toContain('dialog.close()');
+    expect(modal).toContain("addEventListener('close'");
+  });
+
+  test('locks background scroll through the Lenis instance with a reduced-motion fallback', async () => {
+    const modal = await readOptionalSource('../src/components/JobDetailModal.astro');
+    expect(modal).toContain('__lenis');
+    expect(modal).toContain('lenis.stop()');
+    expect(modal).toContain('lenis.start()');
+    // Lenis is absent under prefers-reduced-motion; the overflow lock still holds.
+    expect(modal).toContain("root.style.setProperty('overflow', 'hidden')");
+    expect(modal).toContain('prefers-reduced-motion');
+  });
+
+  test('returns focus to the invoking card and renders detail from existing trilingual data', async () => {
+    const modal = await readOptionalSource('../src/components/JobDetailModal.astro');
+    expect(modal).toContain('invoker?.focus()');
+    // Content comes from the same data the timeline resolves per language.
+    expect(modal).toContain('martialExperienceData[lang]');
+    expect(modal).toContain('{entry.pos.role}');
+    expect(modal).toContain('{entry.pos.org}');
+    expect(modal).toContain('{entry.pos.dates}');
+    expect(modal).toContain('{entry.pos.description}');
+    expect(modal).toContain('{entry.pos.transferableCompetency}');
+    expect(modal).toContain('{data.competencyLabel}');
+  });
+});

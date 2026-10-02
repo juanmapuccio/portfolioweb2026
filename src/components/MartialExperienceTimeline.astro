@@ -1,6 +1,7 @@
 ---
 import type { Lang } from '../i18n/ui';
 import { martialExperienceData, BELTS } from '../data/martialExperience';
+import JobDetailModal from './JobDetailModal.astro';
 
 interface Props {
   lang: Lang;
@@ -220,6 +221,10 @@ const CHAPTER_CONFIG = [
       </div>
     </section>
   </div>
+
+  <!-- Beat 3 — Profundiza: modal de detalle de cada trabajo (T2). Se monta UNA
+       sola vez para todos los capítulos; abre por delegación en [data-job]. -->
+  <JobDetailModal lang={lang} />
 </div>
 
 <script>
