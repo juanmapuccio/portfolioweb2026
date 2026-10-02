@@ -9,6 +9,8 @@ declare module 'bun:test' {
     toEqual(expected: unknown): void;
     toHaveLength(expected: number): void;
     toMatch(expected: RegExp): void;
+    toBeNull(): void;
+    toBeUndefined(): void;
   }
 
   export function describe(name: string, callback: () => void): void;
