@@ -65,6 +65,8 @@ const location = lang === 'pt' ? 'Rosário, Argentina' : 'Rosario, Argentina';
 ---
 
 <div class="mobile-immersive">
+  <!-- Viewport probe: 100svh, the same unit as the layers. journey.ts and the nav read its height. -->
+  <div class="vh-probe" data-vh-probe aria-hidden="true"></div>
   <!-- 01 HERO -->
   <section id="m-top" class="scene scene-hero" data-scene="hero">
     <div class="layer hero-layer">
@@ -214,6 +216,16 @@ const location = lang === 'pt' ? 'Rosário, Argentina' : 'Rosario, Argentina';
     }
   }
 
+  .vh-probe {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 100svh;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
   .mono {
     font-family: var(--font-mono);
     font-size: 11px;
@@ -231,21 +243,23 @@ const location = lang === 'pt' ? 'Rosário, Argentina' : 'Rosario, Argentina';
   }
 
   /* Scene stack: each section is tall, its layer sticks for the pinned span and
-     the next scene overlaps by one viewport (margin-top: -100vh). */
+     the next scene overlaps by one viewport (margin-top: -100svh). */
   .scene {
     position: relative;
   }
 
   .scene + .scene {
-    margin-top: -100vh;
+    margin-top: -100svh;
   }
 
-  .scene-hero { height: 240vh; }
-  .scene-manifesto { height: 260vh; z-index: 2; }
-  .scene-projects { height: 420vh; z-index: 3; }
-  .scene-belts { height: 360vh; z-index: 4; }
-  .scene-stack { height: 240vh; z-index: 5; }
-  .scene-contact { height: 180vh; z-index: 6; background: var(--panel-dark); color: var(--panel-dark-fg); }
+  /* svh everywhere (layers, overlap, entrance) so the URL bar collapsing never
+     desyncs the scene math. Pinned span = height - 200svh (contact: - 100svh). */
+  .scene-hero { height: 290svh; }
+  .scene-manifesto { height: 310svh; z-index: 2; }
+  .scene-projects { height: 420svh; z-index: 3; }
+  .scene-belts { height: 360svh; z-index: 4; }
+  .scene-stack { height: 290svh; z-index: 5; }
+  .scene-contact { height: 180svh; z-index: 6; background: var(--panel-dark); color: var(--panel-dark-fg); }
 
   /* The exiting layer recedes with scale + brightness only (no blur: six
      full-viewport blurred layers are too heavy for phones). */
@@ -255,10 +269,15 @@ const location = lang === 'pt' ? 'Rosário, Argentina' : 'Rosario, Argentina';
     height: 100svh;
     box-sizing: border-box;
     overflow: hidden;
+    overflow: clip;
     background: var(--bg-primary);
     padding: 60px 20px 0;
-    transform: translateY(calc((1 - var(--v, 1)) * -100vh)) scale(calc(1 - var(--e, 0) * 0.14));
+    transform: translateY(calc((1 - var(--v, 1)) * -100svh)) scale(calc(1 - var(--e, 0) * 0.14));
     filter: brightness(calc(1 - var(--e, 0) * 0.35));
+  }
+
+  /* Promote a layer only while its scene is on screen (journey.ts toggles data-active). */
+  .scene[data-active] .layer {
     will-change: transform, clip-path;
   }
 
@@ -392,6 +411,9 @@ const location = lang === 'pt' ? 'Rosário, Argentina' : 'Rosario, Argentina';
     gap: 4vw;
     padding-left: 20px;
     transform: translateX(calc(var(--p, 0) * -1 * (86vw + 4vw) * (var(--n) - 1)));
+  }
+
+  .scene[data-active] .carousel {
     will-change: transform;
   }
 
@@ -401,6 +423,7 @@ const location = lang === 'pt' ? 'Rosário, Argentina' : 'Rosario, Argentina';
     display: grid;
     grid-template-rows: minmax(0, 1.25fr) minmax(0, 1fr);
     overflow: hidden;
+    overflow: clip;
     background: var(--bg-surface);
     box-shadow: var(--shadow-card);
     color: var(--text-main);
@@ -662,6 +685,39 @@ const location = lang === 'pt' ? 'Rosário, Argentina' : 'Rosario, Argentina';
     opacity: 0.6;
   }
 
+  /* Touch feedback (mobile tree only). */
+  .card,
+  .contact-link {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .card:active {
+    background: var(--bg-surface-elevated);
+    transform: scale(0.985);
+  }
+
+  .contact-link:active {
+    background: rgba(242, 238, 230, 0.08);
+  }
+
+  .card:focus-visible {
+    outline: 2px solid var(--text-main);
+    outline-offset: -4px;
+  }
+
+  .contact-link:focus-visible {
+    outline: 2px solid var(--panel-dark-fg);
+    outline-offset: -2px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card,
+    .contact-link {
+      transition: transform 120ms ease-out, background-color 120ms ease-out;
+    }
+  }
+
   /* Reduced motion: journey.ts freezes --p/--v/--e; here the pinned stage is
      flattened to a plain readable column (no sticky overlap, no transforms) and
      the carousel becomes a native horizontal scroller. */
@@ -698,6 +754,10 @@ const location = lang === 'pt' ? 'Rosário, Argentina' : 'Rosario, Argentina';
 
     .card {
       scroll-snap-align: start;
+    }
+
+    .card:active {
+      transform: none;
     }
 
     .contact-badge,

@@ -122,6 +122,10 @@ interface SceneEntry {
   lastP: string;
   lastV: string;
   lastE: string;
+  lastActive: boolean;
+  /** Needs one more write even though its trigger is no longer active (final state). */
+  settle: boolean;
+  trigger: ScrollTrigger | null;
 }
 
 const IS_BROWSER = typeof window !== 'undefined';
@@ -381,13 +385,26 @@ export function registerZone(el: HTMLElement): void {
 const clamp01 = (x: number): number => Math.min(1, Math.max(0, x));
 const fmt = (x: number): string => clamp01(x).toFixed(4);
 
-/** Dirty-checked --p / --v / --e write. Same math as the reference design:
- *  p = progress through the pinned span (height - 2 viewports, 1 for the last
- *  scene), v = entrance (the layer wipes in as its top crosses the viewport),
- *  e = exit (the layer recedes as its bottom leaves). */
-function writeScene(entry: SceneEntry): void {
-  const ih = window.innerHeight;
-  const rect = entry.el.getBoundingClientRect();
+// Every registered mobile scene, in document order. One batched pass
+// (flushScenes) reads all active rects first and only then writes.
+const sceneEntries: SceneEntry[] = [];
+let lastFlushY = Number.NaN;
+// Stable viewport height for the scene math: a hidden fixed 100svh probe in the
+// mobile tree (same unit the layers use), re-measured on every refresh. Falls
+// back to innerHeight when the probe is absent.
+let sceneViewportH = 0;
+
+function measureSceneViewport(): void {
+  const probe = document.querySelector<HTMLElement>('[data-vh-probe]');
+  sceneViewportH = probe?.offsetHeight || window.innerHeight;
+}
+
+/** Dirty-checked --p / --v / --e write from an already-read rect. Same math as
+ *  the reference design: p = progress through the pinned span (height - 2
+ *  viewports, 1 for the last scene), v = entrance (the layer wipes in as its
+ *  top crosses the viewport), e = exit (the layer recedes as its bottom
+ *  leaves). Pure write phase: no layout reads happen here. */
+function writeScene(entry: SceneEntry, rect: DOMRect, ih: number): void {
   const span = rect.height - ih * (entry.last ? 1 : 2);
   const p = span > 0 ? fmt(-rect.top / span) : '0.0000';
   const v = entry.index === 0 ? '1.0000' : fmt(1 - rect.top / ih);
@@ -404,7 +421,41 @@ function writeScene(entry: SceneEntry): void {
     entry.lastE = e;
     entry.el.style.setProperty('--e', e);
   }
+  // Layer promotion only while the scene is visible and not yet fully covered.
+  const active = Number(v) > 0 && Number(e) < 1;
+  if (active !== entry.lastActive) {
+    entry.lastActive = active;
+    entry.el.toggleAttribute('data-active', active);
+  }
   syncSceneBelt(entry, Number(p), Number(v));
+}
+
+/** One batched pass: READ phase (rects of every active or settling scene),
+ *  then WRITE phase. Several scene triggers fire per scroll update; the
+ *  scroll-position guard makes all but the first a no-op. */
+function flushScenes(force = false): void {
+  const y = window.scrollY;
+  if (!force && y === lastFlushY) return;
+  lastFlushY = y;
+  if (!sceneViewportH) measureSceneViewport();
+  const ih = sceneViewportH;
+  const batch = sceneEntries.filter((entry) => entry.settle || entry.trigger?.isActive);
+  // READ phase.
+  const rects = batch.map((entry) => entry.el.getBoundingClientRect());
+  // WRITE phase.
+  batch.forEach((entry, i) => {
+    entry.settle = false;
+    writeScene(entry, rects[i], ih);
+  });
+}
+
+/** Re-measure the viewport probe and repaint every scene once (also the
+ *  off-screen before/after range state). */
+function refreshScenes(): void {
+  if (!sceneEntries.length) return;
+  measureSceneViewport();
+  for (const entry of sceneEntries) entry.settle = true;
+  flushScenes(true);
 }
 
 /** Keeps the header chapter ticks meaningful on mobile, where the desktop belt
@@ -436,7 +487,17 @@ export function registerScene(el: HTMLElement): void {
 
   const scenes = Array.from((el.closest('.mobile-immersive') ?? document).querySelectorAll<HTMLElement>('[data-scene]'));
   const index = Math.max(0, scenes.indexOf(el));
-  const entry: SceneEntry = { el, index, last: index === scenes.length - 1, lastP: '', lastV: '', lastE: '' };
+  const entry: SceneEntry = {
+    el,
+    index,
+    last: index === scenes.length - 1,
+    lastP: '',
+    lastV: '',
+    lastE: '',
+    lastActive: false,
+    settle: false,
+    trigger: null,
+  };
 
   if (isReduced) {
     entry.lastP = '1.0000';
@@ -448,16 +509,58 @@ export function registerScene(el: HTMLElement): void {
     return;
   }
 
-  ScrollTrigger.create({
+  sceneEntries.push(entry);
+  entry.trigger = ScrollTrigger.create({
     trigger: el,
     start: 'top bottom',
     end: 'bottom top',
-    onUpdate: () => writeScene(entry),
-    // Refresh also paints the off-screen (before/after range) state once.
-    onRefresh: () => writeScene(entry),
+    onUpdate: () => flushScenes(),
+    // Leaving the range needs one final write of the clamped state.
+    onToggle: () => {
+      entry.settle = true;
+      flushScenes(true);
+    },
   });
 
-  if (booted) writeScene(entry);
+  if (!focusBound) {
+    focusBound = true;
+    document.addEventListener('focusin', onSceneFocusIn);
+  }
+
+  if (booted) {
+    measureSceneViewport();
+    entry.settle = true;
+    flushScenes(true);
+  }
+}
+
+// Keyboard focus on a card that sits off-screen inside the translated carousel:
+// map it to the page scroll position where the carousel shows that card. The
+// carousel is overflow: clip, so the browser cannot scroll it by itself.
+let focusBound = false;
+
+interface LenisLike {
+  scrollTo: (target: number, options?: { immediate?: boolean; duration?: number }) => void;
+}
+
+function onSceneFocusIn(event: FocusEvent): void {
+  if (!isMobileViewport() || isReduced) return;
+  const target = event.target;
+  if (!(target instanceof HTMLElement) || !target.matches(':focus-visible')) return;
+  const card = target.closest<HTMLElement>('.mobile-immersive .card');
+  const scene = card?.closest<HTMLElement>('[data-scene="projects"]');
+  if (!card || !scene) return;
+  const cards = Array.from(scene.querySelectorAll<HTMLElement>('.card'));
+  const index = cards.indexOf(card);
+  if (index < 0 || cards.length < 2) return;
+  const cardRect = card.getBoundingClientRect();
+  if (cardRect.left >= 0 && cardRect.right <= window.innerWidth) return;
+  const ih = sceneViewportH || window.innerHeight;
+  const span = Math.max(0, scene.offsetHeight - ih * 2);
+  const y = scene.getBoundingClientRect().top + window.scrollY + (index / (cards.length - 1)) * span;
+  const lenis = (window as unknown as { __lenis?: LenisLike }).__lenis;
+  if (lenis) lenis.scrollTo(y, { duration: 0.6 });
+  else window.scrollTo({ top: y, behavior: 'auto' });
 }
 
 /** Crossing the 767px breakpoint after load: replay the registrations the gate
@@ -516,6 +619,7 @@ if (IS_BROWSER) {
   // Single-source black circle radius: re-read the CSS custom property once
   // per refresh (never per frame).
   ScrollTrigger.addEventListener('refresh', () => {
+    refreshScenes();
     const raw = getComputedStyle(document.documentElement)
       .getPropertyValue('--black-circle-max-radius')
       .trim();

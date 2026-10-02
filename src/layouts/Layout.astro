@@ -341,6 +341,12 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
   // card / first scene frame, and the contact title fully risen.
   const MOBILE_REVEAL_FRACTIONS: Record<string, number> = { top: 0, proyectos: 0, trayectoria: 0, contacto: 0.5 };
 
+  /** Scene viewport height: the hidden 100svh probe in MobileImmersive (same unit as
+   *  the layers), so nav fractions match journey.ts and survive URL-bar changes. */
+  function mobileViewportHeight(): number {
+    return document.querySelector<HTMLElement>('[data-vh-probe]')?.offsetHeight || window.innerHeight;
+  }
+
   /** Mobile resolution: the header belt ticks (#blanco...#negro) land on the
    *  belts scene row they represent; the other owned anchors land on their scene. */
   function resolveMobileNavTarget(id: string): NavTarget | null {
@@ -352,7 +358,7 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     if (beltIndex < 0) return { node, fraction: MOBILE_REVEAL_FRACTIONS[sceneId] ?? 0 };
     // Scene progress p maps to scroll as top + p * (height - 2vh); the shared
     // formula uses (height - 1vh), so rescale. Row i is fully drawn at p = (i + 1) / 6.5.
-    const ih = window.innerHeight;
+    const ih = mobileViewportHeight();
     const pinned = node.offsetHeight - ih;
     const p = Math.min(1, (beltIndex + 0.95) / 6.5);
     return { node, fraction: pinned > 0 ? (p * (node.offsetHeight - ih * 2)) / pinned : 0 };
@@ -384,6 +390,10 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
   /** Document-space scroll position where `target`'s reveal is complete. */
   function navTargetScrollY(target: NavTarget): number {
     const top = target.node.getBoundingClientRect().top + window.scrollY;
+    if (mobileNav.matches) {
+      const mobileRange = Math.max(0, target.node.offsetHeight - mobileViewportHeight());
+      return top + target.fraction * mobileRange;
+    }
     const range = Math.max(0, target.node.offsetHeight - window.innerHeight);
     return top + target.fraction * range;
   }
@@ -393,7 +403,10 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
   function scrollToNavTarget(target: NavTarget): void {
     const y = navTargetScrollY(target);
     const lenis = readLenis();
-    if (lenis) lenis.scrollTo(y, { immediate: false, duration: 1 });
+    if (lenis && mobileNav.matches) {
+      // Scale the glide with distance so short hops are quick and long ones stay smooth.
+      lenis.scrollTo(y, { immediate: false, duration: Math.min(2, 0.5 + Math.abs(y - window.scrollY) / 2000) });
+    } else if (lenis) lenis.scrollTo(y, { immediate: false, duration: 1 });
     else window.scrollTo({ top: y, behavior: 'auto' });
   }
 
