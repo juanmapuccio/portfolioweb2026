@@ -301,14 +301,15 @@ describe('immersive journey T1: chapter beats', () => {
     expect(martialTimeline).not.toContain('href=');
   });
 
-  test('keeps the long detail in data and derives a short teaser from existing copy', () => {
+  test('keeps the long detail in data and condenses card teasers to one bounded line', () => {
     for (const lang of ['es', 'en', 'pt'] as const) {
       for (const stage of martialExperienceData[lang].stages) {
         expect(stage.positions.length).toBeGreaterThan(0);
         for (const pos of stage.positions) {
-          // The teaser is a verbatim prefix of the existing description: no new copy.
-          expect(pos.description.startsWith(pos.teaser)).toBe(true);
+          // Condensation pass: the teaser is a standalone impact one-liner —
           expect(pos.teaser.length).toBeLessThanOrEqual(160);
+          expect(pos.teaser.endsWith('.')).toBe(true);
+          expect(pos.teaser.slice(0, -1).includes('. ')).toBe(false);
         }
       }
     }

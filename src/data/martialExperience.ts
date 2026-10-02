@@ -78,7 +78,7 @@ export interface MartialPosition {
   dates: string;
   role: string;
   org: string;
-  /** Short card blurb: verbatim first sentence of `description` (no new copy). */
+  /** Impact one-liner for the card surface (condensation pass): full detail lives in `description`. */
   teaser: string;
   /** Full "qué hice" detail — rendered by the T2 modal, never on the card surface. */
   description: string;
@@ -134,7 +134,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Ene 2012 — Ene 2013',
             role: 'Vendedor y Atención al Público',
             org: 'Grido Helados',
-            teaser: 'Mi primer trabajo formal: atención en local de alto tránsito, arqueo de caja y alta rotación de clientes.',
+            teaser: 'Atención y venta en local de alto tránsito con arqueo de caja y alta rotación diaria.',
             description: 'Mi primer trabajo formal: atención en local de alto tránsito, arqueo de caja y alta rotación de clientes.',
             transferableCompetency: 'Responsabilidad de caja, velocidad de despacho y empatía.'
           },
@@ -174,7 +174,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Dic 2015 — Mar 2019',
             role: 'Administrativo Integral (contratado)',
             org: 'ANSES',
-            teaser: 'Primera etapa en ANSES: gestión de miles de expedientes, control documental estricto y aplicación de normativa legal previsional.',
+            teaser: 'Administración masiva de expedientes, control documental estricto y normativa previsional.',
             description: 'Primera etapa en ANSES: gestión de miles de expedientes, control documental estricto y aplicación de normativa legal previsional. Salida por reestructuración estatal de contratos.',
             transferableCompetency: 'Rigor normativo, gestión documental masiva y servicio al ciudadano en entornos regulados.'
           }
@@ -198,7 +198,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Dic 2021 — Mar 2024',
             role: 'Administrativo Integral y Gestión de Datos (planta permanente)',
             org: 'ANSES',
-            teaser: 'Reconvocado tras la etapa freelance, rendí y aprobé concursos de mérito hasta efectivizarme en planta permanente.',
+            teaser: 'Planta permanente por concurso de mérito: mesa de ayuda regional y soporte a servidores del Estado.',
             description: 'Reconvocado tras la etapa freelance, rendí y aprobé concursos de mérito hasta efectivizarme en planta permanente. Mesa de ayuda regional, soporte a racks de servidores del Estado Nacional y desarrollo de sistema interno de métricas.',
             transferableCompetency: 'Tolerancia a la alta demanda masiva, infraestructura de red/servidores y rigor normativo.'
           }
@@ -214,7 +214,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'May 2024 — Ene 2025',
             role: 'Administrativo, Gestión en Salud',
             org: 'Sanatorio Delta',
-            teaser: 'Admisión general, turnos, admisión de oncología, recepción de laboratorios y caja con el sistema Algoritmo y nomenclador nacional de salud.',
+            teaser: 'Admisión, turnos, oncología y caja con el sistema Algoritmo y nomenclador nacional de salud.',
             description: 'Admisión general, turnos, admisión de oncología, recepción de laboratorios y caja con el sistema Algoritmo y nomenclador nacional de salud.',
             transferableCompetency: 'Auditoría médica, tolerancia a la alta demanda y visión de optimización de procesos.'
           },
@@ -222,7 +222,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Ene 2025 — Abr 2025',
             role: 'Administrativo, Gestión en Salud',
             org: 'Aurea Med S.A.',
-            teaser: 'Continuidad en sanatorios de alta demanda: gestión de pacientes, turnos y facturación con DATATECH, control documental y estricto cumplimiento normativo.',
+            teaser: 'Gestión de pacientes, turnos y facturación con DATATECH bajo estricto cumplimiento normativo.',
             description: 'Continuidad en sanatorios de alta demanda: gestión de pacientes, turnos y facturación con DATATECH, control documental y estricto cumplimiento normativo.',
             transferableCompetency: 'Auditoría administrativa en salud, atención al detalle y manejo de sistemas médicos.'
           },
@@ -246,7 +246,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Jun 2025 — Presente',
             role: 'Fundador y Desarrollador',
             org: 'NodoSur',
-            teaser: 'Software factory de soluciones a medida, servidores cloud autoadministrados en Linux con Docker y flujo CI/CD con GitHub Actions.',
+            teaser: 'Software factory propia: soluciones a medida, cloud Linux autoadministrado con Docker y CI/CD.',
             description: 'Software factory de soluciones a medida, servidores cloud autoadministrados en Linux con Docker y flujo CI/CD con GitHub Actions. Plataformas vivas: NodoFit (SaaS), Satori Dojo y Don Pizza. Consultoría IT y gestión de base de datos para Seiton Motors. Disponibilidad full-time real para sumarme a un equipo.',
             transferableCompetency: 'Arquitectura de software en producción, capacidad de entregar y sostener sistemas confiables, liderazgo y disciplina ética.'
           }
@@ -286,7 +286,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Jan 2012 — Jan 2013',
             role: 'Customer Service & Cashier',
             org: 'Grido Helados',
-            teaser: 'My first formal job: service at a high-traffic shop, cash register reconciliation, and high customer turnover.',
+            teaser: 'Sales and service in a high-traffic shop with daily cash reconciliation and fast customer turnover.',
             description: 'My first formal job: service at a high-traffic shop, cash register reconciliation, and high customer turnover.',
             transferableCompetency: 'Cash register accountability, order dispatch speed, and hospitality.'
           },
@@ -326,7 +326,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Dec 2015 — Mar 2019',
             role: 'Operations Administrator (contract)',
             org: 'ANSES',
-            teaser: 'First stage at ANSES: handling thousands of case files, strict document control, and application of social security regulations.',
+            teaser: 'Mass case-file administration, strict document control, and pension regulation enforcement.',
             description: 'First stage at ANSES: handling thousands of case files, strict document control, and application of social security regulations. Departure due to state restructuring of contracts.',
             transferableCompetency: 'Regulatory compliance, massive case file handling, and citizen service in regulated environments.'
           }
@@ -350,7 +350,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Dec 2021 — Mar 2024',
             role: 'Full-Cycle Administrator & Data Management (permanent staff)',
             org: 'ANSES',
-            teaser: 'Called back after the freelance stage, I passed merit competitions until becoming permanent staff.',
+            teaser: 'Permanent staff via merit competitions: regional help desk and state server technical support.',
             description: 'Called back after the freelance stage, I passed merit competitions until becoming permanent staff. Regional help desk, support for National State server racks, and development of an internal metrics system.',
             transferableCompetency: 'Resilience under high-volume pressure, server rack infrastructure management, and compliance rigor.'
           }
@@ -366,7 +366,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'May 2024 — Jan 2025',
             role: 'Healthcare Administrator',
             org: 'Sanatorio Delta',
-            teaser: 'General admissions, scheduling, oncology admissions, laboratory reception, and cashier with the Algoritmo system and the national health fee schedule.',
+            teaser: 'Admissions, scheduling, oncology intake, and cashier with the Algoritmo system and national fee schedule.',
             description: 'General admissions, scheduling, oncology admissions, laboratory reception, and cashier with the Algoritmo system and the national health fee schedule.',
             transferableCompetency: 'Medical auditing, operational tolerance under heavy patient volume, and systems optimization.'
           },
@@ -374,7 +374,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Jan 2025 — Apr 2025',
             role: 'Healthcare Administrator',
             org: 'Aurea Med S.A.',
-            teaser: 'Continuity in high-demand sanatoriums: patient management, scheduling, and billing with DATATECH, document control, and strict regulatory compliance.',
+            teaser: 'Patient management, scheduling, and billing with DATATECH under strict regulatory compliance.',
             description: 'Continuity in high-demand sanatoriums: patient management, scheduling, and billing with DATATECH, document control, and strict regulatory compliance.',
             transferableCompetency: 'Healthcare administrative auditing, regulatory precision, and patient management workflows.'
           },
@@ -398,7 +398,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Jun 2025 — Present',
             role: 'Founder and Developer',
             org: 'NodoSur',
-            teaser: 'Bespoke software factory with self-managed cloud servers on Linux, Docker containers, and GitHub Actions CI/CD.',
+            teaser: 'Bespoke software factory: self-managed Linux cloud, Docker, and CI/CD pipelines.',
             description: 'Bespoke software factory with self-managed cloud servers on Linux, Docker containers, and GitHub Actions CI/CD. Production systems: NodoFit (SaaS), Satori Dojo, and Don Pizza. IT consulting and database management for Seiton Motors. Real full-time availability to join a team.',
             transferableCompetency: 'Production software architecture, ability to deliver and sustain reliable systems, leadership, and ethical discipline.'
           }
@@ -438,7 +438,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Jan 2012 — Jan 2013',
             role: 'Atendente e Operador de Caixa',
             org: 'Grido Helados',
-            teaser: 'Meu primeiro emprego formal: atendimento em loja de alto fluxo, fechamento de caixa e alta rotação de clientes.',
+            teaser: 'Vendas e atendimento em loja de alto fluxo com fechamento de caixa diário e alta rotação de clientes.',
             description: 'Meu primeiro emprego formal: atendimento em loja de alto fluxo, fechamento de caixa e alta rotação de clientes.',
             transferableCompetency: 'Responsabilidade financeira, agilidade de atendimento e empatia.'
           },
@@ -478,7 +478,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Dez 2015 — Mar 2019',
             role: 'Administrativo Operacional (contratado)',
             org: 'ANSES',
-            teaser: 'Primeira etapa no ANSES: gestão de milhares de processos, controle documental rigoroso e aplicação da normativa legal previdenciária.',
+            teaser: 'Administração massiva de processos, controle documental rigoroso e normativa previdenciária.',
             description: 'Primeira etapa no ANSES: gestão de milhares de processos, controle documental rigoroso e aplicação da normativa legal previdenciária. Saída por reestruturação estatal de contratos.',
             transferableCompetency: 'Rigor documental, gestão de processos em massa e atendimento público regulado.'
           }
@@ -502,7 +502,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Dez 2021 — Mar 2024',
             role: 'Administrativo e Gestão de Dados (efetivo)',
             org: 'ANSES',
-            teaser: 'Reconvocado após a etapa freelance, prestei e fui aprovado em concursos de mérito até ser efetivado no quadro permanente.',
+            teaser: 'Efetivo por concurso de mérito: central de ajuda regional e suporte técnico a servidores do Estado.',
             description: 'Reconvocado após a etapa freelance, prestei e fui aprovado em concursos de mérito até ser efetivado no quadro permanente. Central de ajuda regional, suporte a racks de servidores do Estado Nacional e desenvolvimento de sistema interno de métricas.',
             transferableCompetency: 'Resiliência sob alta demanda, suporte a servidores/redes e rigor regulatório.'
           }
@@ -518,7 +518,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Mai 2024 — Jan 2025',
             role: 'Administrativo Hospitalar',
             org: 'Sanatorio Delta',
-            teaser: 'Admissão geral, agendamentos, admissão de oncologia, recepção de laboratórios e caixa com o sistema Algoritmo e nomenclador nacional de saúde.',
+            teaser: 'Admissão, agendamentos, oncologia e caixa com o sistema Algoritmo e nomenclador nacional de saúde.',
             description: 'Admissão geral, agendamentos, admissão de oncologia, recepção de laboratórios e caixa com o sistema Algoritmo e nomenclador nacional de saúde.',
             transferableCompetency: 'Auditoria médica, tolerância à alta rotina hospitalar e otimização de rotinas.'
           },
@@ -526,7 +526,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Jan 2025 — Abr 2025',
             role: 'Administrativo Hospitalar',
             org: 'Aurea Med S.A.',
-            teaser: 'Continuidade em sanatórios de alta demanda: gestão de pacientes, agendamentos e faturamento com DATATECH, controle documental e estrito cumprimento normativo.',
+            teaser: 'Gestão de pacientes, agendamentos e faturamento com DATATECH sob estrito cumprimento normativo.',
             description: 'Continuidade em sanatórios de alta demanda: gestão de pacientes, agendamentos e faturamento com DATATECH, controle documental e estrito cumprimento normativo.',
             transferableCompetency: 'Auditoria administrativa médica, precisão regulatória e gestão de sistemas hospitalares.'
           },
@@ -550,7 +550,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             dates: 'Jun 2025 — Presente',
             role: 'Fundador e Desenvolvedor',
             org: 'NodoSur',
-            teaser: 'Software factory com servidores Linux próprios, Docker e pipelines CI/CD com GitHub Actions.',
+            teaser: 'Software factory própria: cloud Linux autoadministrado, Docker e pipelines CI/CD.',
             description: 'Software factory com servidores Linux próprios, Docker e pipelines CI/CD com GitHub Actions. Sistemas em produção: NodoFit (SaaS), Satori Dojo e Don Pizza. Consultoria de TI e gestão de banco de dados para a Seiton Motors. Disponibilidade full-time real para me somar a uma equipe.',
             transferableCompetency: 'Arquitetura de software em produção, capacidade de entregar e sustentar sistemas confiáveis, liderança e ética.'
           }
