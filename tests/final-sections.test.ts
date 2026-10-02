@@ -436,6 +436,20 @@ describe('immersive journey T5: calm 3D motion', () => {
   });
 });
 
+describe('immersive journey T7: hero portrait', () => {
+  test('gives the profile photo a right column that actually fills the hero', () => {
+    const portrait = homePage.match(/\.hero-portrait-col\s*\{([^}]+)\}/)?.[1] ?? '';
+    const clamp = /max-width:\s*clamp\((\d+)px,\s*([0-9.]+)vw,\s*(\d+)px\)/.exec(portrait);
+    expect(clamp).not.toBeNull();
+    // Was clamp(260px, 22vw, 310px) — the right column wasted ~400px of space.
+    expect(Number(clamp?.[3])).toBeGreaterThanOrEqual(440);
+    // First .hero-editorial-layout match is the ≤1023 media override; assert the
+    // base rule anywhere in the file instead of anchoring on the first block.
+    expect(homePage).toContain('grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);');
+    expect(homePage).not.toContain('1.35fr');
+  });
+});
+
 describe('immersive journey T6: scrubbed red-to-black', () => {
   test('scrubs the 3D tint from the black curtain circle instead of hard-switching', () => {
     // The timeline driver is the single dispatcher of the scrub signal.

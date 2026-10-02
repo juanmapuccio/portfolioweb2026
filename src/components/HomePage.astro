@@ -370,7 +370,9 @@ const t = useTranslations(lang);
 
   .hero-editorial-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    /* T7: equal columns — the narrative block caps itself at 620px anyway, and
+       the right column needed real estate for a portrait worthy of the hero. */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: clamp(24px, 4vw, 56px);
     align-items: center;
     flex: 1;
@@ -491,7 +493,8 @@ const t = useTranslations(lang);
   .hero-portrait-col {
     justify-self: end;
     width: 100%;
-    max-width: clamp(260px, 22vw, 310px);
+    /* T7: was 310px max — the photo now commands the right column. */
+    max-width: clamp(300px, 30vw, 470px);
     margin: 0;
     display: flex;
     flex-direction: column;
