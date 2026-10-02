@@ -666,7 +666,9 @@ const CHAPTER_CONFIG = [
     margin: -5px 0 0 -5px;
     border-radius: 50%;
     background: #1c1a17;
-    transform: scale(calc(clamp(0, calc((var(--p, 0) - 0.14) * 4), 1) * 400));
+    /* Radius comes from --black-circle-max-radius (global.css) — the same value
+       journey.ts reads for the header flip. 10px dot → scale = radius / 5. */
+    transform: scale(calc(clamp(0, calc((var(--p, 0) - 0.14) * 4), 1) * var(--black-circle-max-radius) / 5));
   }
 
   .black-radial-glow {

@@ -16,6 +16,8 @@ const layout = await readFile(new URL('../src/layouts/Layout.astro', import.meta
 // the --p writes and the belt:* dispatches that used to live in the timeline's
 // private rAF engine. Assertions about that behavior target this source.
 const journey = await readFile(new URL('../src/scripts/journey.ts', import.meta.url), 'utf8');
+const archDiagram = await readFile(new URL('../src/components/ArchitectureDiagram.astro', import.meta.url), 'utf8');
+const globalCss = await readFile(new URL('../src/styles/global.css', import.meta.url), 'utf8');
 
 describe('final portfolio sections', () => {
   test('mounts one 3D belt for the page and reveals it only after the model loads', () => {
@@ -969,5 +971,22 @@ describe('scroll engine consolidation T4: belt3d single loop', () => {
     expect(belt3d).toContain('t0 = performance.now() - lastT * 1000');
     // No cancel/restart machinery left.
     expect(belt3d).not.toContain('let raf');
+  });
+});
+
+describe('scroll engine consolidation T5: lenis hygiene + single-source radius', () => {
+  test('drops allowNestedScroll for a conditional prevent callback on real scrollers', () => {
+    expect(layout).not.toContain('allowNestedScroll');
+    expect(layout).toContain('prevent: (node)');
+    expect(layout).toContain('[data-nested-scroll]');
+    expect(projectsSection).toContain('data-nested-scroll');
+    expect(archDiagram).toContain('data-nested-scroll');
+  });
+
+  test('the black circle radius has one source of truth in CSS', () => {
+    expect(globalCss).toContain('--black-circle-max-radius: 2000');
+    expect(martialTimeline).toContain('var(--black-circle-max-radius) / 5');
+    expect(martialTimeline).not.toContain('* 400)');
+    expect(journey).toContain('--black-circle-max-radius');
   });
 });

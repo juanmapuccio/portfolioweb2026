@@ -5,6 +5,10 @@
   /* Declara el esquema en uso para que los controles nativos sigan el tema */
   color-scheme: light;
 
+  /* Single source of truth for the black-curtain circle: the CSS scales the 10px
+     dot by max-radius/5 and journey.ts reads the same number for the header flip. */
+  --black-circle-max-radius: 2000;
+
   --bg-primary: #f2eee6;          /* Papel de lino / cálido editorial Claude Design */
   --bg-surface: #ffffff;          /* Tarjetas elevadas limpias */
   --bg-surface-elevated: #e8e3d8; /* Sub-contenedores y badges */

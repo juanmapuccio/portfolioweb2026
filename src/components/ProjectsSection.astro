@@ -43,7 +43,7 @@ const auto = automationsContent[lang];
       {projects.map((pr, idx) => {
         const num = String(idx + 1).padStart(2, '0');
         return (
-          <article class="project-editorial-card">
+          <article class="project-editorial-card" data-nested-scroll>
             <header class="project-card-topbar">
               <span class="project-card-num-badge">
                 {num} · {pr.badge}
