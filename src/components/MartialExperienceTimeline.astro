@@ -324,6 +324,30 @@ const CHAPTER_CONFIG = [
             })
           );
         }
+
+        // T6: while the black curtain is the active zone, scrub the 3D tint with
+        // the same circle the scene paints. mix = radius / corner distance means
+        // the belt turns black exactly as the circle swallows the viewport.
+        // Dispatching every frame inside the zone (no change-throttle) is a
+        // deliberate conflict guard: belt:change and this signal can fire on the
+        // same frame when the header flips (scroll up/down across the flip
+        // point), and Belt3D registers belt:change before belt:black-progress —
+        // so the scrub always has the last word and the two never fight. At the
+        // flip itself mix = 1, i.e. the hard switch to black is identical to the
+        // scrub result. Leaving the zone needs no reset dispatch: the belt:change
+        // path already restores the chapter color when the curtain deactivates.
+        if (zone.classList.contains('black-curtain-scene')) {
+          const rect = zoneRects[activeIdx];
+          // Same p formula as the fx write phase (reduced motion renders the
+          // final frame: --p is forced to 1 there, so mirror it here).
+          const p = isReduced ? 1 : Math.min(1, Math.max(0, -rect.top / Math.max(1, rect.height - H)));
+          const radius = Math.min(1, Math.max(0, (p - 0.14) * 4)) * BLACK_CIRCLE_MAX_RADIUS;
+          const corner = Math.hypot(W / 2, H / 2);
+          // Degenerate viewport (0×0 during teardown): treat as fully covered
+          // instead of dividing by zero.
+          const mix = corner > 0 ? Math.min(1, radius / corner) : 1;
+          window.dispatchEvent(new CustomEvent('belt:black-progress', { detail: { progress: p, mix, from: CHAPTER_COLORS.rojo, to: CHAPTER_COLORS.negro } }));
+        }
       }
     }
 
@@ -753,7 +777,11 @@ const CHAPTER_CONFIG = [
     margin-top: -50vh;
     background: #ef4444;
     transform: scaleY(calc(0.02 + clamp(0, calc(var(--p, 0) * 4), 1) * 0.98));
-    opacity: calc(1 - clamp(0, calc((var(--p, 0) - 0.3) * 6), 1));
+    /* T6 handoff: the fade starts at p = 0.39, exactly when the circle reaches
+       full radius — the red can no longer dissolve toward cream while the
+       circle is still growing (viewports with hypot(W/2,H/2) ≤ 2000 are fully
+       covered by then, so the fade only ever runs hidden). */
+    opacity: calc(1 - clamp(0, calc((var(--p, 0) - 0.39) * 6), 1));
   }
 
   .black-expanding-circle {
@@ -777,7 +805,10 @@ const CHAPTER_CONFIG = [
     margin: -45vmax 0 0 -45vmax;
     border-radius: 50%;
     background: radial-gradient(closest-side, rgba(242, 238, 230, 0.1), rgba(242, 238, 230, 0));
-    opacity: clamp(0, calc((var(--p, 0) - 0.4) * 3), 1);
+    /* T6: starts at 0.32 so the glow rises DURING the circle's last growth
+       (0.32 → 0.39) instead of beginning on a frame where the circle has
+       already frozen at full scale. */
+    opacity: clamp(0, calc((var(--p, 0) - 0.32) * 3), 1);
   }
 
   .black-pre-text {

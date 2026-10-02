@@ -435,3 +435,55 @@ describe('immersive journey T5: calm 3D motion', () => {
     expect(Number(breathing?.[1])).toBeLessThanOrEqual(0.005);
   });
 });
+
+describe('immersive journey T6: scrubbed red-to-black', () => {
+  test('scrubs the 3D tint from the black curtain circle instead of hard-switching', () => {
+    // The timeline driver is the single dispatcher of the scrub signal.
+    const dispatches = martialTimeline.match(/new CustomEvent\('belt:black-progress'/g) ?? [];
+    expect(dispatches.length).toBe(1);
+    expect(martialTimeline).toContain("window.dispatchEvent(new CustomEvent('belt:black-progress'");
+
+    // mix mirrors the expanding circle: radius / corner distance, no div by zero.
+    expect(martialTimeline).toContain('Math.hypot(W / 2, H / 2)');
+    expect(martialTimeline).toContain('Math.min(1, radius / corner)');
+    expect(martialTimeline).toContain('corner > 0');
+    // The circle formula itself is shared with resolveBeltKey's flip radius.
+    expect(martialTimeline).toContain('(p - 0.14) * 4');
+    expect(martialTimeline).toContain('BLACK_CIRCLE_MAX_RADIUS');
+
+    // Scrub endpoints are the palette actually used by the chapter map.
+    expect(martialTimeline).toContain("rojo: '#ef4444'");
+    expect(martialTimeline).toContain("negro: '#1c1a17'");
+    expect(martialTimeline).toContain('from: CHAPTER_COLORS.rojo');
+    expect(martialTimeline).toContain('to: CHAPTER_COLORS.negro');
+
+    // The dispatch only exists while the black curtain zone is active, and it
+    // runs after the belt:change block so the scrub has the last word on frames
+    // where the header flip fires too.
+    expect(martialTimeline).toContain("zone.classList.contains('black-curtain-scene')");
+    const changeIdx = martialTimeline.indexOf("new CustomEvent('belt:change'");
+    const scrubIdx = martialTimeline.indexOf("new CustomEvent('belt:black-progress'");
+    expect(changeIdx).toBeGreaterThan(-1);
+    expect(scrubIdx).toBeGreaterThan(changeIdx);
+  });
+
+  test('guards getInitialColor against the black zone on reload', () => {
+    const initialColor = belt3d.slice(belt3d.indexOf('function getInitialColor'), belt3d.indexOf('let activeColor'));
+    // F5 inside the curtain must not tint the model black over a cream page:
+    // the same ch < 6 / non-dark rule that updateBeltPosition enforces.
+    expect(initialColor).toContain('ch >= 6');
+    expect(initialColor).toContain("activeZone.dataset.zone === 'dark'");
+    expect(initialColor).toContain('dataset.activeBeltColor');
+  });
+
+  test('ties the red flash and glow handoff to the circle growth', () => {
+    // Red never dissolves before the circle can swallow the viewport: the fade
+    // starts at p = 0.39, exactly when the circle reaches full radius.
+    expect(martialTimeline).toMatch(/\.black-red-flash\s*\{[^}]*\(var\(--p, 0\) - 0\.39\) \* 6/);
+    // The glow rises during the circle's last growth instead of after it stops.
+    expect(martialTimeline).toMatch(/\.black-radial-glow\s*\{[^}]*\(var\(--p, 0\) - 0\.32\) \* 3/);
+    // Text beats keep their order and the nav contract stays pinned to them.
+    expect(martialTimeline).toContain('data-nav-target="0.97"');
+    expect(martialTimeline).toContain('data-nav-target="0.7"');
+  });
+});

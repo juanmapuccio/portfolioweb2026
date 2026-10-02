@@ -145,6 +145,14 @@
       });
       if (activeZone) {
         const ch = parseInt(activeZone.dataset.ch || '0', 10);
+        // Same rule as updateBeltPosition: dark zones and chapter 6 (the black
+        // curtain) never hard-tint from the zone map. On F5 inside the curtain
+        // the scene may still be cream, so take the header's resolved color
+        // (red until the expanding circle covers the viewport, black after),
+        // falling back to red — never black — when the timeline has not run yet.
+        if (activeZone.dataset.zone === 'dark' || ch >= 6) {
+          return document.documentElement.dataset.activeBeltColor || CHAPTER_COLORS.rojo;
+        }
         const k = CHAPTER_KEYS[ch] || 'blanco';
         return CHAPTER_COLORS[k] || '#ffffff';
       }
