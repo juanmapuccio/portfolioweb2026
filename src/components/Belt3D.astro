@@ -145,13 +145,8 @@
       });
       if (activeZone) {
         const ch = parseInt(activeZone.dataset.ch || '0', 10);
-        // Same rule as updateBeltPosition: dark zones and chapter 6 (the black
-        // curtain) never hard-tint from the zone map. On F5 inside the curtain
-        // the scene may still be cream, so take the header's resolved color
-        // (red until the expanding circle covers the viewport, black after),
-        // falling back to red — never black — when the timeline has not run yet.
         if (activeZone.dataset.zone === 'dark' || ch >= 6) {
-          return document.documentElement.dataset.activeBeltColor || CHAPTER_COLORS.rojo;
+          return document.documentElement.dataset.activeBeltColor || CHAPTER_COLORS.negro;
         }
         const k = CHAPTER_KEYS[ch] || 'blanco';
         return CHAPTER_COLORS[k] || '#ffffff';
@@ -326,9 +321,10 @@
 
       if (activeZone) {
         const ch = parseInt(activeZone.dataset.ch || '0', 10);
+        const isCurtainScrubbing = activeZone.classList.contains('black-curtain-scene');
         const k = CHAPTER_KEYS[ch] || 'blanco';
         const expectedColor = CHAPTER_COLORS[k];
-        if (expectedColor && expectedColor !== activeColor && activeZone.dataset.zone !== 'dark' && ch < 6) {
+        if (expectedColor && expectedColor !== activeColor && !isCurtainScrubbing) {
           activeColor = expectedColor;
           setTarget(expectedColor);
         }

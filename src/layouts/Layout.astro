@@ -495,6 +495,9 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
   }
 
   window.addEventListener('belt:change', syncHeaderBeltColor);
+  if (document.documentElement.dataset.activeBeltColor) {
+    syncHeaderBeltColor(new CustomEvent('belt:change', { detail: { color: document.documentElement.dataset.activeBeltColor } }));
+  }
   window.addEventListener('scroll', scheduleHeaderProgress, { passive: true });
   window.addEventListener('resize', scheduleHeaderProgress);
   updateHeaderProgress();
