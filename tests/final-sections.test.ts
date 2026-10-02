@@ -362,3 +362,43 @@ describe('immersive journey T2: job detail modal', () => {
     expect(modal).toContain('{data.competencyLabel}');
   });
 });
+
+describe('immersive journey T3: header nav targets', () => {
+  test('owns reveal-gated anchor clicks before Lenis and the native jump see them', () => {
+    expect(layout).toContain("document.addEventListener('click'");
+    // The native fragment jump must not run: it lands on the raw hash (--p ≈ 0).
+    expect(layout).toContain('event.preventDefault()');
+    // Lenis listens for clicks on window in the bubble phase and ignores
+    // defaultPrevented, so propagation has to stop at document.
+    expect(layout).toContain('event.stopPropagation()');
+    // Only same-page anchors are intercepted, one element lookup for the whole page.
+    expect(layout).toContain(`closest<HTMLAnchorElement>('a[href^="#"]')`);
+    // Anchors outside the reveal set keep Lenis's default anchor behavior.
+    expect(layout).toContain('anchors: { offset:');
+  });
+
+  test('computes the landing pixel from the curtain data-nav-target contract', () => {
+    expect(layout).toContain('data-nav-target');
+    expect(layout).toContain('curtain.dataset.navTarget');
+    // y = curtainTopDoc + fraction * (curtain.offsetHeight - window.innerHeight)
+    expect(layout).toContain('getBoundingClientRect().top + window.scrollY');
+    expect(layout).toContain('offsetHeight - window.innerHeight');
+    expect(layout).toContain('target.fraction * range');
+    // Lenis when present, instant native fallback when it is absent (reduced motion).
+    expect(layout).toContain('__lenis');
+    expect(layout).toContain('lenis.scrollTo(y, { immediate: false, duration: 1 })');
+    expect(layout).toContain("window.scrollTo({ top: y, behavior: 'auto' })");
+  });
+
+  test('sends the contact link to the frame where its reveal has already resolved', () => {
+    // ContactSection: opacity = clamp((p - 0.15) * 3) → open at p ≈ 0.48.
+    expect(layout).toContain('contacto: 0.55');
+    expect(layout).toContain('REVEAL_FRACTIONS');
+  });
+
+  test('re-aligns a chapter deep link after the browser jumps to the raw hash', () => {
+    expect(layout).toContain('resolveNavTarget(location.hash)');
+    expect(layout).toContain("addEventListener('load'");
+    expect(layout).toContain('requestAnimationFrame(alignHashToReveal)');
+  });
+});

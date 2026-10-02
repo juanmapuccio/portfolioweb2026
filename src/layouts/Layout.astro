@@ -301,6 +301,108 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Header quick-selector (T3): a same-document link whose target reveals through
+  // a scroll-driven curtain must land on the REVEALED frame, not on the raw hash
+  // position (which sits at --p ≈ 0 behind an un-animated curtain).
+  //
+  // Contract (MartialExperienceTimeline): the driver computes
+  //   p = (scrollY - curtainTopDoc) / (curtain.offsetHeight - window.innerHeight)
+  // so the scroll position where the reveal reads complete is
+  //   curtainTopDoc + fraction * (curtain.offsetHeight - window.innerHeight).
+  // ---------------------------------------------------------------------------
+  type LenisWindow = Window & { __lenis?: Lenis };
+
+  interface NavTarget {
+    node: HTMLElement;
+    fraction: number;
+  }
+
+  // Elements without a data-nav-target curtain declare their own reveal point.
+  // #contacto: ContactSection fades in with opacity = clamp((p - 0.15) * 3),
+  // fully open at p ≈ 0.48, so aim slightly past it.
+  const REVEAL_FRACTIONS: Record<string, number> = { contacto: 0.55 };
+
+  function readLenis(): Lenis | undefined {
+    return (window as LenisWindow).__lenis;
+  }
+
+  /** Resolves a `#hash` to the reveal-driven element plus the fraction of its
+   *  scroll range where the content is fully revealed. Returns null for anchors
+   *  we do not own, so those keep Lenis's default anchor behavior. */
+  function resolveNavTarget(hash: string): NavTarget | null {
+    if (!hash.startsWith('#') || hash.length < 2) return null;
+    const section = document.getElementById(hash.slice(1));
+    if (!section) return null;
+    const curtain = section.matches('[data-nav-target]')
+      ? section
+      : section.querySelector<HTMLElement>('[data-nav-target]');
+    if (curtain) {
+      const fraction = Number.parseFloat(curtain.dataset.navTarget ?? '');
+      if (Number.isFinite(fraction)) return { node: curtain, fraction };
+    }
+    const fallback = REVEAL_FRACTIONS[section.id];
+    if (fallback !== undefined) return { node: section, fraction: fallback };
+    return null;
+  }
+
+  /** Document-space scroll position where `target`'s reveal is complete. */
+  function navTargetScrollY(target: NavTarget): number {
+    const top = target.node.getBoundingClientRect().top + window.scrollY;
+    const range = Math.max(0, target.node.offsetHeight - window.innerHeight);
+    return top + target.fraction * range;
+  }
+
+  /** Scrolls to `target`: Lenis when present (smooth), instant native fallback
+   *  when it is absent (prefers-reduced-motion never creates Lenis). */
+  function scrollToNavTarget(target: NavTarget): void {
+    const y = navTargetScrollY(target);
+    const lenis = readLenis();
+    if (lenis) lenis.scrollTo(y, { immediate: false, duration: 1 });
+    else window.scrollTo({ top: y, behavior: 'auto' });
+  }
+
+  // Own the reveal-gated links at the document level: Lenis listens for clicks on
+  // window (bubble phase) and ignores defaultPrevented, so propagation has to stop
+  // here or it would re-scroll to the raw hash and stack scroll-padding-top with
+  // anchors.offset. Anchors outside this set (e.g. #top) keep Lenis's defaults.
+  document.addEventListener('click', (event) => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+    const anchor =
+      event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href^="#"]') : null;
+    const href = anchor?.getAttribute('href');
+    const target = href ? resolveNavTarget(href) : null;
+    if (!href || !target) return;
+    event.preventDefault();
+    event.stopPropagation();
+    // Keep the deep link shareable; the language switch carries it over too.
+    history.replaceState(null, '', `${location.pathname}${location.search}${href}`);
+    scrollToNavTarget(target);
+  });
+
+  // Deep-link parity: on load the browser jumps natively to the raw hash (minus
+  // scroll-padding-top), so a chapter opens at --p ≈ 0. Re-align once the page has
+  // settled; reduced motion resolves to an instant jump inside scrollToNavTarget.
+  function alignHashToReveal(): void {
+    const target = resolveNavTarget(location.hash);
+    if (target) scrollToNavTarget(target);
+  }
+
+  if (document.readyState === 'complete') {
+    requestAnimationFrame(alignHashToReveal);
+  } else {
+    window.addEventListener('load', () => requestAnimationFrame(alignHashToReveal), { once: true });
+  }
+
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
     // Lenis is driven by the GSAP ticker so smooth scroll and ScrollTrigger share one rAF.
     const lenis = new Lenis({
@@ -308,12 +410,16 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       autoRaf: false,
-      anchors: { offset: -80 },
+      // Lenis subtracts scroll-padding-top (global.css: 5rem) AND this offset when
+      // it resolves an anchor, so a negative offset stacked a second 80px on top of
+      // the native one. 0 keeps anchors aligned with a plain fragment jump: 80px
+      // below the viewport top, clear of the 60px fixed header.
+      anchors: { offset: 0 },
       // Let nested scrollers (e.g. mobile project cards) scroll natively.
       allowNestedScroll: true,
     });
 
-    (window as unknown as { __lenis?: Lenis }).__lenis = lenis;
+    (window as LenisWindow).__lenis = lenis;
 
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add((time) => lenis.raf(time * 1000));
