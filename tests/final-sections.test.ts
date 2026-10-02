@@ -920,3 +920,54 @@ describe('scroll engine consolidation T3: component registrations', () => {
     expect(journey).toContain('additive');
   });
 });
+
+describe('scroll engine consolidation T4: belt3d single loop', () => {
+  test('rides the gsap ticker instead of a private requestAnimationFrame loop', () => {
+    // One rAF drives all scroll-linked motion: gsap.ticker (Lenis + ScrollTrigger
+    // in Layout). Belt3D joins it and must not keep its own loop.
+    expect(belt3d).toContain('gsap.ticker.add(');
+    expect(belt3d).toContain('gsap.ticker.remove(');
+    expect(belt3d).not.toContain('requestAnimationFrame(');
+    expect(belt3d).not.toContain('cancelAnimationFrame(');
+    // The ticker callback receives ms since the last tick; dt keeps the 50ms
+    // clamp so a backgrounded tab does not teleport the belt on resume.
+    expect(belt3d).toMatch(/Math\.min\(0\.05,\s*deltaTime \/ 1000\)/);
+  });
+
+  test('skips the WebGL draw while the belt is effectively invisible', () => {
+    // Acceptance criterion: renderer.render() is the expensive part; the
+    // position math still runs every tick (cheap, tracks re-entry), but the
+    // draw is gated on the slot opacity.
+    const gate = /curSlot\s*===\s*null\s*\|\|\s*curSlot\.o\s*<\s*0\.01/.exec(belt3d);
+    expect(gate).not.toBeNull();
+    const renderIdx = belt3d.indexOf('renderer.render(scene, camera)');
+    expect(renderIdx).toBeGreaterThan(-1);
+    expect(gate!.index).toBeLessThan(renderIdx);
+    // updateBeltPosition runs BEFORE the gate, so tracking never freezes.
+    const updateIdx = belt3d.indexOf('updateBeltPosition(dt)');
+    expect(updateIdx).toBeGreaterThan(-1);
+    expect(updateIdx).toBeLessThan(gate!.index);
+  });
+
+  test('caches the zone list at start instead of querying the document per frame', () => {
+    // The per-frame document-wide [data-zone] sweep is gone; zones are static
+    // markup and deferred module scripts run after full parse.
+    const start = belt3d.indexOf('function updateBeltPosition');
+    const end = belt3d.indexOf('gsap.ticker.add(', start);
+    expect(start).toBeGreaterThan(-1);
+    expect(end).toBeGreaterThan(start);
+    const body = belt3d.slice(start, end);
+    expect(body).not.toContain('querySelectorAll');
+    // The cache itself is built once inside start().
+    expect(belt3d).toMatch(/Array\.from\(document\.querySelectorAll<HTMLElement>\('\[data-zone\]'\)\)/);
+  });
+
+  test('keeps a visibilitychange handler only for sway continuity on resume', () => {
+    // gsap.ticker rides rAF and auto-pauses on hidden tabs; the handler just
+    // rebases the wall-clock origin so sin(t) resumes where it left off.
+    expect(belt3d).toContain("document.addEventListener('visibilitychange', onVis)");
+    expect(belt3d).toContain('t0 = performance.now() - lastT * 1000');
+    // No cancel/restart machinery left.
+    expect(belt3d).not.toContain('let raf');
+  });
+});
