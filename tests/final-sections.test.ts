@@ -1181,3 +1181,73 @@ describe('mobile immersive: <=767px scenes swapped in by CSS', () => {
     }
   });
 });
+
+describe('mobile scroll polish contract', () => {
+  test('one svh-based viewport height across the mobile scenes', () => {
+    expect(mobileImmersive).toContain('data-vh-probe');
+    expect(mobileImmersive).toMatch(/\.vh-probe\s*\{[^}]*height:\s*100svh;/);
+    expect(mobileImmersive).toContain('margin-top: -100svh;');
+    expect(mobileImmersive).toContain('-100svh)) scale(');
+    expect(mobileImmersive).not.toMatch(/-100vh/);
+    expect(mobileImmersive).not.toMatch(/\.scene-[a-z]+ \{ height: \d+vh;/);
+    expect(journey).toContain("document.querySelector<HTMLElement>('[data-vh-probe]')");
+    expect(layout).toContain("document.querySelector<HTMLElement>('[data-vh-probe]')");
+    expect(layout).toContain('const ih = mobileViewportHeight();');
+  });
+
+  test('scene engine reads every rect before writing any custom property', () => {
+    expect(journey).toContain('function flushScenes(');
+    expect(journey).toContain('const rects = batch.map((entry) => entry.el.getBoundingClientRect());');
+    const body = journey.slice(journey.indexOf('function flushScenes('), journey.indexOf('function refreshScenes('));
+    expect(body.indexOf('getBoundingClientRect')).toBeGreaterThan(-1);
+    expect(body.indexOf('getBoundingClientRect')).toBeLessThan(body.indexOf('writeScene('));
+    // writeScene is a pure write phase: it receives the rect instead of reading it.
+    const write = journey.slice(journey.indexOf('function writeScene('), journey.indexOf('function flushScenes('));
+    expect(write).not.toContain('getBoundingClientRect');
+    expect(write).not.toContain('window.innerHeight');
+  });
+
+  test('layers are promoted only while their scene is active', () => {
+    expect(journey).toContain("toggleAttribute('data-active', active)");
+    expect(mobileImmersive).toContain('.scene[data-active] .layer');
+    const layerRule = /\n  \.layer \{[^}]*\}/.exec(mobileImmersive)![0];
+    expect(layerRule).not.toContain('will-change');
+    expect(mobileImmersive).toContain('overflow: clip;');
+  });
+
+  test('touch feedback, focus-visible and 44px targets', () => {
+    expect(mobileImmersive).toContain('-webkit-tap-highlight-color: transparent;');
+    expect(mobileImmersive).toContain('touch-action: manipulation;');
+    expect(mobileImmersive).toContain('.card:active');
+    expect(mobileImmersive).toContain('.contact-link:active');
+    expect(mobileImmersive).toMatch(/\.card:focus-visible\s*\{\s*outline:\s*2px solid/);
+    expect(mobileImmersive).toMatch(/\.contact-link:focus-visible\s*\{\s*outline:\s*2px solid/);
+    expect(mobileImmersive).toContain('min-height: 44px;');
+    expect(mobileImmersive).toMatch(/prefers-reduced-motion: no-preference\)\s*\{[^}]*transition/);
+  });
+
+  test('keyboard focus on an off-screen card maps to the carousel scroll position', () => {
+    expect(journey).toContain("document.addEventListener('focusin', onSceneFocusIn)");
+    expect(journey).toContain(":focus-visible");
+    expect(journey).toContain('__lenis');
+    expect(mobileImmersive).not.toContain('addEventListener');
+  });
+
+  test('overscroll is mobile-scoped and anchor duration scales only on mobile', () => {
+    expect(globalCss).toMatch(/@media \(max-width: 767px\)\s*\{\s*html\s*\{\s*overscroll-behavior-y:\s*none;/);
+    expect(globalCss.match(/overscroll-behavior/g)?.length).toBe(1);
+    expect(layout).toContain('lenis && mobileNav.matches');
+    expect(layout).toContain('Math.min(2, 0.5 + Math.abs(y - window.scrollY) / 2000)');
+    // Desktop strings stay exactly as before.
+    expect(layout).toContain('lenis.scrollTo(y, { immediate: false, duration: 1 })');
+    expect(layout).toContain("window.scrollTo({ top: y, behavior: 'auto' })");
+    expect(layout).toContain('offsetHeight - window.innerHeight');
+  });
+
+  test('cramped scenes got more pinned span', () => {
+    for (const [scene, min] of [['hero', 280], ['manifesto', 300], ['stack', 280]] as const) {
+      const height = Number(new RegExp(String.raw`\.scene-${scene} \{ height: (\d+)svh;`).exec(mobileImmersive)![1]);
+      expect(height).toBeGreaterThanOrEqual(min);
+    }
+  });
+});
