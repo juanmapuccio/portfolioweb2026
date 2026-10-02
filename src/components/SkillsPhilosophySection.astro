@@ -21,6 +21,7 @@ const GLYPHS: Record<string, string> = {
 };
 ---<section
   id="stack-filosofia"
+  data-fx="c"
   data-zone="dark"
   data-ch="6"
   class="skills-philo-section"
@@ -144,14 +145,20 @@ const GLYPHS: Record<string, string> = {
 </section>
 
 <script>
-  import { registerZone } from '../scripts/journey';
+  import { registerFx, registerZone } from '../scripts/journey';
 
-  // Scroll-engine consolidation (T3): this section owns exactly one registry
-  // node — the dark belt zone (data-ch="6"). Registered from here instead of
-  // relying on the timeline's old document-wide rAF sweep (silent dependency
-  // removed). Scoped to this component's own root id.
+  // Scroll-engine consolidation (T3): this section owns the dark belt zone
+  // (data-ch="6"). dark-tail-polish D2: the SAME root node now also carries
+  // data-fx="c" so journey writes its curtain --p (top top → bottom bottom)
+  // and the section's content assembles with the scroll instead of sitting
+  // static through the whole pinned window (the complaint behind the "dead
+  // tail"). Both roles are registered from this component's own root id,
+  // exactly like ContactSection does.
   const skillsRoot = document.querySelector<HTMLElement>('#stack-filosofia');
-  if (skillsRoot) registerZone(skillsRoot);
+  if (skillsRoot) {
+    registerFx(skillsRoot);
+    registerZone(skillsRoot);
+  }
 </script>
 
 <style>
@@ -644,5 +651,80 @@ const GLYPHS: Record<string, string> = {
     font-size: 13px;
     line-height: 1.55;
     color: #928d84;
+  }
+
+  /* ── dark-tail-polish D2: journey reveals (data-fx="c" → --p) ──────────
+     The registry scrubs --p across the curtain range (0 when the section top
+     pins to the viewport, 1 when its bottom clears). The part-1 sticky
+     column holds ~p 0→0.28 on desktop, the human-dimension block enters
+     around p 0.55 and the TKD banner around p 0.83, so the beat map below
+     assembles content just as each block arrives. Every threshold satisfies
+     T + 1/K <= 1, so the reduced-motion freeze (--p: 1, journey.ts) renders
+     every reveal fully visible; the @media pin below additionally guards the
+     pre-freeze first paint.
+     Mobile (≤991 unwinds the sticky into a single flow column): --p is
+     normalized to THIS section's own scroll length, so the same thresholds
+     keep the stagger order and pacing without a media-query retune.
+     Categories and manifestos reveal through the independent translate/scale
+     properties: they compose with each card's existing `:hover { transform:
+     translateY(-Npx) }` lift instead of clobbering it. */
+  .skill-category-card {
+    opacity: clamp(0, calc((var(--p, 0) - 0.04) * 5), 1);
+    translate: 0 calc((1 - clamp(0, calc((var(--p, 0) - 0.04) * 5), 1)) * 28px);
+  }
+
+  .skill-categories-list .skill-category-card:nth-child(2) {
+    opacity: clamp(0, calc((var(--p, 0) - 0.10) * 5), 1);
+    translate: 0 calc((1 - clamp(0, calc((var(--p, 0) - 0.10) * 5), 1)) * 28px);
+  }
+
+  .skill-categories-list .skill-category-card:nth-child(3) {
+    opacity: clamp(0, calc((var(--p, 0) - 0.16) * 5), 1);
+    translate: 0 calc((1 - clamp(0, calc((var(--p, 0) - 0.16) * 5), 1)) * 28px);
+  }
+
+  .skill-categories-list .skill-category-card:nth-child(4) {
+    opacity: clamp(0, calc((var(--p, 0) - 0.22) * 5), 1);
+    translate: 0 calc((1 - clamp(0, calc((var(--p, 0) - 0.22) * 5), 1)) * 28px);
+  }
+
+  .skill-categories-list .skill-category-card:nth-child(5) {
+    opacity: clamp(0, calc((var(--p, 0) - 0.28) * 5), 1);
+    translate: 0 calc((1 - clamp(0, calc((var(--p, 0) - 0.28) * 5), 1)) * 28px);
+  }
+
+  .human-dimension-header {
+    opacity: clamp(0, calc((var(--p, 0) - 0.45) * 4), 1);
+    transform: translateY(calc((1 - clamp(0, calc((var(--p, 0) - 0.45) * 4), 1)) * 22px));
+  }
+
+  .philosophy-manifesto-card {
+    opacity: clamp(0, calc((var(--p, 0) - 0.5) * 4), 1);
+    translate: 0 calc((1 - clamp(0, calc((var(--p, 0) - 0.5) * 4), 1)) * 26px);
+    /* Settle, don't bounce: 0.97 → 1 scale with opacity. */
+    scale: calc(0.97 + clamp(0, calc((var(--p, 0) - 0.5) * 4), 1) * 0.03);
+  }
+
+  .philosophy-manifestos-grid .philosophy-manifesto-card:nth-child(2) {
+    opacity: clamp(0, calc((var(--p, 0) - 0.56) * 4), 1);
+    translate: 0 calc((1 - clamp(0, calc((var(--p, 0) - 0.56) * 4), 1)) * 26px);
+    scale: calc(0.97 + clamp(0, calc((var(--p, 0) - 0.56) * 4), 1) * 0.03);
+  }
+
+  .tkd-principles-block {
+    opacity: clamp(0, calc((var(--p, 0) - 0.7) * 4), 1);
+    transform: translateY(calc((1 - clamp(0, calc((var(--p, 0) - 0.7) * 4), 1)) * 26px));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skill-category-card,
+    .human-dimension-header,
+    .philosophy-manifesto-card,
+    .tkd-principles-block {
+      opacity: 1 !important;
+      transform: none !important;
+      translate: none !important;
+      scale: none !important;
+    }
   }
 </style>

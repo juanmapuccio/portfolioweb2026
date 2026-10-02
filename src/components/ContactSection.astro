@@ -26,6 +26,7 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
   <div class="contact-sticky-stage">
     <!-- Atmospheric Lighting & Background Vignette -->
     <div class="contact-ambient-halo" aria-hidden="true"></div>
+    <div class="contact-rise-glow" aria-hidden="true"></div>
     <div class="contact-gold-beam" aria-hidden="true"></div>
 
     <div class="contact-main-wrapper">
@@ -160,6 +161,29 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
     height: 1px;
     background: linear-gradient(90deg, transparent 0%, rgba(212, 175, 55, 0.4) 50%, transparent 100%);
     pointer-events: none;
+    /* dark-tail-polish D2: the black belt's gold line returns as a sweep over
+       p 0.02→0.27 — the single handoff gesture that opens the contact
+       chapter before the glow lifts and the title lands. */
+    transform-origin: center;
+    transform: scaleX(clamp(0, calc((var(--p, 0) - 0.02) * 4), 1));
+  }
+
+  /* D2 handoff glow: a subtle ivory radial that rises behind the title as p
+     crosses 0.2→0.45, between the gold sweep and the content landing. */
+  .contact-rise-glow {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 34%;
+    margin-inline: auto;
+    width: min(110vw, 1040px);
+    height: min(64vh, 560px);
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(242, 238, 230, 0.08) 0%, rgba(242, 238, 230, 0.035) 45%, transparent 72%);
+    pointer-events: none;
+    z-index: 1;
+    opacity: clamp(0, calc((var(--p, 0) - 0.2) * 4), 1);
+    translate: 0 calc((1 - clamp(0, calc((var(--p, 0) - 0.2) * 4), 1)) * 36px);
   }
 
   .contact-main-wrapper {
@@ -173,7 +197,10 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
-    opacity: clamp(0, calc((var(--p, 0) - 0.15) * 3), 1);
+    /* D2 re-time 0.15 → 0.2: the title/meta land only once the gold sweep
+       has started (sweep 0.02→0.27, glow 0.2→0.45, content 0.2→0.53 — still
+       inside the REVEAL_FRACTIONS contacto: 0.55 nav contract). */
+    opacity: clamp(0, calc((var(--p, 0) - 0.2) * 3), 1);
     transform: translateY(calc(30px * (1 - clamp(0, var(--p, 0), 1))));
   }
 
@@ -484,6 +511,17 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
     .contact-main-wrapper {
       opacity: 1 !important;
       transform: none !important;
+    }
+
+    /* The journey freeze (--p: 1) already resolves every D2 formula; pin the
+       beat elements for the pre-script first paint exactly like the wrapper. */
+    .contact-gold-beam {
+      transform: scaleX(1) !important;
+    }
+
+    .contact-rise-glow {
+      opacity: 1 !important;
+      translate: none !important;
     }
   }
 </style>

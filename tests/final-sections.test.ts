@@ -431,7 +431,8 @@ describe('immersive journey T3: header nav targets', () => {
   });
 
   test('sends the contact link to the frame where its reveal has already resolved', () => {
-    // ContactSection: opacity = clamp((p - 0.15) * 3) → open at p ≈ 0.48.
+    // ContactSection: opacity = clamp((p - 0.2) * 3) → open at p ≈ 0.53
+    // (D2 re-timed 0.15 → 0.2 so the gold-line sweep leads the title).
     expect(layout).toContain('contacto: 0.55');
     expect(layout).toContain('REVEAL_FRACTIONS');
   });
@@ -874,9 +875,13 @@ describe('scroll engine consolidation T3: component registrations', () => {
     expect(contactComponent).toContain('data-zone="curtain"');
   });
 
-  test('skills registers its dark zone via the registry', () => {
-    expect(skillsComponent).toContain("import { registerZone } from '../scripts/journey'");
+  test('skills registers its dark zone and joins the fx journey via the registry', () => {
+    // D2: the same root node carries both roles (data-zone="dark" for the
+    // belt state machine, data-fx="c" for the scrubbed reveals), exactly
+    // like the contact footer since T3.
+    expect(skillsComponent).toContain("import { registerFx, registerZone } from '../scripts/journey'");
     expect(skillsComponent).toContain("document.querySelector<HTMLElement>('#stack-filosofia')");
+    expect(skillsComponent).toContain('registerFx(skillsRoot)');
     expect(skillsComponent).toContain('registerZone(skillsRoot)');
     expect(skillsComponent).toContain('data-zone="dark"');
   });
@@ -991,5 +996,74 @@ describe('scroll engine consolidation T5: lenis hygiene + single-source radius',
     expect(martialTimeline).toContain('var(--black-circle-max-radius) / 5');
     expect(martialTimeline).not.toContain('* 400)');
     expect(journey).toContain('--black-circle-max-radius');
+  });
+});
+
+describe('dark tail polish D2: skills journey + contact beat', () => {
+  test('skills section joins the journey as a curtain fx node', () => {
+    // The dark-zone root node takes the second role (data-fx="c") exactly like
+    // ContactSection does: one node, both registrations, no new triggers.
+    expect(skillsComponent).toContain('data-fx="c"');
+    expect(skillsComponent).toContain("import { registerFx, registerZone } from '../scripts/journey'");
+    expect(skillsComponent).toContain('registerFx(skillsRoot)');
+    expect(skillsComponent).toContain('registerZone(skillsRoot)');
+    // Belt-zone behavior preserved untouched.
+    expect(skillsComponent).toContain('data-zone="dark"');
+  });
+
+  test('skills reveals assemble categories, philosophy and principles along --p', () => {
+    // The five skill categories stagger across the pinned part-1 window:
+    // openings at 0.04/0.10/0.16/0.22/0.28, each completing at T + 1/5.
+    for (const t of ['0.04', '0.10', '0.16', '0.22', '0.28']) {
+      expect(skillsComponent).toContain(`opacity: clamp(0, calc((var(--p, 0) - ${t}) * 5), 1);`);
+    }
+    // The human-dimension header and the two manifestos follow the stack.
+    expect(skillsComponent).toContain('opacity: clamp(0, calc((var(--p, 0) - 0.45) * 4), 1);');
+    expect(skillsComponent).toContain('opacity: clamp(0, calc((var(--p, 0) - 0.5) * 4), 1);');
+    expect(skillsComponent).toContain('opacity: clamp(0, calc((var(--p, 0) - 0.56) * 4), 1);');
+    // Manifestos settle with scale + opacity (no bounce).
+    expect(skillsComponent).toMatch(/\.philosophy-manifesto-card\s*\{[^}]*scale: calc\(0\.97 \+ clamp\(0, calc\(\(var\(--p, 0\) - 0\.5\) \* 4\), 1\) \* 0\.03\)/);
+    // TKD principles land last, before the section's end frame.
+    expect(skillsComponent).toContain('opacity: clamp(0, calc((var(--p, 0) - 0.7) * 4), 1);');
+    expect(skillsComponent).toMatch(/\.tkd-principles-block\s*\{[^}]*\(var\(--p, 0\) - 0\.7\) \* 4/);
+    // Cards that own a :hover transform-lift reveal through the INDEPENDENT
+    // translate/scale properties, so hover keeps composing after the reveal.
+    expect(skillsComponent).toMatch(/\.skill-category-card\s*\{[^}]*translate: 0 calc\(\(1 - clamp\(0, calc\(\(var\(--p, 0\) - 0\.04\) \* 5\), 1\)\) \* 28px\)/);
+    expect(skillsComponent).toMatch(/\.philosophy-manifesto-card\s*\{[^}]*translate: 0 calc\(\(1 - clamp\(0, calc\(\(var\(--p, 0\) - 0\.5\) \* 4\), 1\)\) \* 26px\)/);
+  });
+
+  test('contact opens with the black-belt gold-line beat before the title lands', () => {
+    // One gesture in sequence: the gold hairline sweeps first (0.02→0.27)…
+    expect(contactComponent).toMatch(/\.contact-gold-beam\s*\{[^}]*transform: scaleX\(clamp\(0, calc\(\(var\(--p, 0\) - 0\.02\) \* 4\), 1\)\)/);
+    // …an ivory radial glow rises behind the title (0.2→0.45)…
+    expect(contactComponent).toContain('<div class="contact-rise-glow" aria-hidden="true"></div>');
+    expect(contactComponent).toMatch(/\.contact-rise-glow\s*\{[^}]*opacity: clamp\(0, calc\(\(var\(--p, 0\) - 0\.2\) \* 4\), 1\)/);
+    expect(contactComponent).toMatch(/\.contact-rise-glow\s*\{[^}]*pointer-events: none/);
+    // …and the title/meta land with the re-timed wrapper (0.2→0.53).
+    expect(contactComponent).toContain('opacity: clamp(0, calc((var(--p, 0) - 0.2) * 3), 1);');
+    // Beat order contract: sweep threshold strictly precedes glow/wrapper openings.
+    const sweepT = Number(/\.contact-gold-beam\s*\{[^}]*var\(--p, 0\) - ([0-9.]+)\) \* /.exec(contactComponent)?.[1]);
+    const glowT = Number(/\.contact-rise-glow\s*\{[^}]*opacity: clamp\(0, calc\(\(var\(--p, 0\) - ([0-9.]+)\)/.exec(contactComponent)?.[1]);
+    const wrapperT = Number(/\.contact-main-wrapper\s*\{[^}]*opacity: clamp\(0, calc\(\(var\(--p, 0\) - ([0-9.]+)\)/.exec(contactComponent)?.[1]);
+    expect(sweepT).toBeGreaterThan(0);
+    expect(sweepT).toBeLessThan(glowT);
+    expect(sweepT).toBeLessThan(wrapperT);
+  });
+
+  test('every D2 reveal formula resolves fully visible at the reduced-motion freeze (T + 1/K <= 1)', () => {
+    // journey.ts freezes non-h fx nodes at --p: 1 under prefers-reduced-motion,
+    // so every threshold formula must reach its upper clamp bound at p = 1.
+    for (const source of [skillsComponent, contactComponent]) {
+      const formulas = source.match(/clamp\(0, calc\(\(var\(--p, 0\) - ([0-9.]+)\) \* ([0-9.]+)\), 1\)/g) ?? [];
+      expect(formulas.length).toBeGreaterThan(0);
+      for (const formula of formulas) {
+        const [, t, k] = /var\(--p, 0\) - ([0-9.]+)\) \* ([0-9.]+)/.exec(formula)!;
+        expect(Number(t) + 1 / Number(k)).toBeLessThanOrEqual(1 + 1e-6);
+      }
+      // Reduced motion also hard-pins the new reveals visible as a belt and
+      // braces guard before the deferred freeze lands.
+      expect(source).toContain('@media (prefers-reduced-motion: reduce)');
+    }
+    expect(skillsComponent).toMatch(/@media \(prefers-reduced-motion: reduce\)\s*\{[^}]*\.skill-category-card/);
   });
 });
