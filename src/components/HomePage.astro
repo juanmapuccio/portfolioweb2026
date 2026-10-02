@@ -46,13 +46,6 @@ const t = useTranslations(lang);
           <p class="hero-italic-quote">
             {lang === 'es' ? 'Audito procesos de empresas y los resuelvo con código.' : lang === 'en' ? 'I audit business processes and solve them with code.' : 'Audito processos de empresas e os resolvo com código.'}
           </p>
-          <p class="hero-body-claim">
-            {lang === 'es' 
-              ? 'Diseño, despliego y estabilizo software de negocio en producción, con usuarios reales. Esa capacidad de construir sistemas confiables, que siguen funcionando una vez entregados, es la que quiero poner al servicio de un equipo, con dedicación full-time.'
-              : lang === 'en'
-              ? 'I design, deploy, and stabilize production business software with real users. That capability to build reliable systems that keep working once delivered is what I want to bring to a team, full-time.'
-              : 'Projeto, implanto e estabilizo software de negócios em produção, com usuários reais. Essa capacidade de construir sistemas confiáveis, que continuam funcionando após a entrega, é o que quero colocar a serviço de uma equipe, com dedicação full-time.'}
-          </p>
           <div class="hero-buttons-row">
             <a href={CV_URL} target="_blank" rel="noopener noreferrer" class="hero-btn-dark">
               {t('hero.btn.cv')}
@@ -433,7 +426,7 @@ const t = useTranslations(lang);
   .hero-narrative-block {
     display: flex;
     flex-direction: column;
-    gap: clamp(10px, 2vh, 18px);
+    gap: clamp(8px, 1.4vh, 14px);
     max-width: 620px;
   }
 
@@ -453,14 +446,6 @@ const t = useTranslations(lang);
     line-height: 1.12;
     letter-spacing: -0.02em;
     color: #1c1a17;
-  }
-
-  .hero-body-claim {
-    margin: 0;
-    font-size: clamp(15px, 2.2vh, 16px);
-    line-height: 1.5;
-    max-width: 520px;
-    color: #4a463f;
   }
 
   .hero-buttons-row {
@@ -664,7 +649,6 @@ const t = useTranslations(lang);
     }
 
     .hero-location-text,
-    .hero-body-claim,
     .hero-scroll-cue,
     .portrait-caption-row {
       display: none;
