@@ -15,7 +15,6 @@ const CHAPTER_CONFIG = [
     num: '01',
     ko: '흰 띠',
     hex: '#ffffff',
-    layout: 'split' as const,
     word: { es: 'Inocencia', en: 'Innocence', pt: 'Inocência' }[lang],
     meaning: {
       es: 'El alumno que empieza sin conocimiento previo.',
@@ -28,7 +27,6 @@ const CHAPTER_CONFIG = [
     num: '02',
     ko: '노란 띠',
     hex: '#fbbf24',
-    layout: 'h' as const,
     word: { es: 'Tierra', en: 'Earth', pt: 'Terra' }[lang],
     meaning: {
       es: 'Donde la semilla echa raíces y se asientan las bases.',
@@ -41,7 +39,6 @@ const CHAPTER_CONFIG = [
     num: '03',
     ko: '초록 띠',
     hex: '#10b981',
-    layout: 'split' as const,
     word: { es: 'Crecimiento', en: 'Growth', pt: 'Crescimento' }[lang],
     meaning: {
       es: 'La planta crece a medida que la técnica se desarrolla.',
@@ -54,7 +51,6 @@ const CHAPTER_CONFIG = [
     num: '04',
     ko: '파란 띠',
     hex: '#0284c7',
-    layout: 'h' as const,
     word: { es: 'Cielo', en: 'Heaven', pt: 'Céu' }[lang],
     meaning: {
       es: 'Hacia donde la planta madura y se convierte en árbol.',
@@ -67,7 +63,6 @@ const CHAPTER_CONFIG = [
     num: '05',
     ko: '빨간 띠',
     hex: '#ef4444',
-    layout: 'split' as const,
     word: { es: 'Control', en: 'Control', pt: 'Controle' }[lang],
     meaning: {
       es: 'Exige templanza, precisión técnica y saber cuándo frenar antes de actuar.',
@@ -95,8 +90,8 @@ const CHAPTER_CONFIG = [
 
     return (
       <div id={cfg.key} class="chapter-block">
-        <!-- Escena 1: Cortina con título gigante y banda de cinturón -->
-        <section data-fx="c" data-zone="curtain" data-ch={chIndex} class="curtain-scene">
+        <!-- Beat 1 — Aparece: cortina con título gigante y banda de cinturón. data-nav-target (contrato T3): fracción 0..1 del rango de scroll de la cortina (altura de la sección − viewport) en la que el reveal queda COMPLETO: título p≈0.33, cinta p≈0.42 y lede editorial p≈0.64 → se fija 0.7 con margen; T3 aterriza en curtainTop + f × (altura − innerHeight). -->
+        <section data-fx="c" data-zone="curtain" data-ch={chIndex} data-nav-target="0.7" class="curtain-scene">
           <div class="curtain-sticky">
             <div class="curtain-meta-top">
               <span>Capítulo {cfg.num} · {cfg.ko} · {belt.beltName[lang]}</span>
@@ -121,94 +116,61 @@ const CHAPTER_CONFIG = [
           </div>
         </section>
 
-        <!-- Escena 2: Contenido según Layout (Split vs Horizontal) -->
-        {cfg.layout === 'split' ? (
-          <section data-zone="split" data-ch={chIndex} class="split-section">
-            <div class="split-side-sticky">
-              <div data-slot="1" class="split-slot"></div>
-              <div class="split-side-footer">
-                <div class="split-stage-tag">
-                  <span class="stage-tag-swatch" style={`background: ${cfg.hex};`}></span>
-                  {belt.gup} · {stage.years}
+        <!-- Beat 2 — Juega: track sticky+horizontal con los trabajos de la etapa (mismo mecanismo en los 5 capítulos; el detalle largo queda en data para el modal T2). -->
+        <section
+          data-fx="h"
+          data-zone="h"
+          data-ch={chIndex}
+          class="h-section"
+          style={`--h-section-h: ${120 + stage.positions.length * 105}vh;`}
+        >
+          <div class="h-sticky">
+            <div data-track="1" class="h-track">
+              <div class="h-intro-slide">
+                <div class="h-intro-text">
+                  <div class="h-intro-tag">
+                    <span class="stage-tag-swatch" style={`background: ${cfg.hex};`}></span>
+                    {belt.gup} · {stage.years}
+                  </div>
+                  <div class="h-intro-headline">{stage.title}</div>
+                  <div class="h-intro-count">
+                    {stage.positions.length} {lang === 'es' ? 'etapas · seguí bajando →' : lang === 'en' ? 'stages · scroll down →' : 'etapas · continue descendo →'}
+                  </div>
                 </div>
-                <div class="split-stage-line">{stage.title}</div>
+                <div data-slot="1" class="h-intro-slot"></div>
               </div>
-            </div>
 
-            <div class="split-roles-column">
-              {stage.positions.map((pos) => (
-                <article class="split-role-card">
-                  <div class="role-bar" style={`background: ${cfg.hex};`}></div>
-                  <div class="role-date">{pos.dates}</div>
-                  <h3 class="role-title">{pos.role}</h3>
-                  <div class="role-company">{pos.org}</div>
-                  <p class="role-desc">{pos.description}</p>
-                  {pos.transferableCompetency && (
-                    <div class="role-comp">
-                      <span class="comp-label">{data.competencyLabel}</span>
-                      <span class="comp-text">{pos.transferableCompetency}</span>
-                    </div>
-                  )}
-                </article>
+              {stage.positions.map((pos, pIdx) => (
+                <button
+                  type="button"
+                  class="h-role-card"
+                  data-job={`${cfg.key}:${pIdx}`}
+                  aria-label={`${pos.role} · ${pos.org} · ${pos.dates}`}
+                >
+                  <span class="h-card-accent" style={`background: ${cfg.hex};`}></span>
+                  <span class="h-card-header">
+                    <span>{String(pIdx + 1).padStart(2, '0')} / {String(stage.positions.length).padStart(2, '0')}</span>
+                    <span>{pos.dates}</span>
+                  </span>
+                  <span class="h-card-main">
+                    <span class="h-card-role">{pos.role}</span>
+                    <span class="h-card-company">{pos.org}</span>
+                    <span class="h-card-teaser">{pos.teaser}</span>
+                  </span>
+                </button>
               ))}
             </div>
-          </section>
-        ) : (
-          <section
-            data-fx="h"
-            data-zone="h"
-            data-ch={chIndex}
-            class="h-section"
-            style={`height: ${120 + stage.positions.length * 105}vh;`}
-          >
-            <div class="h-sticky">
-              <div data-track="1" class="h-track">
-                <div class="h-intro-slide">
-                  <div class="h-intro-text">
-                    <div class="h-intro-tag">
-                      <span class="stage-tag-swatch" style={`background: ${cfg.hex};`}></span>
-                      {belt.gup} · {stage.years}
-                    </div>
-                    <div class="h-intro-headline">{stage.title}</div>
-                    <div class="h-intro-count">
-                      {stage.positions.length} {lang === 'es' ? 'etapas · seguí bajando →' : lang === 'en' ? 'stages · scroll down →' : 'etapas · continue descendo →'}
-                    </div>
-                  </div>
-                  <div data-slot="1" class="h-intro-slot"></div>
-                </div>
-
-                {stage.positions.map((pos, pIdx) => (
-                  <article class="h-role-card">
-                    <div class="h-card-accent" style={`background: ${cfg.hex};`}></div>
-                    <div class="h-card-header">
-                      <span>{String(pIdx + 1).padStart(2, '0')} / {String(stage.positions.length).padStart(2, '0')}</span>
-                      <span>{pos.dates}</span>
-                    </div>
-                    <div class="h-card-main">
-                      <h3 class="h-card-role">{pos.role}</h3>
-                      <div class="h-card-company">{pos.org}</div>
-                      <p class="h-card-desc">{pos.description}</p>
-                    </div>
-                    {pos.transferableCompetency && (
-                      <div class="h-card-comp">
-                        <span class="comp-label">{data.competencyLabel}</span>
-                        <span class="comp-text">{pos.transferableCompetency}</span>
-                      </div>
-                    )}
-                  </article>
-                ))}
-              </div>
-              <div class="h-progress-bar" style={`background: ${cfg.hex};`}></div>
-            </div>
-          </section>
-        )}
+            <div class="h-progress-bar" style={`background: ${cfg.hex};`}></div>
+          </div>
+        </section>
       </div>
     );
   })}
 
   <!-- Capítulo 06: Cinturón Negro & Transición a Modo Oscuro -->
   <div id="negro" class="chapter-black-wrapper">
-    <section data-fx="c" data-zone="curtain" data-ch="6" class="black-curtain-scene">
+    <!-- data-nav-target (contrato T3): 0.97 = p en la que el último bloque (.black-meta-bottom, opacidad (p−0.72)×4) queda visible con las fórmulas actuales de esta cortina; si T6 re-tima los tiempos, reajustar este valor. -->
+    <section data-fx="c" data-zone="curtain" data-ch="6" data-nav-target="0.97" class="black-curtain-scene">
       <div class="black-curtain-sticky">
         <div class="black-red-flash"></div>
         <div class="black-expanding-circle"></div>
@@ -430,7 +392,7 @@ const CHAPTER_CONFIG = [
 
   /* ── Cortina Vertical Escénica ── */
   .curtain-scene {
-    height: 340vh;
+    height: 240vh;
     position: relative;
   }
 
@@ -573,49 +535,6 @@ const CHAPTER_CONFIG = [
     letter-spacing: -0.01em;
   }
 
-  /* ── Layout Dividido (Split) ── */
-  .split-section {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    border-top: 1px solid rgba(28, 26, 23, 0.12);
-  }
-
-  .split-side-sticky {
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    height: 100svh;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 96px clamp(20px, 5vw, 72px) 48px;
-    box-sizing: border-box;
-    gap: 24px;
-  }
-
-  .split-slot {
-    flex: 1;
-    min-height: 0;
-  }
-
-  .split-side-footer {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .split-stage-tag {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #4a463f;
-  }
-
   .stage-tag-swatch {
     width: 28px;
     height: 10px;
@@ -623,101 +542,13 @@ const CHAPTER_CONFIG = [
     display: inline-block;
   }
 
-  .split-stage-line {
-    font-family: var(--font-serif);
-    font-size: clamp(34px, 3.6vw, 60px);
-    font-weight: 300;
-    line-height: 1.02;
-    letter-spacing: -0.02em;
-    color: #1c1a17;
-  }
-
-  .split-roles-column {
-    display: flex;
-    flex-direction: column;
-    border-left: 1px solid rgba(28, 26, 23, 0.12);
-  }
-
-  .split-role-card {
-    min-height: 115vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 16px;
-    padding: 110px clamp(20px, 4vw, 64px);
-    box-sizing: border-box;
-    border-bottom: 1px solid rgba(28, 26, 23, 0.12);
-  }
-
-  .role-bar {
-    height: 10px;
-    width: 120px;
-    border: 1px solid #1c1a17;
-  }
-
-  .role-date {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #6a645a;
-  }
-
-  .role-title {
-    margin: 0;
-    font-family: var(--font-serif);
-    font-size: clamp(30px, 3vw, 48px);
-    font-weight: 400;
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    color: #1c1a17;
-  }
-
-  .role-company {
-    font-family: var(--font-sans);
-    font-size: 16px;
-    font-weight: 700;
-    color: #1c1a17;
-  }
-
-  .role-desc {
-    margin: 0;
-    font-size: 17px;
-    line-height: 1.6;
-    color: #4a463f;
-    max-width: 580px;
-  }
-
-  .role-comp {
-    border-top: 1px solid rgba(28, 26, 23, 0.28);
-    padding-top: 14px;
-    max-width: 580px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .comp-label {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #6a645a;
-  }
-
-  .comp-text {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: 20px;
-    line-height: 1.35;
-    color: #1c1a17;
-  }
-
   /* ── Layout Horizontal (h-section) ── */
   .h-section {
     position: relative;
+    /* Altura desktop: fórmula inline en --h-section-h (120 + n*105 vh).
+       El override mobile vive en el media query de 767px, que escala la
+       custom property (un style inline no puede ser sobreescrito por media query). */
+    height: var(--h-section-h);
     border-top: 1px solid rgba(28, 26, 23, 0.12);
   }
 
@@ -787,17 +618,39 @@ const CHAPTER_CONFIG = [
     height: 52vh;
   }
 
+  /* La card del track es un <button>: reset de controles nativos + feedback
+     de interacción. El contenido usa <span> (phrasing content) para respetar
+     el content model de <button>. */
   .h-role-card {
     flex: none;
     width: min(640px, 46vw);
     height: 100%;
     display: grid;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto 1fr;
     padding: 96px clamp(20px, 3vw, 48px) 56px;
     box-sizing: border-box;
+    appearance: none;
+    margin: 0;
+    border: 0;
     border-left: 1px solid rgba(28, 26, 23, 0.12);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
     gap: 20px;
     position: relative;
+    transition: background-color 160ms ease-out;
+  }
+
+  .h-role-card:hover {
+    background-color: rgba(28, 26, 23, 0.04);
+  }
+
+  .h-role-card:focus-visible {
+    outline: 2px solid #1c1a17;
+    outline-offset: -2px;
+    background-color: rgba(28, 26, 23, 0.04);
   }
 
   .h-card-accent {
@@ -847,19 +700,11 @@ const CHAPTER_CONFIG = [
     color: #1c1a17;
   }
 
-  .h-card-desc {
+  .h-card-teaser {
     margin: 0;
     font-size: 16px;
     line-height: 1.6;
     color: #4a463f;
-  }
-
-  .h-card-comp {
-    border-top: 1px solid rgba(28, 26, 23, 0.28);
-    padding-top: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
   }
 
   .h-progress-bar {
@@ -1083,15 +928,6 @@ const CHAPTER_CONFIG = [
       font-size: clamp(28px, 6.5vw, 48px);
       white-space: normal;
     }
-    .split-section {
-      grid-template-columns: minmax(0, 1fr);
-    }
-    .split-side-sticky {
-      display: none;
-    }
-    .split-roles-column {
-      border-left: none;
-    }
     .h-intro-slide {
       grid-template-columns: minmax(0, 1fr);
     }
@@ -1109,7 +945,7 @@ const CHAPTER_CONFIG = [
     }
 
     .curtain-scene {
-      height: 140vh;
+      height: 110vh;
     }
 
     .curtain-meta-top {
@@ -1154,23 +990,6 @@ const CHAPTER_CONFIG = [
       line-height: 1.45;
     }
 
-    .split-role-card {
-      min-height: auto;
-      padding: 48px 20px;
-    }
-
-    .role-title {
-      font-size: clamp(24px, 6vw, 32px);
-    }
-
-    .role-desc {
-      font-size: 15px;
-    }
-
-    .comp-text {
-      font-size: 16px;
-    }
-
     .h-intro-slide {
       width: 90vw;
       padding: 72px 20px 48px;
@@ -1178,6 +997,12 @@ const CHAPTER_CONFIG = [
 
     .h-intro-headline {
       font-size: clamp(32px, 8vw, 44px);
+    }
+
+    /* Track mobile: se escala la fórmula desktop que vive en --h-section-h
+       (no se puede sobre-escribir el style inline, pero sí su resultado). */
+    .h-section {
+      height: calc(var(--h-section-h) * 0.57);
     }
 
     .h-role-card {
@@ -1189,7 +1014,7 @@ const CHAPTER_CONFIG = [
       font-size: clamp(24px, 6vw, 32px);
     }
 
-    .h-card-desc {
+    .h-card-teaser {
       font-size: 14.5px;
     }
 

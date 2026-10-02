@@ -229,3 +229,71 @@ describe('final portfolio sections', () => {
     expect(layout).not.toContain('Desarrollador Full Stack & Fundador de NodoSur');
   });
 });
+
+describe('immersive journey T1: chapter beats', () => {
+  test('renders every belt chapter through the same sticky horizontal track', () => {
+    // One mechanism for all 5 chapters: no layout branching, no split section left.
+    expect(martialTimeline).not.toContain('cfg.layout');
+    expect(martialTimeline).not.toContain("layout: 'split'");
+    expect(martialTimeline).not.toContain("layout: 'h'");
+    expect(martialTimeline).not.toContain('split-section');
+    expect(martialTimeline).not.toContain('split-role-card');
+    expect(martialTimeline).not.toContain('data-zone="split"');
+    // The track machinery that already powered amarillo/azul now powers every chapter.
+    expect(martialTimeline).toContain('data-fx="h"');
+    expect(martialTimeline).toContain('data-zone="h"');
+    expect(martialTimeline).toContain('data-track="1"');
+    expect(martialTimeline).toContain('class="h-role-card"');
+    // Beat 1 (curtain) still precedes the track inside each chapter.
+    expect(martialTimeline).toContain('class="curtain-scene"');
+  });
+
+  test('exposes each job card as a button carrying data-job without the long detail', () => {
+    expect(martialTimeline).toContain('<button');
+    expect(martialTimeline).toContain('type="button"');
+    expect(martialTimeline).toContain('data-job={`');
+    expect(martialTimeline).toContain('aria-label={');
+    expect(martialTimeline).toContain('{pos.teaser}');
+    // Long "qué hice + aprendizaje" stays in data for T2's modal, not on the card.
+    expect(martialTimeline).not.toContain('{pos.description}');
+    expect(martialTimeline).not.toContain('{pos.transferableCompetency}');
+    // No navigation target yet.
+    expect(martialTimeline).not.toContain('href=');
+  });
+
+  test('keeps the long detail in data and derives a short teaser from existing copy', () => {
+    for (const lang of ['es', 'en', 'pt'] as const) {
+      for (const stage of martialExperienceData[lang].stages) {
+        expect(stage.positions.length).toBeGreaterThan(0);
+        for (const pos of stage.positions) {
+          // The teaser is a verbatim prefix of the existing description: no new copy.
+          expect(pos.description.startsWith(pos.teaser)).toBe(true);
+          expect(pos.teaser.length).toBeLessThanOrEqual(160);
+        }
+      }
+    }
+  });
+
+  test('marks every curtain with the data-nav-target fraction where the reveal completes', () => {
+    const targets = martialTimeline.match(/data-nav-target="[^"]*"/g) ?? [];
+    // The 5 belt chapters share the data-driven loop (one attribute in source,
+    // rendered once per chapter) + one on the black curtain = 2 occurrences.
+    expect(targets.length).toBe(2);
+    expect(martialTimeline).toContain('data-nav-target="0.7"');
+    expect(martialTimeline).toContain('data-nav-target="0.97"');
+    // The representation contract is documented in a code comment for T3.
+    expect(martialTimeline).toContain('<!-- data-nav-target');
+  });
+
+  test('shortens the curtain and routes the track height through a mobile-aware custom property', () => {
+    expect(martialTimeline).toMatch(/\.curtain-scene\s*\{\s*height: 240vh;/);
+    expect(martialTimeline).toContain('--h-section-h: ${120 + stage.positions.length * 105}vh;');
+    expect(martialTimeline).toMatch(/\.h-section\s*\{[^}]*height: var\(--h-section-h\)/);
+
+    const mobileIdx = martialTimeline.indexOf('@media (max-width: 767px)');
+    expect(mobileIdx).toBeGreaterThan(-1);
+    const mobileBlock = martialTimeline.slice(mobileIdx);
+    expect(mobileBlock).toMatch(/\.curtain-scene\s*\{\s*height: 110vh;/);
+    expect(mobileBlock).toContain('calc(var(--h-section-h) * 0.57)');
+  });
+});
