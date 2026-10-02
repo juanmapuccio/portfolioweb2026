@@ -35,52 +35,45 @@ const words = manifestoText.split(' ').map((w, i, arr) => ({
 </section>
 
 <script>
-  import { gsap } from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { registerFx } from '../scripts/journey';
 
-  gsap.registerPlugin(ScrollTrigger);
+  // Scroll-engine consolidation (T3): the manifesto no longer wires its own
+  // scroll trigger — it registers the section with the journey registry and
+  // subscribes through the onProgress callback, so the word reveal runs on
+  // the same single engine as every other beat. The font-load refresh that
+  // used to live here is module-level in journey.ts.
+  //
+  // Module scripts evaluate once, so this is a plain top-level call; the
+  // registry's WeakSet keeps registration idempotent and the manifestoReady
+  // check preserves the double-init guard semantics.
+  const section = document.querySelector<HTMLElement>('.manifesto-scroll-section');
+  const words = section ? Array.from(section.querySelectorAll<HTMLElement>('.manifesto-word')) : [];
+  if (section && words.length && section.dataset.manifestoReady !== 'true') {
+    // Reduced motion: nothing registers and manifestoReady stays unset, so
+    // the CSS base opacity keeps the text fully readable (exact previous
+    // behavior).
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      section.dataset.manifestoReady = 'true';
 
-  function initManifestoScroll() {
-    const section = document.querySelector<HTMLElement>('.manifesto-scroll-section');
-    const words = document.querySelectorAll<HTMLElement>('.manifesto-word');
-    if (!section || !words.length || section.dataset.manifestoReady === 'true') return;
+      // Desktop pins the section (260vh); mobile does not (height auto), so
+      // the trigger range follows the viewport — passed through the
+      // registry's additive start/end options.
+      const isMobile = window.matchMedia('(max-width: 767px)').matches;
 
-    // Reduced motion: the text stays fully readable, no scroll-driven reveal.
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    section.dataset.manifestoReady = 'true';
-
-    // Desktop pins the section; mobile does not, so the range follows the viewport.
-    const isMobile = window.matchMedia('(max-width: 767px)').matches;
-
-    ScrollTrigger.create({
-      trigger: section,
-      start: isMobile ? 'top 80%' : 'top top',
-      end: isMobile ? 'bottom 45%' : 'bottom bottom',
-      // Lenis already smooths the scroll; a scrub delay would add lag on top.
-      scrub: true,
-      onUpdate: (self) => {
-        const p = self.progress;
-        words.forEach((w) => {
-          const t = parseFloat(w.dataset.threshold || '0');
-          // Word reveals smoothly based on scroll position exactly like Claude Design
-          const opacity = Math.min(1, Math.max(0.12, (p * 1.15 - t) * 12));
-          w.style.opacity = opacity.toString();
-        });
-      }
-    });
-
-    // Web fonts change text metrics and section height; re-measure trigger positions.
-    if (document.fonts?.ready) {
-      document.fonts.ready.then(() => ScrollTrigger.refresh());
+      registerFx(section, {
+        start: isMobile ? 'top 80%' : undefined,
+        end: isMobile ? 'bottom 45%' : undefined,
+        onProgress: (p: number) => {
+          words.forEach((w) => {
+            const t = parseFloat(w.dataset.threshold || '0');
+            // Word reveals smoothly based on scroll position exactly like Claude Design
+            const opacity = Math.min(1, Math.max(0.12, (p * 1.15 - t) * 12));
+            w.style.opacity = opacity.toString();
+          });
+        },
+      });
     }
   }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initManifestoScroll);
-  } else {
-    initManifestoScroll();
-  }
-  document.addEventListener('astro:page-load', initManifestoScroll);
 </script>
 
 <style>

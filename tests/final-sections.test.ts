@@ -9,6 +9,8 @@ const contactComponent = await readFile(new URL('../src/components/ContactSectio
 const homePage = await readFile(new URL('../src/components/HomePage.astro', import.meta.url), 'utf8');
 const belt3d = await readFile(new URL('../src/components/Belt3D.astro', import.meta.url), 'utf8');
 const martialTimeline = await readFile(new URL('../src/components/MartialExperienceTimeline.astro', import.meta.url), 'utf8');
+const projectsSection = await readFile(new URL('../src/components/ProjectsSection.astro', import.meta.url), 'utf8');
+const manifestoSection = await readFile(new URL('../src/components/ManifestoScrollytelling.astro', import.meta.url), 'utf8');
 const layout = await readFile(new URL('../src/layouts/Layout.astro', import.meta.url), 'utf8');
 // Scroll-engine consolidation (T1+): the journey registry owns the belt math,
 // the --p writes and the belt:* dispatches that used to live in the timeline's
@@ -679,9 +681,10 @@ describe('scroll engine consolidation T1: journey registry', () => {
   test('creates one ScrollTrigger per fx node with the curtain range', async () => {
     const journey = await readJourney();
     // registerFx: start 'top top', end 'bottom bottom' — the exact range the
-    // rAF engine computed as -rect.top / (height - innerHeight).
-    expect(journey).toMatch(/start:\s*'top top'/);
-    expect(journey).toMatch(/end:\s*'bottom bottom'/);
+    // rAF engine computed as -rect.top / (height - innerHeight). Since T3 the
+    // range is an ADDITIVE option; these assertions keep the DEFAULTS pinned.
+    expect(journey).toMatch(/start:\s*opts\?\.start \?\? 'top top'/);
+    expect(journey).toMatch(/end:\s*opts\?\.end \?\? 'bottom bottom'/);
     expect(journey).toMatch(/onUpdate:\s*\(self: ScrollTrigger\) => \{\s*\n?\s*applyFxProgress\(entry, self\.progress\)/);
   });
 
@@ -833,5 +836,87 @@ describe('scroll engine consolidation T2: timeline migration', () => {
     expect(martialTimeline).not.toContain("new CustomEvent('belt:change'");
     expect(martialTimeline).not.toContain('BLACK_CIRCLE_MAX_RADIUS');
     expect(martialTimeline).not.toContain('initScrollytelling');
+  });
+});
+
+describe('scroll engine consolidation T3: component registrations', () => {
+  test('projects registers its own horizontal fx and its three belt zones via the registry', () => {
+    // The component owns its nodes now (no silent dependency on a foreign
+    // loop). ProjectsSection renders three sibling sections and no wrapper,
+    // so registration targets each owned node by its stable id/class instead
+    // of a container-subtree sweep.
+    expect(projectsSection).toContain("import { registerFx, registerZone } from '../scripts/journey'");
+    expect(projectsSection).toContain("document.querySelector<HTMLElement>('#proyectos')");
+    expect(projectsSection).toContain('registerFx(projectsFx)');
+    expect(projectsSection).toContain("document.querySelector<HTMLElement>('.automations-section')");
+    expect(projectsSection).toContain('registerZone(automationsZone)');
+    expect(projectsSection).toContain("document.querySelector<HTMLElement>('.architecture-section')");
+    expect(projectsSection).toContain('registerZone(architectureZone)');
+    // No document-wide [data-fx]/[data-zone] sweeps may come back.
+    expect(projectsSection).not.toContain("querySelectorAll<HTMLElement>('[data-fx]')");
+    expect(projectsSection).not.toContain("querySelectorAll<HTMLElement>('[data-zone]')");
+    // The markup contract that drives the CSS --p formulas is untouched.
+    expect(projectsSection).toContain('data-fx="h"');
+    expect(projectsSection).toContain('data-zone="h"');
+    expect((projectsSection.match(/data-zone="dark" data-ch="6"/g) ?? []).length).toBe(2);
+  });
+
+  test('contact registers its footer fx+curtain zone via the registry', () => {
+    // The footer is one node carrying BOTH roles (data-fx="c" and
+    // data-zone="curtain"), so it takes both registrations.
+    expect(contactComponent).toContain("import { registerFx, registerZone } from '../scripts/journey'");
+    expect(contactComponent).toContain("document.querySelector<HTMLElement>('#contacto')");
+    expect(contactComponent).toContain('registerFx(contactRoot)');
+    expect(contactComponent).toContain('registerZone(contactRoot)');
+    expect(contactComponent).toContain('data-fx="c"');
+    expect(contactComponent).toContain('data-zone="curtain"');
+  });
+
+  test('skills registers its dark zone via the registry', () => {
+    expect(skillsComponent).toContain("import { registerZone } from '../scripts/journey'");
+    expect(skillsComponent).toContain("document.querySelector<HTMLElement>('#stack-filosofia')");
+    expect(skillsComponent).toContain('registerZone(skillsRoot)');
+    expect(skillsComponent).toContain('data-zone="dark"');
+  });
+
+  test('hero zone is registered by a HomePage script so belt:change fires on load', () => {
+    // HomePage had no client script before T3; the hero zone (data-ch="0")
+    // must be registered there or the initial pass finds no center zone and
+    // the header/belt boot state goes silent.
+    expect(homePage).toContain("import { registerZone } from '../scripts/journey'");
+    expect(homePage).toContain("document.querySelector<HTMLElement>('#top')");
+    expect(homePage).toContain('registerZone(heroZone)');
+    // Markup untouched: the hero zone attributes stay exactly as they were.
+    expect(homePage).toContain('data-zone="hero" data-ch="0"');
+  });
+
+  test('manifesto migrates to the registry and drops its direct engine wiring', () => {
+    expect(manifestoSection).toContain("import { registerFx } from '../scripts/journey'");
+    expect(manifestoSection).toContain('registerFx(section, {');
+    // The word-opacity formula is preserved verbatim.
+    expect(manifestoSection).toContain('Math.min(1, Math.max(0.12, (p * 1.15 - t) * 12))');
+    // The mobile range rides on the additive start/end options (same matchMedia check).
+    expect(manifestoSection).toContain("'top 80%'");
+    expect(manifestoSection).toContain("'bottom 45%'");
+    expect(manifestoSection).toContain("matchMedia('(max-width: 767px)')");
+    // Reduced motion: nothing registers and manifestoReady stays unset, so
+    // the CSS base opacity keeps the text fully readable.
+    expect(manifestoSection).toContain("matchMedia('(prefers-reduced-motion: reduce)')");
+    expect(manifestoSection).toContain("section.dataset.manifestoReady = 'true'");
+    // The direct ScrollTrigger/gsap wiring is gone from this component.
+    expect(manifestoSection).not.toContain('ScrollTrigger');
+    expect(manifestoSection).not.toContain('gsap.registerPlugin');
+    expect(manifestoSection).not.toContain("from 'gsap'");
+  });
+
+  test('journey registerFx accepts a purely additive start/end range option', () => {
+    expect(journey).toMatch(/start\?:\s*string/);
+    expect(journey).toMatch(/end\?:\s*string/);
+    // Defaults preserved — the curtain range stays authoritative when no
+    // option is passed (also asserted by the T1 suite above).
+    expect(journey).toMatch(/start:\s*opts\?\.start \?\? 'top top'/);
+    expect(journey).toMatch(/end:\s*opts\?\.end \?\? 'bottom bottom'/);
+    // The addition is documented in the module header.
+    expect(journey).toContain('additive');
   });
 });

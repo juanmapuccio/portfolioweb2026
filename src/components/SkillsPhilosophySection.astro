@@ -143,6 +143,16 @@ const GLYPHS: Record<string, string> = {
   </div>
 </section>
 
+<script>
+  import { registerZone } from '../scripts/journey';
+
+  // Scroll-engine consolidation (T3): this section owns exactly one registry
+  // node — the dark belt zone (data-ch="6"). Registered from here instead of
+  // relying on the timeline's old document-wide rAF sweep (silent dependency
+  // removed). Scoped to this component's own root id.
+  const skillsRoot = document.querySelector<HTMLElement>('#stack-filosofia');
+  if (skillsRoot) registerZone(skillsRoot);
+</script>
 
 <style>
   .skills-philo-section {

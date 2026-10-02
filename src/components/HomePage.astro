@@ -123,6 +123,20 @@ const t = useTranslations(lang);
   </div>
 </Layout>
 
+<script>
+  import { registerZone } from '../scripts/journey';
+
+  // Scroll-engine consolidation (T3): the hero zone (data-zone="hero",
+  // data-ch="0") is registered here — HomePage previously had no client
+  // script, which left the zone undriven and silenced belt:change on initial
+  // load after the timeline migrated to the registry (T2). With the hero
+  // registered, journey.ts's initial pass resolves the center-crossing zone
+  // (hero at scroll 0, ch 0 → "blanco") and dispatches belt:change exactly
+  // like the old rAF engine did on load. Markup and styles untouched.
+  const heroZone = document.querySelector<HTMLElement>('#top');
+  if (heroZone) registerZone(heroZone);
+</script>
+
 <style>
   .portfolio-shell {
     width: 100%;

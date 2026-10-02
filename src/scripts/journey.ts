@@ -38,6 +38,13 @@
  * then getComputedStyle returns '' and the fallback (2000) reproduces the old
  * engine's BLACK_CIRCLE_MAX_RADIUS exactly.
  *
+ * T3 additive range option: registerFx accepts { start?, end? } to override
+ * the default 'top top'/'bottom bottom' curtain range per node. The defaults
+ * are unchanged (opts?.start ?? 'top top', opts?.end ?? 'bottom bottom');
+ * the only caller passing overrides is the manifesto, whose mobile range was
+ * 'top 80%'/'bottom 45%' before migrating to this registry. Nothing else in
+ * the module's behavior moved.
+ *
  * DEVIATION from the literal T1 text (`p = self.progress` on the black
  * curtain): the dispatched progress uses the PORTED curtain formula
  * (-rect.top / (rect.height - innerHeight), old engine line 343) rather than
@@ -60,6 +67,14 @@ export interface FxRegistrationOptions {
    *  unconditionally, so JS subscribers (e.g. the manifesto) receive every
    *  frame without creating a second trigger. */
   onProgress?: (p: number) => void;
+  /** PURELY ADDITIVE (T3): ScrollTrigger start position override. Defaults to
+   *  'top top' — the curtain range the old rAF engine computed as
+   *  -rect.top / (height - innerHeight). Only the manifesto's mobile range
+   *  ('top 80%') passes this; every other caller keeps the default. */
+  start?: string;
+  /** PURELY ADDITIVE (T3): ScrollTrigger end position override. Defaults to
+   *  'bottom bottom' (see `start`). Manifesto mobile passes 'bottom 45%'. */
+  end?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -263,8 +278,11 @@ export function registerFx(el: HTMLElement, opts?: FxRegistrationOptions): void 
 
   ScrollTrigger.create({
     trigger: el,
-    start: 'top top',
-    end: 'bottom bottom',
+    // Range is the curtain default; T3 added the purely additive start/end
+    // overrides (only the manifesto's mobile range passes them). Behavior,
+    // --p contract, and reduced-motion freeze are unchanged for defaults.
+    start: opts?.start ?? 'top top',
+    end: opts?.end ?? 'bottom bottom',
     onUpdate: (self: ScrollTrigger) => {
       applyFxProgress(entry, self.progress);
     },

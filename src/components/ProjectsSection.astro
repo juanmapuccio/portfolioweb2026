@@ -153,6 +153,29 @@ const auto = automationsContent[lang];
   </div>
 </section>
 
+<script>
+  import { registerFx, registerZone } from '../scripts/journey';
+
+  // Scroll-engine consolidation (T3): this component registers ONLY its own
+  // nodes with the journey registry — the horizontal fx track (which doubles
+  // as the "h" belt zone) and the two dark zones. It renders three sibling
+  // sections without a wrapper, so each owned node is targeted by its stable
+  // id/class instead of a container-subtree sweep; no document-wide
+  // [data-fx]/[data-zone] query returns. Astro ships this script deferred, so
+  // the nodes exist by the time it runs (journey.ts bootstrap contract). The
+  // --p formulas in the styles below keep working: the registry writes the
+  // same custom property the old timeline rAF loop used to.
+  const projectsFx = document.querySelector<HTMLElement>('#proyectos');
+  if (projectsFx) {
+    registerFx(projectsFx);
+    registerZone(projectsFx);
+  }
+  const automationsZone = document.querySelector<HTMLElement>('.automations-section');
+  if (automationsZone) registerZone(automationsZone);
+  const architectureZone = document.querySelector<HTMLElement>('.architecture-section');
+  if (architectureZone) registerZone(architectureZone);
+</script>
+
 <style>
   /* Base Dark Container */
   .projects-horizontal-section {

@@ -103,6 +103,21 @@ const cvLabel = t('hero.btn.cv').toUpperCase();
   </div>
 </footer>
 
+<script>
+  import { registerFx, registerZone } from '../scripts/journey';
+
+  // Scroll-engine consolidation (T3): the footer is a single node carrying
+  // both roles — data-fx="c" (the curtain --p contract) and
+  // data-zone="curtain" (the belt landing zone, ch 6) — so it takes both
+  // registrations, scoped to this component's own root. No document-wide
+  // sweep: the old silent dependency on the timeline rAF loop is gone.
+  const contactRoot = document.querySelector<HTMLElement>('#contacto');
+  if (contactRoot) {
+    registerFx(contactRoot);
+    registerZone(contactRoot);
+  }
+</script>
+
 <style>
   .cinematic-contact-footer {
     height: 190vh;
