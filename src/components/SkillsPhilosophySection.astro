@@ -669,28 +669,33 @@ const GLYPHS: Record<string, string> = {
      properties: they compose with each card's existing `:hover { transform:
      translateY(-Npx) }` lift instead of clobbering it. */
   .skill-category-card {
-    opacity: clamp(0, calc((var(--p, 0) - 0.04) * 5), 1);
-    translate: 0 calc((1 - clamp(0, calc((var(--p, 0) - 0.04) * 5), 1)) * 28px);
+    opacity: clamp(0.7, calc(0.7 + var(--p, 0) * 3), 1);
+    translate: 0 calc((1 - clamp(0, calc(var(--p, 0) * 10), 1)) * 14px);
+  }
+
+  .skill-categories-list .skill-category-card:nth-child(1) {
+    opacity: 1;
+    translate: 0 0;
   }
 
   .skill-categories-list .skill-category-card:nth-child(2) {
-    opacity: clamp(0, calc((var(--p, 0) - 0.10) * 5), 1);
-    translate: 0 calc((1 - clamp(0, calc((var(--p, 0) - 0.10) * 5), 1)) * 28px);
+    opacity: clamp(0, calc(var(--p, 0) * 8), 1);
+    translate: 0 calc((1 - clamp(0, calc(var(--p, 0) * 8), 1)) * 20px);
   }
 
   .skill-categories-list .skill-category-card:nth-child(3) {
-    opacity: clamp(0, calc((var(--p, 0) - 0.16) * 5), 1);
-    translate: 0 calc((1 - clamp(0, calc((var(--p, 0) - 0.16) * 5), 1)) * 28px);
+    opacity: clamp(0, calc((var(--p, 0) - 0.05) * 8), 1);
+    translate: 0 calc((1 - clamp(0, calc((var(--p, 0) - 0.05) * 8), 1)) * 20px);
   }
 
   .skill-categories-list .skill-category-card:nth-child(4) {
-    opacity: clamp(0, calc((var(--p, 0) - 0.22) * 5), 1);
-    translate: 0 calc((1 - clamp(0, calc((var(--p, 0) - 0.22) * 5), 1)) * 28px);
+    opacity: clamp(0, calc((var(--p, 0) - 0.10) * 8), 1);
+    translate: 0 calc((1 - clamp(0, calc((var(--p, 0) - 0.10) * 8), 1)) * 20px);
   }
 
   .skill-categories-list .skill-category-card:nth-child(5) {
-    opacity: clamp(0, calc((var(--p, 0) - 0.28) * 5), 1);
-    translate: 0 calc((1 - clamp(0, calc((var(--p, 0) - 0.28) * 5), 1)) * 28px);
+    opacity: clamp(0, calc((var(--p, 0) - 0.15) * 8), 1);
+    translate: 0 calc((1 - clamp(0, calc((var(--p, 0) - 0.15) * 8), 1)) * 20px);
   }
 
   .human-dimension-header {
