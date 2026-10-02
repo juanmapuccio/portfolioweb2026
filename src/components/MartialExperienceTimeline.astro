@@ -228,151 +228,24 @@ const CHAPTER_CONFIG = [
 </div>
 
 <script>
-  function initScrollytelling() {
-    const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const CHAPTER_KEYS = ['blanco', 'blanco', 'amarillo', 'verde', 'azul', 'rojo', 'negro'];
-    const CHAPTER_COLORS: Record<string, string> = {
-      blanco: '#ffffff',
-      amarillo: '#fbbf24',
-      verde: '#10b981',
-      azul: '#0284c7',
-      rojo: '#ef4444',
-      negro: '#1c1a17',
-    };
+  import { registerFx, registerZone } from '../scripts/journey';
 
-    // Static nodes: query once. Each fx element keeps its optional horizontal track.
-    const fxItems = Array.from(document.querySelectorAll<HTMLElement>('[data-fx]')).map((el) => ({
-      el,
-      isH: el.dataset.fx === 'h',
-      track: el.querySelector<HTMLElement>('[data-track]'),
-      trackWidth: 0,
-      lastP: '',
-      lastTransform: '',
-    }));
-    const zones = Array.from(document.querySelectorAll<HTMLElement>('[data-zone]'));
-
-    let lastBeltKey = '';
-    let queued = false;
-    let measureWidths = true;
-
-    // Maps the active zone to a belt key. The black curtain stays "rojo" until its
-    // expanding circle (see .black-expanding-circle: 10px * 400 at full scale) covers
-    // the viewport corners, so the header never turns dark over a cream background.
-    const BLACK_CIRCLE_MAX_RADIUS = 2000;
-    function resolveBeltKey(zone: HTMLElement, rect: DOMRect, H: number, W: number): string {
-      const ch = parseInt(zone.dataset.ch || '0', 10);
-      if (zone.classList.contains('black-curtain-scene') && !isReduced) {
-        const p = Math.min(1, Math.max(0, -rect.top / Math.max(1, rect.height - H)));
-        const radius = Math.min(1, Math.max(0, (p - 0.14) * 4)) * BLACK_CIRCLE_MAX_RADIUS;
-        if (radius < Math.hypot(W / 2, H / 2)) return CHAPTER_KEYS[5];
-      }
-      return CHAPTER_KEYS[ch] || 'blanco';
-    }
-
-    function frame() {
-      queued = false;
-
-      // READ phase: every layout read happens before any write.
-      const H = window.innerHeight;
-      const W = window.innerWidth;
-      const mid = H / 2;
-
-      if (measureWidths) {
-        measureWidths = false;
-        for (const item of fxItems) {
-          if (item.track) item.trackWidth = item.track.scrollWidth;
-        }
-      }
-
-      const fxRects = fxItems.map((item) => item.el.getBoundingClientRect());
-      const zoneRects = zones.map((z) => z.getBoundingClientRect());
-
-      // WRITE phase.
-      fxItems.forEach((item, i) => {
-        const r = fxRects[i];
-        if (r.bottom < -H || r.top > 2 * H) return;
-        let p = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - H)));
-        if (isReduced && !item.isH) p = 1;
-
-        const pStr = p.toFixed(4);
-        if (pStr !== item.lastP) {
-          item.lastP = pStr;
-          item.el.style.setProperty('--p', pStr);
-        }
-
-        if (item.isH && item.track) {
-          const shift = -p * Math.max(0, item.trackWidth - W);
-          const transform = `translate3d(${shift.toFixed(1)}px, 0, 0)`;
-          if (transform !== item.lastTransform) {
-            item.lastTransform = transform;
-            item.track.style.transform = transform;
-          }
-        }
-      });
-
-      const activeIdx = zoneRects.findIndex((r) => r.top <= mid && r.bottom > mid);
-      if (activeIdx !== -1) {
-        const zone = zones[activeIdx];
-        const beltKey = resolveBeltKey(zone, zoneRects[activeIdx], H, W);
-        const color = CHAPTER_COLORS[beltKey] || '#ffffff';
-        document.documentElement.dataset.activeBeltColor = color;
-        if (beltKey !== lastBeltKey) {
-          lastBeltKey = beltKey;
-          window.dispatchEvent(
-            new CustomEvent('belt:change', {
-              detail: { beltKey, color },
-            })
-          );
-        }
-
-        // T6: while the black curtain is the active zone, scrub the 3D tint with
-        // the same circle the scene paints. mix = radius / corner distance means
-        // the belt turns black exactly as the circle swallows the viewport.
-        // Dispatching every frame inside the zone (no change-throttle) is a
-        // deliberate conflict guard: belt:change and this signal can fire on the
-        // same frame when the header flips (scroll up/down across the flip
-        // point), and Belt3D registers belt:change before belt:black-progress —
-        // so the scrub always has the last word and the two never fight. At the
-        // flip itself mix = 1, i.e. the hard switch to black is identical to the
-        // scrub result. Leaving the zone needs no reset dispatch: the belt:change
-        // path already restores the chapter color when the curtain deactivates.
-        if (zone.classList.contains('black-curtain-scene')) {
-          const rect = zoneRects[activeIdx];
-          // Same p formula as the fx write phase (reduced motion renders the
-          // final frame: --p is forced to 1 there, so mirror it here).
-          const p = isReduced ? 1 : Math.min(1, Math.max(0, -rect.top / Math.max(1, rect.height - H)));
-          const radius = Math.min(1, Math.max(0, (p - 0.14) * 4)) * BLACK_CIRCLE_MAX_RADIUS;
-          const corner = Math.hypot(W / 2, H / 2);
-          // Degenerate viewport (0×0 during teardown): treat as fully covered
-          // instead of dividing by zero.
-          const mix = corner > 0 ? Math.min(1, radius / corner) : 1;
-          window.dispatchEvent(new CustomEvent('belt:black-progress', { detail: { progress: p, mix, from: CHAPTER_COLORS.rojo, to: CHAPTER_COLORS.negro } }));
-        }
-      }
-    }
-
-    // On-demand scheduler: at most one frame per rAF, only when something changed.
-    function requestUpdate() {
-      if (queued) return;
-      queued = true;
-      requestAnimationFrame(frame);
-    }
-
-    function onResizeOrLoad() {
-      measureWidths = true;
-      requestUpdate();
-    }
-
-    window.addEventListener('scroll', requestUpdate, { passive: true });
-    window.addEventListener('resize', onResizeOrLoad);
-    window.addEventListener('load', onResizeOrLoad);
-    requestUpdate();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initScrollytelling, { once: true });
-  } else {
-    initScrollytelling();
+  // Scroll-engine consolidation (T2): the private rAF loop that used to live in
+  // this script is gone. src/scripts/journey.ts is now the single engine — it
+  // owns the --p writes, the [data-track] horizontal shift, the belt resolution
+  // (CHAPTER_KEYS/CHAPTER_COLORS), the belt:change / belt:black-progress
+  // dispatches, the reduced-motion freeze, the font-load refresh and the
+  // initial pass. This component only registers the nodes it owns.
+  //
+  // Astro ships component scripts as deferred modules, so the document is
+  // parsed by the time this runs and the direct query is safe (mirrors the
+  // bootstrap contract documented in journey.ts). Scoping to the timeline
+  // container ends the old silent dependency: Projects/Contact/Hero/Skills
+  // register their own fx and zones in their own components (T3).
+  const timelineRoot = document.querySelector<HTMLElement>('.martial-timeline-container');
+  if (timelineRoot) {
+    timelineRoot.querySelectorAll<HTMLElement>('[data-fx]').forEach((el) => registerFx(el));
+    timelineRoot.querySelectorAll<HTMLElement>('[data-zone]').forEach((el) => registerZone(el));
   }
 </script>
 
@@ -1118,9 +991,9 @@ const CHAPTER_CONFIG = [
      vh-based desktop curtains (240vh + 460vh = 700vh of scroll before the
      contact section). Trim both ~15% ONLY when the viewport is short AND wide;
      mobile (≤767 already overrides to 110vh/240vh) and standard-height
-     desktops stay untouched. The timeline driver measures offsetHeight at
-     runtime, so progress (p), reveal frames and data-nav-target landings
-     self-adjust — no JS constant reads these heights. */
+     desktops stay untouched. The scroll engine (journey.ts) measures section
+     heights at runtime, so progress (p), reveal frames and data-nav-target
+     landings self-adjust — no JS constant reads these heights. */
   @media (max-height: 700px) and (min-width: 1024px) {
     .curtain-scene {
       height: 204vh; /* 240vh × 0.85 */

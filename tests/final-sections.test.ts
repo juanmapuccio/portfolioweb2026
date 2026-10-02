@@ -10,6 +10,10 @@ const homePage = await readFile(new URL('../src/components/HomePage.astro', impo
 const belt3d = await readFile(new URL('../src/components/Belt3D.astro', import.meta.url), 'utf8');
 const martialTimeline = await readFile(new URL('../src/components/MartialExperienceTimeline.astro', import.meta.url), 'utf8');
 const layout = await readFile(new URL('../src/layouts/Layout.astro', import.meta.url), 'utf8');
+// Scroll-engine consolidation (T1+): the journey registry owns the belt math,
+// the --p writes and the belt:* dispatches that used to live in the timeline's
+// private rAF engine. Assertions about that behavior target this source.
+const journey = await readFile(new URL('../src/scripts/journey.ts', import.meta.url), 'utf8');
 
 describe('final portfolio sections', () => {
   test('mounts one 3D belt for the page and reveals it only after the model loads', () => {
@@ -88,20 +92,23 @@ describe('final portfolio sections', () => {
     expect(martialTimeline).toContain('BELTS.negro.beltName[lang]');
     expect(martialTimeline).toContain('BELTS.negro.philosophicalTitle[lang]');
 
-    // Threshold synchronization: the promotion to "negro" only lands once the
+    // Threshold synchronization lives in the journey registry since the scroll
+    // engine consolidation: the promotion to "negro" only lands once the
     // expanding circle covers the viewport corners (pure geometry, direction-free).
-    expect(martialTimeline).toContain('const BLACK_CIRCLE_MAX_RADIUS = 2000;');
-    expect(martialTimeline).toContain('if (radius < Math.hypot(W / 2, H / 2)) return CHAPTER_KEYS[5];');
+    expect(journey).toContain('const BLACK_CIRCLE_MAX_RADIUS_FALLBACK = 2000;');
+    expect(journey).toContain('if (!blackCircleCoversViewport(curtainProgress(zone))) return CHAPTER_KEYS[5];');
+    expect(journey).toContain('return radius >= corner;');
 
-    // The markup bindings come first; the driver that applies the threshold runs after.
+    // The markup bindings come first in the component; the registry wiring that
+    // applies the threshold runs after (module script below the template).
     const bindingsIndex = martialTimeline.indexOf('BELTS.negro.beltName[lang]');
-    const thresholdIndex = martialTimeline.indexOf('function resolveBeltKey');
+    const thresholdIndex = martialTimeline.indexOf('registerZone(');
     expect(bindingsIndex >= 0).toBe(true);
     expect(thresholdIndex).toBeGreaterThan(bindingsIndex);
 
-    // The driver publishes the resolved chapter color on <html> for consumers
+    // The registry publishes the resolved chapter color on <html> for consumers
     // that boot after the first frame (Belt3D's getInitialColor on reload).
-    expect(martialTimeline).toContain('document.documentElement.dataset.activeBeltColor = color;');
+    expect(journey).toContain('document.documentElement.dataset.activeBeltColor = color;');
   });
 
   test('tracks the active chapter rail and the black-scene threshold in both scroll directions', () => {
@@ -116,37 +123,43 @@ describe('final portfolio sections', () => {
     expect(layout).toContain("tick.classList.remove('is-active', 'is-passed')");
     expect(layout).toContain('updateActiveBelt(detail.beltKey)');
 
-    // The timeline is the only dispatcher, throttled to actual belt changes.
-    expect(martialTimeline).toContain('if (beltKey !== lastBeltKey)');
-    expect(martialTimeline).toContain("new CustomEvent('belt:change'");
-    expect(martialTimeline).toContain('detail: { beltKey, color },');
+    // The journey registry is the only dispatcher, throttled to actual belt
+    // changes; the timeline component no longer dispatches anything itself.
+    expect(journey).toContain('if (beltKey !== lastBeltKey)');
+    expect(journey).toContain("new CustomEvent('belt:change'");
+    expect(journey).toContain('detail: { beltKey, color }');
+    expect(martialTimeline).not.toContain("new CustomEvent('belt:change'");
 
     // The black threshold is pure geometry: the same scroll position resolves to
     // the same belt key up or down (red until the circle swallows the corners).
-    expect(martialTimeline).toContain('const radius = Math.min(1, Math.max(0, (p - 0.14) * 4)) * BLACK_CIRCLE_MAX_RADIUS;');
-    expect(martialTimeline).toContain('if (radius < Math.hypot(W / 2, H / 2)) return CHAPTER_KEYS[5];');
+    expect(journey).toContain('const radius = Math.min(1, Math.max(0, (p - 0.14) * 4)) * blackCircleMaxRadius;');
+    expect(journey).toContain('const corner = Math.hypot(window.innerWidth / 2, window.innerHeight / 2);');
+    expect(journey).toContain('return CHAPTER_KEYS[5]');
 
     // The model never reaches into a legacy black-scene node.
     expect(belt3d).not.toContain("document.querySelector<HTMLElement>('[data-black-belt-scene]')");
   });
 
   test('drives black scene, model tint, and grade metadata from one scrubbed progress signal', () => {
-    // One signal: the timeline's rAF write phase derives every output from the
-    // same scroll progress, in a fixed order — color on <html>, then the header
-    // event, then the tint scrub (the tint has the last word on flip frames).
-    const colorIndex = martialTimeline.indexOf('document.documentElement.dataset.activeBeltColor = color;');
-    const changeIndex = martialTimeline.indexOf("new CustomEvent('belt:change'");
-    const progressIndex = martialTimeline.indexOf("new CustomEvent('belt:black-progress'");
+    // One signal: the journey registry derives every output from the same
+    // scroll progress, in a fixed source order — color on <html>, then the
+    // header event (applyBelt), then the tint scrub (dispatchBlackProgress).
+    // On flip frames the two can land in either runtime order, which is safe:
+    // mix = 1 exactly at the flip, so the scrub endpoint equals the belt:change
+    // color and both converge on the same tint.
+    const colorIndex = journey.indexOf('document.documentElement.dataset.activeBeltColor = color;');
+    const changeIndex = journey.indexOf("new CustomEvent('belt:change'");
+    const progressIndex = journey.indexOf("new CustomEvent('belt:black-progress'");
     expect(colorIndex).toBeGreaterThan(-1);
     expect(changeIndex).toBeGreaterThan(colorIndex);
     expect(progressIndex).toBeGreaterThan(changeIndex);
 
     // The scrub mix mirrors the expanding circle the scene paints: radius/corner,
     // clamped, with a degenerate-viewport guard instead of a divide by zero.
-    expect(martialTimeline).toContain('const radius = Math.min(1, Math.max(0, (p - 0.14) * 4)) * BLACK_CIRCLE_MAX_RADIUS;');
-    expect(martialTimeline).toContain('const corner = Math.hypot(W / 2, H / 2);');
-    expect(martialTimeline).toContain('const mix = corner > 0 ? Math.min(1, radius / corner) : 1;');
-    expect(martialTimeline).toContain('progress: p, mix, from: CHAPTER_COLORS.rojo, to: CHAPTER_COLORS.negro');
+    expect(journey).toContain('const radius = Math.min(1, Math.max(0, (p - 0.14) * 4)) * blackCircleMaxRadius;');
+    expect(journey).toContain('const corner = Math.hypot(window.innerWidth / 2, window.innerHeight / 2);');
+    expect(journey).toContain('const mix = corner > 0 ? Math.min(1, radius / corner) : 1;');
+    expect(journey).toContain('progress: p, mix, from: CHAPTER_COLORS.rojo, to: CHAPTER_COLORS.negro');
 
     // Belt3D consumes that progress by lerp; the wall-clock tint/spin tweens are gone.
     expect(belt3d).toContain("window.addEventListener('belt:black-progress', onBlackProgress)");
@@ -475,31 +488,34 @@ describe('immersive journey T7: hero portrait', () => {
 
 describe('immersive journey T6: scrubbed red-to-black', () => {
   test('scrubs the 3D tint from the black curtain circle instead of hard-switching', () => {
-    // The timeline driver is the single dispatcher of the scrub signal.
-    const dispatches = martialTimeline.match(/new CustomEvent\('belt:black-progress'/g) ?? [];
+    // The journey registry is the single dispatcher of the scrub signal since
+    // the scroll engine consolidation; the timeline component dispatches none.
+    const dispatches = journey.match(/new CustomEvent\('belt:black-progress'/g) ?? [];
     expect(dispatches.length).toBe(1);
-    expect(martialTimeline).toContain("window.dispatchEvent(new CustomEvent('belt:black-progress'");
+    expect(journey).toContain("window.dispatchEvent(new CustomEvent('belt:black-progress'");
+    expect(martialTimeline).not.toContain("new CustomEvent('belt:black-progress'");
 
     // mix mirrors the expanding circle: radius / corner distance, no div by zero.
-    expect(martialTimeline).toContain('Math.hypot(W / 2, H / 2)');
-    expect(martialTimeline).toContain('Math.min(1, radius / corner)');
-    expect(martialTimeline).toContain('corner > 0');
+    expect(journey).toContain('Math.hypot(window.innerWidth / 2, window.innerHeight / 2)');
+    expect(journey).toContain('Math.min(1, radius / corner)');
+    expect(journey).toContain('corner > 0');
     // The circle formula itself is shared with resolveBeltKey's flip radius.
-    expect(martialTimeline).toContain('(p - 0.14) * 4');
-    expect(martialTimeline).toContain('BLACK_CIRCLE_MAX_RADIUS');
+    expect(journey).toContain('(p - 0.14) * 4');
+    expect(journey).toContain('BLACK_CIRCLE_MAX_RADIUS');
 
     // Scrub endpoints are the palette actually used by the chapter map.
-    expect(martialTimeline).toContain("rojo: '#ef4444'");
-    expect(martialTimeline).toContain("negro: '#1c1a17'");
-    expect(martialTimeline).toContain('from: CHAPTER_COLORS.rojo');
-    expect(martialTimeline).toContain('to: CHAPTER_COLORS.negro');
+    expect(journey).toContain("rojo: '#ef4444'");
+    expect(journey).toContain("negro: '#1c1a17'");
+    expect(journey).toContain('from: CHAPTER_COLORS.rojo');
+    expect(journey).toContain('to: CHAPTER_COLORS.negro');
 
-    // The dispatch only exists while the black curtain zone is active, and it
-    // runs after the belt:change block so the scrub has the last word on frames
-    // where the header flip fires too.
-    expect(martialTimeline).toContain("zone.classList.contains('black-curtain-scene')");
-    const changeIdx = martialTimeline.indexOf("new CustomEvent('belt:change'");
-    const scrubIdx = martialTimeline.indexOf("new CustomEvent('belt:black-progress'");
+    // The scrub only runs while the black curtain zone is the registered
+    // center-crossing zone. In source, belt:change is defined before the scrub;
+    // on flip frames mix = 1, so the two signals converge on the same tint
+    // regardless of runtime dispatch order.
+    expect(journey).toContain("zone.classList.contains('black-curtain-scene')");
+    const changeIdx = journey.indexOf("new CustomEvent('belt:change'");
+    const scrubIdx = journey.indexOf("new CustomEvent('belt:black-progress'");
     expect(changeIdx).toBeGreaterThan(-1);
     expect(scrubIdx).toBeGreaterThan(changeIdx);
   });
@@ -798,5 +814,24 @@ describe('scroll engine consolidation T1: journey registry', () => {
     // Late registrations (post-kick) apply their own initial pass so the
     // queue-or-direct bootstrap stays order-independent.
     expect(journey).toMatch(/booted/);
+  });
+});
+
+describe('scroll engine consolidation T2: timeline migration', () => {
+  test('drives the timeline beats through the journey registry instead of a private rAF engine', () => {
+    // Wiring: the component imports the registry and registers ONLY its own
+    // nodes, scoped to the timeline container (Projects/Contact/Hero/Skills
+    // register theirs in T3 — no document-wide queries come back).
+    expect(martialTimeline).toContain("import { registerFx, registerZone } from '../scripts/journey'");
+    expect(martialTimeline).toContain("document.querySelector<HTMLElement>('.martial-timeline-container')");
+    expect(martialTimeline).toMatch(/querySelectorAll<HTMLElement>\('\[data-fx\]'\)\.forEach\(\(el\) => registerFx\(el\)\)/);
+    expect(martialTimeline).toMatch(/querySelectorAll<HTMLElement>\('\[data-zone\]'\)\.forEach\(\(el\) => registerZone\(el\)\)/);
+
+    // The private engine is gone: no rAF loop, no belt dispatch, no duplicated
+    // radius constant, no init function.
+    expect(martialTimeline).not.toContain('requestAnimationFrame');
+    expect(martialTimeline).not.toContain("new CustomEvent('belt:change'");
+    expect(martialTimeline).not.toContain('BLACK_CIRCLE_MAX_RADIUS');
+    expect(martialTimeline).not.toContain('initScrollytelling');
   });
 });
