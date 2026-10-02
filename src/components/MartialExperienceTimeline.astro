@@ -1112,4 +1112,22 @@ const CHAPTER_CONFIG = [
       font-size: 13px;
     }
   }
+
+  /* ── T8: short-viewport guard (desktop only) ──
+     Laptops like 1366×768 render ~640–660px of inner height, but inherit the
+     vh-based desktop curtains (240vh + 460vh = 700vh of scroll before the
+     contact section). Trim both ~15% ONLY when the viewport is short AND wide;
+     mobile (≤767 already overrides to 110vh/240vh) and standard-height
+     desktops stay untouched. The timeline driver measures offsetHeight at
+     runtime, so progress (p), reveal frames and data-nav-target landings
+     self-adjust — no JS constant reads these heights. */
+  @media (max-height: 700px) and (min-width: 1024px) {
+    .curtain-scene {
+      height: 204vh; /* 240vh × 0.85 */
+    }
+
+    .black-curtain-scene {
+      height: 391vh; /* 460vh × 0.85 */
+    }
+  }
 </style>

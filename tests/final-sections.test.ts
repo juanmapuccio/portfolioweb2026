@@ -501,3 +501,98 @@ describe('immersive journey T6: scrubbed red-to-black', () => {
     expect(martialTimeline).toContain('data-nav-target="0.7"');
   });
 });
+
+describe('immersive journey T8: mobile direction', () => {
+  const readOptionalSource = async (relativePath: string): Promise<string> => {
+    try {
+      return await readFile(new URL(relativePath, import.meta.url), 'utf8');
+    } catch {
+      return '';
+    }
+  };
+
+  test('compacts the header chapter ticks inside the ≤767px block with a 44px touch target', () => {
+    // The 6 ticks are the chapter navigation on phones: they get compacted
+    // in the existing mobile block, never hidden before 360px.
+    const start = layout.indexOf('@media (max-width: 767px)');
+    expect(start).toBeGreaterThan(-1);
+    const next = layout.indexOf('@media', start + 1);
+    const mobile767 = layout.slice(start, next > -1 ? next : layout.length);
+    expect(mobile767).toContain('.header-ticks');
+    expect(mobile767).toContain('.tick-link');
+    // Invisible hit area: expands vertically only (44px tall), so the horizontal
+    // pitch of neighbouring ticks never produces overlapping targets.
+    expect(mobile767).toContain('.tick-link::after');
+    expect(mobile767).toMatch(/height:\s*44px/);
+    // Active/passed states keep working off the same classes.
+    expect(mobile767).toContain('.tick-link.is-active');
+    // No early-hiding fallback: ticks stay down to the 360px floor.
+    expect(layout).not.toContain('@media (max-width: 400px)');
+  });
+
+  test('tightens the header row to fit a 360px viewport with the math in source', () => {
+    // Second tier (≤640px, where the brand collapses to "JMP"): tighter ticks
+    // plus a documented worst-case sum proving the nowrap row fits 360px.
+    const start = layout.lastIndexOf('@media (max-width: 640px)');
+    expect(start).toBeGreaterThan(-1);
+    const next = layout.indexOf('@media', start + 1);
+    const mobile640 = layout.slice(start, next > -1 ? next : layout.length);
+    expect(mobile640).toContain('.header-ticks');
+    expect(mobile640).toContain('.header-right-group');
+    expect(mobile640).toContain('.brand-initials');
+    // Worst-case width computation lives next to the values it explains.
+    expect(mobile640).toContain('360');
+  });
+
+  test('refines the job detail bottom sheet for phones', async () => {
+    const modal = await readOptionalSource('../src/components/JobDetailModal.astro');
+    const start = modal.indexOf('@media (max-width: 767px)');
+    expect(start).toBeGreaterThan(-1);
+    const next = modal.indexOf('@media', start + 1);
+    const sheet = modal.slice(start, next > -1 ? next : modal.length);
+    expect(sheet).toContain('max-height: 92svh');
+    // Home-indicator clearance on notched phones.
+    expect(sheet).toContain('env(safe-area-inset-bottom');
+    // Full-width sheet with rounded top corners.
+    expect(sheet).toContain('width: 100%');
+    expect(sheet).toMatch(/border-radius:[^;]*18px[^;]*0 0/);
+    // Visible close affordance with a ≥44px touch target...
+    expect(sheet).toContain('.job-modal-close');
+    expect(sheet).toMatch(/\.job-modal-close\s*\{[^}]*height:\s*44px/);
+    // ...while the topbar holding it stays fixed above the scrolling body.
+    expect(modal).toMatch(/\.job-modal-topbar\s*\{[^}]*flex:\s*none/);
+    expect(modal).toMatch(/\.job-modal-body\s*\{[^}]*overflow-y:\s*auto/);
+  });
+
+  test('trims the desktop curtains only on short desktop viewports', () => {
+    // One conservative guard for 1366×768-class laptops (~650px inner height):
+    // the vh-based curtains dominate scroll length there. Mobile and
+    // standard-height desktops keep their original heights.
+    expect(martialTimeline).toMatch(/@media \(max-height: 700px\) and \(min-width: 1024px\)/);
+    const guardIdx = martialTimeline.indexOf('@media (max-height: 700px)');
+    expect(guardIdx).toBeGreaterThan(-1);
+    const guard = martialTimeline.slice(guardIdx);
+    expect(guard).toMatch(/\.curtain-scene\s*\{[^}]*height:\s*20[0-9]vh/);
+    expect(guard).toMatch(/\.black-curtain-scene\s*\{[^}]*height:\s*39[0-9]vh/);
+    // The base desktop heights stay authoritative for everyone else.
+    expect(martialTimeline).toMatch(/\.curtain-scene\s*\{\s*height: 240vh;/);
+    expect(martialTimeline).toMatch(/\.black-curtain-scene\s*\{\s*height: 460vh;/);
+  });
+
+  test('keeps the mobile audit invariants after the T8 pass', () => {
+    // (a) h-section still compresses through the T1 inline custom property.
+    const mobileIdx = martialTimeline.indexOf('@media (max-width: 767px)');
+    expect(mobileIdx).toBeGreaterThan(-1);
+    const mobile = martialTimeline.slice(mobileIdx);
+    expect(mobile).toContain('calc(var(--h-section-h) * 0.57)');
+    // (b) curtain heights hold on phones: 110vh / 240vh.
+    expect(mobile).toMatch(/\.curtain-scene\s*\{\s*height: 110vh;/);
+    expect(mobile).toMatch(/\.black-curtain-scene\s*\{\s*height: 240vh;/);
+    // (c) the T7 desktop clamp does not leak: the phone portrait is absolute 96px.
+    const heroIdx = homePage.indexOf('@media (max-width: 767px)');
+    expect(heroIdx).toBeGreaterThan(-1);
+    const hero = homePage.slice(heroIdx);
+    expect(hero).toMatch(/\.hero-portrait-col\s*\{[^}]*width:\s*96px/);
+    expect(hero).toContain('position: absolute');
+  });
+});

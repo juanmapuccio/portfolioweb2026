@@ -816,6 +816,33 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     .header-right-group {
       gap: 8px;
     }
+
+    /* T8: on phones the 6 ticks ARE the chapter navigation, so they stay
+       visible and only compact (13×6, gap 4, active 30 — vs 14×8/gap 5/
+       active 34 on desktop). The 44px touch target comes from an invisible
+       ::after that expands VERTICALLY only: at a ~17px horizontal pitch a
+       44px-wide target would overlap its neighbours and steal taps. */
+    .header-ticks {
+      gap: 4px;
+    }
+    .tick-link {
+      position: relative;
+      width: 13px;
+      height: 6px;
+    }
+    .tick-link.is-active {
+      width: 30px;
+    }
+    .tick-link::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 44px;
+      transform: translateY(-50%);
+    }
+
     .header-grade-pill {
       gap: 6px;
     }
@@ -841,6 +868,10 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
       min-height: 44px;
       padding: 0 10px;
     }
+    /* The icon-only QR button was ~28px tall; match the 44px targets next to it. */
+    .header-qr-btn {
+      min-height: 44px;
+    }
     .cv-long {
       display: none;
     }
@@ -856,6 +887,28 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     }
     .brand-initials {
       display: inline;
+    }
+
+    /* T8 second tier — worst-case header row at a 360px viewport, nowrap
+       (all values border-box, no wrapping allowed):
+         available = 360 − padding 16×2            = 328px
+         brand "JMP"  (19px serif + 0.14em track)  ≤ 50px
+         ticks (6)   = 5×10 + active 20 + 5×2 gap  = 80px
+         right group = lang 3×32 + gaps 2×6
+                       + QR 34 + CV 44              = 186px
+         sum         = 50 + 80 + 186               = 316 ≤ 328 ✓ (12px slack)
+       Hence no ≤400px hiding fallback: the ticks fit the 360px floor. */
+    .header-ticks {
+      gap: 2px;
+    }
+    .tick-link {
+      width: 10px;
+    }
+    .tick-link.is-active {
+      width: 20px;
+    }
+    .header-right-group {
+      gap: 6px;
     }
   }
 
