@@ -8,9 +8,9 @@ interface Props {
 const { lang } = Astro.props;
 
 const manifestoText = {
-  es: "No soy un desarrollador de laboratorio aislado del mundo comercial, ni un administrativo pasivo que solo ejecuta tareas repetitivas. Soy un perfil híbrido con cimientos técnicos tempranos en robótica y programación, forjado en la trinchera operativa más exigente de salud de alta demanda, seguridad social masiva, logística comercial y ventas en calle. Hoy construyo software de negocio en producción: SaaS de gestión, bots en Python, integraciones fiscales con ARCA y despliegues en servidores cloud propios.",
-  en: "I am not a lab developer isolated from the commercial world, nor a passive clerk who only runs repetitive tasks. I am a hybrid developer with early technical foundations in robotics and programming, forged in the most demanding operational trenches of high-demand healthcare, mass social security, commercial logistics, and street sales. Today I build production business software: management SaaS, Python bots, fiscal integrations with ARCA, and deployments on my own cloud servers.",
-  pt: "Não sou um desenvolvedor de laboratório isolado do mundo comercial, nem um administrativo passivo que só executa tarefas repetitivas. Sou um perfil híbrido com alicerces técnicos precoces em robótica e programação, forjado na trincheira operacional mais exigente da saúde de alta demanda, da seguridade social em massa, da logística comercial e das vendas na rua. Hoje construo software de negócio em produção: SaaS de gestão, bots em Python, integrações fiscais com ARCA e implantações em servidores cloud próprios."
+  es: "Cimientos en robótica y programación, forjados en la trinchera operativa más exigente. Hoy construyo y estabilizo software de negocio en producción.",
+  en: "Foundations in robotics and programming, forged in demanding operational trenches. Today I build and stabilize production business software.",
+  pt: "Alicerce em robótica e programação, forjado na trincheira operacional mais exigente. Hoje construo e estabilizo software de negócio em produção."
 }[lang];
 
 const words = manifestoText.split(' ').map((w, i, arr) => ({
@@ -55,7 +55,7 @@ const words = manifestoText.split(' ').map((w, i, arr) => ({
     if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       section.dataset.manifestoReady = 'true';
 
-      // Desktop pins the section (260vh); mobile does not (height auto), so
+      // Desktop pins the section (160vh); mobile does not (height auto), so
       // the trigger range follows the viewport — passed through the
       // registry's additive start/end options.
       const isMobile = window.matchMedia('(max-width: 767px)').matches;
@@ -78,7 +78,7 @@ const words = manifestoText.split(' ').map((w, i, arr) => ({
 
 <style>
   .manifesto-scroll-section {
-    height: 260vh;
+    height: 160vh;
     position: relative;
     background: #f2eee6;
   }
