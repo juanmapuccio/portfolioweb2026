@@ -70,6 +70,13 @@ html {
   transition: background-color var(--transition), color var(--transition);
 }
 
+/* Mobile immersive: no pull-to-refresh / rubber-band that breaks the pinned scenes. */
+@media (max-width: 767px) {
+  html {
+    overscroll-behavior-y: none;
+  }
+}
+
 h1, h2, h3, h4 {
   font-family: var(--font-serif);
   font-weight: 400;
