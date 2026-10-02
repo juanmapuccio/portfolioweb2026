@@ -402,3 +402,18 @@ describe('immersive journey T3: header nav targets', () => {
     expect(layout).toContain('requestAnimationFrame(alignHashToReveal)');
   });
 });
+
+describe('immersive journey T4: lenis responsiveness', () => {
+  test('answers a wheel gesture with more travel and a shorter settle time', () => {
+    const start = layout.indexOf('new Lenis({');
+    expect(start).toBeGreaterThan(-1);
+    const config = layout.slice(start, layout.indexOf('});', start));
+    const wheelMultiplier = Number(/wheelMultiplier:\s*([0-9.]+)/.exec(config)?.[1]);
+    const duration = Number(/duration:\s*([0-9.]+)/.exec(config)?.[1]);
+    expect(wheelMultiplier).toBeGreaterThan(1);
+    expect(duration).toBeLessThan(1.2);
+    // Mobile keeps its native touch scroller; only the wheel is smoothed.
+    expect(config).toContain('smoothWheel: true');
+    expect(config).not.toContain('syncTouch: true');
+  });
+});

@@ -406,7 +406,15 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
     // Lenis is driven by the GSAP ticker so smooth scroll and ScrollTrigger share one rAF.
     const lenis = new Lenis({
-      duration: 1.2,
+      // T4 feel tuning — validate in-browser, ranges are the agreed knobs:
+      //   wheelMultiplier: travel produced by one wheel notch (Lenis default 1).
+      //                    1.2–2.0; higher = less "kicking the wheel" per chapter.
+      //   duration:        how fast the page settles onto the wheel target.
+      //                    0.7–1.0; lower = snappier, higher = floatier.
+      // lerp is deliberately absent: Lenis's Animate picks duration+easing over
+      // lerp whenever both are set, so a lerp here would be dead config.
+      duration: 0.9,
+      wheelMultiplier: 1.5,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       autoRaf: false,
