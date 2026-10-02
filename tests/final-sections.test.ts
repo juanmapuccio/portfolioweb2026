@@ -619,3 +619,184 @@ describe('immersive journey T8: mobile direction', () => {
     expect(hero).toContain('position: absolute');
   });
 });
+
+describe('scroll engine consolidation T1: journey registry', () => {
+  // Lazy optional read: while src/scripts/journey.ts does not exist yet, only
+  // the assertions in this block fail (RED); the baseline suite is untouched.
+  const readJourney = async (): Promise<string> => {
+    try {
+      return await readFile(new URL('../src/scripts/journey.ts', import.meta.url), 'utf8');
+    } catch {
+      return '';
+    }
+  };
+
+  test('creates the journey module with the registry API', async () => {
+    const journey = await readJourney();
+    expect(journey.length).toBeGreaterThan(0);
+    expect(journey).toMatch(/export function registerFx\(el: HTMLElement/);
+    expect(journey).toMatch(/export function registerZone\(el: HTMLElement/);
+    // Typed options bag for JS subscribers (manifesto onProgress).
+    expect(journey).toMatch(/onProgress\?:\s*\(p: number\) => void/);
+    // ScrollTrigger is the single engine; the plugin registration lives here.
+    expect(journey).toContain("import { gsap } from 'gsap'");
+    expect(journey).toContain("import { ScrollTrigger } from 'gsap/ScrollTrigger'");
+    expect(journey).toContain('gsap.registerPlugin(ScrollTrigger)');
+    // SSR safety: Astro prerenders pages, so the module must no-op without a
+    // window.
+    expect(journey).toContain("typeof window === 'undefined'");
+    // No Lenis ownership here: Layout keeps the smooth-scroll wiring.
+    expect(journey).not.toMatch(/from ['"]lenis/);
+    expect(journey).not.toContain('new Lenis');
+  });
+
+  test('guards double registration with a module-level WeakSet', async () => {
+    const journey = await readJourney();
+    // Future-proofing for ClientRouter / astro:page-load re-registration:
+    // a WeakSet per kind (fx and zone) makes registerFx/registerZone idempotent.
+    expect(journey).toContain('new WeakSet<HTMLElement>');
+    expect((journey.match(/new WeakSet<HTMLElement>/g) ?? []).length).toBe(2);
+    expect(journey).toMatch(/\.has\(el\)/);
+    expect(journey).toMatch(/\.add\(el\)/);
+  });
+
+  test('creates one ScrollTrigger per fx node with the curtain range', async () => {
+    const journey = await readJourney();
+    // registerFx: start 'top top', end 'bottom bottom' — the exact range the
+    // rAF engine computed as -rect.top / (height - innerHeight).
+    expect(journey).toMatch(/start:\s*'top top'/);
+    expect(journey).toMatch(/end:\s*'bottom bottom'/);
+    expect(journey).toMatch(/onUpdate:\s*\(self: ScrollTrigger\) => \{\s*\n?\s*applyFxProgress\(entry, self\.progress\)/);
+  });
+
+  test('writes --p with a 4-decimal dirty-check like the engine lastP logic', async () => {
+    const journey = await readJourney();
+    expect(journey).toContain('p.toFixed(4)');
+    expect(journey).toMatch(/if \(pStr !== entry\.lastP\)/);
+    expect(journey).toContain("setProperty('--p', pStr)");
+    expect(journey).toMatch(/entry\.lastP = pStr/);
+  });
+
+  test('translates the horizontal track with the ported shift formula and cached width', async () => {
+    const journey = await readJourney();
+    // shift = -p * max(0, trackWidth - innerWidth), dirty-checked by the
+    // transform string (port of engine lines 303-310).
+    expect(journey).toMatch(/const shift = -p \* Math\.max\(0, entry\.trackWidth - window\.innerWidth\)/);
+    expect(journey).toContain('translate3d(${shift.toFixed(1)}px, 0, 0)');
+    expect(journey).toMatch(/if \(transform !== entry\.lastTransform\)/);
+    expect(journey).toMatch(/entry\.track\.style\.transform = transform/);
+    // trackWidth is cached from track.scrollWidth and invalidated on the
+    // trigger's own refresh (resize/layout changes re-measure exactly once).
+    expect(journey).toMatch(/trackWidth = entry\.track\.scrollWidth/);
+    expect(journey).toMatch(/onRefresh:/);
+    // The onProgress subscriber runs unconditionally, after the dirty write.
+    expect(journey).toMatch(/entry\.onProgress\?\.\(p\)/);
+  });
+
+  test('honors prefers-reduced-motion: --p 1 once on non-h nodes, scrub elsewhere', async () => {
+    const journey = await readJourney();
+    expect(journey).toContain("matchMedia('(prefers-reduced-motion: reduce)')");
+    // Non-horizontal fx nodes freeze at p = 1 without a trigger; horizontal
+    // nodes and zones keep scrubbing (port of engine line 295 + guards).
+    expect(journey).toMatch(/el\.dataset\.fx !== 'h'/);
+    expect(journey).toMatch(/setProperty\('--p', '1'\)/);
+    // The frozen subscriber still receives its single callback.
+    expect(journey).toMatch(/onProgress\?\.\(1\)/);
+    // No ScrollTrigger is created on that path: the reduced branch returns
+    // before the create call inside registerFx.
+    const registerFxBody = journey.slice(journey.indexOf('export function registerFx'));
+    const beforeCreate = registerFxBody.slice(0, registerFxBody.indexOf('ScrollTrigger.create'));
+    expect(beforeCreate).toContain('return');
+  });
+
+  test('creates one ScrollTrigger per zone with the center-crossing range', async () => {
+    const journey = await readJourney();
+    expect(journey).toMatch(/start:\s*'top center'/);
+    expect(journey).toMatch(/end:\s*'bottom center'/);
+    expect(journey).toMatch(/onEnter:\s*\(\) => activateZone\(entry\)/);
+    expect(journey).toMatch(/onEnterBack:\s*\(\) => activateZone\(entry\)/);
+  });
+
+  test('dedupes belt:change through lastBeltKey and ports the activation write', async () => {
+    const journey = await readJourney();
+    // Engine lines 313-326: dataset write on every activation, belt:change only
+    // when the key differs from the module-level lastBeltKey (starts '').
+    expect(journey).toMatch(/let lastBeltKey = ''/);
+    expect(journey).toContain('document.documentElement.dataset.activeBeltColor = color');
+    expect(journey).toMatch(/if \(beltKey !== lastBeltKey\)/);
+    expect(journey).toMatch(/lastBeltKey = beltKey/);
+    expect(journey).toContain("new CustomEvent('belt:change', { detail: { beltKey, color } })");
+  });
+
+  test('ports resolveBeltKey: the black zone stays rojo until the circle covers the corners', async () => {
+    const journey = await readJourney();
+    // Engine lines 262-270: while the black curtain is the active zone, the
+    // belt key stays CHAPTER_KEYS[5] ('rojo') until radius >= corner distance.
+    expect(journey).toMatch(/function resolveBeltKey\(zone: HTMLElement\): string/);
+    expect(journey).toMatch(/zone\.classList\.contains\('black-curtain-scene'\) && !isReduced/);
+    expect(journey).toMatch(/Math\.min\(1, Math\.max\(0, \(p - 0\.14\) \* 4\)\)/);
+    expect(journey).toMatch(/return CHAPTER_KEYS\[5\]/);
+    expect(journey).toMatch(/return CHAPTER_KEYS\[ch\] \|\| 'blanco'/);
+    // The curtain scrub formula (top top -> bottom bottom) is reused for the
+    // belt math, matching the engine's -rect.top / (height - H).
+    expect(journey).toMatch(/-rect\.top \/ Math\.max\(1, rect\.height - H\)/);
+  });
+
+  test('dispatches belt:black-progress with the byte-compatible payload', async () => {
+    const journey = await readJourney();
+    // Engine lines 339-350: while the black zone is active, scrub the 3D tint
+    // on every update with { progress, mix, from, to }.
+    expect(journey).toContain("new CustomEvent('belt:black-progress'");
+    expect(journey).toMatch(/detail: \{ progress: p, mix, from: CHAPTER_COLORS\.rojo, to: CHAPTER_COLORS\.negro \}/);
+    // mix = radius / corner distance (hypot), with the degenerate-viewport guard.
+    expect(journey).toMatch(/const corner = Math\.hypot\(window\.innerWidth \/ 2, window\.innerHeight \/ 2\)/);
+    expect(journey).toMatch(/const mix = corner > 0 \? Math\.min\(1, radius \/ corner\) : 1/);
+    // Reduced motion mirrors the engine: the black scrub lands on its final
+    // frame (p = 1) instead of tracking the raw progress.
+    expect(journey).toMatch(/isReduced \? 1 :/);
+  });
+
+  test('reads the black circle radius from CSS with a 2000 fallback, once per refresh', async () => {
+    const journey = await readJourney();
+    // Single source of truth: --black-circle-max-radius on :root (added to
+    // global.css in T5). Until then the fallback keeps today's exact behavior.
+    expect(journey).toContain('--black-circle-max-radius');
+    expect(journey).toContain('getComputedStyle(document.documentElement)');
+    expect(journey).toMatch(/2000/);
+    // Re-read on every ScrollTrigger refresh via the global refresh event, so
+    // resize/font changes pick up a new CSS value.
+    expect(journey).toMatch(/ScrollTrigger\.addEventListener\('refresh'/);
+  });
+
+  test('keeps CHAPTER_KEYS and CHAPTER_COLORS as the single copy of the constants', async () => {
+    const journey = await readJourney();
+    // Verbatim port of engine lines 233-241.
+    expect(journey).toContain("const CHAPTER_KEYS = ['blanco', 'blanco', 'amarillo', 'verde', 'azul', 'rojo', 'negro'];");
+    expect(journey).toMatch(/const CHAPTER_COLORS: Record<string, string> = \{/);
+    for (const [key, hex] of [
+      ['blanco', '#ffffff'],
+      ['amarillo', '#fbbf24'],
+      ['verde', '#10b981'],
+      ['azul', '#0284c7'],
+      ['rojo', '#ef4444'],
+      ['negro', '#1c1a17'],
+    ] as const) {
+      expect(journey).toMatch(new RegExp(`${key}: '${hex}'`));
+    }
+  });
+
+  test('refreshes on web fonts and boots an initial pass after DOM ready', async () => {
+    const journey = await readJourney();
+    // Fonts change text metrics; re-measure trigger positions once.
+    expect(journey).toMatch(/document\.fonts\?\.ready\.then\(\(\) => ScrollTrigger\.refresh\(\)\)/);
+    // Bootstrap: kick() runs ScrollTrigger.refresh() plus a manual initial pass
+    // (fx --p / track writes and the center-zone activation) so belt:change
+    // fires on load exactly like the engine's single init frame (line 369).
+    expect(journey).toMatch(/function kick\(\): void/);
+    expect(journey).toMatch(/ScrollTrigger\.refresh\(\)/);
+    expect(journey).toMatch(/DOMContentLoaded/);
+    // Late registrations (post-kick) apply their own initial pass so the
+    // queue-or-direct bootstrap stays order-independent.
+    expect(journey).toMatch(/booted/);
+  });
+});
