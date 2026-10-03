@@ -198,29 +198,29 @@ export const automationsContent = {
     subtitle: 'Resolviendo cuellos de botella reales en empresas y organismos',
     bot1Title: 'Lector & Conciliador de Extractos Bancarios (Python)',
     bot1Desc: 'Procesa PDFs bancarios heterogéneos de múltiples entidades bancarias, identifica alícuotas de IVA y totaliza movimientos automáticamente para liquidaciones contables.',
-    bot1Metric: 'Reducción de horas de marcado manual a segundos con 0% de margen de error.',
+    bot1Metric: 'De horas de marcado manual a segundos.',
     bot2Title: 'Facturación Electrónica Fiscal ARCA (ex AFIP)',
     bot2Desc: 'Integración vía Webservices seguros con el organismo tributario para la emisión automatizada de comprobantes fiscales, con validación humana en el loop.',
-    bot2Metric: '100% de cumplimiento normativo y trazabilidad contable.'
+    bot2Metric: 'Cumplimiento normativo y trazabilidad contable.'
   },
   en: {
     title: 'Automations & Business Bots',
     subtitle: 'Solving real operational bottlenecks in businesses and organizations',
     bot1Title: 'Bank Statement Parser & Reconciliation Bot (Python)',
     bot1Desc: 'Processes heterogeneous bank PDF statements across multiple banks, identifies VAT rates, and automatically totals transactions for accounting settlements.',
-    bot1Metric: 'Reduction of hours of manual marking to seconds with 0% margin of error.',
+    bot1Metric: 'From hours of manual marking to seconds.',
     bot2Title: 'Fiscal Electronic Invoicing ARCA (ex AFIP)',
     bot2Desc: 'Integration via secure webservices with the tax authority for automated issuance of fiscal receipts, with human validation in the loop.',
-    bot2Metric: '100% regulatory compliance and accounting traceability.'
+    bot2Metric: 'Regulatory compliance and accounting traceability.'
   },
   pt: {
     title: 'Automações & Bots de Negócio',
     subtitle: 'Resolvendo gargalos operacionais reais em empresas e organizações',
     bot1Title: 'Leitor & Conciliador de Extratos Bancários (Python)',
     bot1Desc: 'Processa extratos bancários em PDF de múltiplas instituições, identifica alíquotas de IVA e totaliza movimentações automaticamente para liquidações contábeis.',
-    bot1Metric: 'Redução de horas de marcação manual para segundos com 0% de margem de erro.',
+    bot1Metric: 'De horas de marcação manual a segundos.',
     bot2Title: 'Faturamento Eletrônico Fiscal ARCA (ex AFIP)',
     bot2Desc: 'Integração via Webservices seguros com o órgão tributário para emissão automatizada de comprovantes fiscais, com validação humana no loop.',
-    bot2Metric: '100% de conformidade regulatória e rastreabilidade contábil.'
+    bot2Metric: 'Conformidade normativa e rastreabilidade contábil.'
   }
 };
