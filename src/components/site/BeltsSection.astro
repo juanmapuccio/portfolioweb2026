@@ -2,8 +2,8 @@
 // S2 Cinturones. One responsive tree, six chapters from src/data/martialExperience.ts.
 // Desktop (>=1024, motion allowed, JS): 700svh section, sticky stage, a horizontal track of
 // six chapters scrubbed by the section's `--p` (10d chapter cards), 10o rail on top, 6b
-// brush wipe at the mid-point of every segment, 6d enso before the 1o dan, 6e dan glyph
-// to camera plus a 3c impact frame (the only hit).
+// brush wipe at the mid-point of every segment, 6d enso before the 1o dan, then a soft ink
+// bloom (no glyph, no flash) as the black belt lands.
 // Mobile / tablet (<1024): 7c sticky stacked cards, 2d bamboo growing with --p, and one 7e
 // drip per belt change (InkDrip).
 // Reduced motion / no JS: chapters stacked in a plain column, final states, no flashes.
@@ -85,14 +85,13 @@ const railNodes = chapters.map((chapter) => ({ grade: chapter.grade, tone: chapt
             </div>
             <p class="chapter__line">{chapter.line}</p>
             <p class="chapter__orgs">{chapter.orgs}</p>
-            {chapter.key === 'negro' && <span class="chapter__seal ink-stamp" aria-hidden="true">단</span>}
+            {chapter.key === 'negro' && <span class="chapter__seal ink-stamp" aria-hidden="true">JMP</span>}
           </article>
         </li>
       ))}
     </ol>
 
-    <span class="belts__dan" aria-hidden="true">단</span>
-    <span class="belts__impact" aria-hidden="true"></span>
+    <span class="belts__bloom" aria-hidden="true"></span>
   </div>
   <div class="belts__bamboo"><BambooGrow count={chapters.length} /></div>
 </section>
@@ -115,10 +114,10 @@ const railNodes = chapters.map((chapter) => ({ grade: chapter.grade, tone: chapt
   .chapter .ink-1a__title { font-size: clamp(34px, 9vw, 56px); line-height: 1.05; }
   .chapter__line { margin: 0; font: 400 var(--fs-lede) / 1.35 var(--font-serif); }
   .chapter__orgs { margin: 0; font: 400 var(--fs-caption) / 1.4 var(--font-mono); color: var(--text-dim); }
-  .chapter__seal { position: absolute; right: 18px; bottom: 16px; display: grid; place-items: center; width: 52px; height: 52px; border: 3px solid var(--seal-red); color: var(--seal-red); font: 700 26px/1 'Noto Sans KR', var(--font-sans); rotate: -5deg; }
+  .chapter__seal { position: absolute; right: 18px; bottom: 16px; display: grid; place-items: center; width: 52px; height: 52px; border: 3px solid var(--seal-red); color: var(--seal-red); font: 700 14px/1 var(--font-serif); letter-spacing: 0.06em; rotate: -5deg; }
 
   /* Desktop-only layers are hidden in the static layout. */
-  .belts__wipes, .belts__enso, .belts__dan, .belts__impact, .belts__bamboo { display: none; }
+  .belts__wipes, .belts__enso, .belts__bloom, .belts__bamboo { display: none; }
 
   @media (min-width: 1024px) {
     .belts__track { gap: 32px; }
@@ -160,13 +159,12 @@ const railNodes = chapters.map((chapter) => ({ grade: chapter.grade, tone: chapt
     html.js .belts__enso { display: block; position: absolute; left: 50%; top: 52%; z-index: 1; width: min(78vh, 62vw); height: auto; translate: -50% -50%; pointer-events: none; stroke: var(--paper); fill: none; --e: clamp(0, calc((var(--p, 0) - 0.76) / 0.12), 1); opacity: clamp(0, calc((0.96 - var(--p, 0)) / 0.03), 1); }
     html.js .belts__enso circle { stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--e)); }
 
-    /* 6e: the 단 glyph rushes to camera, then 3c: one impact frame (single hit). */
-    html.js .belts__dan { display: grid; position: absolute; inset: 0; z-index: 5; place-items: center; pointer-events: none; font: 700 44vh / 1 'Noto Sans KR', var(--font-sans); color: var(--seal-red); --dan: clamp(0, calc((var(--p, 0) - 0.92) / 0.07), 1); transform: scale(calc(0.3 + 5.7 * var(--dan))); opacity: min(clamp(0, calc((var(--p, 0) - 0.92) / 0.01), 1), clamp(0, calc((0.992 - var(--p, 0)) / 0.01), 1)); }
-    html.js .belts__impact { display: block; position: absolute; inset: 0; z-index: 6; pointer-events: none; background: var(--text-main); opacity: min(clamp(0, calc((var(--p, 0) - 0.985) / 0.003), 1), clamp(0, calc((0.997 - var(--p, 0)) / 0.003), 1)); }
+    /* 6e: no glyph. After the enso closes, a soft ink bloom grows behind the last chapter (transform + opacity only). */
+    html.js .belts__bloom { display: block; position: absolute; left: 50%; top: 52%; z-index: 1; width: min(120vh, 96vw); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; pointer-events: none; background: radial-gradient(circle, var(--ink-belt-black) 0%, rgba(28, 26, 23, 0.55) 38%, transparent 68%); --bloom: clamp(0, calc((var(--p, 0) - 0.9) / 0.1), 1); transform: scale(calc(0.2 + 1.2 * var(--bloom))); opacity: calc(0.4 * var(--bloom)); will-change: transform, opacity; }
     html.js .chapter__seal { display: none; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .belts__wipes, .belts__enso, .belts__dan, .belts__impact, .belts__bamboo { display: none; }
+    .belts__wipes, .belts__enso, .belts__bloom, .belts__bamboo { display: none; }
   }
 </style>

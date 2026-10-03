@@ -14,6 +14,14 @@ const EXIT_MS = 750;
 const TICK_MS = 40;
 const PENDING_CAP = 0.9; // the counter waits at 90% until the page is actually ready
 
+// The hero manga entrance (HeroSection.astro) waits for `html.hero-ready`: added when the
+// loader curtain starts to leave, at once without a loader (reduced motion, no markup), and by
+// a safety timer so the hero can never stay hidden.
+const HERO_FALLBACK_MS = 6000;
+function markHeroReady(): void {
+  document.documentElement.classList.add('hero-ready');
+}
+
 const easeInOut = (t: number): number => 0.5 - Math.cos(Math.PI * t) / 2;
 
 let readiness: Promise<unknown> | null = null;
@@ -64,6 +72,7 @@ function createPlayer(el: HTMLElement, preview: boolean, reduced: boolean) {
     if (id !== run) return;
     el.classList.add('is-done');
     if (preview) return;
+    markHeroReady();
     (window as LenisWindow).__lenis?.start();
     setBusy(false);
     // After the curtain is gone, take it out of the accessibility tree and the DOM.
@@ -119,7 +128,10 @@ function createPlayer(el: HTMLElement, preview: boolean, reduced: boolean) {
 }
 
 export function initLoader(reduced: boolean): void {
-  document.querySelectorAll<HTMLElement>('[data-site-loader]').forEach((el) => {
+  const loaders = Array.from(document.querySelectorAll<HTMLElement>('[data-site-loader]'));
+  if (reduced || !loaders.some((el) => !el.hasAttribute('data-loader-preview'))) markHeroReady();
+  else window.setTimeout(markHeroReady, HERO_FALLBACK_MS);
+  loaders.forEach((el) => {
     const preview = el.hasAttribute('data-loader-preview');
     if (reduced && !preview) {
       el.remove();

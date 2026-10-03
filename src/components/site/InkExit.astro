@@ -12,10 +12,10 @@ interface Props {
   variant: 'strip' | 'scroll' | 'katana';
   /** Teaser for the next section (i18n string from the caller). */
   label: string;
-  /** Vertical glyph on the hanging scroll (10n). Hangul is not translated. */
-  glyph?: string;
+  /** Latin mark on the hanging scroll (10n): the next chapter number. */
+  mark?: string;
 }
-const { variant, label, glyph = '' } = Astro.props;
+const { variant, label, mark = '' } = Astro.props;
 ---
 
 <div class:list={['exit', `exit--${variant}`]} data-ink-scene aria-hidden="true" data-specimen={variant === 'strip' ? '1c' : variant === 'scroll' ? '10n' : '6g'}>
@@ -30,7 +30,7 @@ const { variant, label, glyph = '' } = Astro.props;
       <div class="exit__hang">
         <span class="exit__rod"></span>
         <div class="exit__paper">
-          <span class="exit__glyph">{glyph}</span>
+          <span class="exit__mark">{mark}</span>
           <span class="exit__label">{label}</span>
         </div>
         <span class="exit__roller"></span>
@@ -68,7 +68,7 @@ const { variant, label, glyph = '' } = Astro.props;
     html.js .exit--scroll .exit__hang { position: absolute; left: 50%; top: 14svh; width: min(78vw, 360px); translate: -50% 0; }
     html.js .exit--scroll .exit__rod { position: absolute; left: -8px; right: -8px; top: 0; height: 10px; background: var(--text-dim); }
     html.js .exit--scroll .exit__paper { position: absolute; left: 8px; right: 8px; top: 10px; height: var(--h); display: grid; place-content: center; justify-items: center; gap: 18px; background: var(--paper); clip-path: inset(0 0 calc((1 - var(--p, 0)) * 100%) 0); }
-    html.js .exit--scroll .exit__glyph { font: 900 clamp(56px, 12vh, 112px) / 1 'Noto Sans KR', var(--font-sans); writing-mode: vertical-rl; color: var(--text-main); }
+    html.js .exit--scroll .exit__mark { font: 700 clamp(64px, 14vh, 128px) / 1 var(--font-serif); color: var(--text-main); }
     html.js .exit--scroll .exit__roller { position: absolute; left: -8px; right: -8px; top: 10px; height: 12px; background: var(--text-dim); transform: translateY(calc(var(--p, 0) * var(--h))); }
 
     /* 6g: the blade draws first, ink bleeds along the cut, then the black panel sweeps in. */

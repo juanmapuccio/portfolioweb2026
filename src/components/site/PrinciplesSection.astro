@@ -1,5 +1,5 @@
 ---
-// S6 Fuera del código. 1b title (underline + seal), five 2g hanko seals from
+// S6 Fuera del código. 1b title (underline + seal), five 2g ink seals (the principle name in the page language, Latin script only) from
 // src/data/principles.ts that stamp once on enter, and the two philosophy quotes from
 // src/data/skills.ts (philosophy[].quote, the same text as full.phil.*).
 // Desktop (>=1024): a row of five. Mobile (<1024): a 3 + 2 grid (6 columns, items span 2).
@@ -26,7 +26,7 @@ const quotes = skillsData[lang].philosophy;
     <header class="principles__head">
       <p class="principles__label">{t('principles.label')}</p>
       <div id="principles-title" role="heading" aria-level="2">
-        <InkUnderlineDry class="principles__title" title={t('principles.title')} seal="도" />
+        <InkUnderlineDry class="principles__title" title={t('principles.title')} seal="JMP" />
       </div>
       <p class="principles__sub">{principles.label}</p>
     </header>
@@ -34,8 +34,7 @@ const quotes = skillsData[lang].philosophy;
     <ol class="seals" data-ink>
       {principles.items.map((item, i) => (
         <li class="seal" style={`--i: ${i}`} data-specimen="2g">
-          <span class="seal__stamp ink-stamp" style={`--ink-delay: ${(i * 0.14).toFixed(2)}s; --ink-duration: 0.6s`} lang="ko">{item.hangul}</span>
-          <h3 class="seal__name">{item.name}</h3>
+          <h3 class="seal__stamp ink-stamp" style={`--ink-delay: ${(i * 0.14).toFixed(2)}s; --ink-duration: 0.6s`}>{item.name}</h3>
           <p class="seal__line">{item.line}</p>
         </li>
       ))}
@@ -61,7 +60,7 @@ const quotes = skillsData[lang].philosophy;
   .principles__label, .principles__sub { margin: 0; font: 600 var(--fs-caption) / 1.2 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; color: var(--text-dim); }
   .principles .ink-1b.principles__title { max-width: 720px; padding: 8px 0 0; }
   .principles .ink-1b__title { font-size: clamp(30px, 4.8vw, 64px); line-height: 1.05; letter-spacing: var(--tracking-heading); }
-  .principles .ink-1b__seal { width: 40px; height: 40px; font-size: 20px; flex: none; }
+  .principles .ink-1b__seal { width: 46px; height: 46px; font-size: 13px; letter-spacing: 0.06em; flex: none; }
   .principles .ink-1b__stroke { color: var(--text-main); max-width: 520px; }
 
   /* 2g: hanko seals, mobile grid 3 + 2 on six columns. */
@@ -69,9 +68,8 @@ const quotes = skillsData[lang].philosophy;
   .seal { grid-column: span 2; display: grid; justify-items: center; align-content: start; gap: 8px; text-align: center; }
   .seal:nth-child(4) { grid-column: 2 / span 2; }
   .seal:nth-child(5) { grid-column: 4 / span 2; }
-  .seal__stamp { display: grid; place-items: center; box-sizing: border-box; width: clamp(64px, 20vw, 96px); aspect-ratio: 1; padding: 6px; border: 3px solid var(--seal-red); color: var(--seal-red); font: 700 clamp(20px, 6vw, 30px) / 1.05 'Noto Sans KR', var(--font-sans); word-break: keep-all; rotate: -4deg; }
+  .seal__stamp { display: grid; place-items: center; box-sizing: border-box; width: min(100%, 112px); aspect-ratio: 1; margin: 0; padding: 6px; border: 3px solid var(--seal-red); color: var(--seal-red); font: 700 clamp(11px, 3vw, 14px) / 1.15 var(--font-serif); text-align: center; overflow-wrap: anywhere; hyphens: auto; rotate: -4deg; }
   .seal:nth-child(even) .seal__stamp { rotate: 3deg; }
-  .seal__name { margin: 0; font: 700 var(--fs-body) / 1.2 var(--font-serif); }
   .seal__line { margin: 0; font: 400 12px / 1.4 var(--font-sans); color: var(--text-muted); }
 
   .quotes { display: grid; gap: 28px; }
@@ -84,7 +82,7 @@ const quotes = skillsData[lang].philosophy;
     .seals { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px; }
     .seal, .seal:nth-child(4), .seal:nth-child(5) { grid-column: auto; }
     .seal__line { font-size: var(--fs-caption); }
-    .seal__stamp { width: 104px; font-size: 32px; }
+    .seal__stamp { font-size: 14px; }
     .quotes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; }
   }
 </style>

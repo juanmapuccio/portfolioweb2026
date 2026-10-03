@@ -56,35 +56,34 @@ describe('S1 hero', () => {
     expect(ui).toContain("'hero.tagline': 'Audito procesos de empresas y los resuelvo con código.'");
     expect(ui).toContain("'hero.tagline': 'I audit business processes and solve them with code.'");
     expect(ui).toContain("'hero.tagline': 'Audito processos de empresas e os resolvo com código.'");
-    for (const key of ['hero.tagline.l1', 'hero.tagline.l2', 'hero.tagline.l3', 'hero.role', 'hero.fig', 'hero.scroll', 'hero.portraitAlt', 'header.name']) {
+    for (const key of ['hero.tagline', 'hero.role', 'hero.fig', 'hero.scroll', 'hero.portraitAlt', 'header.name']) {
       expect(hero).toContain(`t('${key}')`);
     }
   });
 
-  test('name is the h1, the portrait is the repo asset, and the 10f / 9j pieces are reused', () => {
+  test('name is the h1, the portrait is the repo asset, the 9j cue is reused, no glyph backdrop', () => {
     expect(hero).toContain('<h1 class="hero__name"');
     expect(hero).toContain("from '../../assets/fotojmPerfil.png'");
-    expect(hero).toContain("import InkGlyphTitle from '../ink/InkGlyphTitle.astro'");
     expect(hero).toContain("import InkScrollDrop from '../ink/InkScrollDrop.astro'");
-    expect(hero).toContain('<InkGlyphTitle');
     expect(hero).toContain('<InkScrollDrop');
+    expect(hero).not.toContain('InkGlyphTitle');
   });
 
-  test('desktop is scrubbed through --p (pull-back, exit zoom, flash); mobile uses one drip', () => {
+  test('manga page: soft exit scrubbed through --p (drift + fade + wash), no pull-back, zoom, flash or drip', () => {
     expect(hero).toContain('data-ink-scene');
-    expect(hero).toContain('scale(calc(5 - 4 * var(--pull)))');
-    expect(hero).toContain('scale(calc(1 + 1.4 * var(--exit)))');
-    expect(hero).toContain('.hero__flash');
+    expect(hero).toContain('.hero__wash');
+    expect(hero).toContain('translateY(calc(var(--exit) * -6svh))');
     expect(hero).toContain('position: sticky');
-    expect((hero.match(/<InkDrip/g) ?? []).length).toBe(1);
     expect(hero).toContain('data-belt="blanco"');
+    expect(hero).not.toContain('<InkDrip');
+    expect(hero).not.toMatch(/hero__pull|hero__flash|hero__zoom/);
   });
 
-  test('the scrub only applies with motion allowed and JS present', () => {
-    expect(hero).toContain('@media (min-width: 1024px) and (prefers-reduced-motion: no-preference)');
-    expect(hero).toMatch(/@media \(min-width: 1024px\) and \(prefers-reduced-motion: no-preference\) \{\s*html\.js \.hero \{/);
+  test('the entrance and scrub only apply with motion allowed and JS present', () => {
+    expect(hero).toContain('@media (min-width: 768px) and (prefers-reduced-motion: no-preference)');
+    expect(hero).toMatch(/@media \(min-width: 768px\) and \(prefers-reduced-motion: no-preference\) \{\s*html\.js \.hero \{/);
     expect(hero).toContain('@media (prefers-reduced-motion: reduce)');
-    expect(hero).toMatch(/\.hero__pull, \.hero__flash \{ display: none; \}/);
+    expect(hero).toMatch(/\.hero__wash \{ display: none; \}/);
   });
 });
 
@@ -123,15 +122,15 @@ describe('S2 belts', () => {
     expect(inkTs).toContain('if (reduced) return;');
   });
 
-  test('desktop: pinned horizontal track, 6b wipes at mid-segment, 6d enso, 6e dan and one 3c frame', () => {
+  test('desktop: pinned horizontal track, 6b wipes at mid-segment, 6d enso and a soft ink bloom (no glyph, no flash)', () => {
     expect(belts).toContain('height: 700svh');
     expect(belts).toContain('position: sticky');
     expect(belts).toContain('translateX(calc(var(--p, 0) * -1 * (var(--count) - 1) / var(--count) * 100%))');
     expect(belts).toContain('(var(--i) - 0.5) / 5');
     expect(belts).toContain('stroke-dashoffset: calc(1 - var(--e))');
-    expect(belts).toContain('.belts__dan');
-    expect(belts).toContain('.belts__impact');
-    expect((belts.match(/<span class="belts__impact"/g) ?? []).length).toBe(1);
+    expect(belts).toContain('.belts__bloom');
+    expect((belts.match(/<span class="belts__bloom"/g) ?? []).length).toBe(1);
+    expect(belts).not.toMatch(/belts__dan|belts__impact/);
     expect(belts).toContain('<BeltRail');
   });
 
@@ -140,7 +139,7 @@ describe('S2 belts', () => {
     expect(belts).toMatch(/\.chapter \{ position: sticky;/);
     expect(belts).toContain('<BambooGrow');
     expect(bamboo).toContain('scaleY(var(--p, 1))');
-    // the drip is skipped for the first chapter: hero exit drip + 5 belt changes
+    // the drip is skipped for the first chapter: 5 belt changes
     expect(belts).toContain('chapter.index > 0 && <InkDrip');
   });
 
@@ -148,15 +147,15 @@ describe('S2 belts', () => {
     const scrub = belts.slice(belts.indexOf('/* ---- Desktop scrub'));
     expect(scrub.startsWith('/* ---- Desktop scrub')).toBe(true);
     expect(belts).toContain('@media (min-width: 1024px) and (prefers-reduced-motion: no-preference)');
-    // pin, track transform, enso, dan and impact are only declared inside no-preference blocks
+    // pin, track transform, enso and bloom are only declared inside no-preference blocks
     const staticPart = belts.slice(belts.indexOf('<style'), belts.indexOf('/* ---- Mobile / tablet scrub'));
     expect(staticPart).not.toContain('position: sticky');
     expect(staticPart).not.toContain('700svh');
     expect(staticPart).toContain('flex-direction: column');
     expect(belts).toContain('@media (prefers-reduced-motion: reduce)');
-    expect(belts).toMatch(/\.belts__wipes, \.belts__enso, \.belts__dan, \.belts__impact, \.belts__bamboo \{ display: none; \}/);
-    // the impact frame is display:none by default and only shown in the no-preference block
-    expect(belts).toMatch(/html\.js \.belts__impact \{ display: block;/);
+    expect(belts).toMatch(/\.belts__wipes, \.belts__enso, \.belts__bloom, \.belts__bamboo \{ display: none; \}/);
+    // the bloom is display:none by default and only shown in the no-preference block
+    expect(belts).toMatch(/html\.js \.belts__bloom \{ display: block;/);
     expect(drip).toContain('prefers-reduced-motion: reduce');
   });
 });
@@ -187,7 +186,7 @@ describe('perf and single engine', () => {
       const css = text.slice(text.indexOf('<style'));
       const driven = [...css.matchAll(/([a-z-]+):[^;{}]*var\(--(?:p|pull|exit|t|r|w|e|dan)[,)]/g)].map((m) => m[1]);
       for (const prop of driven) {
-        expect(['transform', 'opacity', 'clip-path', 'stroke-dashoffset', '--pull', '--exit', '--t', '--r', '--w', '--e', '--dan', 'translate']).toContain(prop);
+        expect(['transform', 'opacity', 'clip-path', 'stroke-dashoffset', '--pull', '--exit', '--t', '--r', '--w', '--e', '--dan', '--bloom', 'translate']).toContain(prop);
       }
     }
   });

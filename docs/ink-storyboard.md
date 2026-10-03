@@ -62,43 +62,46 @@ Un solo árbol HTML responsive. Lo que cambia entre desktop y mobile es el layou
 - Componentes: `InkLoaderEnso` (hecho), `InkLoaderDrop` (hecho), `InkNavStroke` (hecho), `InkLangStamp` (hecho) + sprite 11t (nuevo asset).
 - Reduced motion: sin loader; header estático.
 
-## S1. Hero
+## S1. Hero (página de manga, 5a)
 
-**Desktop** (pin 150vh, scrub)
+Decisión 2026-10-03: el hero es una página de manga (catálogo 5a, `design/Franjas Pincel.dc.html`). Sin glifos ni sellos asiáticos en toda la landing. Sin pull-back 10a, sin zoom/destello 10l.
+
+**Desktop** (>= 768, pin 200svh, salida con `--p`)
 ```
-p=0                                  p=1
-┌▔▔▔▔▔▔▔▔ barras de cine ▔▔▔▔▔▔▔▔┐     ┌─────────────────────────────┐
-│   ███ (×5, muy cerca)           │ ─▶  │  유 (10f, glifo 9%)          │
-│                                 │     │  Juan                        │
-│▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁│     │  Manuel        [retrato]     │
-└─────────────────────────────────┘     │  Puccio   염치               │
- 10a pull-back: scale 5→1                │  Audito procesos             │
-                                         │  de empresas                 │
-                                         │  y los resuelvo con código.  │
-                                         │  ~ aguada 2f en parallax ~   │
-                                         │            ↓ 9j              │
-                                         └─────────────────────────────┘
- titular: 10i tajo o ink-rise por líneas dentro del pull-back 10a
- salida: 10l zoom ×2.4 + destello blanco (corte de cámara) ─▶ cinturones
+┌ gutter negro 10px ──────────────────────────────────────────┐
+│ ┌────────────────────────┬───────────┬───────────────────┐ │
+│ │ Juan Manuel Puccio     │           │                   │ │
+│ │ (panel nombre)         │           │  retrato real     │ │
+│ ├──────────────┬─────────┤           │  + trama de       │ │
+│ │ tagline      │ rol /   │           │  puntos           │ │
+│ │ (i18n)       │ fig     │           │  (radial-gradient)│ │
+│ ├──────────────┴─────────┤           │                   │ │
+│ │ ↓ scroll cue (9j)      │           │                   │ │
+│ └────────────────────────┴───────────┴───────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+ entrada: 5 viñetas en orden (nombre, tagline, retrato, rol, cue)
+   ~1.1s c/u, cubic-bezier(.22,1,.36,1), translateY 32px + scale .98 -> 1,
+   escalonado 150ms, una sola vez cuando sale el loader (html.hero-ready).
+   Sin rebote, sin destello, sin frames de impacto.
+ salida (--p .55 -> 1): la página deriva hacia arriba (-6svh) y se desvanece
+   mientras una aguada suave (gradiente papel, translateY) sube y deja ver
+   los cinturones. Solo transform y opacity.
 ```
 
-**Mobile** (enter)
+**Mobile** (< 768)
 ```
 ┌──────────────┐
-│ FULL STACK   │
-│ Juan      ┃  │ 7i pincelada vertical (dashoffset, sin filtro)
-│ Manuel    ┃  │ nombre por líneas (ink-rise, 0.12s)
-│ Puccio    ┃  │ sello 염치 (ink-stamp)
-│ Audito procesos│ titular por líneas (7i, como MockupMobile)
-│ de empresas    │
-│ y los resuelvo │
-│ con código.    │
-│ [retrato] ┃  │
-│ DESPLÁZATE ↓ │
+│ [ nombre ]   │  paneles apilados, gutter negro,
+│ [ tagline ]  │  misma cascada suave (delay 150ms)
+│ [ retrato ]  │  4:5 con trama de puntos
+│ [ rol / fig ]│
+│ [ cue ]      │
 └──────────────┘
- salida: 7e goteo (1 sola vez) ─▶ cinturones
+ salida: misma deriva + desvanecido + aguada (reemplaza el goteo 7e),
+ con 30svh de papel debajo del stack para dar recorrido al scrub.
 ```
-- Componentes nuevos: `HeroPullback` (10a), `GlyphBackdrop` (10f, hecho como `InkGlyphTitle`), `WashLayers` (2f raster), `MobileHeroBrush` (7i).
+- Reduced motion / sin JS: viñetas visibles, sin entrada ni salida.
+- Componentes: `HeroSection` (paneles `data-panel`), `InkScrollDrop` (9j). Ya no usa `InkGlyphTitle` ni `InkDrip`.
 
 ## S2. Cinturones (capítulo central)
 
@@ -108,9 +111,9 @@ p=0                                  p=1
  │ ●━━━━━━●━━━━━━●━━━━━━○┄┄┄┄┄┄○┄┄┄┄┄┄○                                        │
  └───────────────────────────────────────────────────────────────────────────┘
  [ CAP.01 BLANCO ] ─6b─▶ [ CAP.02 AMARILLO ] ─6b─▶ … ─6d ensō─▶ [ 1º DAN ]
-  10d tarjeta de capítulo                                      6e 단 hacia cámara
-  10f título con glifo                                          + 3c impact frame
-  dato breve + años                                             (único hito)
+  10d tarjeta de capítulo                                      floración de tinta suave
+  título 1a (subrayado)                                         (sin glifo, sin destello)
+  dato breve + años                                             sello de iniciales JMP
 ```
 - Cada tramo de `--p` ≈ 1/6. 6b (pincelada seca) hace el cambio de color en el punto medio del tramo.
 
@@ -127,7 +130,7 @@ p=0                                  p=1
 └──────────────┘
  1 goteo 7e por cambio de cinturón, nunca dos seguidos
 ```
-- Componentes nuevos: `BeltRail` (10o), `ChapterCard` (10d), `BrushWipe` (6b), `EnsoFill` (6d), `DanHit` (6e+3c), `StickyBelts` (7c), `BambooGrow` (2d).
+- Componentes nuevos: `BeltRail` (10o), `ChapterCard` (10d), `BrushWipe` (6b), `EnsoFill` (6d), `InkBloom` (6e, floración de tinta sin texto), `StickyBelts` (7c), `BambooGrow` (2d).
 
 ## S3. Fricción → código
 
@@ -170,14 +173,16 @@ desktop y mobile (pin 120vh, scrub)
 desktop: 10r cinco pergaminos que bajan (enter, stagger)
  ┃Front┃ ┃Back ┃ ┃Cloud┃ ┃Campo┃ ┃Certs┃
 mobile: los mismos rollos apilados en una columna (o 10u rueda si hay poco alto)
- salida: 10n rollo colgante
+ salida: 10n rollo colgante (marca latina "06" en vez de glifo)
 ```
 
 ## S6. Fuera del código
 
 ```
  1b título con subrayado y sello
- 2g cinco hanko que se estampan: 예의 염치 인내 극기 백절불굴   (bordes raster 8i)
+ 2g cinco sellos de tinta que se estampan, con el NOMBRE del principio en el idioma de la página
+    (Cortesía, Integridad, Perseverancia, Autocontrol, Espíritu indomable; sin hangul; bordes raster 8i)
+ 1b título con sello de iniciales JMP
  desktop: fila de 5 · mobile: grilla 3+2
  salida: 6g katana revela el cierre
 ```
@@ -214,9 +219,9 @@ mobile: los mismos rollos apilados en una columna (o 10u rueda si hay poco alto)
 | De → a | Desktop | Mobile | Modo |
 |---|---|---|---|
 | Loader → hero | telón | telón | enter |
-| Hero → Cinturones | 10l zoom + destello | 7e goteo | scrub / enter |
+| Hero → Cinturones | deriva + desvanecido de viñetas, aguada suave sube | igual (sin goteo) | scrub corto |
 | Cinturón → cinturón | 6b pincelada seca | 7e goteo | scrub / enter |
-| Rojo → Negro | 6d ensō + 6e 단 + 3c | 6d | scrub + enter |
+| Rojo → Negro | 6d ensō + floración de tinta (sin glifo) | 6d | scrub + enter |
 | Cinturones → Fricción | 10m barras de cinturón | 10m | enter |
 | Fricción → Proyectos | 5d nacer del negro | 5d | scrub |
 | Proyectos → Stack | 1c franja `--p` | 1c | scrub |

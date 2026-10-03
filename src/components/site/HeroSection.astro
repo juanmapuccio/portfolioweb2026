@@ -1,18 +1,20 @@
 ---
-// S1 Hero. One responsive tree.
-// Desktop (>=1024, motion allowed, JS): 250svh section with a sticky stage; the section's
-// `--p` (src/scripts/ink.ts, [data-ink-scene]) scrubs 10a pull-back (scale 5 -> 1), name
-// and tagline lines, the portrait reveal and the 10f glyph, then 10l zoom + flash into the
-// belts. Everything is a CSS function of --p (transform / opacity / clip-path only).
-// Mobile and tablet (<1024): 7i enter animation (vertical brush, name lines rise, 염치
-// seal, tagline lines) with one 7e drip as the exit.
-// Reduced motion / no JS: final state, no pin, no scrub, no flash.
-// TODO(raster): the flat --paper background stands in for the washi / aguada rasters.
+// S1 Hero as a manga page (catalog specimen 5a). Five panels on a black gutter grid drop
+// in once, in order, after the loader exits: name, tagline, portrait (screentone dots over
+// the real photo), role, scroll cue. The entrance is soft: ~1.1s per panel, a small
+// travel (32px + scale .98 -> 1), stagger 150ms, ease cubic-bezier(.22, 1, .36, 1). No
+// bounce, no flash, no zoom.
+// Entrance trigger: `html.hero-ready`, added by src/scripts/loader.ts when the loader
+// leaves (or at once without loader / under reduced motion). Without JS everything shows.
+// Exit (scrubbed by the scene `--p`, ink.ts): the manga page drifts up and fades while a
+// soft ink wash rises over the stage and hands over to the belts. Only transform and
+// opacity change.
+// Desktop (>=768): asymmetric grid. Mobile (<768): stacked panels, same cascade.
+// Reduced motion: final state, no entrance, no scrub.
+// TODO(raster): the dot screentone is a radial-gradient; an 8i raster can replace it.
 import { Image } from 'astro:assets';
 import portrait from '../../assets/fotojmPerfil.png';
-import InkGlyphTitle from '../ink/InkGlyphTitle.astro';
 import InkScrollDrop from '../ink/InkScrollDrop.astro';
-import InkDrip from './InkDrip.astro';
 import { useTranslations, type Lang } from '../../i18n/ui';
 
 interface Props {
@@ -22,125 +24,103 @@ const { lang = 'es' } = Astro.props;
 const t = useTranslations(lang);
 
 const nameLines = t('header.name').split(' ');
-const taglineLines = [t('hero.tagline.l1'), t('hero.tagline.l2'), t('hero.tagline.l3')];
 ---
 
-<section id="hero" class="hero" data-belt="blanco" data-ink data-ink-scene aria-labelledby="hero-name">
+<section id="hero" class="hero" data-belt="blanco" data-ink-scene aria-labelledby="hero-name">
   <div class="hero__stage">
-    <div class="hero__zoom">
-      <div class="hero__body">
-        <div class="hero__text">
-          <InkGlyphTitle class="hero__glyph" glyph="유" eyebrow={t('hero.role')} title={t('hero.fig')} />
-          <div class="hero__namerow">
-            <h1 class="hero__name" id="hero-name">
-              {nameLines.map((word, i) => (
-                <span class="hero__clip"><span class="hero__rise ink-rise" style={`--ink-delay: ${0.15 + i * 0.12}s; --i: ${i}`}>{word}</span></span>
-              ))}
-            </h1>
-            <span class="hero__seal ink-stamp" style="--ink-delay: 0.7s" aria-hidden="true">염치</span>
-          </div>
-          <p class="hero__tagline">
-            {taglineLines.map((line, i) => (
-              <>
-                <span class="hero__clip"><span class="hero__rise hero__rise--tag ink-rise" style={`--ink-delay: ${0.75 + i * 0.12}s; --i: ${i}`}>{line}</span></span>{' '}
-              </>
-            ))}
-          </p>
-        </div>
-        <figure class="hero__portrait ink-unroll" style="--ink-delay: 0.5s; --ink-duration: 1.1s">
-          <Image src={portrait} alt={t('hero.portraitAlt')} widths={[480, 800, 1100]} sizes="(min-width: 1024px) 40vw, 80vw" format="webp" loading="eager" fetchpriority="high" />
-        </figure>
+    <div class="hero__manga">
+      <div class="hero__panel hero__panel--name" data-panel="name" style="--k: 0">
+        <h1 class="hero__name" id="hero-name">
+          {nameLines.map((word) => <span class="hero__word">{word}</span>)}
+        </h1>
       </div>
-      <svg class="hero__brush" viewBox="0 0 12 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-        <path class="ink-draw" style="--ink-delay: 0.1s; --ink-duration: 1.4s" d="M6 0 L6 100" pathLength="1" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"></path>
-      </svg>
-      <div class="hero__cue"><InkScrollDrop label={t('hero.scroll')} /></div>
+      <div class="hero__panel hero__panel--tagline" data-panel="tagline" style="--k: 1">
+        <p class="hero__tagline">{t('hero.tagline')}</p>
+      </div>
+      <figure class="hero__panel hero__panel--portrait" data-panel="portrait" style="--k: 2">
+        <Image src={portrait} alt={t('hero.portraitAlt')} widths={[480, 800, 1100]} sizes="(min-width: 768px) 40vw, 100vw" format="webp" loading="eager" fetchpriority="high" />
+        <span class="hero__tone" aria-hidden="true"></span>
+      </figure>
+      <div class="hero__panel hero__panel--role" data-panel="role" style="--k: 3">
+        <span class="hero__dot" aria-hidden="true"></span>
+        <p class="hero__role">{t('hero.role')}</p>
+        <p class="hero__fig">{t('hero.fig')}</p>
+      </div>
+      <div class="hero__panel hero__panel--cue" data-panel="cue" style="--k: 4">
+        <InkScrollDrop label={t('hero.scroll')} />
+      </div>
     </div>
-    <svg class="hero__pull" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
-      <rect x="-40" y="30" width="1680" height="150" rx="75"></rect>
-      <rect x="-40" y="200" width="1680" height="150" rx="75"></rect>
-      <rect x="-40" y="370" width="1680" height="150" rx="75"></rect>
-      <rect x="-40" y="540" width="1680" height="150" rx="75"></rect>
-      <rect x="-40" y="710" width="1680" height="160" rx="80"></rect>
-    </svg>
-    <span class="hero__flash" aria-hidden="true"></span>
+    <span class="hero__wash" aria-hidden="true"></span>
   </div>
-  <InkDrip class="hero__drip" tone="black" />
 </section>
 
 <style is:global>
   .hero { position: relative; background: var(--paper); color: var(--text-main); }
 
-  .hero__stage { position: relative; display: flex; flex-direction: column; min-height: 100svh; box-sizing: border-box; padding: calc(var(--header-h) + var(--section-pad)) var(--gutter) var(--section-pad); overflow: hidden; }
-  .hero__zoom { position: relative; display: flex; flex: 1; flex-direction: column; gap: 28px; }
-  .hero__body { display: flex; flex: 1; flex-direction: column; gap: 28px; }
-  .hero__text { position: relative; display: flex; flex-direction: column; gap: 20px; }
+  .hero__stage { position: relative; box-sizing: border-box; min-height: 100svh; padding: var(--header-h) 0 0; overflow: hidden; }
+  .hero__manga { box-sizing: border-box; display: grid; gap: 10px; min-height: calc(100svh - var(--header-h)); padding: 10px; background: var(--ink-belt-black); }
 
-  /* 10f glyph block, reusing InkGlyphTitle as a transparent backdrop instead of a card. */
-  .hero .hero__glyph.ink-10f { max-width: none; height: auto; padding: 0 0 8px; overflow: visible; background: transparent; }
-  .hero .hero__glyph .ink-10f__glyph { top: 10%; right: -2%; width: min(62vw, 360px); height: auto; }
-  .hero .hero__glyph .ink-10f__eyebrow { color: var(--text-main); }
-  .hero .hero__glyph .ink-10f__title { font: 400 var(--fs-caption) / 1.4 var(--font-mono); letter-spacing: var(--tracking-meta); color: var(--text-dim); }
+  .hero__panel { position: relative; box-sizing: border-box; margin: 0; overflow: hidden; background: var(--paper); }
 
-  .hero__namerow { position: relative; display: flex; align-items: flex-end; gap: 16px; }
-  .hero__name { margin: 0; font: 700 clamp(56px, 17vw, 112px) / 0.98 var(--font-serif); letter-spacing: var(--tracking-heading); }
-  .hero__clip { display: block; overflow: hidden; padding-bottom: 0.1em; margin-bottom: -0.1em; }
-  .hero__rise { display: block; }
-  .hero__seal { display: inline-grid; place-items: center; width: 64px; height: 64px; margin-bottom: 10px; border: 3px solid var(--seal-red); color: var(--seal-red); font: 700 22px/1 'Noto Sans KR', var(--font-sans); rotate: -5deg; flex: none; }
+  .hero__panel--name { display: flex; align-items: flex-end; padding: 20px 18px; }
+  .hero__name { display: flex; flex-direction: column; margin: 0; font: 700 clamp(52px, 17vw, 96px) / 0.98 var(--font-serif); letter-spacing: var(--tracking-heading); }
+  .hero__word { display: block; }
 
-  .hero__tagline { margin: 0; max-width: 16em; font: 400 clamp(26px, 7.4vw, 40px) / 1.2 var(--font-serif); color: var(--text-main); }
+  .hero__panel--tagline { display: flex; align-items: center; padding: 20px 18px; }
+  .hero__tagline { margin: 0; max-width: 16em; font: italic 400 clamp(22px, 6.4vw, 34px) / 1.25 var(--font-serif); }
 
-  .hero__portrait { position: relative; align-self: center; width: min(78%, 360px); margin: 0; border: 2px solid var(--text-main); background: var(--bg-surface-elevated); }
-  .hero__portrait img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 15%; }
+  .hero__panel--portrait { aspect-ratio: 4 / 5; background: var(--bg-surface-elevated); }
+  .hero__panel--portrait img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 15%; }
+  /* Screentone: ink dots over the real photo (plain gradient, no filter), fading out upward. */
+  .hero__tone { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(rgba(28, 26, 23, 0.5) 1.2px, transparent 1.6px) 0 0 / 6px 6px; opacity: 0.55; -webkit-mask-image: linear-gradient(to top, #000 10%, transparent 85%); mask-image: linear-gradient(to top, #000 10%, transparent 85%); }
 
-  /* 7i vertical brush: a plain stroke-dashoffset draw, no filter. */
-  .hero__brush { position: absolute; right: -4px; top: 0; width: 12px; height: 100%; color: var(--text-main); opacity: 0.85; }
-  .hero__cue { display: flex; justify-content: center; padding-top: 8px; }
+  .hero__panel--role { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 14px 18px; font: 600 11px / 1.3 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; }
+  .hero__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok-green); flex: none; }
+  .hero__role, .hero__fig { margin: 0; }
+  .hero__fig { color: var(--text-dim); }
 
-  /* Mobile hero drip is the exit; it sits over the lower part of the hero. */
-  .hero .hero__drip { top: auto; bottom: 0; height: 60svh; }
+  .hero__panel--cue { display: flex; justify-content: center; padding: 12px; }
 
-  /* Desktop-only layers stay out of the static (mobile / reduced / no-JS) layout. */
-  .hero__pull, .hero__flash { display: none; }
+  /* Stacked order on mobile follows the DOM; the wash only exists with motion. */
+  .hero__wash { display: none; }
 
-  @media (min-width: 1024px) {
-    .hero__stage { padding-bottom: calc(var(--section-pad) + 8px); }
-    .hero__body { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); align-items: center; gap: 4vw; }
-    .hero__name { font-size: clamp(72px, 9.6vw, 168px); }
-    .hero__tagline { max-width: 14em; font-size: clamp(30px, 3.1vw, 54px); }
-    .hero__portrait { width: 100%; max-width: 440px; justify-self: end; }
-    .hero__brush { display: none; }
-    .hero .hero__drip { display: none; }
+  @media (min-width: 768px) {
+    .hero__manga { grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.9fr) minmax(0, 1.1fr); grid-template-rows: minmax(0, 1.5fr) minmax(0, 1fr) auto; grid-template-areas: 'name name portrait' 'tagline role portrait' 'cue cue portrait'; height: calc(100svh - var(--header-h)); }
+    .hero__panel--name { grid-area: name; padding: 28px 32px; }
+    .hero__panel--tagline { grid-area: tagline; padding: 24px 28px; }
+    .hero__panel--portrait { grid-area: portrait; aspect-ratio: auto; }
+    .hero__panel--role { grid-area: role; flex-direction: column; align-items: flex-start; justify-content: flex-end; padding: 18px 22px; }
+    .hero__panel--cue { grid-area: cue; justify-content: flex-start; padding: 8px 22px; }
+    .hero__name { flex-direction: row; flex-wrap: wrap; gap: 0 0.28em; font-size: clamp(56px, 8.4vw, 148px); }
+    .hero__tagline { font-size: clamp(20px, 2.1vw, 34px); }
   }
 
-  /* Scrubbed pin: desktop, motion allowed, JS present. */
-  @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
-    html.js .hero {
-      height: 250svh;
-      --pull: clamp(0, calc(var(--p, 0) / 0.55), 1);
-      --exit: clamp(0, calc((var(--p, 0) - 0.85) / 0.15), 1);
-    }
-    html.js .hero__stage { position: sticky; top: 0; height: 100svh; min-height: 0; padding-top: calc(var(--header-h) + 16px); padding-bottom: 24px; }
-    html.js .hero__zoom { transform: scale(calc(1 + 1.4 * var(--exit))); transform-origin: 50% 50%; will-change: transform; }
+  /* Entrance (once, after the loader). Hidden start state only with motion and JS. */
+  @keyframes hero-panel {
+    from { opacity: 0; transform: translateY(32px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
 
-    /* 10a: five brush bars start x5 (almost black screen), pull back and fade. */
-    html.js .hero__pull { display: block; position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; fill: var(--ink-belt-black); transform-origin: 50% 85%; transform: scale(calc(5 - 4 * var(--pull))); opacity: calc(1 - 0.88 * var(--pull)); will-change: transform, opacity; }
+  @media (prefers-reduced-motion: no-preference) {
+    html.js:not(.hero-ready) .hero__panel { opacity: 0; transform: translateY(32px) scale(0.98); }
+    html.js.hero-ready .hero__panel { animation: hero-panel 1.1s cubic-bezier(0.22, 1, 0.36, 1) calc(0.1s + var(--k) * 0.15s) 1 both; }
 
-    /* 10l: white cut at the end of the exit zoom. */
-    html.js .hero__flash { display: block; position: absolute; inset: 0; z-index: 6; pointer-events: none; background: #fff; opacity: clamp(0, calc((var(--exit) - 0.4) * 1.7), 1); }
+    /* Exit: --exit runs over the last 45% of the scene. */
+    html.js .hero { --exit: clamp(0, calc((var(--p, 0) - 0.55) / 0.45), 1); }
+    html.js .hero__manga { transform: translateY(calc(var(--exit) * -6svh)); opacity: calc(1 - var(--exit)); will-change: transform, opacity; }
+    html.js .hero__wash { display: block; position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; height: 120%; pointer-events: none; background: linear-gradient(to top, var(--paper) 0%, var(--paper) 55%, rgba(244, 239, 228, 0.6) 78%, transparent 100%); transform: translateY(calc((1 - var(--exit)) * 100%)); will-change: transform; }
 
-    /* Lines: the one-shot ink-rise is replaced by a scrub keyed to --p. */
-    html.js .hero .hero__clip .hero__rise { --t: clamp(0, calc((var(--p, 0) - 0.3 - var(--i) * 0.06) / 0.15), 1); animation: none; transform: translateY(calc((1 - var(--t)) * 110%)); }
-    html.js .hero .hero__clip .hero__rise--tag { --t: clamp(0, calc((var(--p, 0) - 0.5 - var(--i) * 0.05) / 0.12), 1); }
-    html.js .hero .hero__seal.ink-stamp { --t: clamp(0, calc((var(--p, 0) - 0.5) / 0.1), 1); animation: none; opacity: var(--t); transform: scale(calc(1.6 - 0.6 * var(--t))); }
-    html.js .hero .hero__portrait.ink-unroll { --r: clamp(0, calc((var(--p, 0) - 0.38) / 0.25), 1); animation: none; clip-path: inset(calc((1 - var(--r)) * 100%) 0 0 0); }
-    html.js .hero .hero__glyph .ink-10f__glyph { opacity: calc(0.09 * clamp(0, calc((var(--p, 0) - 0.25) / 0.2), 1)); animation: none; transform: none; }
-    html.js .hero .hero__glyph .ink-10f__clip .ink-rise { animation: none; transform: none; opacity: clamp(0, calc((var(--p, 0) - 0.25) / 0.15), 1); }
+    /* Desktop: pinned stage so the scrub has room. Mobile: extra paper below the stack. */
+    html.js .hero { padding-bottom: 30svh; }
+  }
 
-    html.js .hero__cue { position: absolute; left: 50%; bottom: 20px; z-index: 5; translate: -50% 0; color: var(--paper); opacity: clamp(0, calc(1 - var(--p, 0) * 9), 1); }
+  @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+    html.js .hero { height: 200svh; padding-bottom: 0; }
+    html.js .hero__stage { position: sticky; top: 0; height: 100svh; min-height: 0; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hero__pull, .hero__flash, .hero__brush, .hero .hero__drip { display: none; }
+    .hero__panel { opacity: 1; transform: none; animation: none; }
+    .hero__wash { display: none; }
   }
 </style>
