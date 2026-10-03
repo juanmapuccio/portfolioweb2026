@@ -77,11 +77,11 @@ const nameLines = t('header.name').split(' ');
 </section>
 
 <style is:global>
-  .hero { position: relative; background: var(--paper); color: var(--text-main); }
+  .hero { position: relative; background: var(--ink-belt-black); color: var(--text-main); }
 
   .hero__stage { position: relative; box-sizing: border-box; min-height: 100svh; padding: var(--header-h) 0 0; overflow: hidden; }
-  /* The page: paper ground with a thin black page frame; gutters are paper between black panel frames. */
-  .hero__manga { box-sizing: border-box; display: grid; gap: 16px; min-height: calc(100svh - var(--header-h)); padding: 14px; background: var(--paper); box-shadow: inset 0 0 0 3px var(--ink-belt-black); }
+  /* The page: solid black ground, so gutters read as black between the panels (user request). */
+  .hero__manga { box-sizing: border-box; display: grid; gap: 16px; min-height: calc(100svh - var(--header-h)); padding: 14px; background: var(--ink-belt-black); }
   /* Panel = frame (::before black polygon, ::after paper polygon inset by --b) + content (.hero__in). */
   .hero__panel { --b: 4px; --tilt: 12px; --fill: var(--paper); --hatch: linear-gradient(transparent, transparent); position: relative; box-sizing: border-box; margin: 0; }
   .hero__panel::before, .hero__panel::after { content: ''; position: absolute; clip-path: var(--clip); pointer-events: none; }
