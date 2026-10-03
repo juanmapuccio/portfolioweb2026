@@ -9,24 +9,24 @@
 | Framework | Astro 7, componentes `.astro` | instalado |
 | Scroll suave | Lenis 1.3 (solo en `src/scripts/ink.ts`) | instalado |
 | Scroll-driven | GSAP 3.15 ScrollTrigger: pin + `--p` por escena (`[data-ink-scene]`) | instalado |
-| Texto | GSAP SplitText (incluido en 3.15) para palabra a palabra (5b) y letras (10h) | disponible |
+| Texto | GSAP SplitText (incluido en 3.15) para letras (10h) y posibles titulares | disponible |
 | Enter-driven | IntersectionObserver de `ink.ts` + primitivas de `src/styles/ink/ink.css` | hecho (F2) |
 | 3D | three.js 0.186 para Belt3D (F5) | instalado |
 | Texturas | PNG/WebP pre-renderizados (washi, aguada, hanko, humo) | por hacer |
 | Descartado | Tailwind, Framer/Motion, view transitions entre páginas, cursor con filtro (9i), 11o, 11q | — |
 
 **Modos de animación**
-- **Scrub (`--p`)**: la sección se pinea y el progreso 0→1 maneja la pieza. Solo piezas monótonas: 10a, 7f, 5b, 10o, 6b, 2d, 7c, 1c, 10z.
+- **Scrub (`--p`)**: la sección se pinea y el progreso 0→1 maneja la pieza. Solo piezas monótonas: 10a, 10o, 6b, 2d, 7c, 1c, 10z.
 - **Enter**: una pasada al entrar (`data-ink` + `.is-in`).
 - **Interactivo**: hover/tap/hold (11b, 9e, 10y, 11m).
 
 ## 1. Esqueleto
 
 ```
- 0 LOADER ─▶ 1 HERO ─▶ 2 NO SOY… ─▶ 3 CINTURONES (6 capítulos) ─▶ 4 FRICCIÓN→CÓDIGO
-   ─▶ 5 PROYECTOS ─▶ 6 STACK ─▶ 7 FUERA DEL CÓDIGO ─▶ 8 CONTACTO / CIERRE
+ 0 LOADER ─▶ 1 HERO ─▶ 2 CINTURONES (6 capítulos) ─▶ 3 FRICCIÓN→CÓDIGO
+   ─▶ 4 PROYECTOS ─▶ 5 STACK ─▶ 6 FUERA DEL CÓDIGO ─▶ 7 CONTACTO / CIERRE
  Persistentes: header (progreso por cinturón 1g/7b · nav con pincelada 11j desktop · idioma 11m+11t)
-               CTA fijo "Contactar" (mobile, se oculta en 8)
+               CTA fijo "Contactar" (mobile, se oculta en 7)
 ```
 
 Un solo árbol HTML responsive. Lo que cambia entre desktop y mobile es el layout (CSS) y qué escenas se pinean, no el contenido.
@@ -72,10 +72,14 @@ p=0                                  p=1
 │                                 │     │  Juan                        │
 │▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁│     │  Manuel        [retrato]     │
 └─────────────────────────────────┘     │  Puccio   염치               │
- 10a pull-back: scale 5→1                │  ~ aguada 2f en parallax ~   │
+ 10a pull-back: scale 5→1                │  Audito procesos             │
+                                         │  de empresas                 │
+                                         │  y los resuelvo con código.  │
+                                         │  ~ aguada 2f en parallax ~   │
                                          │            ↓ 9j              │
                                          └─────────────────────────────┘
- salida: 10l zoom ×2.4 + destello blanco (corte de cámara)
+ titular: 10i tajo o ink-rise por líneas dentro del pull-back 10a
+ salida: 10l zoom ×2.4 + destello blanco (corte de cámara) ─▶ cinturones
 ```
 
 **Mobile** (enter)
@@ -83,27 +87,20 @@ p=0                                  p=1
 ┌──────────────┐
 │ FULL STACK   │
 │ Juan      ┃  │ 7i pincelada vertical (dashoffset, sin filtro)
-│ Manuel    ┃  │ titular por líneas (ink-rise, 0.12s)
+│ Manuel    ┃  │ nombre por líneas (ink-rise, 0.12s)
 │ Puccio    ┃  │ sello 염치 (ink-stamp)
+│ Audito procesos│ titular por líneas (7i, como MockupMobile)
+│ de empresas    │
+│ y los resuelvo │
+│ con código.    │
 │ [retrato] ┃  │
 │ DESPLÁZATE ↓ │
 └──────────────┘
- salida: 7e goteo (1 sola vez)
+ salida: 7e goteo (1 sola vez) ─▶ cinturones
 ```
 - Componentes nuevos: `HeroPullback` (10a), `GlyphBackdrop` (10f, hecho como `InkGlyphTitle`), `WashLayers` (2f raster), `MobileHeroBrush` (7i).
 
-## S2. "No soy…"
-
-**Desktop y mobile** (pin 200vh, scrub)
-```
-p 0.00–0.35   NO SOY
-              un programador de laboratorio    ← tachado rojo crece (7f)
-p 0.35–0.55   ni un administrativo pasivo.     ← tachado
-p 0.55–1.00   Soy los dos. A la vez.           ← palabra a palabra (5b, SplitText)
-```
-- Salida: 3d corte diagonal hacia el panel oscuro de cinturones.
-
-## S3. Cinturones (capítulo central)
+## S2. Cinturones (capítulo central)
 
 **Desktop** (pin ≈ 600vh, scroll horizontal)
 ```
@@ -132,7 +129,7 @@ p 0.55–1.00   Soy los dos. A la vez.           ← palabra a palabra (5b, Spli
 ```
 - Componentes nuevos: `BeltRail` (10o), `ChapterCard` (10d), `BrushWipe` (6b), `EnsoFill` (6d), `DanHit` (6e+3c), `StickyBelts` (7c), `BambooGrow` (2d).
 
-## S4. Fricción → código
+## S3. Fricción → código
 
 ```
 desktop y mobile (pin 120vh, scrub)
@@ -143,7 +140,7 @@ desktop y mobile (pin 120vh, scrub)
  salida: 10m ráfaga de barras con los colores de cinturón
 ```
 
-## S5. Proyectos
+## S4. Proyectos
 
 **Desktop**
 ```
@@ -167,7 +164,7 @@ desktop y mobile (pin 120vh, scrub)
 ```
 - Salida: 1c franja guiada por `--p`.
 
-## S6. Stack
+## S5. Stack
 
 ```
 desktop: 10r cinco pergaminos que bajan (enter, stagger)
@@ -176,7 +173,7 @@ mobile: los mismos rollos apilados en una columna (o 10u rueda si hay poco alto)
  salida: 10n rollo colgante
 ```
 
-## S7. Fuera del código
+## S6. Fuera del código
 
 ```
  1b título con subrayado y sello
@@ -185,7 +182,7 @@ mobile: los mismos rollos apilados en una columna (o 10u rueda si hay poco alto)
  salida: 6g katana revela el cierre
 ```
 
-## S8. Contacto y cierre
+## S7. Contacto y cierre
 
 **Desktop**
 ```
@@ -217,8 +214,7 @@ mobile: los mismos rollos apilados en una columna (o 10u rueda si hay poco alto)
 | De → a | Desktop | Mobile | Modo |
 |---|---|---|---|
 | Loader → hero | telón | telón | enter |
-| Hero → No soy | 10l zoom + destello | 7e goteo | scrub / enter |
-| No soy → Cinturones | 3d corte diagonal | 3d | scrub |
+| Hero → Cinturones | 10l zoom + destello | 7e goteo | scrub / enter |
 | Cinturón → cinturón | 6b pincelada seca | 7e goteo | scrub / enter |
 | Rojo → Negro | 6d ensō + 6e 단 + 3c | 6d | scrub + enter |
 | Cinturones → Fricción | 10m barras de cinturón | 10m | enter |
@@ -249,12 +245,11 @@ mobile: los mismos rollos apilados en una columna (o 10u rueda si hay poco alto)
 |---|---|---|
 | S0 | Loader + header persistente | sprite 11t, `InkHeader` |
 | S1 | Hero | `HeroPullback`, `WashLayers`, `MobileHeroBrush` |
-| S2 | No soy… | `StrikeManifesto` (7f + 5b) |
-| S3 | Cinturones | `BeltRail`, `ChapterCard`, `BrushWipe`, `EnsoFill`, `DanHit`, `StickyBelts`, `BambooGrow` |
-| S4 | Fricción → código | `ConvergeWords` (7j + 10i) |
-| S5 | Proyectos | `ScrollCard` (3b + 5e), `VersusPanel` (3g), `InkFlood` (5d) |
-| S6 | Stack | `TechScrolls` (10r) |
-| S7 | Principios | `HankoRow` (2g) |
-| S8 | Contacto | `ResultScreen` (10v), `ChannelScroll` (10w), `EndCredits` (10z), `InkCurtain` (7k), `ChannelSheet` (7h), `HoldToSend` (10y) |
+| S2 | Cinturones | `BeltRail`, `ChapterCard`, `BrushWipe`, `EnsoFill`, `DanHit`, `StickyBelts`, `BambooGrow` |
+| S3 | Fricción → código | `ConvergeWords` (7j + 10i) |
+| S4 | Proyectos | `ScrollCard` (3b + 5e), `VersusPanel` (3g), `InkFlood` (5d) |
+| S5 | Stack | `TechScrolls` (10r) |
+| S6 | Principios | `HankoRow` (2g) |
+| S7 | Contacto | `ResultScreen` (10v), `ChannelScroll` (10w), `EndCredits` (10z), `InkCurtain` (7k), `ChannelSheet` (7h), `HoldToSend` (10y) |
 
 Cada sub-fase: `/lab` primero, revisión del usuario, después a la página; un commit por sub-fase.

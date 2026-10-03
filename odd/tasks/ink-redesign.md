@@ -34,7 +34,7 @@ Known pre-existing failure on the old tree: `dark tail polish D2 ... skills reve
   - [x] F3a Porting: 25 components in `src/components/ink/` + `/lab` page + `tests/ink-lab.test.ts` (not committed yet)
   - [ ] F3b User review on `/lab` (desktop and 393x852, with and without reduced motion) and per-section selection (pending, user decision)
 - [x] F3b Storyboard: full A–N catalog analysed; per-section desktop/mobile diagrams, transitions, perf budget and stack in `docs/ink-storyboard.md` (2026-10-03). Pending: user approval per section.
-- [ ] F4 Sections in one responsive tree, one sub-phase and commit each: S0 loader+header, S1 hero, S2 "No soy", S3 belts, S4 friction, S5 projects, S6 stack, S7 principles, S8 contact (details in `docs/ink-storyboard.md` §5)
+- [ ] F4 Sections in one responsive tree, one sub-phase and commit each: S0 loader+header, S1 hero, S2 belts, S3 friction, S4 projects, S5 stack, S6 principles, S7 contact (details in `docs/ink-storyboard.md` §5). Decision 2026-10-03: the "No soy" section was dropped by the user (visual and copy rejected); the hero now carries the tagline and goes straight to the belts.
 - [ ] F5 (later) Reintroduce content, storytelling, Belt3D
 
 ## Acceptance criteria

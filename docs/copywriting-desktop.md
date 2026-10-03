@@ -27,14 +27,6 @@
 | `desk.hero.scroll` | DESPLÁZATE ↓ | SCROLL ↓ | ROLE ↓ | `full.hero.scroll` |
 | `desk.hero.seal` | 염치 | 염치 | 염치 | (sello, glifo) |
 
-## D3. No soy… (`desk.not.*`)
-| Clave | ES | EN | PT | Mapea a |
-|---|---|---|---|---|
-| `desk.not.kicker` | NO SOY | I AM NOT | NÃO SOU | `full.manifesto.notIs1` |
-| `desk.not.l1` | un programador de laboratorio | a lab-only programmer | um programador de laboratório | `full.manifesto.notIs1` |
-| `desk.not.l2` | ni un administrativo pasivo. | nor a passive administrator. | nem um administrativo passivo. | `full.manifesto.notIs2` |
-| `desk.not.both` | Soy los dos. A la vez. | I am both. At once. | Sou os dois. Ao mesmo tempo. | `full.manifesto.both` |
-
 ## D4. Cinturones (`desk.belts.*`)
 Una pantalla por cinturón: etiqueta, años, título grande, **una** línea y organizaciones.
 | Clave | GUP · años | ES (título · línea · donde) | EN | PT | Mapea a |

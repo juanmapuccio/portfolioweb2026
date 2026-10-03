@@ -61,9 +61,9 @@
 
 | Clave | ES | EN | PT |
 |---|---|---|---|
-| `full.manifesto.notIs1` | un programador de laboratorio | a lab-only programmer | um programador de laboratório |
-| `full.manifesto.notIs2` | ni un administrativo pasivo. | nor a passive administrator. | nem um administrativo passivo. |
-| `full.manifesto.both` | Soy los dos. A la vez. | I am both. At once. | Sou os dois. Ao mesmo tempo. |
+| `full.manifesto.notIs1` | **[retirada del sitio (2026-10-03), solo referencia de entrevista]** un programador de laboratorio | a lab-only programmer | um programador de laboratório |
+| `full.manifesto.notIs2` | **[retirada del sitio (2026-10-03), solo referencia de entrevista]** ni un administrativo pasivo. | nor a passive administrator. | nem um administrativo passivo. |
+| `full.manifesto.both` | **[retirada del sitio (2026-10-03), solo referencia de entrevista]** Soy los dos. A la vez. | I am both. At once. | Sou os dois. Ao mesmo tempo. |
 | `full.manifesto.statement` | Cimientos en robótica y programación, forjados en la trinchera operativa más exigente. | Foundations in robotics and programming, forged in the most demanding operational trenches. | Fundamentos em robótica e programação, forjados na trincheira operacional mais exigente. |
 | `full.manifesto.quote` | La constancia vence a la improvisación; la templanza resuelve la urgencia. | Consistency beats improvisation; composure resolves urgency. | A constância vence a improvisação; a temperança resolve a urgência. |
 
