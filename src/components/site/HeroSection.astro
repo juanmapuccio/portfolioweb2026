@@ -1,16 +1,16 @@
 ---
-// S1 Hero as a manga page (catalog specimen 5a). Five panels on a black gutter grid drop
-// in once, in order, after the loader exits: name, tagline, portrait (screentone dots over
-// the real photo), role, scroll cue. The entrance is soft: ~1.1s per panel, a small
-// travel (32px + scale .98 -> 1), stagger 150ms, ease cubic-bezier(.22, 1, .36, 1). No
-// bounce, no flash, no zoom.
-// Entrance trigger: `html.hero-ready`, added by src/scripts/loader.ts when the loader
-// leaves (or at once without loader / under reduced motion). Without JS everything shows.
-// Exit (scrubbed by the scene `--p`, ink.ts): the manga page drifts up and fades while a
-// soft ink wash rises over the stage and hands over to the belts. Only transform and
-// opacity change.
-// Desktop (>=768): asymmetric grid. Mobile (<768): stacked panels, same cascade.
-// Reduced motion: final state, no entrance, no scrub.
+// S1 Hero as a manga page (catalog specimen 5a). Five panels on a black gutter grid:
+// name, tagline, portrait (B/W photo + screentone dots), role, scroll cue.
+// The panels APPEAR WITH THE SCROLL, not on a timer: the hero is a [data-ink-scene] and ink.ts
+// writes its progress `--p` (0..1). Each panel has its own window (--s start, --l length, set
+// inline) and a local progress --i = clamp((--p - --s) / --l); opacity, translateY (32px) and
+// scale (.98 -> 1) are linear in --i, no bounce. Name and cue are at --i = 1 when --p = 0, so
+// the first screen is never empty and the cue tells the user to scroll.
+// Windows (--p): name -.12..0, cue -.12..0, tagline .04..26, portrait .10..40, role .30..55.
+// Exit (--exit, --p .65 -> 1): the page drifts up and fades under a soft paper wash.
+// Pin: desktop 300svh, mobile 250svh (svh only), sticky 100svh stage. Only transform, opacity.
+// Reduced motion / no JS: all panels visible and static, no pin. The portrait is always B/W
+// (static filter on the img; the transform lives on the panel wrapper, never on the img).
 // TODO(raster): the dot screentone is a radial-gradient; an 8i raster can replace it.
 import { Image } from 'astro:assets';
 import portrait from '../../assets/fotojmPerfil.png';
@@ -29,24 +29,24 @@ const nameLines = t('header.name').split(' ');
 <section id="hero" class="hero" data-belt="blanco" data-ink-scene aria-labelledby="hero-name">
   <div class="hero__stage">
     <div class="hero__manga">
-      <div class="hero__panel hero__panel--name" data-panel="name" style="--k: 0">
+      <div class="hero__panel hero__panel--name" data-panel="name" style="--s: -0.12; --l: 0.12">
         <h1 class="hero__name" id="hero-name">
           {nameLines.map((word) => <span class="hero__word">{word}</span>)}
         </h1>
       </div>
-      <div class="hero__panel hero__panel--tagline" data-panel="tagline" style="--k: 1">
+      <div class="hero__panel hero__panel--tagline" data-panel="tagline" style="--s: 0.04; --l: 0.22">
         <p class="hero__tagline">{t('hero.tagline')}</p>
       </div>
-      <figure class="hero__panel hero__panel--portrait" data-panel="portrait" style="--k: 2">
+      <figure class="hero__panel hero__panel--portrait" data-panel="portrait" style="--s: 0.1; --l: 0.3">
         <Image src={portrait} alt={t('hero.portraitAlt')} widths={[480, 800, 1100]} sizes="(min-width: 768px) 40vw, 100vw" format="webp" loading="eager" fetchpriority="high" />
         <span class="hero__tone" aria-hidden="true"></span>
       </figure>
-      <div class="hero__panel hero__panel--role" data-panel="role" style="--k: 3">
+      <div class="hero__panel hero__panel--role" data-panel="role" style="--s: 0.3; --l: 0.25">
         <span class="hero__dot" aria-hidden="true"></span>
         <p class="hero__role">{t('hero.role')}</p>
         <p class="hero__fig">{t('hero.fig')}</p>
       </div>
-      <div class="hero__panel hero__panel--cue" data-panel="cue" style="--k: 4">
+      <div class="hero__panel hero__panel--cue" data-panel="cue" style="--s: -0.12; --l: 0.12">
         <InkScrollDrop label={t('hero.scroll')} />
       </div>
     </div>
@@ -69,10 +69,11 @@ const nameLines = t('header.name').split(' ');
   .hero__panel--tagline { display: flex; align-items: center; padding: 20px 18px; }
   .hero__tagline { margin: 0; max-width: 16em; font: italic 400 clamp(22px, 6.4vw, 34px) / 1.25 var(--font-serif); }
 
-  .hero__panel--portrait { aspect-ratio: 4 / 5; background: var(--bg-surface-elevated); }
-  .hero__panel--portrait img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 15%; }
-  /* Screentone: ink dots over the real photo (plain gradient, no filter), fading out upward. */
-  .hero__tone { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(rgba(28, 26, 23, 0.5) 1.2px, transparent 1.6px) 0 0 / 6px 6px; opacity: 0.55; -webkit-mask-image: linear-gradient(to top, #000 10%, transparent 85%); mask-image: linear-gradient(to top, #000 10%, transparent 85%); }
+  .hero__panel--portrait { aspect-ratio: 4 / 5; background: var(--bg-surface-elevated); border: 2px solid var(--ink-belt-black); }
+  /* B/W manga look: STATIC filter on the img (never animated; the panel wrapper carries the transform). */
+  .hero__panel--portrait img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 15%; filter: grayscale(1) contrast(1.2); }
+  /* Screentone: ink dots multiplied over the photo (plain gradient), fading out upward. */
+  .hero__tone { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(rgba(28, 26, 23, 0.5) 1.2px, transparent 1.6px) 0 0 / 6px 6px; opacity: 0.7; mix-blend-mode: multiply; -webkit-mask-image: linear-gradient(to top, #000 20%, transparent 95%); mask-image: linear-gradient(to top, #000 20%, transparent 95%); }
 
   .hero__panel--role { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 14px 18px; font: 600 11px / 1.3 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; }
   .hero__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok-green); flex: none; }
@@ -95,28 +96,32 @@ const nameLines = t('header.name').split(' ');
     .hero__tagline { font-size: clamp(20px, 2.1vw, 34px); }
   }
 
-  /* Entrance (once, after the loader). Hidden start state only with motion and JS. */
-  @keyframes hero-panel {
-    from { opacity: 0; transform: translateY(32px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
+  /* Scroll-scrubbed assembly. Only with motion and JS; --p is 0 until ink.ts writes it. */
   @media (prefers-reduced-motion: no-preference) {
-    html.js:not(.hero-ready) .hero__panel { opacity: 0; transform: translateY(32px) scale(0.98); }
-    html.js.hero-ready .hero__panel { animation: hero-panel 1.1s cubic-bezier(0.22, 1, 0.36, 1) calc(0.1s + var(--k) * 0.15s) 1 both; }
+    html.js .hero__panel { --i: clamp(0, calc((var(--p, 0) - var(--s, 0)) / var(--l, 0.1)), 1); opacity: var(--i); transform: translateY(calc((1 - var(--i)) * 32px)) scale(calc(0.98 + var(--i) * 0.02)); will-change: transform, opacity; }
 
-    /* Exit: --exit runs over the last 45% of the scene. */
-    html.js .hero { --exit: clamp(0, calc((var(--p, 0) - 0.55) / 0.45), 1); }
+    /* Exit: --exit runs over the last 35% of the scene. */
+    html.js .hero { --exit: clamp(0, calc((var(--p, 0) - 0.65) / 0.35), 1); }
     html.js .hero__manga { transform: translateY(calc(var(--exit) * -6svh)); opacity: calc(1 - var(--exit)); will-change: transform, opacity; }
     html.js .hero__wash { display: block; position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; height: 120%; pointer-events: none; background: linear-gradient(to top, var(--paper) 0%, var(--paper) 55%, rgba(244, 239, 228, 0.6) 78%, transparent 100%); transform: translateY(calc((1 - var(--exit)) * 100%)); will-change: transform; }
 
-    /* Desktop: pinned stage so the scrub has room. Mobile: extra paper below the stack. */
-    html.js .hero { padding-bottom: 30svh; }
+    /* Mobile: pinned stage too (250svh). The stack is squeezed to fit one screen. */
+    html.js .hero { height: 250svh; }
+    html.js .hero__stage { position: sticky; top: 0; height: 100svh; min-height: 0; }
+    html.js .hero__manga { height: calc(100svh - var(--header-h)); min-height: 0; grid-template-rows: auto auto minmax(0, 1fr) auto auto; gap: 8px; padding: 8px; }
+    html.js .hero__panel--portrait { aspect-ratio: auto; }
+    html.js .hero__panel--name, html.js .hero__panel--tagline { padding: 12px 16px; }
+    html.js .hero__name { flex-direction: row; flex-wrap: wrap; gap: 0 0.28em; font-size: clamp(38px, 11vw, 64px); }
+    html.js .hero__tagline { font-size: clamp(18px, 5vw, 26px); }
   }
 
   @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
-    html.js .hero { height: 200svh; padding-bottom: 0; }
-    html.js .hero__stage { position: sticky; top: 0; height: 100svh; min-height: 0; }
+    html.js .hero { height: 300svh; }
+    html.js .hero__manga { grid-template-rows: minmax(0, 1.5fr) minmax(0, 1fr) auto; gap: 10px; padding: 10px; }
+    html.js .hero__panel--name { padding: 28px 32px; }
+    html.js .hero__panel--tagline { padding: 24px 28px; }
+    html.js .hero__name { font-size: clamp(56px, 8.4vw, 148px); }
+    html.js .hero__tagline { font-size: clamp(20px, 2.1vw, 34px); }
   }
 
   @media (prefers-reduced-motion: reduce) {

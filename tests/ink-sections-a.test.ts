@@ -172,7 +172,8 @@ describe('perf and single engine', () => {
 
   test('no CSS filter on animated selectors in the new components', () => {
     for (const text of Object.values(newComponents)) {
-      expect(text).not.toMatch(/(^|[;{\s])filter\s*:/m);
+      // the only allowed filter is the STATIC B/W one on the hero portrait img (never animated)
+      expect(text.replace('filter: grayscale(1) contrast(1.2)', '')).not.toMatch(/(^|[;{\s])filter\s*:/m);
       expect(text).not.toContain('backdrop-filter');
     }
     // inline svg filter attributes only appear on the reused static pieces, never here
@@ -186,7 +187,7 @@ describe('perf and single engine', () => {
       const css = text.slice(text.indexOf('<style'));
       const driven = [...css.matchAll(/([a-z-]+):[^;{}]*var\(--(?:p|pull|exit|t|r|w|e|dan)[,)]/g)].map((m) => m[1]);
       for (const prop of driven) {
-        expect(['transform', 'opacity', 'clip-path', 'stroke-dashoffset', '--pull', '--exit', '--t', '--r', '--w', '--e', '--dan', '--bloom', 'translate']).toContain(prop);
+        expect(['transform', 'opacity', 'clip-path', 'stroke-dashoffset', '--pull', '--exit', '--t', '--r', '--w', '--e', '--dan', '--bloom', '--i', 'translate']).toContain(prop);
       }
     }
   });

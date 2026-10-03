@@ -79,11 +79,12 @@ Decisión 2026-10-03: el hero es una página de manga (catálogo 5a, `design/Fra
 │ │ ↓ scroll cue (9j)      │           │                   │ │
 │ └────────────────────────┴───────────┴───────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
- entrada: 5 viñetas en orden (nombre, tagline, retrato, rol, cue)
-   ~1.1s c/u, cubic-bezier(.22,1,.36,1), translateY 32px + scale .98 -> 1,
-   escalonado 150ms, una sola vez cuando sale el loader (html.hero-ready).
-   Sin rebote, sin destello, sin frames de impacto.
- salida (--p .55 -> 1): la página deriva hacia arriba (-6svh) y se desvanece
+ aparición CON EL SCROLL (no hay cascada temporal): cada viñeta tiene su ventana
+   de --p; opacity + translateY 32px + scale .98 -> 1, lineal en el scroll, sin rebote.
+   nombre y cue ya completos en p=0 (pantalla nunca vacía, cue visible);
+   tagline .04-.26, retrato .10-.40, rol .30-.55. Retrato en B/N (filter estático
+   grayscale(1) contrast(1.2), nunca animado) + trama multiply + borde de tinta.
+ salida (--p .65 -> 1): la página deriva hacia arriba (-6svh) y se desvanece
    mientras una aguada suave (gradiente papel, translateY) sube y deja ver
    los cinturones. Solo transform y opacity.
 ```
@@ -92,15 +93,15 @@ Decisión 2026-10-03: el hero es una página de manga (catálogo 5a, `design/Fra
 ```
 ┌──────────────┐
 │ [ nombre ]   │  paneles apilados, gutter negro,
-│ [ tagline ]  │  misma cascada suave (delay 150ms)
-│ [ retrato ]  │  4:5 con trama de puntos
+│ [ tagline ]  │  mismo escrutinio por --p, stage fijo (sticky)
+│ [ retrato ]  │  con trama de puntos, B/N
 │ [ rol / fig ]│
 │ [ cue ]      │
 └──────────────┘
  salida: misma deriva + desvanecido + aguada (reemplaza el goteo 7e),
- con 30svh de papel debajo del stack para dar recorrido al scrub.
+ pin de 250svh (desktop 300svh), solo svh; el stack se comprime a una pantalla.
 ```
-- Reduced motion / sin JS: viñetas visibles, sin entrada ni salida.
+- Reduced motion / sin JS: viñetas visibles y estáticas, sin pin ni salida; retrato sigue en B/N.
 - Componentes: `HeroSection` (paneles `data-panel`), `InkScrollDrop` (9j). Ya no usa `InkGlyphTitle` ni `InkDrip`.
 
 ## S2. Cinturones (capítulo central)
