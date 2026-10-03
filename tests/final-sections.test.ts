@@ -1271,3 +1271,49 @@ describe('mobile scroll polish contract', () => {
     }
   });
 });
+
+describe('mobile ink phase 2 contract', () => {
+  test('hero keeps its name lines and reveals them line by line', () => {
+    expect(mobileImmersive).toContain("const nameLines = ['Juan', 'Manuel', 'Puccio'];");
+    expect(mobileImmersive).toContain('nameLines.map(');
+    expect(mobileImmersive).toContain('class="name-line-in"');
+  });
+
+  test('brush stroke is a stroke-dashoffset path with no SVG filter', () => {
+    expect(mobileImmersive).toContain('pathLength="1"');
+    expect(mobileImmersive).toContain('stroke-dashoffset');
+    expect(mobileImmersive).toMatch(/<svg class="hero-brush"[^>]*aria-hidden="true"/);
+    expect(mobileImmersive).not.toContain('feTurbulence');
+    expect(mobileImmersive).not.toContain('filter=');
+  });
+
+  test('seal reuses the principles hangul and the --seal-red token', () => {
+    expect(mobileImmersive).toContain("from '../data/principles'");
+    expect(mobileImmersive).toContain("item.key === 'integrity'");
+    expect(mobileImmersive).toMatch(/\.hero-seal\s*\{[^}]*var\(--seal-red\)/);
+    expect(globalCss).toContain('--seal-red:');
+  });
+
+  test('CTA sits after the last scene, outside any data-scene section', () => {
+    const cta = mobileImmersive.indexOf('class="mobile-cta"');
+    expect(cta).toBeGreaterThan(mobileImmersive.lastIndexOf('</section>'));
+    expect(mobileImmersive).toMatch(/<a class="mobile-cta" href="#contacto">/);
+    expect(mobileImmersive).toContain("t('contact.shortcut')");
+    expect(mobileImmersive.match(/data-scene="/g)?.length).toBe(6);
+  });
+
+  test('CTA visibility is a data attribute written on change by journey.ts', () => {
+    expect(journey).toContain("toggleAttribute('data-cta-hidden', hidden)");
+    expect(mobileImmersive).toContain('.mobile-immersive[data-cta-hidden] .mobile-cta');
+  });
+
+  test('reduced motion neutralises the entrance and the CTA transition', () => {
+    const reduce = mobileImmersive.slice(mobileImmersive.lastIndexOf('@media (prefers-reduced-motion: reduce)'));
+    expect(reduce).toContain('.hero-brush path');
+    expect(reduce).toContain('stroke-dashoffset: 0;');
+    expect(reduce).toContain('.hero-seal');
+    expect(reduce).toContain('.name-line-in');
+    expect(reduce).toContain('animation: none;');
+    expect(reduce).toContain('.mobile-cta');
+  });
+});

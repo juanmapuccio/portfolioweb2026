@@ -8,6 +8,7 @@ import { BELTS, martialExperienceData } from '../data/martialExperience';
 import { skillsData } from '../data/skills';
 import { contactData } from '../data/contact';
 import { manifestoText } from '../data/manifesto';
+import { principlesData } from '../data/principles';
 
 interface Props {
   lang: Lang;
@@ -26,6 +27,7 @@ const status = lang === 'es' ? 'Disponible · full-time' : lang === 'en' ? 'Avai
 const cue = lang === 'es' ? 'Desplázate' : lang === 'en' ? 'Scroll' : 'Role';
 const city = lang === 'pt' ? 'Rosário' : 'Rosario';
 const nameLines = ['Juan', 'Manuel', 'Puccio'];
+const seal = principlesData[lang].items.find((item) => item.key === 'integrity')?.hangul ?? '';
 
 const words = manifestoText[lang].split(' ');
 
@@ -70,13 +72,19 @@ const location = lang === 'pt' ? 'Rosário, Argentina' : 'Rosario, Argentina';
   <!-- 01 HERO -->
   <section id="m-top" class="scene scene-hero" data-scene="hero">
     <div class="layer hero-layer">
+      <!-- Decorative dry-brush stroke, drawn once on load with stroke-dashoffset (no filter). -->
+      <svg class="hero-brush" viewBox="0 0 200 386" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path d="M120 -10 C 96 90, 150 170, 112 260 S 100 350, 118 400" pathLength="1" stroke-dasharray="1"></path>
+      </svg>
       <div class="hero-copy">
         <div class="mono hero-status">
           <span class="dot" aria-hidden="true"></span>
           <span>{status}</span>
         </div>
         <h1 class="hero-name">
-          {nameLines.map((line) => <span>{line}</span>)}
+          {nameLines.map((line, i) => (
+            <span class="name-line"><span class="name-line-in" style={`--d: ${(i * 0.12).toFixed(2)}s;`}>{line}</span></span>
+          ))}
         </h1>
         <p class="mono hero-role">{t('header.role')}</p>
       </div>
@@ -93,6 +101,7 @@ const location = lang === 'pt' ? 'Rosário, Argentina' : 'Rosario, Argentina';
         />
         <figcaption class="mono hero-fig"><span>Fig. 01</span><span>{city}, 2026</span></figcaption>
       </figure>
+      <div class="hero-seal" aria-hidden="true">{seal}</div>
       <div class="mono hero-cue">{cue} ↓</div>
     </div>
   </section>
@@ -190,6 +199,9 @@ const location = lang === 'pt' ? 'Rosário, Argentina' : 'Rosario, Argentina';
       <div class="mono contact-foot"><span>{location}</span><span>© 2026 Juan Manuel Puccio</span></div>
     </div>
   </section>
+
+  <!-- Fixed contact shortcut: outside every scene; journey.ts sets data-cta-hidden once the contact scene covers. -->
+  <a class="mobile-cta" href="#contacto">{t('contact.shortcut')} →</a>
 </div>
 
 <script>
@@ -318,6 +330,89 @@ const location = lang === 'pt' ? 'Rosário, Argentina' : 'Rosario, Argentina';
     font-size: clamp(52px, min(17vw, 11svh), 84px);
     line-height: 0.9;
     letter-spacing: -0.035em;
+  }
+
+  /* Entrance (plays once on load, independent of --p). The transforms live on
+     inner/new elements so .hero-copy and .hero-portrait keep their scroll transforms. */
+  .name-line {
+    display: block;
+    overflow: hidden;
+    overflow: clip;
+    padding-bottom: 0.06em;
+  }
+
+  .name-line-in {
+    display: block;
+    animation: ink-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: var(--d, 0s);
+  }
+
+  .hero-brush {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 52%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  /* Faint ink wash behind the copy; stroke-opacity (not opacity) so the
+     reduced-motion `.scene *` opacity reset cannot turn it solid. */
+  .hero-brush path {
+    fill: none;
+    stroke: var(--text-main);
+    stroke-opacity: 0.1;
+    stroke-width: 40;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    animation: ink-draw 1.3s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+  }
+
+  .hero-copy,
+  .hero-portrait {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-seal {
+    position: absolute;
+    top: 72px;
+    right: 20px;
+    z-index: 1;
+    width: 54px;
+    height: 54px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid var(--seal-red);
+    border-radius: 2px;
+    background: rgba(185, 28, 28, 0.06);
+    color: var(--seal-red);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    pointer-events: none;
+    transform: rotate(-4deg);
+    animation: ink-stamp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.9s both;
+  }
+
+  @keyframes ink-rise {
+    from { transform: translateY(110%); }
+    to { transform: none; }
+  }
+
+  @keyframes ink-draw {
+    from { stroke-dashoffset: 1; }
+    to { stroke-dashoffset: 0; }
+  }
+
+  @keyframes ink-stamp {
+    from { opacity: 0; transform: rotate(-4deg) scale(1.6); }
+    to { opacity: 1; transform: rotate(-4deg) scale(1); }
   }
 
   .hero-role {
@@ -685,6 +780,52 @@ const location = lang === 'pt' ? 'Rosário, Argentina' : 'Rosario, Argentina';
     opacity: 0.6;
   }
 
+  /* Fixed contact shortcut (outside every scene). Header sits at z-index 50;
+     scenes top out at 6. */
+  .mobile-cta {
+    position: fixed;
+    right: 18px;
+    bottom: calc(24px + env(safe-area-inset-bottom));
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    min-width: 44px;
+    padding: 0 20px;
+    background: var(--text-main);
+    color: var(--bg-primary);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .mobile-cta:active {
+    opacity: 0.85;
+  }
+
+  .mobile-cta:focus-visible {
+    outline: 2px solid var(--text-main);
+    outline-offset: 3px;
+  }
+
+  .mobile-immersive[data-cta-hidden] .mobile-cta {
+    opacity: 0;
+    transform: translateY(24px);
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .mobile-cta {
+      transition: opacity 240ms ease-out, transform 240ms ease-out;
+    }
+  }
+
   /* Touch feedback (mobile tree only). */
   .card,
   .contact-link {
@@ -744,6 +885,28 @@ const location = lang === 'pt' ? 'Rosário, Argentina' : 'Rosario, Argentina';
     .scene :global(*) {
       transform: none !important;
       opacity: 1 !important;
+    }
+
+    .hero-brush path {
+      animation: none;
+      stroke-dashoffset: 0;
+    }
+
+    .hero-seal,
+    .name-line-in {
+      animation: none;
+      transform: none;
+      opacity: 1;
+    }
+
+    /* Outside .scene, so the scene reset above does not reach it: no motion,
+       just visible or hidden. */
+    .mobile-cta {
+      transition: none;
+    }
+
+    .mobile-immersive[data-cta-hidden] .mobile-cta {
+      transform: none;
     }
 
     .carousel {

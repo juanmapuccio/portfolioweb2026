@@ -470,6 +470,14 @@ function syncSceneBelt(entry: SceneEntry, p: number, v: number): void {
   } else if (kind === 'contact' && v >= 0.7) {
     applyBelt(CHAPTER_KEYS[6]);
   }
+  // Fixed mobile CTA hides as soon as the contact scene starts covering (v >= 0.05).
+  if (kind === 'contact') {
+    const root = entry.el.closest('.mobile-immersive');
+    const hidden = v >= 0.05;
+    if (root && root.hasAttribute('data-cta-hidden') !== hidden) {
+      root.toggleAttribute('data-cta-hidden', hidden);
+    }
+  }
 }
 
 /** Registers one mobile immersive scene (`[data-scene]` inside
