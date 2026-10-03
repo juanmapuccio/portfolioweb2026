@@ -1,6 +1,6 @@
 ---
 // S1 Hero as a manga page (catalog specimen 5a). Five panels on a black gutter grid:
-// name, tagline, portrait (B/W photo + screentone dots), role, scroll cue.
+// name, tagline, portrait (B/W photo, no dot screentone: user dropped it), role, scroll cue.
 // The panels APPEAR WITH THE SCROLL, not on a timer: the hero is a [data-ink-scene] and ink.ts
 // writes its progress `--p` (0..1). Each panel has its own window (--s start, --l length, set
 // inline) and a local progress --i = clamp((--p - --s) / --l); opacity, translateY (32px) and
@@ -11,7 +11,6 @@
 // Pin: desktop 300svh, mobile 250svh (svh only), sticky 100svh stage. Only transform, opacity.
 // Reduced motion / no JS: all panels visible and static, no pin. The portrait is always B/W
 // (static filter on the img; the transform lives on the panel wrapper, never on the img).
-// TODO(raster): the dot screentone is a radial-gradient; an 8i raster can replace it.
 import { Image } from 'astro:assets';
 import portrait from '../../assets/fotojmPerfil.png';
 import InkScrollDrop from '../ink/InkScrollDrop.astro';
@@ -39,7 +38,6 @@ const nameLines = t('header.name').split(' ');
       </div>
       <figure class="hero__panel hero__panel--portrait" data-panel="portrait" style="--s: 0.1; --l: 0.3">
         <Image src={portrait} alt={t('hero.portraitAlt')} widths={[480, 800, 1100]} sizes="(min-width: 768px) 40vw, 100vw" format="webp" loading="eager" fetchpriority="high" />
-        <span class="hero__tone" aria-hidden="true"></span>
       </figure>
       <div class="hero__panel hero__panel--role" data-panel="role" style="--s: 0.3; --l: 0.25">
         <span class="hero__dot" aria-hidden="true"></span>
@@ -72,8 +70,6 @@ const nameLines = t('header.name').split(' ');
   .hero__panel--portrait { aspect-ratio: 4 / 5; background: var(--bg-surface-elevated); border: 2px solid var(--ink-belt-black); }
   /* B/W manga look: STATIC filter on the img (never animated; the panel wrapper carries the transform). */
   .hero__panel--portrait img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 15%; filter: grayscale(1) contrast(1.2); }
-  /* Screentone: ink dots multiplied over the photo (plain gradient), fading out upward. */
-  .hero__tone { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(rgba(28, 26, 23, 0.5) 1.2px, transparent 1.6px) 0 0 / 6px 6px; opacity: 0.7; mix-blend-mode: multiply; -webkit-mask-image: linear-gradient(to top, #000 20%, transparent 95%); mask-image: linear-gradient(to top, #000 20%, transparent 95%); }
 
   .hero__panel--role { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 14px 18px; font: 600 11px / 1.3 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; }
   .hero__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok-green); flex: none; }

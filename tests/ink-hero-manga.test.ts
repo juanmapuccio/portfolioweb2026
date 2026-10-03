@@ -31,9 +31,9 @@ describe('hero as a manga page', () => {
     expect(hero).toContain("t('hero.tagline')");
   });
 
-  test('portrait is B/W via a static filter on the img, with a multiply dot screentone and an ink border', () => {
-    expect(hero).toContain('radial-gradient(rgba(28, 26, 23');
-    expect(hero).toContain('mix-blend-mode: multiply');
+  test('portrait is B/W via a static filter on the img, with an ink border and no dot screentone', () => {
+    expect(hero).not.toContain('hero__tone');
+    expect(hero).not.toContain('radial-gradient(rgba(28, 26, 23');
     expect(hero).toMatch(/\.hero__panel--portrait img \{[^}]*filter: grayscale\(1\) contrast\(1\.2\)/);
     expect(hero).toMatch(/\.hero__panel--portrait \{[^}]*border: 2px solid var\(--ink-belt-black\)/);
     expect(hero).not.toContain('filter="');
