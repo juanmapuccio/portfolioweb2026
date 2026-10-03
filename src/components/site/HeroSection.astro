@@ -15,7 +15,7 @@
 // inline) and a local progress --i = clamp((--p - --s) / --l); opacity, translateY (32px) and
 // scale (.98 -> 1) are linear in --i, no bounce. Name and cue are at --i = 1 when --p = 0, so
 // the first screen is never empty and the cue tells the user to scroll.
-// Windows (--p): name -.12..0, cue -.12..0, tagline .04..26, portrait .10..40, role .30..55.
+// Windows (--p), one panel at a time: name and cue visible at 0, tagline .06-.20, portrait .24-.38, role .42-.56.
 // Exit (--exit, --p .65 -> 1): the page drifts up and fades under a soft paper wash.
 // Pin: desktop 300svh, mobile 250svh (svh only), sticky 100svh stage. Only transform, opacity.
 // Reduced motion / no JS: all panels visible and static, no pin.

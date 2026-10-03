@@ -41,8 +41,8 @@ describe('hero as a manga page', () => {
     // varied border weights
     const weights = new Set([...hero.matchAll(/\.hero__panel--\w+ \{ --b: (\d+)px/g)].map((m) => m[1]));
     expect(weights.size).toBeGreaterThanOrEqual(3);
-    // paper gutters, black page frame
-    expect(hero).toMatch(/\.hero__manga \{[^}]*background: var\(--paper\)[^}]*inset 0 0 0 3px var\(--ink-belt-black\)/);
+    // solid black page: gutters read as black between the panels
+    expect(hero).toMatch(/\.hero__manga \{[^}]*background: var\(--ink-belt-black\)/);
   });
 
   test('one element breaks its frame: the ink cut-out is laid over the panel, outside its clip', () => {
