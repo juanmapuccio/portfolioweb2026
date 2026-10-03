@@ -96,8 +96,9 @@ describe('S2 belts', () => {
     expect(belts).toContain('data-belt={chapter.key}');
     expect(belts).toContain('stage.years');
     expect(belts).toContain('stage.title');
-    expect(belts).toContain('belt.symbolism[lang]');
-    for (const title of ['Cimientos', 'Trinchera comercial', 'Producción']) {
+    expect(belts).toContain('stage.line');
+    expect(belts).toContain('stage.kicker');
+    for (const title of ['Cimientos', 'La calle', 'Producción']) {
       expect(belts).not.toContain(title);
     }
   });

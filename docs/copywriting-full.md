@@ -77,7 +77,7 @@
 |---|---|
 | Múltiples sectores | Versatilidad de negocio 360°: conozco el ciclo comercial completo y entiendo a los stakeholders sin intermediarios. |
 | Salidas de contratos estatales por reestructuración | Mérito técnico validado: aprobé concursos de mérito hasta planta permanente en ANSES y operé racks de servidores y puestos críticos. |
-| Sanatorios: los puestos me quedaban chicos | Visión de optimización: viví la ineficiencia de los sistemas de salud y la transformé en código. |
+| Sanatorios de alta demanda | Visión de optimización: viví la ineficiencia de los sistemas de salud y la transformé en código. |
 | NodoSur y colaboración en un comercio familiar | Mentalidad fundadora con tracción real: clientes usando sistemas en producción. |
 | Productos propios activos | Sistemas estables y disponibilidad full-time real e inmediata. Los sistemas funcionando son la prueba de ingeniería, no un riesgo. |
 
@@ -103,15 +103,49 @@
 | `full.belts.5` | Rojo · 2º gup | 2024 a 2025 | La fricción | Friction | A Fricção |
 | `full.belts.6` | Negro · 1º dan | Jun 2025 a presente | Producción | Production | Produção |
 
-Línea de cierre por etapa (base de `full.belts.N.line`):
+Símbolo (kicker), línea y detalle por etapa (`full.belts.N.kicker`, `.line`, `.detail`). La línea tiene como máximo 16 palabras y se ve en desktop y mobile; el detalle solo en desktop:
+
+**1. Cimientos**
 | Clave | ES | EN | PT |
 |---|---|---|---|
-| `full.belts.1.line` | Secundario técnico en robótica y programación. | Technical high school in robotics and programming. | Ensino médio técnico em robótica e programação. |
-| `full.belts.2.line` | Venta puerta a puerta. Negociación cara a cara. | Door-to-door sales. Face-to-face negotiation. | Venda porta a porta. Negociação cara a cara. |
-| `full.belts.3.line` | Miles de expedientes bajo normativa previsional. | Thousands of case files under social-security regulation. | Milhares de processos sob normativa previdenciária. |
-| `full.belts.4.line` | Concurso de mérito, planta permanente y racks de servidores. | Merit exams, permanent staff and server racks. | Concurso de mérito, quadro permanente e racks de servidores. |
-| `full.belts.5.line` | Sistemas arcaicos en salud. Los puestos me quedaban chicos. | Archaic healthcare systems. The roles were too small for me. | Sistemas arcaicos na saúde. Os cargos ficavam pequenos para mim. |
-| `full.belts.6.line` | Diseño, despliego y estabilizo software de negocio con usuarios reales. | I design, deploy and stabilize business software with real users. | Projeto, implanto e estabilizo software de negócio com usuários reais. |
+| `full.belts.1.kicker` | Mente en blanco | Empty mind | Mente em branco |
+| `full.belts.1.line` | Secundario técnico en robótica y programación: mis primeras bases en el mundo tecnológico. | Technical high school in robotics and programming: my first foundations in the tech world. | Ensino médio técnico em robótica e programação: minhas primeiras bases no mundo da tecnologia. |
+| `full.belts.1.detail` | Escuela Técnica Manuel Belgrano. Ahí entendí que la lógica también se escribe. | Manuel Belgrano Technical School. That is where I realized logic can be written, too. | Escola Técnica Manuel Belgrano. Ali percebi que a lógica também se escreve. |
+
+**2. La calle**
+| Clave | ES | EN | PT |
+|---|---|---|---|
+| `full.belts.2.kicker` | Tierra y raíces | Earth and roots | Terra e raízes |
+| `full.belts.2.line` | Atención al público y venta en frío: aprendí a escuchar antes de responder. | Customer service and cold sales: I learned to listen before answering. | Atendimento ao público e venda a frio: aprendi a escutar antes de responder. |
+| `full.belts.2.detail` | Grido, Al Natural, Providus y AS MED. Herramientas de diálogo, negociación cara a cara y comunicación persuasiva. | Grido, Al Natural, Providus and AS MED. Tools for dialogue, face-to-face negotiation and persuasive communication. | Grido, Al Natural, Providus e AS MED. Ferramentas de diálogo, negociação presencial e comunicação persuasiva. |
+
+**3. El Estado**
+| Clave | ES | EN | PT |
+|---|---|---|---|
+| `full.belts.3.kicker` | Crecimiento | Growth | Crescimento |
+| `full.belts.3.line` | Miles de expedientes en ANSES bajo normativa previsional y de seguridad social estricta. | Thousands of case files at ANSES under strict pension and social security regulations. | Milhares de processos no ANSES sob normativa previdenciária e de seguridade social rigorosa. |
+| `full.belts.3.detail` | En paralelo entrenaba Taekwon-Do en ACJ Rosario, turno noche. Esa disciplina sostuvo la responsabilidad de cada jornada. | In parallel I trained Taekwon-Do at ACJ Rosario, night shift. That discipline sustained the responsibility of every working day. | Em paralelo, treinava Taekwon-Do na ACJ Rosario, no turno da noite. Essa disciplina sustentou a responsabilidade de cada jornada. |
+
+**4. Reconversión**
+| Clave | ES | EN | PT |
+|---|---|---|---|
+| `full.belts.4.kicker` | Hacia el cielo | Toward the sky | Rumo ao céu |
+| `full.belts.4.line` | Emprendí como fotógrafo y filmmaker, me formé en programación y volví a ANSES por mérito. | I started as a photographer and filmmaker, trained in programming, and returned to ANSES on merit. | Empreendi como fotógrafo e filmmaker, me formei em programação e voltei ao ANSES por mérito. |
+| `full.belts.4.detail` | Cubrí eventos de Santander, Federada Salud, ExpoAgro y Rooftop (ex Madame). Usé la pandemia para profundizar en programación. Convocado otra vez por ANSES, aprobé exámenes teóricos y de desempeño y pasé a planta permanente: mesa de ayuda junto al referente informático regional, soporte a PCs y servidores. | I covered events for Santander, Federada Salud, ExpoAgro and Rooftop (formerly Madame). I used the pandemic to go deeper into programming. Called back by ANSES, I passed theoretical and performance exams and moved to permanent staff: help desk alongside the regional IT lead, plus PC and server support. | Cobri eventos de Santander, Federada Salud, ExpoAgro e Rooftop (ex-Madame). Usei a pandemia para me aprofundar em programação. Convocado de novo pelo ANSES, passei em provas teóricas e de desempenho e entrei no quadro permanente: central de ajuda junto ao referente de TI regional, suporte a PCs e servidores. |
+
+**5. La fricción**
+| Clave | ES | EN | PT |
+|---|---|---|---|
+| `full.belts.5.kicker` | Control | Control | Controle |
+| `full.belts.5.line` | Salud de alta demanda y logística: viví sistemas arcaicos desde adentro y los automaticé con Python. | High-demand healthcare and logistics: I lived archaic systems from the inside and automated them with Python. | Saúde de alta demanda e logística: vivi sistemas arcaicos por dentro e os automatizei com Python. |
+| `full.belts.5.detail` | Sanatorio Delta, Aurea Med y Repuestos JL. Bot lector de extractos bancarios: de horas a segundos. | Sanatorio Delta, Aurea Med and Repuestos JL. A bank-statement reader bot: from hours to seconds. | Sanatorio Delta, Aurea Med e Repuestos JL. Bot leitor de extratos bancários: de horas a segundos. |
+
+**6. Producción**
+| Clave | ES | EN | PT |
+|---|---|---|---|
+| `full.belts.6.kicker` | Madurez | Maturity | Maturidade |
+| `full.belts.6.line` | Hoy diseño, despliego y sostengo sistemas que usan personas reales: NodoFit, Satori Dojo y Don Pizza. | Today I design, deploy and maintain systems real people use: NodoFit, Satori Dojo and Don Pizza. | Hoje projeto, implanto e sustento sistemas usados por pessoas reais: NodoFit, Satori Dojo e Don Pizza. |
+| `full.belts.6.closing` | En Taekwon-Do, el cinturón negro no es la meta: es el primer grado de quien se toma el camino en serio. Llego con oficio, y con ganas de seguir aprendiendo en equipo. | In Taekwon-Do, the black belt isn't the finish line: it's the first rank of those who take the path seriously. I bring craft, and the will to keep learning on a team. | No Taekwon-Do, a faixa preta não é a linha de chegada: é o primeiro grau de quem leva o caminho a sério. Chego com ofício, e com vontade de seguir aprendendo em equipe. |
 
 Etapa negra, cierre en pantalla: `Fundador & Arquitecto de Software` · `NodoSur · nodosur.dev` · `Hoy cuento con disponibilidad full-time real para sumarme a un equipo.` (EN: `Founder & Software Architect` · `Today I have real full-time availability to join a team.` · PT: `Fundador & Arquiteto de Software` · `Hoje conto com disponibilidade full-time real para me somar a uma equipe.`)
 

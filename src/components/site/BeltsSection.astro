@@ -45,7 +45,10 @@ const chapters = stages.map((stage, i) => {
     beltName: belt.beltName[lang],
     title: stage.title,
     years: stage.years,
-    line: belt.symbolism[lang],
+    kicker: stage.kicker,
+    line: stage.line,
+    detail: stage.detail,
+    closing: stage.closing,
     orgs,
   };
 });
@@ -80,10 +83,13 @@ const railNodes = chapters.map((chapter) => ({ grade: chapter.grade, tone: chapt
               <span class="chapter__grade">{chapter.grade}</span>
               <span class="chapter__years">{chapter.years}</span>
             </header>
+            <p class="chapter__kicker">{chapter.kicker}</p>
             <div class="chapter__title" role="heading" aria-level="3">
               <InkUnderlineSweep eyebrow={chapter.beltName} title={chapter.title} tone={chapter.tone} />
             </div>
             <p class="chapter__line">{chapter.line}</p>
+            {chapter.detail && <p class="chapter__detail">{chapter.detail}</p>}
+            {chapter.closing && <p class="chapter__closing">{chapter.closing}</p>}
             <p class="chapter__orgs">{chapter.orgs}</p>
             {chapter.key === 'negro' && <span class="chapter__seal ink-stamp" aria-hidden="true">JMP</span>}
           </article>
@@ -113,6 +119,9 @@ const railNodes = chapters.map((chapter) => ({ grade: chapter.grade, tone: chapt
   .chapter .ink-1a { max-width: none; padding: 0; }
   .chapter .ink-1a__title { font-size: clamp(34px, 9vw, 56px); line-height: 1.05; }
   .chapter__line { margin: 0; font: 400 var(--fs-lede) / 1.35 var(--font-serif); }
+  .chapter__kicker { margin: 0; font: 600 11px/1 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; color: var(--text-dim); }
+  .chapter__detail { display: none; margin: 0; font: 400 var(--fs-caption) / 1.5 var(--font-sans, var(--font-serif)); color: var(--text-dim); max-width: 46em; }
+  .chapter__closing { margin: 0; padding-top: 12px; border-top: 2px solid var(--text-main); font: italic 400 var(--fs-lede) / 1.4 var(--font-serif); max-width: 34em; }
   .chapter__orgs { margin: 0; font: 400 var(--fs-caption) / 1.4 var(--font-mono); color: var(--text-dim); }
   .chapter__seal { position: absolute; right: 18px; bottom: 16px; display: grid; place-items: center; width: 52px; height: 52px; border: 3px solid var(--seal-red); color: var(--seal-red); font: 700 14px/1 var(--font-serif); letter-spacing: 0.06em; rotate: -5deg; }
 
@@ -125,6 +134,8 @@ const railNodes = chapters.map((chapter) => ({ grade: chapter.grade, tone: chapt
     .chapter .ink-1a__title { font-size: clamp(48px, 5.4vw, 92px); }
     .chapter__band { width: 18px; }
     .chapter__line { font-size: clamp(20px, 1.8vw, 28px); max-width: 28em; }
+    .chapter__detail { display: block; font-size: clamp(14px, 1.05vw, 16px); }
+    .chapter__closing { font-size: clamp(16px, 1.3vw, 20px); }
   }
 
   /* ---- Mobile / tablet scrub: 7c sticky stacked cards + 2d bamboo ---- */
@@ -162,6 +173,8 @@ const railNodes = chapters.map((chapter) => ({ grade: chapter.grade, tone: chapt
     /* 6e: no glyph. After the enso closes, a soft ink bloom grows behind the last chapter (transform + opacity only). */
     html.js .belts__bloom { display: block; position: absolute; left: 50%; top: 52%; z-index: 1; width: min(120vh, 96vw); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; pointer-events: none; background: radial-gradient(circle, var(--ink-belt-black) 0%, rgba(28, 26, 23, 0.55) 38%, transparent 68%); --bloom: clamp(0, calc((var(--p, 0) - 0.9) / 0.1), 1); transform: scale(calc(0.2 + 1.2 * var(--bloom))); opacity: calc(0.4 * var(--bloom)); will-change: transform, opacity; }
     html.js .chapter__seal { display: none; }
+    /* Black belt closing: appears only after the enso and the bloom (opacity only). */
+    html.js .chapter__closing { opacity: clamp(0, calc((var(--p, 0) - 0.94) / 0.05), 1); }
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -38,18 +38,18 @@
 | `mob.manifesto.quote` | La constancia vence a la improvisación; la templanza resuelve la urgencia. | Consistency beats improvisation; composure resolves urgency. | A constância vence a improvisação; a temperança resolve a urgência. | `full.manifesto.quote` |
 
 ## M3. Escena Cinturones (`mob.belts.*`, `m-belts`)
-Una fila por cinturón: grado y título. Sin descripción en pantalla (el detalle vive en el modal de trabajos).
-| Clave | Grado | ES | EN | PT | Mapea a |
+Una fila por cinturón: grado, símbolo (kicker), título y **una** línea. El detalle (`full.belts.N.detail`) no se muestra en mobile; el cierre del negro (`full.belts.6.closing`) sí.
+| Clave | Grado | ES (símbolo · título · línea) | EN | PT | Mapea a |
 |---|---|---|---|---|---|
 | `mob.belts.label` | | 02 — CINTURONES | 02 — BELTS | 02 — FAIXAS | `full.belts.badge` |
-| `mob.belts.1` | 10º GUP | El inicio del camino | The Beginning of the Path | O Início do Caminho | `full.belts.1` |
-| `mob.belts.2` | 8º GUP | Tierra & Raíces | Earth & Roots | Terra & Raízes | `full.belts.2` |
-| `mob.belts.3` | 6º GUP | Crecimiento | Growth | Crescimento | `full.belts.3` |
-| `mob.belts.4` | 4º GUP | Maduración & Horizonte | Maturation & Horizon | Maturação & Horizonte | `full.belts.4` |
-| `mob.belts.5` | 2º GUP | Control & Temple | Control & Tempering | Controle & Têmpera | `full.belts.5` |
-| `mob.belts.6` | 1º DAN | Maestría & Producción | Mastery & Production | Mestria & Produção | `full.belts.6` |
+| `mob.belts.1` | 10º GUP | Mente en blanco · Cimientos · Secundario técnico en robótica y programación: mis primeras bases en el mundo tecnológico. | Empty mind · Foundations · Technical high school in robotics and programming: my first foundations in the tech world. | Mente em branco · Fundamentos · Ensino médio técnico em robótica e programação: minhas primeiras bases no mundo da tecnologia. | `full.belts.1` |
+| `mob.belts.2` | 8º GUP | Tierra y raíces · La calle · Atención al público y venta en frío: aprendí a escuchar antes de responder. | Earth and roots · The Streets · Customer service and cold sales: I learned to listen before answering. | Terra e raízes · A Rua · Atendimento ao público e venda a frio: aprendi a escutar antes de responder. | `full.belts.2` |
+| `mob.belts.3` | 6º GUP | Crecimiento · El Estado · Miles de expedientes en ANSES bajo normativa previsional y de seguridad social estricta. | Growth · The State · Thousands of case files at ANSES under strict pension and social security regulations. | Crescimento · O Estado · Milhares de processos no ANSES sob normativa previdenciária e de seguridade social rigorosa. | `full.belts.3` |
+| `mob.belts.4` | 4º GUP | Hacia el cielo · Reconversión · Emprendí como fotógrafo y filmmaker, me formé en programación y volví a ANSES por mérito. | Toward the sky · Reinvention · I started as a photographer and filmmaker, trained in programming, and returned to ANSES on merit. | Rumo ao céu · Reconversão · Empreendi como fotógrafo e filmmaker, me formei em programação e voltei ao ANSES por mérito. | `full.belts.4` |
+| `mob.belts.5` | 2º GUP | Control · La fricción · Salud de alta demanda y logística: viví sistemas arcaicos desde adentro y los automaticé con Python. | Control · Friction · High-demand healthcare and logistics: I lived archaic systems from the inside and automated them with Python. | Controle · A Fricção · Saúde de alta demanda e logística: vivi sistemas arcaicos por dentro e os automatizei com Python. | `full.belts.5` |
+| `mob.belts.6` | 1º DAN | Madurez · Producción · Hoy diseño, despliego y sostengo sistemas que usan personas reales: NodoFit, Satori Dojo y Don Pizza. | Maturity · Production · Today I design, deploy and maintain systems real people use: NodoFit, Satori Dojo and Don Pizza. | Maturidade · Produção · Hoje projeto, implanto e sustento sistemas usados por pessoas reais: NodoFit, Satori Dojo e Don Pizza. | `full.belts.6` |
 
-> Nota: los títulos mobile (metáfora de camino) son más breves y poéticos que los de `full.belts.N`; se conservan del prototipo. El significado equivalente por etapa es el de `full.belts.N`.
+> Nota: mobile usa los mismos títulos y líneas que `full.belts.N`; solo omite el detalle.
 
 ## M4. Escena Proyectos (`mob.projects.*`, `m-projects`)
 | Clave | ES | EN | PT | Mapea a |
