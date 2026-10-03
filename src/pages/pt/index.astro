@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import Placeholders from '../../components/site/Placeholders.astro';
 import { useTranslations } from '../../i18n/ui';
 
 const t = useTranslations('pt');
@@ -7,6 +8,8 @@ const t = useTranslations('pt');
 
 <Layout lang="pt" title={t('meta.title')} description={t('meta.description')}>
   <main>
-    <h1 class="ink-rise" data-ink>ink redesign — empty shell</h1>
+    <Placeholders lang="pt">
+      <h1 class="ink-rise" data-ink>ink redesign — empty shell</h1>
+    </Placeholders>
   </main>
 </Layout>

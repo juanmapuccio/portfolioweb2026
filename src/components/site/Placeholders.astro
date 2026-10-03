@@ -1,0 +1,24 @@
+---
+// Temporary empty sections so the header nav and progress line can be exercised before
+// the real sections (S1..S7) land. The slot goes inside #hero. Remove per section as
+// each sub-phase replaces its placeholder.
+import { siteSections } from '../../data/sections';
+import { useTranslations, type Lang } from '../../i18n/ui';
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'es' } = Astro.props;
+const t = useTranslations(lang);
+---
+
+{siteSections.map((section) => (
+  <section id={section.id} data-belt={section.belt} class="ph-section" style={`--ph-belt: var(--ink-belt-${section.token})`}>
+    {section.id === 'hero' ? <slot /> : <p class="ph-label">{t(section.label)}</p>}
+  </section>
+))}
+
+<style>
+  .ph-section { min-height: 100svh; box-sizing: border-box; padding: calc(var(--header-h) + var(--section-pad)) var(--gutter) var(--section-pad); border-left: 8px solid var(--ph-belt); }
+  .ph-label { margin: 0; font: 600 var(--fs-caption) / 1 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; color: var(--text-dim); }
+</style>

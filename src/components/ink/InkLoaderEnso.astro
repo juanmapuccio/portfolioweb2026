@@ -4,20 +4,26 @@
 // filtered because it animates stroke-dashoffset; swap in a static filtered ring if
 // the dry-brush look is required. The curtain has no pointer events and is hidden
 // without JS and under reduced motion.
+// `controlled` hands the progress to src/scripts/loader.ts: no data-ink (no one-shot
+// timeline), the stroke gets data-loader-stroke (dashoffset set from real readiness)
+// and the tick column becomes a single data-loader-count number.
 interface Props {
   label: string;
+  controlled?: boolean;
   class?: string;
 }
-const { label, class: className } = Astro.props;
+const { label, controlled = false, class: className } = Astro.props;
 ---
 
-<div class:list={['ink-11c', className]} data-ink data-specimen="11c">
+<div class:list={['ink-11c', className]} data-ink={controlled ? undefined : ''} data-specimen="11c">
   <div class="ink-11c__content"><slot /></div>
   <div class="ink-11c__curtain" aria-hidden="true">
     <svg class="ink-11c__enso" viewBox="0 0 200 200" width="170" height="170" focusable="false">
-      <path class="ink-draw" style="--ink-duration: 3s; --ink-ease: cubic-bezier(0.4, 0, 0.6, 1)" d="M112 34 C70 26 34 62 38 108 C42 152 86 174 124 160 C160 146 172 100 150 66" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" pathLength="1"></path>
+      <path class="ink-draw" data-loader-stroke={controlled ? '' : undefined} style="--ink-duration: 3s; --ink-ease: cubic-bezier(0.4, 0, 0.6, 1)" d="M112 34 C70 26 34 62 38 108 C42 152 86 174 124 160 C160 146 172 100 150 66" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" pathLength="1"></path>
     </svg>
-    <div class="ink-11c__count"><div class="ink-11c__ticks"><div>00</div><div>25</div><div>50</div><div>75</div><div>100</div></div></div>
+    <div class="ink-11c__count">
+      {controlled ? <span data-loader-count>00</span> : <div class="ink-11c__ticks"><div>00</div><div>25</div><div>50</div><div>75</div><div>100</div></div>}
+    </div>
     <span class="ink-11c__label">{label}</span>
   </div>
 </div>

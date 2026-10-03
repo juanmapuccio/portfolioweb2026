@@ -2,22 +2,29 @@
 // Specimen 11j: header, brush stroke under the active link; other links preview it on hover (catalog cat-J).
 // One pass on entry for the active link; hover is a transition on clip-path (no loops).
 // Each stroke is a static filtered svg revealed by clip-path.
+// `active` may be -1 (none): the page header sets it at runtime from src/scripts/ink.ts.
+// `brandShort` swaps the brand on narrow screens; slots `after-brand` and `end` host
+// the availability dot and the language switch of the site header.
 interface NavItem {
   label: string;
   href: string;
 }
 interface Props {
   brand: string;
+  brandShort?: string;
   items: NavItem[];
-  active: number;
+  active?: number;
   navLabel: string;
   class?: string;
 }
-const { brand, items, active, navLabel, class: className } = Astro.props;
+const { brand, brandShort, items, active = -1, navLabel, class: className } = Astro.props;
 ---
 
 <header class:list={['ink-11j', className]} data-ink data-specimen="11j">
-  <span class="ink-11j__brand">{brand}</span>
+  <span class="ink-11j__brand">
+    {brandShort ? <><span class="ink-11j__brand-full">{brand}</span><span class="ink-11j__brand-short">{brandShort}</span></> : brand}
+  </span>
+  <slot name="after-brand" />
   <nav aria-label={navLabel}>
     <ul class="ink-11j__list">
       {items.map((item, i) => (
@@ -32,11 +39,13 @@ const { brand, items, active, navLabel, class: className } = Astro.props;
       ))}
     </ul>
   </nav>
+  <slot name="end" />
 </header>
 
 <style is:global>
   .ink-11j { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 56px; padding: 0 22px; box-sizing: border-box; background: color-mix(in oklab, var(--bg-primary) 92%, transparent); border-bottom: 1px solid var(--border-subtle); color: var(--text-main); --e: cubic-bezier(0.16, 1, 0.3, 1); }
   .ink-11j__brand { font: 600 17px/1 var(--font-serif); }
+  .ink-11j__brand-short { display: none; }
   .ink-11j__list { display: flex; gap: 24px; margin: 0; padding: 0; list-style: none; }
   .ink-11j__link { position: relative; display: inline-block; font: 600 11px/1 var(--font-mono); letter-spacing: var(--tracking-meta); color: inherit; text-decoration: none; text-transform: uppercase; }
   .ink-11j__stroke { position: absolute; left: -4px; bottom: -12px; width: calc(100% + 8px); height: 10px; overflow: visible; clip-path: inset(-50% 100% -50% -10%); transition: clip-path 0.4s var(--e); }

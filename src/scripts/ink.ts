@@ -1,9 +1,11 @@
 // The only scroll/animation engine: reveal observer, Lenis smooth scroll and
-// scene progress. Lenis is driven by the GSAP ticker so smooth scroll and
-// ScrollTrigger share one frame loop; nothing else may schedule frames.
+// scene progress, site header state (active link, belt, progress, hide on scroll)
+// and the loader (./loader). Lenis is driven by the GSAP ticker so smooth scroll
+// and ScrollTrigger share one frame loop; nothing else may schedule frames.
 import Lenis from 'lenis';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { initLoader } from './loader';
 
 type LenisWindow = Window & { __lenis?: Lenis };
 
@@ -11,6 +13,17 @@ const root = document.documentElement;
 root.classList.add('js');
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const desktop = matchMedia('(min-width: 768px)');
+
+gsap.registerPlugin(ScrollTrigger);
+
+// 11k: header hides on scroll down and returns on scroll up (desktop only).
+const HEADER_HIDE_AFTER = 160;
+function updateHeaderVisibility(scroll: number, direction: number): void {
+  if (!desktop.matches || direction === 0) return;
+  const hide = direction > 0 && scroll > HEADER_HIDE_AFTER;
+  if (root.hasAttribute('data-header-hidden') !== hide) root.toggleAttribute('data-header-hidden', hide);
+}
 
 function initReveal(): void {
   const targets = document.querySelectorAll<HTMLElement>('[data-ink]');
@@ -58,7 +71,10 @@ function initScroll(): void {
 
   (window as LenisWindow).__lenis = lenis;
 
-  lenis.on('scroll', ScrollTrigger.update);
+  lenis.on('scroll', (instance: Lenis) => {
+    ScrollTrigger.update();
+    updateHeaderVisibility(instance.scroll, instance.direction);
+  });
   gsap.ticker.add((time) => lenis.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
 }
@@ -72,7 +88,6 @@ function initScenes(): void {
     return;
   }
 
-  gsap.registerPlugin(ScrollTrigger);
   scenes.forEach((el) => {
     let last = '';
     ScrollTrigger.create({
@@ -89,6 +104,60 @@ function initScenes(): void {
   });
 }
 
+// Site header state, all through ScrollTrigger (no extra scroll listeners):
+// page progress -> --page-p on the header, section in view -> active nav link,
+// nearest [data-belt] in view -> data-belt on <html>.
+function initSiteHeader(): void {
+  const header = document.querySelector<HTMLElement>('[data-site-header]');
+  if (!header) return;
+
+  let lastProgress = '';
+  ScrollTrigger.create({
+    start: 0,
+    end: 'max',
+    onUpdate: (self) => {
+      const value = self.progress.toFixed(4);
+      if (value === lastProgress) return;
+      lastProgress = value;
+      header.style.setProperty('--page-p', value);
+    },
+  });
+
+  const links = Array.from(header.querySelectorAll<HTMLAnchorElement>('.ink-11j__link'));
+  const setActive = (id: string): void => {
+    for (const link of links) {
+      const on = link.getAttribute('href') === `#${id}`;
+      link.classList.toggle('is-active', on);
+      if (on) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    }
+  };
+
+  document.querySelectorAll<HTMLElement>('main section[id]').forEach((section) => {
+    ScrollTrigger.create({
+      trigger: section,
+      start: 'top 50%',
+      end: 'bottom 50%',
+      onToggle: (self) => {
+        if (self.isActive) setActive(section.id);
+      },
+    });
+  });
+
+  document.querySelectorAll<HTMLElement>('[data-belt]').forEach((el) => {
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 50%',
+      end: 'bottom 50%',
+      onToggle: (self) => {
+        if (self.isActive && el.dataset.belt) root.dataset.belt = el.dataset.belt;
+      },
+    });
+  });
+}
+
 initReveal();
 initScroll();
+initLoader(reduced);
 initScenes();
+initSiteHeader();

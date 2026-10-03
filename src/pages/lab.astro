@@ -20,6 +20,8 @@ import InkLoaderDrop from '../components/ink/InkLoaderDrop.astro';
 import InkNavStroke from '../components/ink/InkNavStroke.astro';
 import InkLinkTrail from '../components/ink/InkLinkTrail.astro';
 import InkLangStamp from '../components/ink/InkLangStamp.astro';
+import SiteLoader from '../components/site/SiteLoader.astro';
+import SiteHeader from '../components/site/SiteHeader.astro';
 import InkIcon from '../components/ink/InkIcon.astro';
 import InkIconButton from '../components/ink/InkIconButton.astro';
 import InkMenuToggle from '../components/ink/InkMenuToggle.astro';
@@ -43,7 +45,7 @@ const channels = [
 ] as const;
 ---
 
-<Layout title="Ink lab" description="Development review page for the ink pieces." noindex>
+<Layout title="Ink lab" description="Development review page for the ink pieces." noindex chrome={false}>
   <main class="lab">
     <header class="lab__intro">
       <h1 class="lab__title">Ink lab</h1>
@@ -52,6 +54,22 @@ const channels = [
         393x852 and on desktop, with and without reduced motion.
       </p>
     </header>
+
+    <section class="lab__group" aria-labelledby="lab-s0">
+      <h2 class="lab__group-title" id="lab-s0">S0. Loader and header (real components, contained previews)</h2>
+      <div class="lab__grid">
+        <LabCard id="S0a" name="Loader, desktop (ensō)" note="Real SiteLoader in preview mode: progress follows fonts + load, min 1.2s, max 3s, then the curtain lifts. Replay runs it again." wide>
+          <div class="lab__stage-box lab__stage-box--wide"><SiteLoader preview variant="desktop" /></div>
+        </LabCard>
+        <LabCard id="S0b" name="Loader, mobile (drop)" note="Same component, mobile variant: drop, flood, name; min 2.4s." stage="phone">
+          <div class="lab__stage-box"><SiteLoader preview variant="mobile" /></div>
+        </LabCard>
+        <LabCard id="S0c" name="Header: nav, availability, language, belt progress" note="Real SiteHeader in preview mode (static). Active link and progress are fixed here; on the page they follow the scroll. Resize under 768px to see the mobile header." wide stage="bare">
+          <SiteHeader preview active={1} />
+        </LabCard>
+      </div>
+      <p class="lab__skipped">Language smoke puff is the 11m placeholder until the 11t sprite exists. Nav anchors do not resolve on /lab (no sections here).</p>
+    </section>
 
     <section class="lab__group" aria-labelledby="lab-c">
       <h2 class="lab__group-title" id="lab-c">C. Titles, underlines and text reveals</h2>
@@ -169,7 +187,7 @@ const channels = [
       if (!stage || !button) return;
 
       stage.addEventListener('click', (event) => {
-        if ((event.target as Element).closest('a[href="#"]')) event.preventDefault();
+        if ((event.target as Element).closest('a[href^="#"]')) event.preventDefault();
       });
 
       button.addEventListener('click', () => {
@@ -177,6 +195,10 @@ const channels = [
         roots.forEach((el) => el.classList.remove('is-in'));
         void stage.offsetWidth;
         roots.forEach((el) => el.classList.add('is-in'));
+        // The S0 loader owns its own timers: ask it to run again.
+        stage
+          .querySelectorAll<HTMLElement>('[data-loader-preview]')
+          .forEach((el) => el.dispatchEvent(new CustomEvent('loader:replay')));
       });
     });
   </script>
@@ -193,5 +215,7 @@ const channels = [
   .lab__icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 18px 8px; margin: 0; padding: 20px; list-style: none; background: var(--bg-surface); color: var(--text-main); }
   .lab__icon { display: grid; justify-items: center; gap: 6px; }
   .lab__icon span { font: 600 8px/1 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; color: var(--text-dim); }
+  .lab__stage-box { position: relative; width: 100%; height: 360px; }
+  .lab__stage-box--wide { max-width: none; }
   .lab__row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 24px; padding: 24px; }
 </style>

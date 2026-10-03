@@ -15,6 +15,8 @@ import '@fontsource/noto-sans-kr/400.css';
 import '@fontsource/noto-sans-kr/700.css';
 import 'lenis/dist/lenis.css';
 import InkDefs from '../components/ink/InkDefs.astro';
+import SiteHeader from '../components/site/SiteHeader.astro';
+import SiteLoader from '../components/site/SiteLoader.astro';
 import type { Lang } from '../i18n/ui';
 
 interface Props {
@@ -22,9 +24,11 @@ interface Props {
   description: string;
   lang?: Lang;
   noindex?: boolean;
+  /** Mounts the persistent header and the page loader. Off for the /lab review page. */
+  chrome?: boolean;
 }
 
-const { title, description, lang = 'es', noindex = false } = Astro.props;
+const { title, description, lang = 'es', noindex = false, chrome = true } = Astro.props;
 
 const siteUrl = (Astro.site ?? new URL('https://juanpuccio.vercel.app')).toString().replace(/\/$/, '');
 const localePaths: Record<Lang, string> = { es: '/', en: '/en/', pt: '/pt/' };
@@ -38,6 +42,7 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
 <html lang={lang}>
   <head>
     <meta charset="UTF-8" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
@@ -68,6 +73,8 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
   </head>
   <body>
     <InkDefs />
+    {chrome && <SiteLoader lang={lang} />}
+    {chrome && <SiteHeader lang={lang} />}
     <slot />
     <script>
       import '../scripts/ink';

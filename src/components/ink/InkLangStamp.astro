@@ -2,18 +2,28 @@
 // Specimen 11m: language selector, a red seal hops to the chosen option and leaves a puff (catalog cat-J).
 // The seal starts on the first option and lands on `active`. Step is 44px (28px option + 16px gap).
 // The puff is a static filtered svg layer that swells and dissipates once at the landing spot.
+// `links` turns each option into a real link (href, language name, lang code); without it
+// the options are plain spans, as in the catalog.
+interface LangLink {
+  href: string;
+  name: string;
+  code: string;
+}
 interface Props {
   langs: string[];
   active: number;
   label: string;
+  links?: LangLink[];
   class?: string;
 }
-const { langs, active, label, class: className } = Astro.props;
+const { langs, active, label, links, class: className } = Astro.props;
 ---
 
 <div class:list={['ink-11m', className]} data-ink data-specimen="11m" role="group" aria-label={label} style={`--i: ${active}`}>
   <span class="ink-11m__stamp" aria-hidden="true"></span>
-  {langs.map((lang, i) => <span class:list={['ink-11m__lang', { 'is-active': i === active }]} aria-current={i === active ? 'true' : undefined}>{lang}</span>)}
+  {langs.map((lang, i) => links
+    ? <a class:list={['ink-11m__lang', { 'is-active': i === active }]} href={links[i].href} lang={links[i].code} aria-label={links[i].name} aria-current={i === active ? 'true' : undefined}>{lang}</a>
+    : <span class:list={['ink-11m__lang', { 'is-active': i === active }]} aria-current={i === active ? 'true' : undefined}>{lang}</span>)}
   <svg class="ink-11m__puff" viewBox="0 0 140 60" aria-hidden="true" focusable="false">
     <g filter="url(#bleedF)" fill-opacity="0.5">
       <circle class="ink-11m__c" cx="16" cy="11" r="11"></circle>
@@ -27,6 +37,7 @@ const { langs, active, label, class: className } = Astro.props;
 
 <style is:global>
   .ink-11m { position: relative; display: inline-flex; gap: 16px; color: var(--text-main); }
+  .ink-11m__lang { text-decoration: none; color: inherit; }
   .ink-11m__lang { position: relative; display: grid; place-items: center; width: 28px; height: 22px; font: 600 11px/1 var(--font-mono); letter-spacing: var(--tracking-meta); }
   .ink-11m__lang.is-active { color: var(--paper); }
   .ink-11m__stamp { position: absolute; left: -4px; top: -4px; width: 36px; height: 30px; background: var(--seal-red); transform: translateX(calc(var(--i) * 44px)); }

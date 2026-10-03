@@ -2,15 +2,18 @@
 // Specimen 11g: mobile loader, a drop falls and floods the screen with ink (catalog cat-J).
 // Fills its container (give it a height); sizes are container-relative (cqh).
 // Total run is about 2.4s. Ends on the dark panel with the name; no fade-out.
+// `controlled` drops data-ink: src/scripts/loader.ts adds `.is-in` itself so the
+// drop starts together with the real readiness timer.
 interface Props {
   eyebrow: string;
   name: string;
+  controlled?: boolean;
   class?: string;
 }
-const { eyebrow, name, class: className } = Astro.props;
+const { eyebrow, name, controlled = false, class: className } = Astro.props;
 ---
 
-<div class:list={['ink-11g', className]} data-ink data-specimen="11g">
+<div class:list={['ink-11g', className]} data-ink={controlled ? undefined : ''} data-specimen="11g">
   <span class="ink-11g__drop" aria-hidden="true"></span>
   <span class="ink-11g__ripple" aria-hidden="true"></span>
   <span class="ink-11g__flood" aria-hidden="true"></span>
