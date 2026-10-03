@@ -1,5 +1,6 @@
-@import './tokens.css';
-@import './ink/ink.css';
+/* tokens.css and ink/ink.css are imported from Layout.astro (before this file),
+   not from here: Vite's dev server resolved a nested relative CSS import
+   against the project root on Windows. */
 
 *, *::before, *::after {
   box-sizing: border-box;

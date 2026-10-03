@@ -26,8 +26,16 @@ async function filesUnder(path: string): Promise<{ path: string; text: string }[
 }
 
 describe('ink tokens', () => {
-  test('global.css imports tokens.css and no longer declares :root tokens', () => {
-    expect(globalCss).toContain("@import './tokens.css';");
+  test('Layout imports tokens and ink css before global.css, without nested @import', () => {
+    // Nested relative @import broke the Vite dev server on Windows (resolved
+    // against the project root), so the three sheets are imported from Layout.
+    const tokensAt = layout.indexOf("import '../styles/tokens.css';");
+    const inkAt = layout.indexOf("import '../styles/ink/ink.css';");
+    const globalAt = layout.indexOf("import '../styles/global.css';");
+    expect(tokensAt).toBeGreaterThan(-1);
+    expect(inkAt).toBeGreaterThan(tokensAt);
+    expect(globalAt).toBeGreaterThan(inkAt);
+    expect(globalCss).not.toContain('@import');
     expect(globalCss).not.toContain(':root {');
   });
 
