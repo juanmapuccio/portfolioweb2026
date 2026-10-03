@@ -1,5 +1,12 @@
 ---
-import HomePage from '../../components/HomePage.astro';
+import Layout from '../../layouts/Layout.astro';
+import { useTranslations } from '../../i18n/ui';
+
+const t = useTranslations('pt');
 ---
 
-<HomePage lang="pt" />
+<Layout lang="pt" title={t('meta.title')} description={t('meta.description')}>
+  <main>
+    <h1>ink redesign — empty shell</h1>
+  </main>
+</Layout>

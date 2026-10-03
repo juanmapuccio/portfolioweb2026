@@ -1,0 +1,47 @@
+# ink-redesign
+
+## Objective
+Rebuild the portfolio presentation on the visual language of `design/Franjas Pincel.dc.html` and `design/franjas-pincel/` (sumi-e ink: brush strokes, seals, curtains, drips). Content, storytelling and the 3D belt come back later, incrementally.
+
+## Problem / why
+The current site has ~8,300 lines of presentation, two duplicated desktop/mobile trees and 90 string-contract tests tied to the old DOM. The user wants to redesign sections, animations and transitions first, ignoring current content. Full analysis and rationale: `C:\Users\juanr\.claude\plans\analiza-franjas-pincel-dc-html-y-sorted-gizmo.md` (approved 2026-10-03).
+
+## Decisions (user)
+- Branch strategy: new branch `feat/ink-redesign`, empty only the presentation layer. Keep `src/data`, `src/i18n`, `src/assets`, `public/*`, `Belt3D.astro` + `proceduralBelt.ts` and the lenis/gsap/three dependencies in the repo, unused for now.
+- No Tailwind (the project does not use it and the catalog is CSS + variables).
+- Piece selection per section is a design decision made by the user in F3 (`/lab`), not by the agent.
+
+## Scope
+In: F0 to F4 below. Out: real content, storytelling, 3D belt (F5).
+
+## Constraints
+- Only one scroll engine (`src/scripts/ink.ts` once it exists; Lenis + GSAP stay the underlying primitives).
+- Animate only transform, opacity, clip-path, stroke-dashoffset. SVG filters only on static strokes, at most 1-2 filters per viewport; no `feTurbulence` on animated elements.
+- `prefers-reduced-motion` handled per piece; text never depends on the animation.
+- Copy from data modules, never hardcoded in components. Generated artifacts in English by default; the user converses in Spanish.
+- Conventional commits, no co-author lines. Commit only the files of the task (unrelated modified files: `.gitignore`, `.vscode/settings.json`, `.htmlhintignore`, `.htmlvalidateignore`, `sonar-project.properties`).
+
+## Route
+Per phase: delegated direct (one bounded writer per phase), parent verifies and commits. TDD: not configured (source: `odd/tasks/mobile-immersive-portfolio.md`); ordinary functional checks. Runner: `bunx astro check`, `bun run build`, `bun test` (contract tests added from F2).
+Known pre-existing failure on the old tree: `dark tail polish D2 ... skills reveals assemble categories` (goes away with the old tests in F1).
+
+## Tasks
+- [x] F0 Preserve and branch: phase 2 committed as `1de9874` on `feat/mobile-immersive`, branch `feat/ink-redesign` created from it.
+- [x] F1 Empty the presentation (pages, section components, journey.ts, old tests); minimal Layout shell
+- [ ] F2 Foundation: tokens.css, InkDefs.astro, src/styles/ink/*.css (one-shot keyframes + reduced-motion), ink.ts engine, contract tests
+- [ ] F3 Piece lab (`/lab`): port chosen specimens, user picks per section
+- [ ] F4 Section skeleton in one responsive tree (storyboard 5a to 5g) and light section transitions
+- [ ] F5 (later) Reintroduce content, storytelling, Belt3D
+
+## Acceptance criteria
+- F1: `bunx astro check` and `bun run build` pass with the shell; no references to deleted components; data/i18n/Belt3D files untouched.
+- F2: single engine, tokens present, reduced-motion rules, contract tests pass.
+- F3: every ported piece reviewed by the user on `/lab` (desktop and 393x852, with and without reduced motion).
+
+## Progress / evidence
+- F0 (2026-10-03): `1de9874 feat(mobile): ink entrance on hero and fixed contact CTA` on `feat/mobile-immersive` (89 pass / 1 known fail, astro check 0 errors, build ok). Branch `feat/ink-redesign` created from it. Known gaps carried in that commit: faint brush stroke (stroke-opacity 0.1), CTA stays visible under reduced motion. They die with the old tree.
+- F1 (2026-10-03, route: delegated writer, not committed yet): deleted 13 files (10 components, journey.ts, responsiveDetails.ts (no remaining importers), tests/final-sections.test.ts). Layout.astro reduced to head meta + fonts + global.css + lenis.css + `<slot />` (removed QR/qrcode, header, ticks, Lenis/GSAP, js-reveal). 3 index pages render one `<main><h1>` placeholder with meta from i18n. Belt3D.astro and proceduralBelt.ts untouched (no imports of deleted files). Deviation: one comment in `src/styles/global.css` line 9 reworded (it mentioned journey.ts). Checks: `bunx astro check` 0 errors, 0 warnings, 3 hints (pre-existing, from design/ files); `bun run build` ok, 3 pages built; `bun test` exits 1 with "0 test files matching" (no tests exist, expected); dangling-reference rg over src tests returns nothing. Unverified: no browser check.
+- Engram mirror `odd/ink-redesign/tasks`: pending.
+
+## Next step
+F1: parent reviews and commits; then F2 foundation.
