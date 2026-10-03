@@ -141,6 +141,17 @@ describe('hero as a manga page', () => {
     expect(hero).toMatch(/\.hero__wash \{[^}]*transform: translateY\(calc\(\(1 - var\(--exit\)\) \* 100%\)\)/);
     expect(hero).toContain('opacity: calc(1 - var(--exit))');
   });
+
+  test('scrolled panels appear one at a time: windows do not overlap', () => {
+    const windows = ['tagline', 'portrait', 'role'].map((name) => {
+      const m = hero.match(new RegExp(`data-panel="${name}" style="--s: ([\\d.]+); --l: ([\\d.]+)"`));
+      expect(m).not.toBeNull();
+      return { start: Number(m![1]), end: Number(m![1]) + Number(m![2]) };
+    });
+    for (let i = 1; i < windows.length; i++) {
+      expect(windows[i].start).toBeGreaterThanOrEqual(windows[i - 1].end);
+    }
+  });
 });
 
 describe('no Asian-script text on the landing', () => {

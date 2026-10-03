@@ -44,12 +44,12 @@ const nameLines = t('header.name').split(' ');
           </h1>
         </div>
       </div>
-      <div class="hero__panel hero__panel--tagline" data-panel="tagline" style="--s: 0.04; --l: 0.22">
+      <div class="hero__panel hero__panel--tagline" data-panel="tagline" style="--s: 0.06; --l: 0.14">
         <div class="hero__in">
           <p class="hero__caption hero__tagline">{t('hero.tagline')}</p>
         </div>
       </div>
-      <figure class="hero__panel hero__panel--portrait" data-panel="portrait" style="--s: 0.1; --l: 0.3">
+      <figure class="hero__panel hero__panel--portrait" data-panel="portrait" style="--s: 0.24; --l: 0.14">
         <span class="hero__lines hero__lines--focus" aria-hidden="true"></span>
         <div class="hero__cutout">
           {/* Ink PNG with alpha (AVIF first, WebP fallback); 1290 is the source's native width, for retina. */}
@@ -57,7 +57,7 @@ const nameLines = t('header.name').split(' ');
         </div>
         <span class="hero__sfx" aria-hidden="true">{t('hero.sfx')}</span>
       </figure>
-      <div class="hero__panel hero__panel--role" data-panel="role" style="--s: 0.3; --l: 0.25">
+      <div class="hero__panel hero__panel--role" data-panel="role" style="--s: 0.42; --l: 0.14">
         <div class="hero__in">
           <div class="hero__balloon">
             <span class="hero__dot" aria-hidden="true"></span>
@@ -81,8 +81,7 @@ const nameLines = t('header.name').split(' ');
 
   .hero__stage { position: relative; box-sizing: border-box; min-height: 100svh; padding: var(--header-h) 0 0; overflow: hidden; }
   /* The page: paper ground with a thin black page frame; gutters are paper between black panel frames. */
-  .hero__manga { box-sizing: border-box; display: grid; gap: 12px; min-height: calc(100svh - var(--header-h)); padding: 14px; background: var(--paper); box-shadow: inset 0 0 0 3px var(--ink-belt-black); }
-
+  .hero__manga { box-sizing: border-box; display: grid; gap: 16px; min-height: calc(100svh - var(--header-h)); padding: 14px; background: var(--paper); box-shadow: inset 0 0 0 3px var(--ink-belt-black); }
   /* Panel = frame (::before black polygon, ::after paper polygon inset by --b) + content (.hero__in). */
   .hero__panel { --b: 4px; --tilt: 12px; --fill: var(--paper); --hatch: linear-gradient(transparent, transparent); position: relative; box-sizing: border-box; margin: 0; }
   .hero__panel::before, .hero__panel::after { content: ''; position: absolute; clip-path: var(--clip); pointer-events: none; }
@@ -134,7 +133,7 @@ const nameLines = t('header.name').split(' ');
   .hero__wash { display: none; }
 
   @media (min-width: 768px) {
-    .hero__manga { grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.9fr) minmax(0, 1.1fr); grid-template-rows: minmax(0, 1.5fr) minmax(0, 1fr) auto; grid-template-areas: 'name name portrait' 'tagline role portrait' 'cue cue portrait'; height: calc(100svh - var(--header-h)); gap: 14px; }
+    .hero__manga { grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.9fr) minmax(0, 1.1fr); grid-template-rows: minmax(0, 1.5fr) minmax(0, 1fr) auto; grid-template-areas: 'name name portrait' 'tagline role portrait' 'cue cue portrait'; height: calc(100svh - var(--header-h)); gap: 20px; }
     .hero__panel { --tilt: 26px; }
     /* Desktop shapes: slanted right edge on name, tagline and cue, parallel to the portrait's and role's left edges. */
     .hero__panel--name { grid-area: name; --clip: polygon(0 0, 100% 0, calc(100% - var(--tilt)) 100%, 0 100%); }
@@ -164,7 +163,7 @@ const nameLines = t('header.name').split(' ');
     /* Mobile: pinned stage too (250svh). The stack is squeezed to fit one screen. */
     html.js .hero { height: 250svh; }
     html.js .hero__stage { position: sticky; top: 0; height: 100svh; min-height: 0; }
-    html.js .hero__manga { height: calc(100svh - var(--header-h)); min-height: 0; grid-template-rows: auto auto minmax(0, 1fr) auto auto; gap: 8px; padding: 10px; }
+    html.js .hero__manga { height: calc(100svh - var(--header-h)); min-height: 0; grid-template-rows: auto auto minmax(0, 1fr) auto auto; gap: 11px; padding: 10px; }
     html.js .hero__panel--portrait { aspect-ratio: auto; }
     html.js .hero__panel--name .hero__in { padding: 12px 16px 16px; }
     html.js .hero__panel--tagline .hero__in { padding: 10px 14px 14px; }
@@ -177,7 +176,7 @@ const nameLines = t('header.name').split(' ');
 
   @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
     html.js .hero { height: 300svh; }
-    html.js .hero__manga { grid-template-rows: minmax(0, 1.5fr) minmax(0, 1fr) auto; gap: 14px; padding: 14px; }
+    html.js .hero__manga { grid-template-rows: minmax(0, 1.5fr) minmax(0, 1fr) auto; gap: 20px; padding: 14px; }
     html.js .hero__panel--name .hero__in { padding: 28px 40px 32px 32px; }
     html.js .hero__panel--tagline .hero__in { padding: 22px 36px 26px 24px; }
     html.js .hero__panel--role .hero__in { padding: 18px 24px 34px 40px; }
