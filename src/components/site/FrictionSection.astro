@@ -1,0 +1,106 @@
+---
+// S3 Fricción -> código. One responsive tree.
+// Motion + JS (any width): 240svh section, sticky stage, `--p` from src/scripts/ink.ts
+// ([data-ink-scene]) drives 7j (the chaos words converge on the centre, p 0 -> .6), then
+// 10i (the title halves slide in and the red blade cuts, p .58 -> .86) and finally 10m
+// (six belt-colour bars sweep across as the exit, p .82 -> 1; the last bar is black and
+// hands over to the 5d flood in ProjectsSection).
+// Reduced motion / no JS: the words are a plain wrapped list, the title is final, no bars.
+// Copy: friction.* in src/i18n/ui.ts (desk.chaos.* / full.auto.* in docs/copywriting-*.md).
+import InkSlashTitle from '../ink/InkSlashTitle.astro';
+import { useTranslations, type Lang } from '../../i18n/ui';
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'es' } = Astro.props;
+const t = useTranslations(lang);
+
+const GOLDEN = 2.399963;
+const words = t('friction.words')
+  .split(' · ')
+  .map((word, i) => {
+    const angle = i * GOLDEN + 0.6;
+    const radius = 0.6 + ((i * 37) % 5) * 0.1;
+    return {
+      word,
+      x: (Math.cos(angle) * radius * 38).toFixed(1),
+      y: (Math.sin(angle) * radius * 33).toFixed(1),
+      rot: ((i * 53) % 11) - 5,
+    };
+  });
+const bars = ['white', 'yellow', 'green', 'blue', 'red', 'black'] as const;
+---
+
+<section id="friccion" class="friction" data-belt="negro" data-ink-scene aria-labelledby="friction-title">
+  <div class="friction__stage">
+    <header class="friction__head">
+      <p class="friction__label">{t('friction.label')}</p>
+    </header>
+
+    <ul class="friction__words" aria-label={t('friction.kicker')}>
+      {words.map((item, i) => (
+        <li class="friction__word" style={`--x: ${item.x}; --y: ${item.y}; --rot: ${item.rot}; --i: ${i}`}>{item.word}</li>
+      ))}
+    </ul>
+
+    <div class="friction__result">
+      <div id="friction-title" role="heading" aria-level="2">
+        <InkSlashTitle class="friction__slash" text={t('friction.title')} />
+      </div>
+      <p class="friction__kicker">{t('friction.kicker')}</p>
+    </div>
+
+    <div class="friction__bars" aria-hidden="true" data-specimen="10m">
+      {bars.map((tone, i) => (
+        <span class="friction__bar" style={`--i: ${i}; --tone: var(--ink-belt-${tone})`}></span>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  /* ---- Static layout (reduced motion, no JS): words as a wrapped list ---- */
+  .friction { position: relative; background: var(--paper); color: var(--text-main); }
+  .friction__stage { position: relative; box-sizing: border-box; padding: calc(var(--header-h) + var(--section-pad)) var(--gutter) calc(var(--section-pad) * 2); }
+  .friction__label { margin: 0 0 24px; font: 600 var(--fs-caption) / 1 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; color: var(--text-dim); }
+  .friction__words { display: flex; flex-wrap: wrap; gap: 8px 10px; margin: 0 0 32px; padding: 0; list-style: none; }
+  .friction__word { padding: 8px 12px; border: 2px solid var(--text-main); background: var(--paper); font: 600 var(--fs-caption) / 1 var(--font-mono); letter-spacing: var(--tracking-meta); }
+  .friction__kicker { margin: 12px 0 0; font: 600 var(--fs-caption) / 1.3 var(--font-mono); letter-spacing: var(--tracking-meta); color: var(--text-dim); }
+  .friction .friction__slash.ink-10i { max-width: 920px; height: clamp(120px, 26vw, 240px); }
+  .friction .friction__slash .ink-10i__half { font-size: clamp(40px, 9vw, 112px); text-align: center; }
+  .friction__bars { display: none; }
+
+  /* ---- Scrub: sticky stage, words converge, title cut, bars exit ---- */
+  @media (prefers-reduced-motion: no-preference) {
+    html.js .friction {
+      height: 240svh;
+      --c: clamp(0, calc(var(--p, 0) / 0.6), 1);
+      --s: clamp(0, calc((var(--p, 0) - 0.58) / 0.14), 1);
+      --b: clamp(0, calc((var(--p, 0) - 0.72) / 0.1), 1);
+    }
+    html.js .friction__stage { position: sticky; top: 0; height: 100svh; padding: 0; overflow: hidden; display: grid; place-items: center; }
+    html.js .friction__head { position: absolute; left: var(--gutter); top: calc(var(--header-h) + 18px); z-index: 2; }
+    html.js .friction__label { margin: 0; }
+
+    /* 7j: words fly from their ring position to the centre and fade out as they meet. */
+    html.js .friction__words { position: absolute; inset: 0; display: block; margin: 0; }
+    html.js .friction__word {
+      position: absolute; left: 50%; top: 50%; translate: -50% -50%; white-space: nowrap;
+      transform: translate(calc(var(--x) * 1vw * (1 - var(--c))), calc(var(--y) * 1vh * (1 - var(--c)))) rotate(calc(var(--rot) * 1deg * (1 - var(--c))));
+      opacity: calc(1 - clamp(0, calc((var(--c) - 0.7) * 3.4), 1));
+      will-change: transform, opacity;
+    }
+
+    /* 10i: the title halves and the blade are scrubbed instead of one-shot. */
+    html.js .friction__result { position: relative; z-index: 1; display: grid; justify-items: center; text-align: center; padding: 0 var(--gutter); }
+    html.js .friction .ink-10i.ink-10i .ink-10i__half--top { animation: none; opacity: var(--s); transform: translateX(calc((1 - var(--s)) * -70px)); }
+    html.js .friction .ink-10i.ink-10i .ink-10i__half--bottom { animation: none; opacity: var(--s); transform: translateX(calc((1 - var(--s)) * 70px)); }
+    html.js .friction .ink-10i.ink-10i .ink-10i__blade .ink-draw { animation: none; stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--b)); }
+    html.js .friction__kicker { opacity: var(--b); }
+
+    /* 10m: six belt-colour bars, a few hundredths of --p apart; black is last. */
+    html.js .friction__bars { display: grid; position: absolute; inset: 0; z-index: 5; grid-template-rows: repeat(6, 1fr); pointer-events: none; }
+    html.js .friction__bar { background: var(--tone); transform-origin: left center; transform: scaleX(clamp(0, calc((var(--p, 0) - 0.82 - var(--i) * 0.02) / 0.08), 1)); }
+  }
+</style>

@@ -7,7 +7,6 @@ const inkTs = await read('../src/scripts/ink.ts');
 const loaderTs = await read('../src/scripts/loader.ts');
 const siteLoader = await read('../src/components/site/SiteLoader.astro');
 const siteHeader = await read('../src/components/site/SiteHeader.astro');
-const placeholders = await read('../src/components/site/Placeholders.astro');
 const sections = await read('../src/data/sections.ts');
 const layout = await read('../src/layouts/Layout.astro');
 const ui = await read('../src/i18n/ui.ts');
@@ -18,7 +17,7 @@ const pages = {
 };
 
 const ids = ['hero', 'cinturones', 'friccion', 'proyectos', 'stack', 'principios', 'contacto'];
-const belts = ['blanco', 'amarillo', 'verde', 'azul', 'rojo', 'negro', 'negro'];
+const belts = ['blanco', 'amarillo', 'negro', 'negro', 'negro', 'negro', 'negro'];
 
 async function walk(dir: URL): Promise<URL[]> {
   const out: URL[] = [];
@@ -152,21 +151,21 @@ describe('S0 header', () => {
 });
 
 describe('index pages', () => {
-  test('placeholders render the 7 sections with the belt attribute', () => {
-    expect(placeholders).toContain('id={section.id}');
-    expect(placeholders).toContain('data-belt={section.belt}');
-    expect(placeholders).toContain('min-height: 100svh');
+  test('section anchors keep their belt: white, yellow, then black for everything after the 1o dan', () => {
     const belted = [...sections.matchAll(/belt:\s*'([a-z]+)'/g)].map((m) => m[1]);
     expect(belted).toEqual(belts);
   });
 
-  test('every locale page mounts the real hero and belts, then the remaining placeholders', () => {
+  test('every locale page mounts the seven real sections in scroll order', () => {
+    const order = ['Hero', 'Belts', 'Friction', 'Projects', 'Stack', 'Principles', 'Contact'];
     for (const [lang, text] of Object.entries(pages)) {
-      expect(text).toContain(`<HeroSection lang="${lang}" />`);
-      expect(text).toContain(`<BeltsSection lang="${lang}" />`);
-      expect(text).toContain(`<Placeholders lang="${lang}" />`);
-      expect(text.indexOf('<HeroSection')).toBeLessThan(text.indexOf('<BeltsSection'));
-      expect(text.indexOf('<BeltsSection')).toBeLessThan(text.indexOf('<Placeholders'));
+      let last = -1;
+      for (const name of order) {
+        const marker = `<${name}Section lang="${lang}" />`;
+        expect(text).toContain(marker);
+        expect(text.indexOf(marker)).toBeGreaterThan(last);
+        last = text.indexOf(marker);
+      }
     }
   });
 });

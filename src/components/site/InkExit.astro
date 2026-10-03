@@ -1,0 +1,86 @@
+---
+// Section exits driven by the scene `--p` ([data-ink-scene], set by src/scripts/ink.ts):
+//   strip   1c  a belt strip fills left to right and carries the next section label
+//   scroll  10n a hanging scroll unrolls downward, roller follows the scroll
+//   katana  6g  a blade cut draws, ink bleeds along the wound and a black panel sweeps in
+// Each exit is a 160svh scene with a sticky 100svh stage, so the scrub is pinned.
+// Decorative (aria-hidden): the next section carries the real text. Only transform,
+// opacity, clip-path and stroke-dashoffset change; no SVG filter anywhere here.
+// Static layout (reduced motion, no JS): the exit is removed. The katana is desktop only
+// (mobile hands the principles -> contact change to the 7k curtain in ContactSection).
+interface Props {
+  variant: 'strip' | 'scroll' | 'katana';
+  /** Teaser for the next section (i18n string from the caller). */
+  label: string;
+  /** Vertical glyph on the hanging scroll (10n). Hangul is not translated. */
+  glyph?: string;
+}
+const { variant, label, glyph = '' } = Astro.props;
+---
+
+<div class:list={['exit', `exit--${variant}`]} data-ink-scene aria-hidden="true" data-specimen={variant === 'strip' ? '1c' : variant === 'scroll' ? '10n' : '6g'}>
+  <div class="exit__stage">
+    {variant === 'strip' && (
+      <div class="exit__strip">
+        <span class="exit__fill"></span>
+        <span class="exit__label">{label}</span>
+      </div>
+    )}
+    {variant === 'scroll' && (
+      <div class="exit__hang">
+        <span class="exit__rod"></span>
+        <div class="exit__paper">
+          <span class="exit__glyph">{glyph}</span>
+          <span class="exit__label">{label}</span>
+        </div>
+        <span class="exit__roller"></span>
+      </div>
+    )}
+    {variant === 'katana' && (
+      <>
+        <span class="exit__sweep"></span>
+        <svg class="exit__blade" viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
+          <path class="exit__cut" d="M104 -4 L-4 104" pathLength="1" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+          <path class="exit__wound" d="M104 -4 L-4 104" pathLength="1" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+        </svg>
+        <span class="exit__label">{label}</span>
+      </>
+    )}
+  </div>
+</div>
+
+<style is:global>
+  /* No exit in the static layout. */
+  .exit { display: none; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html.js .exit { display: block; position: relative; height: 160svh; }
+    html.js .exit__stage { position: sticky; top: 0; height: 100svh; overflow: hidden; background: var(--exit-bg, var(--paper)); color: var(--text-main); }
+    html.js .exit__label { font: 600 var(--fs-caption) / 1 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; }
+
+    /* 1c: strip filled by --p, label revealed with it (clip-path). */
+    html.js .exit--strip .exit__strip { position: absolute; left: 0; right: 0; top: 50%; height: clamp(96px, 22vh, 220px); translate: 0 -50%; display: grid; align-items: center; padding: 0 var(--gutter); }
+    html.js .exit--strip .exit__fill { position: absolute; inset: 0; background: var(--ink-belt-black); transform-origin: left center; transform: scaleX(var(--p, 0)); }
+    html.js .exit--strip .exit__label { position: relative; font-size: clamp(22px, 5vw, 64px); color: var(--paper); clip-path: inset(0 calc((1 - clamp(0, calc((var(--p, 0) - 0.15) / 0.7), 1)) * 100%) 0 0); }
+
+    /* 10n: kakejiku, the paper unrolls (clip-path) while the roller descends. */
+    html.js .exit--scroll { --exit-bg: var(--ink-belt-black); --h: 56svh; }
+    html.js .exit--scroll .exit__hang { position: absolute; left: 50%; top: 14svh; width: min(78vw, 360px); translate: -50% 0; }
+    html.js .exit--scroll .exit__rod { position: absolute; left: -8px; right: -8px; top: 0; height: 10px; background: var(--text-dim); }
+    html.js .exit--scroll .exit__paper { position: absolute; left: 8px; right: 8px; top: 10px; height: var(--h); display: grid; place-content: center; justify-items: center; gap: 18px; background: var(--paper); clip-path: inset(0 0 calc((1 - var(--p, 0)) * 100%) 0); }
+    html.js .exit--scroll .exit__glyph { font: 900 clamp(56px, 12vh, 112px) / 1 'Noto Sans KR', var(--font-sans); writing-mode: vertical-rl; color: var(--text-main); }
+    html.js .exit--scroll .exit__roller { position: absolute; left: -8px; right: -8px; top: 10px; height: 12px; background: var(--text-dim); transform: translateY(calc(var(--p, 0) * var(--h))); }
+
+    /* 6g: the blade draws first, ink bleeds along the cut, then the black panel sweeps in. */
+    html.js .exit--katana .exit__sweep { position: absolute; inset: 0 -30% 0 -30%; background: var(--ink-belt-black); transform: translateX(calc((1 - clamp(0, calc((var(--p, 0) - 0.3) / 0.6), 1)) * -105%)) skewX(-18deg); }
+    html.js .exit--katana .exit__blade { position: absolute; inset: 0; width: 100%; height: 100%; }
+    html.js .exit--katana .exit__cut { stroke: var(--text-main); stroke-width: 3; stroke-dasharray: 1; stroke-dashoffset: calc(1 - clamp(0, calc(var(--p, 0) / 0.3), 1)); }
+    html.js .exit--katana .exit__wound { stroke: var(--seal-red); stroke-width: 7; stroke-dasharray: 1; stroke-dashoffset: calc(1 - clamp(0, calc((var(--p, 0) - 0.15) / 0.35), 1)); opacity: 0.85; }
+    html.js .exit--katana .exit__label { position: absolute; left: 50%; top: 50%; translate: -50% -50%; font-size: clamp(24px, 5vw, 72px); color: var(--paper); opacity: clamp(0, calc((var(--p, 0) - 0.78) / 0.15), 1); }
+  }
+
+  /* Desktop only: mobile uses the 7k curtain on the contact section. */
+  @media (max-width: 1023.98px) {
+    .exit--katana { display: none !important; }
+  }
+</style>

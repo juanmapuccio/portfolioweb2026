@@ -1,7 +1,8 @@
 // The only scroll/animation engine: reveal observer, Lenis smooth scroll and
-// scene progress, site header state (active link, belt, progress, hide on scroll)
-// and the loader (./loader). Lenis is driven by the GSAP ticker so smooth scroll
-// and ScrollTrigger share one frame loop; nothing else may schedule frames.
+// scene progress, site header state (active link, belt, progress, hide on scroll),
+// the loader (./loader), the 7h contact sheet and the 10y hold-to-send. Lenis is driven by
+// the GSAP ticker so smooth scroll and ScrollTrigger share one frame loop; nothing else may
+// schedule frames.
 import Lenis from 'lenis';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -195,9 +196,62 @@ function initBeltScenes(): void {
   });
 }
 
+// 7h bottom sheet: a button opens the native <dialog> it points at ([data-sheet-open]).
+// showModal() gives the focus trap and Esc; the close button is a <form method="dialog">, so
+// no handler is needed for it. Here: page scroll is paused while it is open and a click on
+// the backdrop (the dialog element itself) closes it.
+function initChannelSheet(): void {
+  document.querySelectorAll<HTMLButtonElement>('[data-sheet-open]').forEach((button) => {
+    const dialog = document.getElementById(button.dataset.sheetOpen ?? '');
+    if (!(dialog instanceof HTMLDialogElement)) return;
+    button.addEventListener('click', () => {
+      dialog.showModal();
+      (window as LenisWindow).__lenis?.stop();
+    });
+    dialog.addEventListener('close', () => {
+      (window as LenisWindow).__lenis?.start();
+    });
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  });
+}
+
+// 10y hold-to-send, only as a confirm for the WhatsApp link (no form, no backend): holding
+// the button for HOLD_MS fills it (CSS, .is-holding) and then opens the link. Releasing early
+// cancels. Keyboard and assistive activation (click with detail 0) opens it directly.
+const HOLD_MS = 1200;
+function initHoldToSend(): void {
+  document.querySelectorAll<HTMLButtonElement>('[data-hold-to-send]').forEach((button) => {
+    const href = button.dataset.holdHref;
+    if (!href) return;
+    let timer: number | undefined;
+    const cancel = (): void => {
+      if (timer !== undefined) window.clearTimeout(timer);
+      timer = undefined;
+      button.classList.remove('is-holding');
+    };
+    button.addEventListener('pointerdown', (event) => {
+      if (event.button !== 0) return;
+      button.classList.add('is-holding');
+      timer = window.setTimeout(() => {
+        cancel();
+        window.location.assign(href);
+      }, HOLD_MS);
+    });
+    for (const type of ['pointerup', 'pointerleave', 'pointercancel']) button.addEventListener(type, cancel);
+    button.addEventListener('contextmenu', (event) => event.preventDefault());
+    button.addEventListener('click', (event) => {
+      if (event.detail === 0) window.location.assign(href);
+    });
+  });
+}
+
 initReveal();
 initScroll();
 initLoader(reduced);
 initScenes();
 initSiteHeader();
 initBeltScenes();
+initChannelSheet();
+initHoldToSend();

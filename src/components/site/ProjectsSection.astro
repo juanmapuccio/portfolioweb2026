@@ -1,0 +1,176 @@
+---
+// S4 Proyectos. One responsive tree, content from src/data/projects.ts.
+// Entrance 5d: the black ink left by the 10m bars floods the top of the section and drains
+// upward once (clip-path), the cards emerge behind it.
+// Desktop (>=1024): grid of 3b scroll cards (ink-unroll on enter) with the 5e production
+// stamp and the 9e "view live" link; the featured project (NodoSur) spans the row and
+// carries the 3g versus panel (problem vs solution).
+// Mobile / tablet (<1024): 7d native scroll-snap carousel (30px of the next card peeks).
+// Exit 1c: a strip filled by --p (InkExit) that carries the next section label.
+// Authorship: only the four own systems of projects.ts appear; the products that other
+// collaborators of the cooperative built are never rendered or presented as own work.
+// Reduced motion / no JS: no flood, no unroll, no stamp animation, no strip.
+import InkLaunchArrow from '../ink/InkLaunchArrow.astro';
+import InkExit from './InkExit.astro';
+import { projectsContent } from '../../data/projects';
+import { useTranslations, type Lang } from '../../i18n/ui';
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'es' } = Astro.props;
+const t = useTranslations(lang);
+const projects = projectsContent[lang];
+---
+
+<section id="proyectos" class="projects" data-belt="negro" aria-labelledby="projects-title">
+  <span class="projects__flood" data-ink aria-hidden="true" data-specimen="5d"></span>
+
+  <div class="projects__inner">
+    <header class="projects__head">
+      <p class="projects__label">{t('projects.label')}</p>
+      <h2 class="projects__title" id="projects-title">{t('projects.title')}</h2>
+      <p class="projects__kicker">{t('projects.kicker')}</p>
+    </header>
+
+    <div class="projects__scroller" role="region" aria-label={t('projects.carousel')} tabindex="0" data-nested-scroll>
+      <ul class="projects__list">
+        {projects.map((project, i) => (
+          <li class:list={['proj', { 'proj--star': project.featured }]} style={`--i: ${i}`}>
+            <article class="proj__card ink-unroll" data-ink style={`--ink-delay: ${(i * 0.12).toFixed(2)}s; --ink-duration: 1s`}>
+              <header class="proj__head">
+                <span class="proj__no">{String(i + 1).padStart(2, '0')}</span>
+                <span class="proj__badge">{project.badge}</span>
+              </header>
+              <h3 class="proj__name">{project.name}</h3>
+              <p class="proj__role">{project.role}</p>
+
+              {project.featured ? (
+                <div class="versus" data-specimen="3g">
+                  <div class="versus__half versus__half--problem">
+                    <span class="versus__tag">{t('projects.vs.problem')}</span>
+                    <p>{project.problem}</p>
+                  </div>
+                  <svg class="versus__slash" viewBox="0 0 20 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                    <path d="M14 0 L6 100" fill="none" stroke-width="2.4" vector-effect="non-scaling-stroke"></path>
+                  </svg>
+                  <div class="versus__half versus__half--solution">
+                    <span class="versus__tag">{t('projects.vs.solution')}</span>
+                    <p>{project.solution}</p>
+                  </div>
+                </div>
+              ) : (
+                <div class="proj__fact">
+                  <span class="proj__factlabel">{t('projects.problem')}</span>
+                  <p>{project.problem}</p>
+                </div>
+              )}
+              <div class="proj__fact">
+                <span class="proj__factlabel">{t('projects.impact')}</span>
+                <p>{project.impact}</p>
+              </div>
+
+              <footer class="proj__foot">
+                <a class="proj__live" href={project.url} target="_blank" rel="noopener noreferrer" aria-label={`${t('projects.cta')}: ${project.name}`}>
+                  <InkLaunchArrow label={t('projects.cta')} />
+                </a>
+              </footer>
+              <span class="proj__stamp ink-stamp" style={`--ink-delay: ${(0.6 + i * 0.12).toFixed(2)}s`}>{t('projects.status')}</span>
+            </article>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <p class="projects__swipe" aria-hidden="true">{t('projects.swipe')}</p>
+  </div>
+
+  <InkExit variant="strip" label={t('stack.label')} />
+</section>
+
+<style is:global>
+  .projects { position: relative; background: var(--bg-surface-elevated); color: var(--text-main); --exit-bg: var(--bg-surface-elevated); }
+  .projects__inner { position: relative; box-sizing: border-box; padding: calc(var(--header-h) + var(--section-pad)) var(--gutter) calc(var(--section-pad) * 2); }
+  .projects__head { display: grid; gap: 12px; margin-bottom: 32px; }
+  .projects__label, .projects__kicker { margin: 0; font: 600 var(--fs-caption) / 1.2 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; color: var(--text-dim); }
+  .projects__title { margin: 0; font: 700 var(--fs-h2) / 1.05 var(--font-serif); letter-spacing: var(--tracking-heading); max-width: 14em; }
+
+  .projects__list { display: grid; gap: 20px; margin: 0; padding: 0; list-style: none; }
+  .projects__scroller:focus-visible { outline: 3px solid var(--accent-blue); outline-offset: 4px; }
+
+  /* 3b scroll card: parchment between two thick rods (top and bottom border). */
+  .proj__card { position: relative; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box; height: 100%; padding: 24px 22px 22px; background: var(--paper); border: 2px solid var(--text-main); border-block-width: 12px; box-shadow: 6px 6px 0 rgba(28, 26, 23, 0.16); }
+  .proj__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; padding-right: 96px; font: 600 11px / 1.2 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; color: var(--text-dim); }
+  .proj__no { color: var(--text-main); }
+  .proj__name { margin: 0; font: 700 clamp(28px, 3.2vw, 44px) / 1.05 var(--font-serif); letter-spacing: var(--tracking-heading); }
+  .proj__role { margin: -6px 0 0; font: 400 var(--fs-caption) / 1.35 var(--font-mono); color: var(--text-dim); }
+  .proj__fact { display: grid; gap: 6px; }
+  .proj__fact p { margin: 0; font: 400 var(--fs-body) / 1.4 var(--font-serif); }
+  .proj__factlabel { font: 600 11px / 1 var(--font-mono); letter-spacing: var(--tracking-meta); color: var(--seal-red); }
+  .proj__foot { margin-top: auto; padding-top: 8px; }
+
+  /* 9e: the view-live link, with the arrow piece shrunk to a link-sized tile. */
+  .proj__live { display: inline-block; min-width: 44px; min-height: 44px; width: 100%; max-width: 168px; color: inherit; text-decoration: none; }
+  .proj__live .ink-9e { max-width: none; }
+  .proj__live .ink-9e__label { text-transform: uppercase; }
+  .proj__live:focus-visible { outline: 3px solid var(--accent-blue); outline-offset: 3px; }
+
+  /* 5e production stamp. `rotate` is separate from the ink-stamp transform animation. */
+  .proj__stamp { position: absolute; right: 16px; top: 14px; padding: 6px 8px; border: 2px solid var(--seal-red); color: var(--seal-red); font: 700 11px / 1 var(--font-mono); letter-spacing: var(--tracking-meta); rotate: -5deg; background: var(--paper); }
+
+  /* 3g versus: problem and solution on two diagonal halves, a red slash between. */
+  .versus { position: relative; display: grid; gap: 0; margin: 4px -4px; }
+  .versus__half { display: grid; align-content: start; gap: 6px; padding: 18px 20px; }
+  .versus__half p { margin: 0; font: 400 var(--fs-body) / 1.4 var(--font-serif); }
+  .versus__tag { font: 600 11px / 1 var(--font-mono); letter-spacing: var(--tracking-meta); }
+  .versus__half--problem { background: var(--bg-surface-elevated); clip-path: polygon(0 0, 100% 0, 100% 92%, 0 100%); padding-bottom: 28px; }
+  .versus__half--solution { background: var(--ink-belt-black); color: var(--paper); clip-path: polygon(0 8%, 100% 0, 100% 100%, 0 100%); margin-top: -12px; padding-top: 30px; }
+  .versus__slash { display: none; position: absolute; top: 0; bottom: 0; left: 50%; width: 20px; translate: -50% 0; z-index: 1; pointer-events: none; }
+  .versus__slash path { stroke: var(--seal-red); }
+
+  /* 5d flood and the 1c exit only exist with motion and JS. */
+  .projects__flood { display: none; }
+  .projects__swipe { display: none; }
+
+  /* ---- Desktop: grid of scrolls, NodoSur spans the row ---- */
+  @media (min-width: 1024px) {
+    .projects__list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+    .proj--star { grid-column: 1 / -1; }
+    .proj--star .proj__card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); grid-template-areas: 'head head' 'name versus' 'role versus' 'impact versus' 'foot foot'; column-gap: 40px; padding: 32px 36px 28px; }
+    .proj--star .proj__head { grid-area: head; }
+    .proj--star .proj__name { grid-area: name; font-size: clamp(40px, 4.4vw, 68px); }
+    .proj--star .proj__role { grid-area: role; }
+    .proj--star .versus { grid-area: versus; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); margin: 0; align-self: center; }
+    .proj--star .proj__fact { grid-area: impact; }
+    .proj--star .proj__foot { grid-area: foot; }
+    .proj--star .versus__half--problem { clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%); padding-right: 36px; padding-bottom: 18px; }
+    .proj--star .versus__half--solution { clip-path: polygon(8% 0, 100% 0, 100% 100%, 0 100%); margin-top: 0; margin-left: -4%; padding-top: 18px; padding-left: 36px; }
+    .proj--star .versus__slash { display: block; }
+  }
+
+  /* ---- Mobile / tablet: 7d native scroll-snap carousel ---- */
+  @media (max-width: 1023.98px) {
+    .projects__scroller { margin-inline: calc(var(--gutter) * -1); overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); scrollbar-width: none; }
+    .projects__scroller::-webkit-scrollbar { display: none; }
+    .projects__list { display: flex; gap: 14px; padding: 0 var(--gutter) 10px; }
+    .proj { flex: 0 0 min(calc(100vw - 2 * var(--gutter) - 30px), 520px); scroll-snap-align: start; }
+    .projects__swipe { display: block; margin: 10px 0 0; font: 600 11px / 1 var(--font-mono); letter-spacing: var(--tracking-meta); color: var(--text-dim); }
+  }
+
+  /* ---- Motion: 5d flood (one pass) and 3b unroll only on desktop ---- */
+  @keyframes projects-flood {
+    from { clip-path: inset(0 0 0 0); }
+    to { clip-path: inset(0 0 100% 0); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html.js .projects__flood { display: block; position: absolute; left: 0; right: 0; top: 0; height: 100svh; z-index: 3; pointer-events: none; background: var(--ink-belt-black); clip-path: inset(0 0 0 0); }
+    html.js .projects__flood.is-in { animation: projects-flood 1.3s cubic-bezier(0.7, 0, 0.3, 1) 0.15s 1 both; }
+  }
+  /* The carousel cards keep their peek visible: no unroll below desktop. */
+  @media (max-width: 1023.98px) {
+    html.js .projects .proj__card.proj__card.ink-unroll,
+    html.js .projects .is-in.proj__card.ink-unroll { animation: none; clip-path: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .projects__flood { display: none; }
+  }
+</style>

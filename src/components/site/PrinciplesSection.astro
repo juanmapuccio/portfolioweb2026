@@ -1,0 +1,90 @@
+---
+// S6 Fuera del código. 1b title (underline + seal), five 2g hanko seals from
+// src/data/principles.ts that stamp once on enter, and the two philosophy quotes from
+// src/data/skills.ts (philosophy[].quote, the same text as full.phil.*).
+// Desktop (>=1024): a row of five. Mobile (<1024): a 3 + 2 grid (6 columns, items span 2).
+// Exit 6g: the katana cut (InkExit, desktop only; mobile hands over to the 7k curtain).
+// Reduced motion / no JS: seals and quotes visible and static, no exit.
+// TODO(raster): the 8i raster hanko edges replace the plain borders later.
+import InkUnderlineDry from '../ink/InkUnderlineDry.astro';
+import InkExit from './InkExit.astro';
+import { principlesData } from '../../data/principles';
+import { skillsData } from '../../data/skills';
+import { useTranslations, type Lang } from '../../i18n/ui';
+
+interface Props {
+  lang?: Lang;
+}
+const { lang = 'es' } = Astro.props;
+const t = useTranslations(lang);
+const principles = principlesData[lang];
+const quotes = skillsData[lang].philosophy;
+---
+
+<section id="principios" class="principles" data-belt="negro" aria-labelledby="principles-title">
+  <div class="principles__inner">
+    <header class="principles__head">
+      <p class="principles__label">{t('principles.label')}</p>
+      <div id="principles-title" role="heading" aria-level="2">
+        <InkUnderlineDry class="principles__title" title={t('principles.title')} seal="도" />
+      </div>
+      <p class="principles__sub">{principles.label}</p>
+    </header>
+
+    <ol class="seals" data-ink>
+      {principles.items.map((item, i) => (
+        <li class="seal" style={`--i: ${i}`} data-specimen="2g">
+          <span class="seal__stamp ink-stamp" style={`--ink-delay: ${(i * 0.14).toFixed(2)}s; --ink-duration: 0.6s`} lang="ko">{item.hangul}</span>
+          <h3 class="seal__name">{item.name}</h3>
+          <p class="seal__line">{item.line}</p>
+        </li>
+      ))}
+    </ol>
+
+    <div class="quotes">
+      {quotes.map((pillar) => (
+        <figure class="quote">
+          <blockquote class="quote__text"><p>{pillar.quote}</p></blockquote>
+          <figcaption class="quote__tag">{pillar.subtitle}</figcaption>
+        </figure>
+      ))}
+    </div>
+  </div>
+
+  <InkExit variant="katana" label={t('contact.label')} />
+</section>
+
+<style is:global>
+  .principles { position: relative; background: var(--paper); color: var(--text-main); }
+  .principles__inner { box-sizing: border-box; padding: calc(var(--header-h) + var(--section-pad)) var(--gutter) calc(var(--section-pad) * 2); }
+  .principles__head { display: grid; gap: 10px; margin-bottom: 36px; }
+  .principles__label, .principles__sub { margin: 0; font: 600 var(--fs-caption) / 1.2 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; color: var(--text-dim); }
+  .principles .ink-1b.principles__title { max-width: 720px; padding: 8px 0 0; }
+  .principles .ink-1b__title { font-size: clamp(30px, 4.8vw, 64px); line-height: 1.05; letter-spacing: var(--tracking-heading); }
+  .principles .ink-1b__seal { width: 40px; height: 40px; font-size: 20px; flex: none; }
+  .principles .ink-1b__stroke { color: var(--text-main); max-width: 520px; }
+
+  /* 2g: hanko seals, mobile grid 3 + 2 on six columns. */
+  .seals { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 22px 10px; margin: 0 0 56px; padding: 0; list-style: none; }
+  .seal { grid-column: span 2; display: grid; justify-items: center; align-content: start; gap: 8px; text-align: center; }
+  .seal:nth-child(4) { grid-column: 2 / span 2; }
+  .seal:nth-child(5) { grid-column: 4 / span 2; }
+  .seal__stamp { display: grid; place-items: center; box-sizing: border-box; width: clamp(64px, 20vw, 96px); aspect-ratio: 1; padding: 6px; border: 3px solid var(--seal-red); color: var(--seal-red); font: 700 clamp(20px, 6vw, 30px) / 1.05 'Noto Sans KR', var(--font-sans); word-break: keep-all; rotate: -4deg; }
+  .seal:nth-child(even) .seal__stamp { rotate: 3deg; }
+  .seal__name { margin: 0; font: 700 var(--fs-body) / 1.2 var(--font-serif); }
+  .seal__line { margin: 0; font: 400 12px / 1.4 var(--font-sans); color: var(--text-muted); }
+
+  .quotes { display: grid; gap: 28px; }
+  .quote { margin: 0; padding: 22px 0 0 20px; border-left: 6px solid var(--text-main); }
+  .quote__text { margin: 0; }
+  .quote__text p { margin: 0; font: 400 var(--fs-lede) / 1.3 var(--font-serif); letter-spacing: var(--tracking-heading); }
+  .quote__tag { margin-top: 12px; font: 600 11px / 1.4 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; color: var(--text-dim); }
+
+  @media (min-width: 1024px) {
+    .seals { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px; }
+    .seal, .seal:nth-child(4), .seal:nth-child(5) { grid-column: auto; }
+    .seal__line { font-size: var(--fs-caption); }
+    .seal__stamp { width: 104px; font-size: 32px; }
+    .quotes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; }
+  }
+</style>

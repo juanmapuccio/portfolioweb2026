@@ -2,7 +2,11 @@
 import Layout from '../../layouts/Layout.astro';
 import HeroSection from '../../components/site/HeroSection.astro';
 import BeltsSection from '../../components/site/BeltsSection.astro';
-import Placeholders from '../../components/site/Placeholders.astro';
+import FrictionSection from '../../components/site/FrictionSection.astro';
+import ProjectsSection from '../../components/site/ProjectsSection.astro';
+import StackSection from '../../components/site/StackSection.astro';
+import PrinciplesSection from '../../components/site/PrinciplesSection.astro';
+import ContactSection from '../../components/site/ContactSection.astro';
 import { useTranslations } from '../../i18n/ui';
 
 const t = useTranslations('en');
@@ -12,6 +16,10 @@ const t = useTranslations('en');
   <main>
     <HeroSection lang="en" />
     <BeltsSection lang="en" />
-    <Placeholders lang="en" />
+    <FrictionSection lang="en" />
+    <ProjectsSection lang="en" />
+    <StackSection lang="en" />
+    <PrinciplesSection lang="en" />
+    <ContactSection lang="en" />
   </main>
 </Layout>

@@ -8,7 +8,6 @@ const belts = await read('../src/components/site/BeltsSection.astro');
 const rail = await read('../src/components/site/BeltRail.astro');
 const bamboo = await read('../src/components/site/BambooGrow.astro');
 const drip = await read('../src/components/site/InkDrip.astro');
-const placeholders = await read('../src/components/site/Placeholders.astro');
 const inkTs = await read('../src/scripts/ink.ts');
 const ui = await read('../src/i18n/ui.ts');
 const pages = {
@@ -36,12 +35,13 @@ describe('landing: placeholders replaced', () => {
     }
   });
 
-  test('hero and belts are real components; the other five stay as placeholders', () => {
-    expect(placeholders).toContain("new Set<string>(['hero', 'cinturones'])");
-    expect(placeholders).not.toContain('<slot');
+  test('hero and belts are real components and the placeholder shell is gone (replaced in batch B)', async () => {
+    const files = (await walk(new URL('../src/', import.meta.url))).map((u) => u.pathname);
+    expect(files.some((path) => path.endsWith('/Placeholders.astro'))).toBe(false);
     for (const text of Object.values(pages)) {
       expect(text).toContain('HeroSection');
       expect(text).toContain('BeltsSection');
+      expect(text).not.toContain('Placeholders');
     }
     expect(hero).toContain('id="hero"');
     expect(belts).toContain('id="cinturones"');

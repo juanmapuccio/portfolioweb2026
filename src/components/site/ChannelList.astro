@@ -1,0 +1,55 @@
+---
+// 10w channel scroll: the contact channels from src/data/contact.ts as a list of links.
+// Used twice by ContactSection: inline on desktop and inside the 7h bottom sheet on mobile.
+// External links open in a new tab with rel="noopener noreferrer"; mailto stays in place.
+// The list unrolls once on enter (clip-path, `data-ink`); static without JS / reduced motion.
+import InkIcon from '../ink/InkIcon.astro';
+import type { InkIconName } from '../ink/inkIcons';
+import type { ContactChannel } from '../../data/contact';
+
+interface Props {
+  channels: ContactChannel[];
+  class?: string;
+  animate?: boolean;
+}
+const { channels, class: className, animate = true } = Astro.props;
+const icons: Record<string, InkIconName> = { whatsapp: 'chat', email: 'email', linkedin: 'profile', github: 'code', nodosur: 'external' };
+---
+
+<ul class:list={['channels', className]} data-ink={animate ? '' : undefined} data-specimen="10w">
+  {channels.map((channel, i) => {
+    const external = channel.url.startsWith('http');
+    return (
+      <li class="channels__item" style={`--i: ${i}`}>
+        <a class="channels__link" href={channel.url} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>
+          <InkIcon name={icons[channel.id] ?? 'external'} size={28} />
+          <span class="channels__name">{channel.name}</span>
+          <span class="channels__label">{channel.label}</span>
+        </a>
+      </li>
+    );
+  })}
+</ul>
+
+<style is:global>
+  .channels { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; --e: cubic-bezier(0.16, 1, 0.3, 1); }
+  .channels__item { border-top: 1px solid color-mix(in oklab, currentColor 28%, transparent); }
+  .channels__item:last-child { border-bottom: 1px solid color-mix(in oklab, currentColor 28%, transparent); }
+  .channels__link { display: grid; grid-template-columns: 28px auto 1fr; align-items: center; gap: 14px; min-height: 52px; padding: 8px 4px; color: inherit; text-decoration: none; }
+  .channels__name { font: 600 11px / 1 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; }
+  .channels__label { justify-self: end; font: 400 var(--fs-caption) / 1.2 var(--font-mono); overflow-wrap: anywhere; text-align: right; }
+  .channels__link:hover .channels__label { text-decoration: underline; text-underline-offset: 4px; }
+  .channels__link:focus-visible { outline: 3px solid var(--accent-blue); outline-offset: 2px; }
+
+  @keyframes channels-in {
+    from { clip-path: inset(0 100% 0 0); }
+    to { clip-path: inset(0 0 0 0); }
+  }
+  html.js .channels:not(.is-in) .channels__item { clip-path: inset(0 100% 0 0); }
+  html.js .channels.is-in .channels__item { animation: channels-in 0.8s var(--e) calc(var(--i) * 0.1s) 1 both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.js .channels:not(.is-in) .channels__item,
+    html.js .channels.is-in .channels__item { animation: none; clip-path: none; }
+  }
+</style>
