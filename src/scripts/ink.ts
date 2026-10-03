@@ -144,7 +144,11 @@ function initSiteHeader(): void {
     });
   });
 
+  // Belt scenes own their belt while the scrub runs (initBeltScenes); under reduced
+  // motion their chapters are plain stacked blocks and use the generic rule below.
+  const sceneOwned = (el: HTMLElement): boolean => !reduced && el.matches('[data-belt-scene], [data-belt-chapter]');
   document.querySelectorAll<HTMLElement>('[data-belt]').forEach((el) => {
+    if (sceneOwned(el)) return;
     ScrollTrigger.create({
       trigger: el,
       start: 'top 50%',
@@ -156,8 +160,44 @@ function initSiteHeader(): void {
   });
 }
 
+// Belt scenes ([data-belt-scene] with [data-belt-chapter] children): chapter i is the
+// active one when the scene progress is nearest to i / (n - 1), on the desktop horizontal
+// track and on the mobile sticky stack alike. Sets <html data-belt> (header progress
+// colour) and data-chapter on the scene. Skipped under reduced motion (no scrub there).
+function initBeltScenes(): void {
+  if (reduced) return;
+
+  document.querySelectorAll<HTMLElement>('[data-belt-scene]').forEach((scene) => {
+    const chapters = Array.from(scene.querySelectorAll<HTMLElement>('[data-belt-chapter]'));
+    if (chapters.length === 0) return;
+
+    let current = -1;
+    const apply = (): void => {
+      const belt = chapters[current]?.dataset.belt;
+      if (belt) root.dataset.belt = belt;
+    };
+
+    ScrollTrigger.create({
+      trigger: scene,
+      start: 'top top',
+      end: 'bottom bottom',
+      onUpdate: (self) => {
+        const index = Math.round(self.progress * (chapters.length - 1));
+        if (index === current) return;
+        current = index;
+        scene.dataset.chapter = String(index);
+        apply();
+      },
+      onToggle: (self) => {
+        if (self.isActive && current >= 0) apply();
+      },
+    });
+  });
+}
+
 initReveal();
 initScroll();
 initLoader(reduced);
 initScenes();
 initSiteHeader();
+initBeltScenes();

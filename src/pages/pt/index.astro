@@ -1,5 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import HeroSection from '../../components/site/HeroSection.astro';
+import BeltsSection from '../../components/site/BeltsSection.astro';
 import Placeholders from '../../components/site/Placeholders.astro';
 import { useTranslations } from '../../i18n/ui';
 
@@ -8,8 +10,8 @@ const t = useTranslations('pt');
 
 <Layout lang="pt" title={t('meta.title')} description={t('meta.description')}>
   <main>
-    <Placeholders lang="pt">
-      <h1 class="ink-rise" data-ink>ink redesign — empty shell</h1>
-    </Placeholders>
+    <HeroSection lang="pt" />
+    <BeltsSection lang="pt" />
+    <Placeholders lang="pt" />
   </main>
 </Layout>

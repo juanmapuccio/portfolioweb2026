@@ -1,7 +1,8 @@
 ---
 // Temporary empty sections so the header nav and progress line can be exercised before
-// the real sections (S1..S7) land. The slot goes inside #hero. Remove per section as
-// each sub-phase replaces its placeholder.
+// the remaining sections land. Sections that already have a real component (S1 hero in
+// HeroSection, S2 belts in BeltsSection) are skipped here; remove ids from `real` as each
+// sub-phase replaces its placeholder, and delete this file once the list is empty.
 import { siteSections } from '../../data/sections';
 import { useTranslations, type Lang } from '../../i18n/ui';
 
@@ -10,11 +11,13 @@ interface Props {
 }
 const { lang = 'es' } = Astro.props;
 const t = useTranslations(lang);
+const real = new Set<string>(['hero', 'cinturones']);
+const pending = siteSections.filter((section) => !real.has(section.id));
 ---
 
-{siteSections.map((section) => (
+{pending.map((section) => (
   <section id={section.id} data-belt={section.belt} class="ph-section" style={`--ph-belt: var(--ink-belt-${section.token})`}>
-    {section.id === 'hero' ? <slot /> : <p class="ph-label">{t(section.label)}</p>}
+    <p class="ph-label">{t(section.label)}</p>
   </section>
 ))}
 

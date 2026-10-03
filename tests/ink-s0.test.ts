@@ -160,10 +160,13 @@ describe('index pages', () => {
     expect(belted).toEqual(belts);
   });
 
-  test('every locale page mounts the placeholders with the h1 inside #hero', () => {
+  test('every locale page mounts the real hero and belts, then the remaining placeholders', () => {
     for (const [lang, text] of Object.entries(pages)) {
-      expect(text).toContain(`<Placeholders lang="${lang}">`);
-      expect(text).toMatch(/<Placeholders[^>]*>\s*<h1/);
+      expect(text).toContain(`<HeroSection lang="${lang}" />`);
+      expect(text).toContain(`<BeltsSection lang="${lang}" />`);
+      expect(text).toContain(`<Placeholders lang="${lang}" />`);
+      expect(text.indexOf('<HeroSection')).toBeLessThan(text.indexOf('<BeltsSection'));
+      expect(text.indexOf('<BeltsSection')).toBeLessThan(text.indexOf('<Placeholders'));
     }
   });
 });
