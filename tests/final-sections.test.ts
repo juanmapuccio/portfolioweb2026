@@ -1180,6 +1180,26 @@ describe('mobile immersive: <=767px scenes swapped in by CSS', () => {
       expect(globalCss).toContain(`${token}:`);
     }
   });
+
+  test('header progress line takes the active belt colour', () => {
+    // updateActiveBelt writes the belt key onto the bar; CSS maps it to a token.
+    expect(layout).toContain('progressBar.dataset.belt = key;');
+    const rules: Record<string, string> = {
+      blanco: 'var(--text-main)',
+      amarillo: 'var(--belt-yellow)',
+      verde: 'var(--belt-green)',
+      azul: 'var(--belt-blue)',
+      rojo: 'var(--belt-red)',
+      negro: 'var(--panel-dark-fg)',
+    };
+    for (const [belt, token] of Object.entries(rules)) {
+      expect(layout).toMatch(
+        new RegExp(`\\.header-scroll-progress\\[data-belt='${belt}'\\]\\s*\\{\\s*background:\\s*${token.replace(/[()]/g, '\\$&')};`),
+      );
+    }
+    // No new scroll listener or rAF: the line piggybacks on the belt:change flow.
+    expect(layout).toContain("window.addEventListener('belt:change', syncHeaderBeltColor)");
+  });
 });
 
 describe('mobile scroll polish contract', () => {

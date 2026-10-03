@@ -275,6 +275,11 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
       activeChLabel.textContent = BELT_LABELS[key];
     }
 
+    // The progress line takes the active belt colour (see .header-scroll-progress[data-belt]).
+    if (progressBar && idx >= 0) {
+      progressBar.dataset.belt = key;
+    }
+
     if (key === 'negro') {
       siteHeader?.classList.add('is-dark');
     } else {
@@ -855,6 +860,32 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     will-change: transform;
     background: #bdb4a4;
     transition: background 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  /* Belt-coloured progress line. White would vanish on the cream header and
+     black on the dark one, so those two use the ink / paper tokens instead. */
+  .header-scroll-progress[data-belt='blanco'] {
+    background: var(--text-main);
+  }
+
+  .header-scroll-progress[data-belt='amarillo'] {
+    background: var(--belt-yellow);
+  }
+
+  .header-scroll-progress[data-belt='verde'] {
+    background: var(--belt-green);
+  }
+
+  .header-scroll-progress[data-belt='azul'] {
+    background: var(--belt-blue);
+  }
+
+  .header-scroll-progress[data-belt='rojo'] {
+    background: var(--belt-red);
+  }
+
+  .header-scroll-progress[data-belt='negro'] {
+    background: var(--panel-dark-fg);
   }
 
   @media (max-width: 1023px) {
