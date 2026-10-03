@@ -9,6 +9,7 @@ The current site has ~8,300 lines of presentation, two duplicated desktop/mobile
 ## Decisions (user)
 - Branch strategy: new branch `feat/ink-redesign`, empty only the presentation layer. Keep `src/data`, `src/i18n`, `src/assets`, `public/*`, `Belt3D.astro` + `proceduralBelt.ts` and the lenis/gsap/three dependencies in the repo, unused for now.
 - No Tailwind (the project does not use it and the catalog is CSS + variables).
+- Belt colours (decided 2026-10-03): keep BOTH. Editorial design-system hex stays the base (`--belt-*`); the catalog's oklch values are added as a separate set (`--ink-belt-*`) used only by the ink animations.
 - Piece selection per section is a design decision made by the user in F3 (`/lab`), not by the agent.
 
 ## Scope
@@ -28,7 +29,7 @@ Known pre-existing failure on the old tree: `dark tail polish D2 ... skills reve
 ## Tasks
 - [x] F0 Preserve and branch: phase 2 committed as `1de9874` on `feat/mobile-immersive`, branch `feat/ink-redesign` created from it.
 - [x] F1 Empty the presentation (pages, section components, journey.ts, old tests); minimal Layout shell
-- [ ] F2 Foundation: tokens.css, InkDefs.astro, src/styles/ink/*.css (one-shot keyframes + reduced-motion), ink.ts engine, contract tests
+- [x] F2 Foundation: tokens.css, InkDefs.astro, src/styles/ink/*.css (one-shot keyframes + reduced-motion), ink.ts engine, contract tests
 - [ ] F3 Piece lab (`/lab`): port chosen specimens, user picks per section
 - [ ] F4 Section skeleton in one responsive tree (storyboard 5a to 5g) and light section transitions
 - [ ] F5 (later) Reintroduce content, storytelling, Belt3D
@@ -41,7 +42,8 @@ Known pre-existing failure on the old tree: `dark tail polish D2 ... skills reve
 ## Progress / evidence
 - F0 (2026-10-03): `1de9874 feat(mobile): ink entrance on hero and fixed contact CTA` on `feat/mobile-immersive` (89 pass / 1 known fail, astro check 0 errors, build ok). Branch `feat/ink-redesign` created from it. Known gaps carried in that commit: faint brush stroke (stroke-opacity 0.1), CTA stays visible under reduced motion. They die with the old tree.
 - F1 (2026-10-03, route: delegated writer, not committed yet): deleted 13 files (10 components, journey.ts, responsiveDetails.ts (no remaining importers), tests/final-sections.test.ts). Layout.astro reduced to head meta + fonts + global.css + lenis.css + `<slot />` (removed QR/qrcode, header, ticks, Lenis/GSAP, js-reveal). 3 index pages render one `<main><h1>` placeholder with meta from i18n. Belt3D.astro and proceduralBelt.ts untouched (no imports of deleted files). Deviation: one comment in `src/styles/global.css` line 9 reworded (it mentioned journey.ts). Checks: `bunx astro check` 0 errors, 0 warnings, 3 hints (pre-existing, from design/ files); `bun run build` ok, 3 pages built; `bun test` exits 1 with "0 test files matching" (no tests exist, expected); dangling-reference rg over src tests returns nothing. Unverified: no browser check.
+- F2 (2026-10-03, route: delegated writer, not committed yet): created `src/styles/tokens.css` (moved whole :root out of global.css; hex `--belt-*` base + `--belt-orange`, oklch `--ink-belt-*`, `--seal-red`, `--ok-green`, `--paper`, `--fs-*`, `--lh-body`, `--tracking-*`, `--gutter`, `--section-pad`, `--gap`, `--header-h`; removed `--black-circle-max-radius`), `src/components/ink/InkDefs.astro` (filters dryH, dryV, dryM, bleedF, wash, brushS; revealMask and washi NOT ported, mask depends on a looping animation), `src/styles/ink/ink.css` (5 keyframes, utilities gated by `html.js` + `.is-in`, reduced-motion block), `src/scripts/ink.ts` (reveal observer, Lenis+GSAP, scene `--p`), `tests/ink-foundation.test.ts`. global.css now imports tokens.css and ink/ink.css; Layout renders `<InkDefs />` and one `<script>` importing ink.ts; 3 pages: h1 got `class="ink-rise" data-ink`. Checks: `bunx astro check` 0 errors, 0 warnings, 3 hints; `bun run build` ok, 3 pages; `bun test` 10 pass, 0 fail. Deviations: no ink-belt orange (catalog defines none); `.ink-rise` has no overflow mask on the h1 (smoke use only). Unverified: no browser check (animation, Lenis feel, reduced motion).
 - Engram mirror `odd/ink-redesign/tasks`: pending.
 
 ## Next step
-F1: parent reviews and commits; then F2 foundation.
+F2: parent reviews and commits; then F3 piece lab.

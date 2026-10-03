@@ -14,6 +14,7 @@ import '@fontsource/ibm-plex-mono/600.css';
 import '@fontsource/noto-sans-kr/400.css';
 import '@fontsource/noto-sans-kr/700.css';
 import 'lenis/dist/lenis.css';
+import InkDefs from '../components/ink/InkDefs.astro';
 import type { Lang } from '../i18n/ui';
 
 interface Props {
@@ -64,6 +65,10 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     <meta name="twitter:image:alt" content={ogImageAlt} />
   </head>
   <body>
+    <InkDefs />
     <slot />
+    <script>
+      import '../scripts/ink';
+    </script>
   </body>
 </html>
