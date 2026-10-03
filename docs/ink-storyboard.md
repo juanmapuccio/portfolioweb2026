@@ -64,44 +64,41 @@ Un solo árbol HTML responsive. Lo que cambia entre desktop y mobile es el layou
 
 ## S1. Hero (página de manga, 5a)
 
-Decisión 2026-10-03: el hero es una página de manga (catálogo 5a, `design/Franjas Pincel.dc.html`). Sin glifos ni sellos asiáticos en toda la landing. Sin pull-back 10a, sin zoom/destello 10l.
+Decisión 2026-10-03: el hero es una página de manga (catálogo 5a, `design/Franjas Pincel.dc.html`). Sin glifos ni sellos asiáticos en toda la landing. Sin pull-back 10a, sin zoom/destello 10l. Rediseño koma-wari (misma fecha, tras feedback "no parece manga"): ver `docs/research-manga-hero.md`.
 
-**Desktop** (>= 768, pin 200svh, salida con `--p`)
+**Desktop** (>= 768, pin 300svh, salida con `--p`)
 ```
-┌ gutter negro 10px ──────────────────────────────────────────┐
-│ ┌────────────────────────┬───────────┬───────────────────┐ │
-│ │ Juan Manuel Puccio     │           │                   │ │
-│ │ (panel nombre)         │           │  retrato real     │ │
-│ ├──────────────┬─────────┤           │  + trama de       │ │
-│ │ tagline      │ rol /   │           │  puntos           │ │
-│ │ (i18n)       │ fig     │           │  (radial-gradient)│ │
-│ ├──────────────┴─────────┤           │                   │ │
-│ │ ↓ scroll cue (9j)      │           │                   │ │
-│ └────────────────────────┴───────────┴───────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
- aparición CON EL SCROLL (no hay cascada temporal): cada viñeta tiene su ventana
-   de --p; opacity + translateY 32px + scale .98 -> 1, lineal en el scroll, sin rebote.
-   nombre y cue ya completos en p=0 (pantalla nunca vacía, cue visible);
-   tagline .04-.26, retrato .10-.40, rol .30-.55. Retrato en B/N (filter estático
-   grayscale(1) contrast(1.2), nunca animado) + trama multiply + borde de tinta.
- salida (--p .65 -> 1): la página deriva hacia arriba (-6svh) y se desvanece
-   mientras una aguada suave (gradiente papel, translateY) sube y deja ver
-   los cinturones. Solo transform y opacity.
+┌ marco de página negro 3px, papel entre viñetas (gutters 14px) ─┐
+│ ╔══════════════════════════╗╲  ╱‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾╲  ¡PUM!      │
+│ ║ JUAN MANUEL PUCCIO       ║ ╲╱   ╱  focus lines  ╲  (SFX)     │
+│ ║ (título, 800, mayúsc.,   ║  ╲  ╱  (shūchūsen)    ╲            │
+│ ║  -2deg + speed lines →)  ║   ╲╱  ┌ retrato tinta ┐            │
+│ ╚══════════════════════════╝╲  ╱   │ (PNG alfa)    │ rompe el   │
+│ ┌ caption ─────────┐╲ ▓▓▓▓▓▓▓▓▓▓▓▓ │ cruza borde   │ marco      │
+│ │ tagline (i18n)   │ ╲▓ ( rol · fig )▓ superior     │ y gutter   │
+│ └──────────────────┘  ╲▓▓ globo + cola ▓            │            │
+│ ↓ cue (9j)            ╲ viñeta negra (spot black)  └─────────────┘│
+└─────────────────────────────────────────────────────────────────┘
 ```
+- Viñetas irregulares: cada `data-panel` tiene un `clip-path: polygon()` propio (bordes inclinados, `--tilt` 26px desktop, 12px mobile). El marco negro es un `::before` con el polígono y un `::after` de papel con el mismo polígono inset `--b`, así el borde sigue el corte. Grosores distintos: nombre 6px, retrato 5px, rol 4px, tagline/cue 3px.
+- Una figura rompe el marco: el retrato es un PNG de tinta con alfa (`src/assets/fotojmPerfil-ink.png`, generado por `scripts/make-ink-portrait.mjs`: gris + normalise + curva dura, luminancia a alfa) dentro de `.hero__cutout`, que desborda la viñeta (-3% arriba, -12% a la izquierda), por encima del marco. Sin trama de puntos sobre la foto, sin `filter` en runtime.
+- Focus lines (shūchūsen) detrás del retrato y speed lines en el panel del nombre: `repeating-conic-gradient` estáticos con máscara radial/lineal (centro limpio). Nunca animadas.
+- Caption de narración (tagline): caja rectangular, borde negro 3px, sombra dura 5px, sobre viñeta rayada. Globo de diálogo (rol + fig) con cola, sobre una viñeta negra con hatching claro. SFX en letras latinas (`hero.sfx`: ¡PUM! / BAM! / POW!), contorneado, `aria-hidden`.
+- Aparición CON EL SCROLL (no hay cascada temporal): cada viñeta tiene su ventana de `--p`; opacity + translateY 32px + scale .98 -> 1, lineal, sin rebote. Nombre y cue completos en p=0; tagline .04-.26, retrato .10-.40, rol .30-.55.
+- Salida (--p .65 -> 1): la página deriva hacia arriba (-6svh) y se desvanece mientras una aguada suave de papel sube. Solo transform y opacity.
 
-**Mobile** (< 768)
+**Mobile** (< 768, pin 250svh)
 ```
-┌──────────────┐
-│ [ nombre ]   │  paneles apilados, gutter negro,
-│ [ tagline ]  │  mismo escrutinio por --p, stage fijo (sticky)
-│ [ retrato ]  │  con trama de puntos, B/N
-│ [ rol / fig ]│
-│ [ cue ]      │
-└──────────────┘
- salida: misma deriva + desvanecido + aguada (reemplaza el goteo 7e),
- pin de 250svh (desktop 300svh), solo svh; el stack se comprime a una pantalla.
+┌ marco negro ─────┐
+│ ▛ NOMBRE ▜       │  mismas viñetas apiladas, cada una con
+│ ▙ caption ▟      │  corte inclinado arriba/abajo (--tilt 12px),
+│  retrato + focus │  bordes de distinto grosor, focus lines,
+│  ¡PUM! (rompe)   │  retrato que cruza el borde superior,
+│ ( globo rol )    │  stage sticky de 100svh, solo svh.
+│ ↓ cue            │
+└──────────────────┘
 ```
-- Reduced motion / sin JS: viñetas visibles y estáticas, sin pin ni salida; retrato sigue en B/N.
+- Reduced motion / sin JS: viñetas visibles y estáticas, sin pin ni salida; la forma manga (clip-path, marcos, líneas, caption, globo) es CSS estático y se mantiene.
 - Componentes: `HeroSection` (paneles `data-panel`), `InkScrollDrop` (9j). Ya no usa `InkGlyphTitle` ni `InkDrip`.
 
 ## S2. Cinturones (capítulo central)

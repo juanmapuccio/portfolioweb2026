@@ -50,20 +50,20 @@ describe('landing: placeholders replaced', () => {
 
 describe('S1 hero', () => {
   test('tagline, role and scroll cue come from i18n in es, en and pt', () => {
-    for (const key of ['hero.tagline', 'hero.tagline.l1', 'hero.tagline.l2', 'hero.tagline.l3', 'hero.role', 'hero.fig', 'hero.scroll', 'hero.portraitAlt', 'belts.label', 'belts.chapter']) {
+    for (const key of ['hero.tagline', 'hero.tagline.l1', 'hero.tagline.l2', 'hero.tagline.l3', 'hero.role', 'hero.fig', 'hero.scroll', 'hero.sfx', 'hero.portraitAlt', 'belts.label', 'belts.chapter']) {
       expect(ui.split(`'${key}':`)).toHaveLength(4);
     }
     expect(ui).toContain("'hero.tagline': 'Audito procesos de empresas y los resuelvo con código.'");
     expect(ui).toContain("'hero.tagline': 'I audit business processes and solve them with code.'");
     expect(ui).toContain("'hero.tagline': 'Audito processos de empresas e os resolvo com código.'");
-    for (const key of ['hero.tagline', 'hero.role', 'hero.fig', 'hero.scroll', 'hero.portraitAlt', 'header.name']) {
+    for (const key of ['hero.tagline', 'hero.role', 'hero.fig', 'hero.scroll', 'hero.sfx', 'hero.portraitAlt', 'header.name']) {
       expect(hero).toContain(`t('${key}')`);
     }
   });
 
   test('name is the h1, the portrait is the repo asset, the 9j cue is reused, no glyph backdrop', () => {
     expect(hero).toContain('<h1 class="hero__name"');
-    expect(hero).toContain("from '../../assets/fotojmPerfil.png'");
+    expect(hero).toContain("from '../../assets/fotojmPerfil-ink.png'");
     expect(hero).toContain("import InkScrollDrop from '../ink/InkScrollDrop.astro'");
     expect(hero).toContain('<InkScrollDrop');
     expect(hero).not.toContain('InkGlyphTitle');
@@ -173,8 +173,8 @@ describe('perf and single engine', () => {
 
   test('no CSS filter on animated selectors in the new components', () => {
     for (const text of Object.values(newComponents)) {
-      // the only allowed filter is the STATIC B/W one on the hero portrait img (never animated)
-      expect(text.replace('filter: grayscale(1) contrast(1.2)', '')).not.toMatch(/(^|[;{\s])filter\s*:/m);
+      // no CSS filter at all: the hero portrait is a pre-processed ink asset, not a runtime filter
+      expect(text).not.toMatch(/(^|[;{\s])filter\s*:/m);
       expect(text).not.toContain('backdrop-filter');
     }
     // inline svg filter attributes only appear on the reused static pieces, never here

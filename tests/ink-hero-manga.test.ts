@@ -20,27 +20,72 @@ async function walk(dir: URL): Promise<URL[]> {
 const hero = await read('../src/components/site/HeroSection.astro');
 const loader = await read('../src/scripts/loader.ts');
 const belts = await read('../src/components/site/BeltsSection.astro');
+const ui = await read('../src/i18n/ui.ts');
 
 describe('hero as a manga page', () => {
   test('at least four panels with data-panel, on a black gutter grid', () => {
     const panels = [...hero.matchAll(/data-panel="([a-z]+)"/g)].map((m) => m[1]);
     expect(panels.length).toBeGreaterThanOrEqual(4);
     expect(panels).toEqual(['name', 'tagline', 'portrait', 'role', 'cue']);
-    expect(hero).toContain('gap: 10px');
-    expect(hero).toContain('background: var(--ink-belt-black)');
     expect(hero).toContain("t('hero.tagline')");
   });
 
-  test('portrait is B/W via a static filter on the img, with an ink border and no dot screentone', () => {
+  test('irregular panels: clip-path polygons with slanted edges, black frames of varied weight', () => {
+    // every panel has its own polygon, the frame is a black ::before plus a paper ::after inset by --b
+    const clips = [...hero.matchAll(/\.hero__panel--(name|tagline|portrait|role|cue) \{[^}]*--clip: polygon\(([^;]+)\);/g)];
+    expect(new Set(clips.map((m) => m[1]))).toEqual(new Set(['name', 'tagline', 'portrait', 'role', 'cue']));
+    // slanted: at least one polygon vertex off the rectangle (a calc() offset or a non-0/100% y on a side)
+    expect(hero).toMatch(/--clip: polygon\([^;]*calc\(100% - var\(--tilt\)\)/);
+    expect(hero).toMatch(/\.hero__panel::before \{[^}]*background: var\(--ink-belt-black\)/);
+    expect(hero).toMatch(/\.hero__panel::after \{[^}]*inset: var\(--b\)/);
+    // varied border weights
+    const weights = new Set([...hero.matchAll(/\.hero__panel--\w+ \{ --b: (\d+)px/g)].map((m) => m[1]));
+    expect(weights.size).toBeGreaterThanOrEqual(3);
+    // paper gutters, black page frame
+    expect(hero).toMatch(/\.hero__manga \{[^}]*background: var\(--paper\)[^}]*inset 0 0 0 3px var\(--ink-belt-black\)/);
+  });
+
+  test('one element breaks its frame: the ink cut-out is laid over the panel, outside its clip', () => {
+    expect(hero).toMatch(/\.hero__cutout \{[^}]*position: absolute[^}]*left: -6%[^}]*top: -3%/);
+    expect(hero).toContain("from '../../assets/fotojmPerfil-ink.png'");
+    expect(hero).toMatch(/<figure class="hero__panel hero__panel--portrait"[\s\S]*<div class="hero__cutout">[\s\S]*<Picture /);
+  });
+
+  test('focus and speed lines are static repeating-conic-gradients with a mask', () => {
+    expect((hero.match(/repeating-conic-gradient/g) ?? []).length).toBeGreaterThanOrEqual(3);
+    expect(hero).toContain('hero__lines--focus');
+    expect(hero).toContain('hero__lines--name');
+    expect(hero).toMatch(/\.hero__lines--focus \{[^}]*mask-image: radial-gradient/);
+    // lines never animate or scrub
+    expect(hero).not.toMatch(/\.hero__lines[^{]*\{[^}]*(animation|transition|var\(--p)/);
+  });
+
+  test('narration caption box, speech balloon and SFX word, all from i18n', () => {
+    expect(hero).toMatch(/\.hero__caption \{[^}]*border: 3px solid var\(--ink-belt-black\)/);
+    expect(hero).toContain('<p class="hero__caption hero__tagline">{t(\'hero.tagline\')}</p>');
+    expect(hero).toMatch(/\.hero__balloon \{[^}]*border-radius: 50%/);
+    expect(hero).toContain('.hero__balloon::before');
+    expect(hero).toContain("t('hero.role')");
+    expect(hero).toMatch(/\.hero__panel--name[^{]*\{[^}]*\}[\s\S]*\.hero__name \{[^}]*font: 800[^}]*text-transform: uppercase/);
+    expect(hero).toContain('<span class="hero__sfx" aria-hidden="true">{t(\'hero.sfx\')}</span>');
+    // the SFX words are Latin letters
+    for (const w of ['¡PUM!', 'BAM!', 'POW!']) expect(ui).toContain(`'hero.sfx': '${w}'`);
+  });
+
+  test('portrait is manga ink (pre-processed asset), with no dot screentone and no runtime filter', async () => {
+    expect(existsSync(new URL('../src/assets/fotojmPerfil-ink.png', import.meta.url))).toBe(true);
+    expect(existsSync(new URL('../scripts/make-ink-portrait.mjs', import.meta.url))).toBe(true);
     expect(hero).not.toContain('hero__tone');
-    expect(hero).not.toContain('radial-gradient(rgba(28, 26, 23');
-    expect(hero).toMatch(/\.hero__panel--portrait img \{[^}]*filter: grayscale\(1\) contrast\(1\.2\)/);
-    expect(hero).toMatch(/\.hero__panel--portrait \{[^}]*border: 2px solid var\(--ink-belt-black\)/);
+    expect(hero).not.toMatch(/radial-gradient\(rgba\(28, 26, 23/);
+    expect(hero).not.toMatch(/(halftone|screentone)[^\n]*(radial-gradient|dot)/i);
+    // no radial-gradient may be used as a background-image dot pattern (only as a mask)
+    for (const [, line] of hero.matchAll(/^(.*radial-gradient.*)$/gm)) expect(line).toMatch(/mask-image/);
+    expect(hero).not.toMatch(/(^|[;{\s])filter\s*:/m);
     expect(hero).not.toContain('filter="');
-    // the filter is never inside a keyframe, a transition, or on the transformed panel wrapper
-    for (const [, body] of hero.matchAll(/@keyframes\s+[\w-]+\s*\{([\s\S]*?)\n  \}/g)) expect(body).not.toMatch(/filter/);
-    expect(hero).not.toMatch(/transition[^;]*filter/);
-    expect(hero).not.toMatch(/\.hero__panel(--\w+)? \{[^}]*filter\s*:/);
+    expect(hero).not.toContain('backdrop-filter');
+    expect(hero).not.toMatch(/@keyframes/);
+    // hatching in panel backgrounds is fine
+    expect(hero).toContain('repeating-linear-gradient');
   });
 
   test('panels are scrubbed by --p (own windows), not by a timer', () => {
@@ -84,8 +129,11 @@ describe('hero as a manga page', () => {
     expect(noPref).toBeGreaterThan(-1);
     expect(hero.slice(noPref, scrub)).not.toContain('@media (prefers-reduced-motion: reduce)');
     expect(hero.slice(0, noPref)).not.toMatch(/opacity: var\(--i\)|position: sticky/);
-    // the filter is outside any media query, so it also holds under reduced motion
-    expect(hero.indexOf('filter: grayscale(1) contrast(1.2)')).toBeLessThan(noPref);
+    // the frame, focus lines, caption and balloon are outside any media query, so they hold under reduced motion
+    for (const marker of ['.hero__panel::before', '.hero__lines--focus {', '.hero__caption {', '.hero__balloon {']) {
+      expect(hero.indexOf(marker)).toBeGreaterThan(-1);
+      expect(hero.indexOf(marker)).toBeLessThan(noPref);
+    }
   });
 
   test('exit is a soft wash scrubbed by --p, animating only transform and opacity', () => {
