@@ -1,0 +1,36 @@
+---
+// Specimen 10i: horizontal slash, the two title halves slide into line and a red blade seals the cut (catalog cat-C).
+interface Props {
+  text: string;
+  class?: string;
+}
+const { text, class: className } = Astro.props;
+---
+
+<div class:list={['ink-10i', className]} data-ink data-specimen="10i">
+  <span class="ink-10i__half ink-10i__half--top">{text}</span>
+  <span class="ink-10i__half ink-10i__half--bottom" aria-hidden="true">{text}</span>
+  <svg class="ink-10i__blade" viewBox="0 0 420 200" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <path class="ink-draw" style="--ink-delay: 0.9s; --ink-duration: 0.5s" d="M440 101 L-20 99" fill="none" stroke-width="3" pathLength="1"></path>
+  </svg>
+</div>
+
+<style is:global>
+  .ink-10i { position: relative; display: grid; place-items: center; width: 100%; max-width: 420px; height: 200px; overflow: hidden; background: var(--paper); color: var(--text-main); --e: cubic-bezier(0.16, 1, 0.3, 1); }
+  .ink-10i__half { grid-area: 1 / 1; font: 700 54px/1.1 var(--font-serif); }
+  .ink-10i__half--top { clip-path: inset(0 0 50% 0); }
+  .ink-10i__half--bottom { clip-path: inset(50% 0 0 0); }
+  .ink-10i__blade { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ink-10i__blade path { stroke: var(--seal-red); }
+
+  @keyframes ink-10i-from-left { from { opacity: 0; transform: translateX(-70px); } to { opacity: 1; transform: none; } }
+  @keyframes ink-10i-from-right { from { opacity: 0; transform: translateX(70px); } to { opacity: 1; transform: none; } }
+  html.js .ink-10i:not(.is-in) .ink-10i__half { opacity: 0; }
+  html.js .ink-10i.is-in .ink-10i__half--top { animation: ink-10i-from-left 0.9s var(--e) 0.1s 1 both; }
+  html.js .ink-10i.is-in .ink-10i__half--bottom { animation: ink-10i-from-right 0.9s var(--e) 0.1s 1 both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.js .ink-10i:not(.is-in) .ink-10i__half,
+    html.js .ink-10i.is-in .ink-10i__half { animation: none; opacity: 1; transform: none; }
+  }
+</style>

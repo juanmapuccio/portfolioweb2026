@@ -1,0 +1,56 @@
+---
+// Specimen 4b: energy aura behind a card, hover state (catalog cat-J).
+// One-shot bloom on entry (animated wrapper), hover swell via transition on the inner
+// static svg. The wash filter sits on static ellipses only.
+type Tone = 'white' | 'yellow' | 'green' | 'blue' | 'red' | 'black';
+interface Props {
+  title: string;
+  label: string;
+  tone?: Tone;
+  class?: string;
+}
+const { title, label, tone = 'blue', class: className } = Astro.props;
+---
+
+<div class:list={['ink-4b', className]} data-ink data-specimen="4b" style={`--tone: var(--ink-belt-${tone})`}>
+  <div class="ink-4b__bloom ink-4b__bloom--a">
+    <svg class="ink-4b__aura" viewBox="0 0 320 280" aria-hidden="true" focusable="false">
+      <g filter="url(#wash)"><ellipse class="ink-4b__e1" cx="160" cy="150" rx="100" ry="110"></ellipse></g>
+    </svg>
+  </div>
+  <div class="ink-4b__bloom ink-4b__bloom--b">
+    <svg class="ink-4b__aura" viewBox="0 0 320 280" aria-hidden="true" focusable="false">
+      <g filter="url(#wash)"><ellipse class="ink-4b__e2" cx="160" cy="160" rx="80" ry="90"></ellipse></g>
+    </svg>
+  </div>
+  <div class="ink-4b__card">
+    <span class="ink-4b__title">{title}</span>
+    <span class="ink-4b__label">{label}</span>
+  </div>
+</div>
+
+<style is:global>
+  .ink-4b { position: relative; width: 100%; max-width: 320px; aspect-ratio: 320 / 280; overflow: hidden; background: var(--panel-dark); --e: cubic-bezier(0.16, 1, 0.3, 1); }
+  .ink-4b__bloom, .ink-4b__aura { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ink-4b__bloom--a { --o: 0.6; opacity: var(--o); }
+  .ink-4b__bloom--b { --o: 0.85; opacity: var(--o); }
+  .ink-4b__e1 { fill: var(--tone); }
+  .ink-4b__e2 { fill: color-mix(in oklab, var(--tone) 55%, white); }
+  .ink-4b__aura { transform-origin: 50% 53%; transition: transform 0.5s var(--e); }
+  .ink-4b:hover .ink-4b__aura { transform: scale(1.08, 1.18); }
+  .ink-4b__card { position: absolute; left: 31.25%; top: 28.57%; width: 37.5%; height: 50%; display: grid; place-content: center; gap: 6px; text-align: center; background: var(--paper); color: var(--text-main); }
+  .ink-4b__title { font: 700 clamp(14px, 4.5vw, 20px)/1.1 var(--font-serif); }
+  .ink-4b__label { font: 400 9px/1.2 var(--font-mono); letter-spacing: 0.1em; }
+
+  @keyframes ink-4b-bloom { from { opacity: 0; transform: scale(0.6); } }
+  html.js .ink-4b:not(.is-in) .ink-4b__bloom { opacity: 0; transform: scale(0.6); }
+  html.js .ink-4b.is-in .ink-4b__bloom { animation: ink-4b-bloom 1.1s var(--e) 0s 1 both; }
+  html.js .ink-4b.is-in .ink-4b__bloom--b { animation-delay: 0.2s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.js .ink-4b:not(.is-in) .ink-4b__bloom,
+    html.js .ink-4b.is-in .ink-4b__bloom { animation: none; opacity: var(--o); transform: none; }
+    .ink-4b__aura { transition: none; }
+    .ink-4b:hover .ink-4b__aura { transform: none; }
+  }
+</style>

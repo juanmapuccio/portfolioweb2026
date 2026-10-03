@@ -1,0 +1,44 @@
+---
+// Specimen 1b: underline, thick-to-thin brush stroke with dry tail, plus a seal (catalog cat-C).
+// Stroke revealed with clip-path (filter stays on a static group); seal uses the ink-stamp primitive.
+interface Props {
+  title: string;
+  seal: string;
+  class?: string;
+}
+const { title, seal, class: className } = Astro.props;
+---
+
+<div class:list={['ink-1b', className]} data-ink data-specimen="1b">
+  <div class="ink-1b__head">
+    <span class="ink-1b__title">{title}</span>
+    <span class="ink-1b__seal ink-stamp" style="--ink-delay: 0.6s">{seal}</span>
+  </div>
+  <svg class="ink-1b__stroke" viewBox="0 0 360 50" aria-hidden="true" focusable="false">
+    <g filter="url(#dryH)">
+      <path d="M4 30 C40 18 120 22 220 26 S330 32 356 20" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round"></path>
+      <path class="ink-1b__tail" d="M230 30 C280 34 320 30 356 22" fill="none" stroke-width="14" stroke-linecap="round" opacity="0.7"></path>
+    </g>
+  </svg>
+</div>
+
+<style is:global>
+  .ink-1b { display: block; max-width: 420px; padding: 36px 32px; --e: cubic-bezier(0.16, 1, 0.3, 1); }
+  .ink-1b__head { display: flex; align-items: center; gap: 14px; }
+  .ink-1b__title { font: 600 40px/1.1 var(--font-serif); color: var(--text-main); }
+  .ink-1b__seal { display: grid; place-items: center; width: 34px; height: 34px; background: var(--belt-red); color: var(--belt-white); font: 700 15px/1 serif; }
+  .ink-1b__stroke { display: block; width: 100%; height: 46px; margin-top: 4px; color: var(--text-main); }
+  .ink-1b__tail { stroke: var(--bg-primary); }
+
+  @keyframes ink-1b-wipe {
+    from { clip-path: inset(-50% 100% -50% -10%); }
+    to { clip-path: inset(-50% -10% -50% -10%); }
+  }
+  html.js .ink-1b:not(.is-in) .ink-1b__stroke { clip-path: inset(-50% 100% -50% -10%); }
+  html.js .ink-1b.is-in .ink-1b__stroke { animation: ink-1b-wipe 1s var(--e) 0.1s 1 both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.js .ink-1b:not(.is-in) .ink-1b__stroke,
+    html.js .ink-1b.is-in .ink-1b__stroke { animation: none; clip-path: none; }
+  }
+</style>

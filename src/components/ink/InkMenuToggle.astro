@@ -1,0 +1,50 @@
+---
+// Specimen 9d: menu to close, three brush strokes cross into an X (catalog cat-M).
+// Plays once on entry as a morph demo. Each stroke is its own svg layer with a static
+// filter so only whole-element transform/opacity animate. The catalog's white slash flash is omitted.
+interface Props {
+  label: string;
+  size?: number;
+  class?: string;
+}
+const { label, size = 96, class: className } = Astro.props;
+---
+
+<div class:list={['ink-9d', className]} data-ink data-specimen="9d" role="img" aria-label={label} style={`--s: ${size}px`}>
+  <svg class="ink-9d__stroke ink-9d__stroke--top" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+    <g filter="url(#brushS)"><path d="M4 8c6-1 16 1 24-1"></path></g>
+  </svg>
+  <svg class="ink-9d__stroke ink-9d__stroke--mid" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+    <g filter="url(#brushS)"><path d="M4 16c8 1 14-1 24 0"></path></g>
+  </svg>
+  <svg class="ink-9d__stroke ink-9d__stroke--bottom" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+    <g filter="url(#brushS)"><path d="M6 24c6-1 14 1 20-1"></path></g>
+  </svg>
+</div>
+
+<style is:global>
+  .ink-9d { position: relative; width: var(--s); height: var(--s); color: var(--text-main); --e: cubic-bezier(0.7, 0, 0.3, 1); }
+  .ink-9d__stroke { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; transform-origin: 50% 50%; }
+  /* Final state is the X: top and bottom strokes cross, the middle one leaves. */
+  .ink-9d__stroke--top { transform: translateY(calc(var(--s) * 0.25)) rotate(45deg); }
+  .ink-9d__stroke--bottom { transform: translateY(calc(var(--s) * -0.25)) rotate(-45deg); }
+  .ink-9d__stroke--mid { opacity: 0; transform: translateX(30%); }
+
+  @keyframes ink-9d-top { from { transform: none; } to { transform: translateY(calc(var(--s) * 0.25)) rotate(45deg); } }
+  @keyframes ink-9d-bottom { from { transform: none; } to { transform: translateY(calc(var(--s) * -0.25)) rotate(-45deg); } }
+  @keyframes ink-9d-mid { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(30%); } }
+  html.js .ink-9d:not(.is-in) .ink-9d__stroke--top, html.js .ink-9d:not(.is-in) .ink-9d__stroke--bottom { transform: none; }
+  html.js .ink-9d:not(.is-in) .ink-9d__stroke--mid { opacity: 1; transform: none; }
+  html.js .ink-9d.is-in .ink-9d__stroke--top { animation: ink-9d-top 0.8s var(--e) 0.5s 1 both; }
+  html.js .ink-9d.is-in .ink-9d__stroke--bottom { animation: ink-9d-bottom 0.8s var(--e) 0.5s 1 both; }
+  html.js .ink-9d.is-in .ink-9d__stroke--mid { animation: ink-9d-mid 0.7s var(--e) 0.4s 1 both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.js .ink-9d:not(.is-in) .ink-9d__stroke--top,
+    html.js .ink-9d.is-in .ink-9d__stroke--top { animation: none; transform: translateY(calc(var(--s) * 0.25)) rotate(45deg); }
+    html.js .ink-9d:not(.is-in) .ink-9d__stroke--bottom,
+    html.js .ink-9d.is-in .ink-9d__stroke--bottom { animation: none; transform: translateY(calc(var(--s) * -0.25)) rotate(-45deg); }
+    html.js .ink-9d:not(.is-in) .ink-9d__stroke--mid,
+    html.js .ink-9d.is-in .ink-9d__stroke--mid { animation: none; opacity: 0; transform: translateX(30%); }
+  }
+</style>

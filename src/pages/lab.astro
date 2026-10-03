@@ -1,0 +1,197 @@
+---
+// Dev review page for the ink pieces (F3). Not part of the product: noindex, sample copy only.
+import Layout from '../layouts/Layout.astro';
+import LabCard from '../components/lab/LabCard.astro';
+import InkUnderlineSweep from '../components/ink/InkUnderlineSweep.astro';
+import InkUnderlineDry from '../components/ink/InkUnderlineDry.astro';
+import InkDropReveal from '../components/ink/InkDropReveal.astro';
+import InkMaskReveal from '../components/ink/InkMaskReveal.astro';
+import InkThrowTag from '../components/ink/InkThrowTag.astro';
+import InkCalligraphy from '../components/ink/InkCalligraphy.astro';
+import InkGlyphTitle from '../components/ink/InkGlyphTitle.astro';
+import InkOnomatopoeia from '../components/ink/InkOnomatopoeia.astro';
+import InkLetterCascade from '../components/ink/InkLetterCascade.astro';
+import InkSlashTitle from '../components/ink/InkSlashTitle.astro';
+import InkAuraCard from '../components/ink/InkAuraCard.astro';
+import InkSmokePuff from '../components/ink/InkSmokePuff.astro';
+import InkSealSpinner from '../components/ink/InkSealSpinner.astro';
+import InkLoaderEnso from '../components/ink/InkLoaderEnso.astro';
+import InkLoaderDrop from '../components/ink/InkLoaderDrop.astro';
+import InkNavStroke from '../components/ink/InkNavStroke.astro';
+import InkLinkTrail from '../components/ink/InkLinkTrail.astro';
+import InkLangStamp from '../components/ink/InkLangStamp.astro';
+import InkIcon from '../components/ink/InkIcon.astro';
+import InkIconButton from '../components/ink/InkIconButton.astro';
+import InkMenuToggle from '../components/ink/InkMenuToggle.astro';
+import InkLaunchArrow from '../components/ink/InkLaunchArrow.astro';
+import InkFeedback from '../components/ink/InkFeedback.astro';
+import InkContactSeals from '../components/ink/InkContactSeals.astro';
+import InkScrollDrop from '../components/ink/InkScrollDrop.astro';
+import { inkIconNames } from '../components/ink/inkIcons';
+
+const navItems = [
+  { label: 'Projects', href: '#' },
+  { label: 'Principles', href: '#' },
+  { label: 'Contact', href: '#' },
+];
+const channels = [
+  { icon: 'chat', label: 'Chat', primary: true },
+  { icon: 'email', label: 'Email' },
+  { icon: 'profile', label: 'Profile' },
+  { icon: 'code', label: 'Code' },
+  { icon: 'cv', label: 'CV' },
+] as const;
+---
+
+<Layout title="Ink lab" description="Development review page for the ink pieces." noindex>
+  <main class="lab">
+    <header class="lab__intro">
+      <h1 class="lab__title">Ink lab</h1>
+      <p class="lab__lead">
+        Dev review page. Each piece plays once when it enters the viewport. Use Replay to run it again. Check it at
+        393x852 and on desktop, with and without reduced motion.
+      </p>
+    </header>
+
+    <section class="lab__group" aria-labelledby="lab-c">
+      <h2 class="lab__group-title" id="lab-c">C. Titles, underlines and text reveals</h2>
+      <div class="lab__grid">
+        <LabCard id="1a" name="Underline, single sweep" note="Static dry filter, clip-path wipe. Desktop and mobile. Colour follows the belt token.">
+          <InkUnderlineSweep eyebrow="02 / Projects" title="In production" tone="yellow" />
+        </LabCard>
+        <LabCard id="1b" name="Underline, dry tail and seal" note="Static dry filter, clip-path wipe, seal via ink-stamp. Desktop and mobile.">
+          <InkUnderlineDry title="Principles" seal="예의" />
+        </LabCard>
+        <LabCard id="2c" name="Ink drop reveals title" note="3 static bleed filters on scaling layers (heaviest of group C, check CPU 4x). Dark panel entry.">
+          <InkDropReveal title="Availability" />
+        </LabCard>
+        <LabCard id="1f" name="Brush wipes uncover quote" note="No filter. Three clip-path bands. Rebuilt without the looping SVG mask. Desktop and mobile.">
+          <InkMaskReveal lines={['Consistency beats', 'improvisation.']} />
+        </LabCard>
+        <LabCard id="4a" name="Thrown brush pins a label" note="No filter. Transform and dashoffset only. Desktop and mobile.">
+          <InkThrowTag tags={['ASTRO', 'SUPABASE']} />
+        </LabCard>
+        <LabCard id="2i" name="Vertical calligraphy and seal" note="2 static bleed filters on separate layers. Side separator, desktop mostly.">
+          <InkCalligraphy glyphs={['인', '내']} label="Patience" />
+        </LabCard>
+        <LabCard id="10f" name="Giant glyph behind title" note="1 static bleed filter. Rising text inside clip wrappers. Desktop and mobile.">
+          <InkGlyphTitle glyph="도" eyebrow="05 / Stack" title="Tools" />
+        </LabCard>
+        <LabCard id="10g" name="Manga SFX for milestones" note="1 static dry filter. Reserve for 1 to 2 milestones per page. Desktop and mobile.">
+          <InkOnomatopoeia sfx="쾅" title="Deploy" caption="LIVE IN PRODUCTION" />
+        </LabCard>
+        <LabCard id="10h" name="Letter cascade, last one drips" note="No filter. One pass; the drip stays hanging. Desktop and mobile.">
+          <InkLetterCascade text="Process" />
+        </LabCard>
+        <LabCard id="10i" name="Slash, halves align" note="No filter. Clip-path halves and a blade stroke. Desktop and mobile.">
+          <InkSlashTitle text="Impact" />
+        </LabCard>
+      </div>
+    </section>
+
+    <section class="lab__group" aria-labelledby="lab-j">
+      <h2 class="lab__group-title" id="lab-j">J. Microinteractions, loaders and header items</h2>
+      <div class="lab__grid">
+        <LabCard id="4b" name="Aura behind card (hover)" note="2 static wash filters. Hover to swell. Desktop hover; mobile shows the entry bloom only.">
+          <InkAuraCard title="Project" label="IN PRODUCTION" tone="blue" />
+        </LabCard>
+        <LabCard id="3e" name="Smoke puff, content swap" note="1 static wash filter on a layer that swells then dissipates. Language swap, both.">
+          <InkSmokePuff text="ES → PT" />
+        </LabCard>
+        <LabCard id="3f" name="Seal circle, one turn" note="1 static dry filter. One turn instead of a continuous spin; ensō turns in instead of drawing.">
+          <InkSealSpinner labels={['예의', '염치', '인내', '극기']} label="Principles seal" />
+        </LabCard>
+        <LabCard id="11c" name="Desktop loader: ensō + counter + curtain" note="DESKTOP. Ensō is unfiltered (it animates dashoffset). Curtain rises at about 3.4s to reveal the slot." wide>
+          <InkLoaderEnso label="JUAN MANUEL PUCCIO · PORTFOLIO 2026">Hero</InkLoaderEnso>
+        </LabCard>
+        <LabCard id="11g" name="Mobile loader: drop floods the screen" note="MOBILE. No filter. About 2.4s, ends on the dark panel with the name." stage="phone">
+          <InkLoaderDrop eyebrow="FULL STACK · ROSARIO" name="Juan Manuel Puccio" />
+        </LabCard>
+        <LabCard id="11j" name="Header: active brush stroke" note="DESKTOP header. 3 static dry filters (one per link). Active stroke wipes in; hover previews it." wide stage="bare">
+          <InkNavStroke brand="Juan Manuel Puccio" items={navItems} active={1} navLabel="Lab navigation" />
+        </LabCard>
+        <LabCard id="11l" name="Header: link hover trail" note="DESKTOP hover. No filter. Hover or focus the link; entry plays one ghost trail.">
+          <InkLinkTrail label="Projects" href="#" />
+        </LabCard>
+        <LabCard id="11m" name="Header: language stamp hops" note="Both. 1 static bleed filter on the puff. Seal hops from ES to PT and leaves a puff.">
+          <InkLangStamp langs={['ES', 'EN', 'PT']} active={2} label="Language" />
+        </LabCard>
+      </div>
+      <p class="lab__skipped">Not ported from J: 11k (header hide on scroll direction needs the scroll engine, belongs to F4), 11d, 11e, 11f, 11h, 11i (other loader variants, not selected).</p>
+    </section>
+
+    <section class="lab__group" aria-labelledby="lab-m">
+      <h2 class="lab__group-title" id="lab-m">M. Icons</h2>
+      <div class="lab__grid">
+        <LabCard id="9a" name="Brush icon set (24)" note="1 static brushS filter per icon (24 small filters, check mobile). Not animated." wide stage="bare">
+          <ul class="lab__icons">
+            {inkIconNames.map((name) => (
+              <li class="lab__icon"><InkIcon name={name} /><span>{name}</span></li>
+            ))}
+          </ul>
+        </LabCard>
+        <LabCard id="9c" name="Icon states: rest, hover, active" note="Hover to see the speed lines. The active seal lands once.">
+          <div class="lab__row">
+            <InkIconButton name="next" label="Next" />
+            <InkIconButton name="next" label="Next, active" active />
+          </div>
+        </LabCard>
+        <LabCard id="9d" name="Menu to close" note="Plays once as a morph demo. brushS on 3 static layers; the white slash flash is omitted.">
+          <InkMenuToggle label="Menu to close" />
+        </LabCard>
+        <LabCard id="9e" name="Launch arrow with trail" note="Dashoffset trail, transform arrow and seal. External link micro-animation.">
+          <InkLaunchArrow label="VIEW LIVE ↗" />
+        </LabCard>
+        <LabCard id="9f" name="Feedback: ok, error, alert" note="Loading omitted (continuous spin). ok wipes in, error splits once, alert shakes once.">
+          <div class="lab__row">
+            <InkFeedback variant="ok" label="OK" />
+            <InkFeedback variant="error" label="ERROR" />
+            <InkFeedback variant="alert" label="ALERT" />
+          </div>
+        </LabCard>
+        <LabCard id="9g" name="Contact channels as seals" note="Rise in staggered once. Function icons, no brand logos." wide stage="bare">
+          <InkContactSeals channels={[...channels]} />
+        </LabCard>
+        <LabCard id="9j" name="Scroll indicator drop" note="One pass (the catalog repeated it). Replaces the hero arrow.">
+          <InkScrollDrop label="Scroll" />
+        </LabCard>
+      </div>
+      <p class="lab__skipped">Not ported from M: 9b (construction sheet, documentation), 9h (language scrolls, static), 9i (cursor trail, needs JS), 9k (wireframe).</p>
+    </section>
+  </main>
+
+  <script>
+    // Replay: re-toggles `.is-in` on the [data-ink] roots inside a card. No scroll
+    // listeners and no rAF; the forced reflow restarts the one-shot animations.
+    document.querySelectorAll<HTMLElement>('[data-lab-card]').forEach((card) => {
+      const stage = card.querySelector<HTMLElement>('[data-lab-stage]');
+      const button = card.querySelector<HTMLButtonElement>('[data-lab-replay]');
+      if (!stage || !button) return;
+
+      stage.addEventListener('click', (event) => {
+        if ((event.target as Element).closest('a[href="#"]')) event.preventDefault();
+      });
+
+      button.addEventListener('click', () => {
+        const roots = stage.querySelectorAll<HTMLElement>('[data-ink]');
+        roots.forEach((el) => el.classList.remove('is-in'));
+        void stage.offsetWidth;
+        roots.forEach((el) => el.classList.add('is-in'));
+      });
+    });
+  </script>
+</Layout>
+
+<style>
+  .lab { max-width: var(--max-width); margin: 0 auto; padding: var(--section-pad) var(--gutter) 96px; }
+  .lab__title { margin: 0 0 8px; font: 400 var(--fs-h2)/1.05 var(--font-serif); letter-spacing: var(--tracking-heading); color: var(--text-main); }
+  .lab__lead { max-width: 60ch; margin: 0 0 32px; font: 400 var(--fs-caption)/var(--lh-body) var(--font-sans); color: var(--text-muted); }
+  .lab__group { margin-top: 48px; }
+  .lab__group-title { margin: 0 0 16px; font: 600 var(--fs-caption)/1.2 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; color: var(--text-main); }
+  .lab__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 20px; }
+  .lab__skipped { margin: 14px 0 0; font: 400 13px/1.4 var(--font-sans); color: var(--text-dim); }
+  .lab__icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 18px 8px; margin: 0; padding: 20px; list-style: none; background: var(--bg-surface); color: var(--text-main); }
+  .lab__icon { display: grid; justify-items: center; gap: 6px; }
+  .lab__icon span { font: 600 8px/1 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; color: var(--text-dim); }
+  .lab__row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 24px; padding: 24px; }
+</style>

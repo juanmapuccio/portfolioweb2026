@@ -1,0 +1,65 @@
+---
+// Specimen 4a: thrown brush sticks in and pins a label (catalog cat-C).
+// Trail uses stroke-dashoffset (unfiltered); brush and tag animate transform only.
+interface Props {
+  tags: string[];
+  class?: string;
+}
+const { tags, class: className } = Astro.props;
+const lines = tags.slice(0, 3);
+---
+
+<div class:list={['ink-4a', className]} data-ink data-specimen="4a">
+  <svg viewBox="0 0 460 200" aria-hidden="true" focusable="false">
+    <path class="ink-4a__trail" d="M0 100 L330 100" fill="none" stroke="currentColor" stroke-width="3" pathLength="1"></path>
+    <g class="ink-4a__brush">
+      <rect class="ink-4a__shaft" x="250" y="96" width="80" height="8"></rect>
+      <path d="M330 92 L372 100 L330 108Z" fill="currentColor"></path>
+    </g>
+    <g class="ink-4a__tag">
+      <rect class="ink-4a__box" x="372" y="60" width="74" height="80" stroke-width="2"></rect>
+      {lines.map((line, i) => (
+        <text class="ink-4a__text" x="409" y={96 + i * 18 - (lines.length - 2) * 9} text-anchor="middle" font-size="10" font-weight="600" letter-spacing="1">{line}</text>
+      ))}
+    </g>
+  </svg>
+</div>
+
+<style is:global>
+  .ink-4a { display: block; width: 100%; max-width: 460px; aspect-ratio: 460 / 200; overflow: hidden; background: var(--paper); color: var(--text-main); --e: cubic-bezier(0.2, 0, 0, 1); }
+  .ink-4a svg { display: block; width: 100%; height: 100%; }
+  .ink-4a__shaft { fill: var(--text-dim); }
+  .ink-4a__box { fill: var(--bg-surface); stroke: var(--text-main); }
+  .ink-4a__text { fill: var(--text-main); font-family: var(--font-mono); }
+  .ink-4a__trail { stroke-dasharray: 1; }
+  .ink-4a__tag { transform-origin: 380px 100px; transform: rotate(-6deg); }
+
+  @keyframes ink-4a-trail { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  @keyframes ink-4a-throw {
+    from { transform: translateX(-460px); }
+    70% { transform: translateX(0); }
+    85% { transform: translateX(-6px) rotate(-2deg); }
+    to { transform: none; }
+  }
+  @keyframes ink-4a-hit {
+    from { transform: scale(0) rotate(-12deg); }
+    60% { transform: scale(1.4) rotate(-6deg); }
+    to { transform: scale(1) rotate(-6deg); }
+  }
+
+  html.js .ink-4a:not(.is-in) .ink-4a__trail { stroke-dashoffset: 1; }
+  html.js .ink-4a:not(.is-in) .ink-4a__brush { transform: translateX(-460px); }
+  html.js .ink-4a:not(.is-in) .ink-4a__tag { transform: scale(0) rotate(-12deg); }
+  html.js .ink-4a.is-in .ink-4a__trail { animation: ink-4a-trail 0.7s ease-out 0s 1 both; }
+  html.js .ink-4a.is-in .ink-4a__brush { animation: ink-4a-throw 1s var(--e) 0s 1 both; }
+  html.js .ink-4a.is-in .ink-4a__tag { animation: ink-4a-hit 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.75s 1 both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.js .ink-4a:not(.is-in) .ink-4a__trail,
+    html.js .ink-4a.is-in .ink-4a__trail { animation: none; stroke-dashoffset: 0; }
+    html.js .ink-4a:not(.is-in) .ink-4a__brush,
+    html.js .ink-4a.is-in .ink-4a__brush { animation: none; transform: none; }
+    html.js .ink-4a:not(.is-in) .ink-4a__tag,
+    html.js .ink-4a.is-in .ink-4a__tag { animation: none; transform: rotate(-6deg); }
+  }
+</style>

@@ -1,0 +1,58 @@
+---
+// Specimen 3f: rotating seal circle, loader / avatar hover (catalog cat-J).
+// One pass: outer ring makes a single turn, belt ticks turn back, the ensō turns in.
+// The ensō was a stroke-dashoffset draw under a filter; here the filtered ring is static
+// and its svg layer rotates/fades in instead.
+interface Props {
+  labels: [string, string, string, string];
+  label: string;
+  class?: string;
+}
+const { labels, label, class: className } = Astro.props;
+---
+
+<div class:list={['ink-3f', className]} data-ink data-specimen="3f" role="img" aria-label={label}>
+  <svg class="ink-3f__layer ink-3f__ring" viewBox="0 0 300 300" aria-hidden="true" focusable="false">
+    <circle cx="150" cy="150" r="118" fill="none" stroke="currentColor" stroke-width="2"></circle>
+    <circle cx="150" cy="150" r="104" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 6"></circle>
+    <g class="ink-3f__labels" font-size="10" letter-spacing="3">
+      <text x="150" y="44" text-anchor="middle">{labels[0]}</text>
+      <text x="256" y="154" text-anchor="middle">{labels[1]}</text>
+      <text x="150" y="264" text-anchor="middle">{labels[2]}</text>
+      <text x="44" y="154" text-anchor="middle">{labels[3]}</text>
+    </g>
+  </svg>
+  <svg class="ink-3f__layer ink-3f__enso" viewBox="0 0 300 300" aria-hidden="true" focusable="false">
+    <g filter="url(#dryH)"><circle cx="150" cy="150" r="72" fill="none" stroke="currentColor" stroke-width="14"></circle></g>
+  </svg>
+  <svg class="ink-3f__layer ink-3f__ticks" viewBox="0 0 300 300" aria-hidden="true" focusable="false">
+    <g stroke-width="10" stroke-linecap="round" fill="none">
+      <path class="ink-3f__t1" d="M150 100 L150 116"></path>
+      <path class="ink-3f__t2" d="M200 150 L184 150"></path>
+      <path class="ink-3f__t3" d="M150 200 L150 184"></path>
+      <path class="ink-3f__t4" d="M100 150 L116 150"></path>
+    </g>
+  </svg>
+</div>
+
+<style is:global>
+  .ink-3f { position: relative; display: block; width: 100%; max-width: 300px; aspect-ratio: 1; overflow: hidden; background: var(--paper); color: var(--text-main); }
+  .ink-3f__layer { position: absolute; inset: 0; width: 100%; height: 100%; transform-origin: 50% 50%; }
+  .ink-3f__labels { font-family: var(--font-mono); fill: currentColor; stroke: none; }
+  .ink-3f__t1 { stroke: var(--ink-belt-yellow); }
+  .ink-3f__t2 { stroke: var(--ink-belt-green); }
+  .ink-3f__t3 { stroke: var(--ink-belt-blue); }
+  .ink-3f__t4 { stroke: var(--ink-belt-red); }
+
+  @keyframes ink-3f-turn { from { transform: rotate(-180deg); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes ink-3f-turn-back { from { transform: rotate(180deg); opacity: 0; } to { transform: none; opacity: 1; } }
+  html.js .ink-3f:not(.is-in) .ink-3f__layer { opacity: 0; }
+  html.js .ink-3f.is-in .ink-3f__ring { animation: ink-3f-turn 2.2s cubic-bezier(0.16, 1, 0.3, 1) 0s 1 both; }
+  html.js .ink-3f.is-in .ink-3f__enso { animation: ink-3f-turn 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s 1 both; }
+  html.js .ink-3f.is-in .ink-3f__ticks { animation: ink-3f-turn-back 2.2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s 1 both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.js .ink-3f:not(.is-in) .ink-3f__layer,
+    html.js .ink-3f.is-in .ink-3f__layer { animation: none; opacity: 1; transform: none; }
+  }
+</style>

@@ -1,0 +1,47 @@
+---
+// Specimen 3e: smoke puff, content appears / language swap (catalog cat-J).
+// The puff is a single svg layer (static wash filter) that swells and dissipates once;
+// the text then appears. Dissipation is the effect, not a loop fade-out.
+interface Props {
+  text: string;
+  class?: string;
+}
+const { text, class: className } = Astro.props;
+---
+
+<div class:list={['ink-3e', className]} data-ink data-specimen="3e">
+  <svg class="ink-3e__puff" viewBox="0 0 320 240" aria-hidden="true" focusable="false">
+    <g filter="url(#wash)">
+      <circle class="ink-3e__c" cx="160" cy="120" r="60"></circle>
+      <circle class="ink-3e__c" cx="110" cy="140" r="40"></circle>
+      <circle class="ink-3e__c" cx="210" cy="100" r="44"></circle>
+      <circle class="ink-3e__c" cx="200" cy="160" r="34"></circle>
+    </g>
+  </svg>
+  <span class="ink-3e__text">{text}</span>
+</div>
+
+<style is:global>
+  /* Smoke grey has no token; derived from --text-dim over --paper. */
+  .ink-3e { position: relative; display: grid; place-items: center; width: 100%; max-width: 320px; aspect-ratio: 320 / 240; overflow: hidden; background: var(--paper); color: var(--text-main); --e: cubic-bezier(0.16, 1, 0.3, 1); }
+  .ink-3e__puff { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
+  .ink-3e__c { fill: color-mix(in oklab, var(--text-dim) 35%, var(--paper)); }
+  .ink-3e__text { position: relative; font: 600 28px/1 var(--font-mono); letter-spacing: 2px; }
+
+  @keyframes ink-3e-puff {
+    from { opacity: 0; transform: scale(0); }
+    35% { opacity: 1; transform: scale(1.1); }
+    to { opacity: 0; transform: scale(1.4); }
+  }
+  @keyframes ink-3e-appear { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: none; } }
+  html.js .ink-3e:not(.is-in) .ink-3e__text { opacity: 0; transform: scale(0.8); }
+  html.js .ink-3e.is-in .ink-3e__puff { animation: ink-3e-puff 1.3s ease-out 0s 1 both; }
+  html.js .ink-3e.is-in .ink-3e__text { animation: ink-3e-appear 0.5s var(--e) 0.4s 1 both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.js .ink-3e:not(.is-in) .ink-3e__text,
+    html.js .ink-3e.is-in .ink-3e__text { animation: none; opacity: 1; transform: none; }
+    html.js .ink-3e:not(.is-in) .ink-3e__puff,
+    html.js .ink-3e.is-in .ink-3e__puff { animation: none; opacity: 0; }
+  }
+</style>

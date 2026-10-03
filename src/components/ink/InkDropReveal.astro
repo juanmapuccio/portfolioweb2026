@@ -1,0 +1,47 @@
+---
+// Specimen 2c: expanding ink drop that reveals a title (catalog cat-C).
+// Each blot is its own svg layer so the static bleed filter is never re-rendered
+// while the layer scales. The catalog's paper-texture filter is replaced by a flat paper colour.
+interface Props {
+  title: string;
+  class?: string;
+}
+const { title, class: className } = Astro.props;
+---
+
+<div class:list={['ink-2c', className]} data-ink data-specimen="2c">
+  <svg class="ink-2c__blot ink-2c__blot--a" viewBox="0 0 420 240" aria-hidden="true" focusable="false">
+    <g filter="url(#bleedF)"><circle cx="210" cy="120" r="150" fill="currentColor"></circle></g>
+  </svg>
+  <svg class="ink-2c__blot ink-2c__blot--b" viewBox="0 0 420 240" aria-hidden="true" focusable="false">
+    <g filter="url(#bleedF)"><circle cx="96" cy="70" r="26" fill="currentColor"></circle></g>
+  </svg>
+  <svg class="ink-2c__blot ink-2c__blot--c" viewBox="0 0 420 240" aria-hidden="true" focusable="false">
+    <g filter="url(#bleedF)"><circle cx="340" cy="186" r="18" fill="currentColor"></circle></g>
+  </svg>
+  <span class="ink-2c__title ink-fade" style="--ink-delay: 1s; --ink-duration: 0.9s">{title}</span>
+</div>
+
+<style is:global>
+  .ink-2c { position: relative; display: block; width: 100%; max-width: 420px; aspect-ratio: 420 / 240; overflow: hidden; background: var(--paper); color: var(--text-main); --e: cubic-bezier(0.16, 1, 0.3, 1); }
+  .ink-2c__blot { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ink-2c__blot--a { transform-origin: 50% 50%; }
+  .ink-2c__blot--b { transform-origin: 22.86% 29.17%; }
+  .ink-2c__blot--c { transform-origin: 80.95% 77.5%; }
+  .ink-2c__title { position: absolute; inset: 0; display: grid; place-items: center; font: 400 34px/1.1 var(--font-serif); color: var(--panel-dark-fg); text-align: center; }
+
+  @keyframes ink-2c-bleed {
+    from { transform: scale(0); opacity: 0; }
+    20% { opacity: 1; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  html.js .ink-2c:not(.is-in) .ink-2c__blot { transform: scale(0); opacity: 0; }
+  html.js .ink-2c.is-in .ink-2c__blot--a { animation: ink-2c-bleed 1.6s var(--e) 0s 1 both; }
+  html.js .ink-2c.is-in .ink-2c__blot--b { animation: ink-2c-bleed 1.2s var(--e) 0.25s 1 both; }
+  html.js .ink-2c.is-in .ink-2c__blot--c { animation: ink-2c-bleed 1.2s var(--e) 0.4s 1 both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.js .ink-2c:not(.is-in) .ink-2c__blot,
+    html.js .ink-2c.is-in .ink-2c__blot { animation: none; transform: none; opacity: 1; }
+  }
+</style>

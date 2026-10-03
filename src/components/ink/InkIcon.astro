@@ -1,0 +1,44 @@
+---
+// Specimen 9a: brush-stroke UI icon, one component for the whole set (catalog cat-M).
+// The brushS filter sits on a static <g>; the icon takes its colour from currentColor.
+// Pass `label` for a meaningful icon, omit it for a decorative one. `animate` fades it
+// in once through the ink-fade primitive.
+import { inkIcons, type InkIconName } from './inkIcons';
+
+interface Props {
+  name: InkIconName;
+  size?: number;
+  label?: string;
+  animate?: boolean;
+  class?: string;
+}
+const { name, size = 40, label, animate = false, class: className } = Astro.props;
+---
+
+<svg
+  class:list={['ink-icon', { 'ink-fade': animate }, className]}
+  data-specimen="9a"
+  data-ink={animate ? '' : undefined}
+  viewBox="0 0 32 32"
+  width={size}
+  height={size}
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2.4"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+  focusable="false"
+>
+  <g filter="url(#brushS)" set:html={inkIcons[name]} />
+</svg>
+
+<style is:global>
+  .ink-icon { display: inline-block; flex: none; color: currentColor; transition: color var(--transition); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ink-icon { transition: none; }
+  }
+</style>

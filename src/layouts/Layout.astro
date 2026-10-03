@@ -21,9 +21,10 @@ interface Props {
   title: string;
   description: string;
   lang?: Lang;
+  noindex?: boolean;
 }
 
-const { title, description, lang = 'es' } = Astro.props;
+const { title, description, lang = 'es', noindex = false } = Astro.props;
 
 const siteUrl = (Astro.site ?? new URL('https://juanpuccio.vercel.app')).toString().replace(/\/$/, '');
 const localePaths: Record<Lang, string> = { es: '/', en: '/en/', pt: '/pt/' };
@@ -44,6 +45,7 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />

@@ -1,0 +1,67 @@
+---
+// Specimen 9f: feedback states ok / error / alert (catalog cat-M).
+// ok: brush check wipes in (clip-path over a static filtered icon). error: the seal
+// splits once. alert: one shake. The catalog's "loading" state is a continuous spin
+// and is not ported (it would need a loop).
+import InkIcon from './InkIcon.astro';
+
+interface Props {
+  variant: 'ok' | 'error' | 'alert';
+  label: string;
+  class?: string;
+}
+const { variant, label, class: className } = Astro.props;
+---
+
+<div class:list={['ink-9f', `ink-9f--${variant}`, className]} data-ink data-specimen="9f">
+  <div class="ink-9f__glyph">
+    {variant === 'ok' && <span class="ink-9f__wipe"><InkIcon name="ok" size={52} /></span>}
+    {variant === 'alert' && <span class="ink-9f__shake"><InkIcon name="alert" size={52} /></span>}
+    {variant === 'error' && (
+      <span class="ink-9f__split" aria-hidden="true">
+        <span class="ink-9f__half ink-9f__half--l"></span>
+        <span class="ink-9f__half ink-9f__half--r"></span>
+      </span>
+    )}
+  </div>
+  <span class="ink-9f__label">{label}</span>
+</div>
+
+<style is:global>
+  /* The alert amber has no dark token; derived from --accent-amber and --text-main for contrast on white. */
+  .ink-9f { display: inline-grid; justify-items: center; gap: 8px; --e: cubic-bezier(0.16, 1, 0.3, 1); }
+  .ink-9f--ok { color: var(--ok-green); }
+  .ink-9f--error { color: var(--seal-red); }
+  .ink-9f--alert { color: color-mix(in oklab, var(--accent-amber) 55%, var(--text-main)); }
+  .ink-9f__glyph { display: grid; place-items: center; width: 52px; height: 52px; }
+  .ink-9f__label { font: 600 8px/1 var(--font-mono); letter-spacing: var(--tracking-meta); color: var(--text-main); }
+  .ink-9f__wipe, .ink-9f__shake { display: grid; }
+  .ink-9f__split { position: relative; width: 52px; height: 52px; }
+  .ink-9f__half { position: absolute; inset: 6px; border: 2.5px solid currentColor; transform: rotate(-4deg); }
+  .ink-9f__half--l { clip-path: polygon(0 0, 55% 0, 40% 100%, 0 100%); }
+  .ink-9f__half--r { clip-path: polygon(55% 0, 100% 0, 100% 100%, 40% 100%); }
+
+  @keyframes ink-9f-wipe { from { clip-path: inset(-10% 100% -10% -10%); } to { clip-path: inset(-10% -10% -10% -10%); } }
+  @keyframes ink-9f-shake {
+    from { transform: none; }
+    20% { transform: translate(-6px, 3px); }
+    40% { transform: translate(5px, -3px); }
+    60% { transform: translate(-3px, 2px); }
+    80%, to { transform: none; }
+  }
+  @keyframes ink-9f-split-l { from { transform: rotate(-4deg); } to { transform: translate(-4px, 3px) rotate(-12deg); } }
+  @keyframes ink-9f-split-r { from { transform: rotate(-4deg); } to { transform: translate(4px, -2px) rotate(4deg); } }
+  html.js .ink-9f:not(.is-in) .ink-9f__wipe { clip-path: inset(-10% 100% -10% -10%); }
+  html.js .ink-9f.is-in .ink-9f__wipe { animation: ink-9f-wipe 0.8s var(--e) 0.1s 1 both; }
+  html.js .ink-9f.is-in .ink-9f__shake { animation: ink-9f-shake 0.7s ease-in-out 0.1s 1 both; }
+  html.js .ink-9f.is-in .ink-9f__half--l { animation: ink-9f-split-l 0.6s var(--e) 0.4s 1 both; }
+  html.js .ink-9f.is-in .ink-9f__half--r { animation: ink-9f-split-r 0.6s var(--e) 0.4s 1 both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.js .ink-9f:not(.is-in) .ink-9f__wipe,
+    html.js .ink-9f.is-in .ink-9f__wipe { animation: none; clip-path: none; }
+    html.js .ink-9f.is-in .ink-9f__shake { animation: none; }
+    html.js .ink-9f.is-in .ink-9f__half--l { animation: none; transform: translate(-4px, 3px) rotate(-12deg); }
+    html.js .ink-9f.is-in .ink-9f__half--r { animation: none; transform: translate(4px, -2px) rotate(4deg); }
+  }
+</style>

@@ -1,0 +1,36 @@
+---
+// Specimen 9j: scroll indicator, an ink drop runs down a brush line (catalog cat-M).
+// One pass (the catalog repeated it); the drop lands at the bottom of the line.
+interface Props {
+  label: string;
+  class?: string;
+}
+const { label, class: className } = Astro.props;
+---
+
+<div class:list={['ink-9j', className]} data-ink data-specimen="9j">
+  <div class="ink-9j__track">
+    <svg class="ink-9j__line" viewBox="0 0 14 80" width="14" height="80" aria-hidden="true" focusable="false">
+      <g filter="url(#brushS)"><path d="M7 2v76" stroke-width="2" opacity="0.3"></path></g>
+    </svg>
+    <span class="ink-9j__drop" aria-hidden="true"></span>
+  </div>
+  <span class="ink-9j__label">{label}</span>
+</div>
+
+<style is:global>
+  .ink-9j { display: inline-grid; justify-items: center; gap: 10px; color: var(--text-main); }
+  .ink-9j__track { position: relative; width: 14px; height: 80px; }
+  .ink-9j__line { display: block; stroke: currentColor; }
+  .ink-9j__drop { position: absolute; left: 3px; top: 0; width: 8px; height: 11px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: currentColor; transform: translateY(68px); }
+  .ink-9j__label { font: 600 9px/1 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; }
+
+  @keyframes ink-9j-drop { from { opacity: 0; transform: translateY(0); } 15% { opacity: 1; } to { opacity: 1; transform: translateY(68px); } }
+  html.js .ink-9j:not(.is-in) .ink-9j__drop { opacity: 0; transform: translateY(0); }
+  html.js .ink-9j.is-in .ink-9j__drop { animation: ink-9j-drop 1.2s cubic-bezier(0.7, 0, 0.3, 1) 0.1s 1 both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.js .ink-9j:not(.is-in) .ink-9j__drop,
+    html.js .ink-9j.is-in .ink-9j__drop { animation: none; opacity: 1; transform: translateY(68px); }
+  }
+</style>
