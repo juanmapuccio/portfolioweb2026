@@ -77,6 +77,8 @@ const railNodes = chapters.map((chapter) => ({ grade: chapter.grade, tone: chapt
         <li class="chapter" data-belt={chapter.key} data-belt-chapter style={`--i: ${chapter.index}; --tone: var(--ink-belt-${chapter.tone})`}>
           {chapter.index > 0 && <InkDrip class="chapter__drip" tone={chapter.tone} />}
           <article class="chapter__card" data-ink>
+            <!-- 2h: Sumi-e water halo band behind card -->
+            <span class="chapter__halo" aria-hidden="true"></span>
             <span class="chapter__band" aria-hidden="true"></span>
             <header class="chapter__head">
               <span class="chapter__no">{t('belts.chapter')} {chapter.number}</span>
@@ -96,6 +98,13 @@ const railNodes = chapters.map((chapter) => ({ grade: chapter.grade, tone: chapt
         </li>
       ))}
     </ol>
+
+    <!-- 6i: Kurohomura / Amaterasu scrub transition before Dan 1 -->
+    <div class="belts__kurohomura" aria-hidden="true">
+      <span class="kurohomura-slash"></span>
+      <span class="kurohomura-flame kurohomura-flame--top"></span>
+      <span class="kurohomura-flame kurohomura-flame--bottom"></span>
+    </div>
 
     <span class="belts__bloom" aria-hidden="true"></span>
   </div>
@@ -166,12 +175,67 @@ const railNodes = chapters.map((chapter) => ({ grade: chapter.grade, tone: chapt
     html.js .chapter { flex: 0 0 calc(100% / var(--count)); display: grid; place-items: center; box-sizing: border-box; padding: calc(var(--header-h) + 150px) var(--gutter) 48px; height: 100%; }
     html.js .chapter__drip { display: none; }
 
+    /* 2h: Sumi halo behind the active chapter card */
+    .chapter__halo {
+      position: absolute;
+      inset: -12px -20px;
+      z-index: -1;
+      background: radial-gradient(ellipse at center, var(--tone) 0%, transparent 72%);
+      opacity: 0.22;
+      filter: blur(14px);
+      pointer-events: none;
+      transform: translateZ(0);
+    }
+
+    /* 6i: Kurohomura (黒炎) scrub transition before 1o dan */
+    .belts__kurohomura {
+      display: block;
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      /* Active between p=0.84 and p=0.96 (transition to Black Belt) */
+      --kprog: clamp(0, calc((var(--p, 0) - 0.84) / 0.10), 1);
+      opacity: clamp(0, calc((var(--p, 0) - 0.84) * 20), 1);
+      transform: translateZ(0);
+    }
+    .kurohomura-slash {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #ffffff 40%, #ffffff 60%, transparent);
+      opacity: clamp(0, calc(1 - var(--kprog) * 3), 1);
+      transform: translateY(-50%) rotate(-4deg) translateZ(0);
+    }
+    .kurohomura-flame {
+      position: absolute;
+      left: 0;
+      right: 0;
+      background: var(--ink-belt-black);
+      will-change: transform;
+      transform: translateZ(0);
+    }
+    .kurohomura-flame--top {
+      top: 0;
+      height: 52%;
+      transform-origin: top left;
+      transform: scaleX(var(--kprog)) skewX(-12deg) translateZ(0);
+    }
+    .kurohomura-flame--bottom {
+      bottom: 0;
+      height: 52%;
+      transform-origin: bottom right;
+      transform: scaleX(var(--kprog)) skewX(12deg) translateZ(0);
+    }
+
     /* 6d enso: draws before the 1o dan, then fades. */
-    html.js .belts__enso { display: block; position: absolute; left: 50%; top: 52%; z-index: 1; width: min(78vh, 62vw); height: auto; translate: -50% -50%; pointer-events: none; stroke: var(--paper); fill: none; --e: clamp(0, calc((var(--p, 0) - 0.76) / 0.12), 1); opacity: clamp(0, calc((0.96 - var(--p, 0)) / 0.03), 1); }
+    html.js .belts__enso { display: block; position: absolute; left: 50%; top: 52%; z-index: 4; width: min(78vh, 62vw); height: auto; translate: -50% -50%; pointer-events: none; stroke: var(--paper); fill: none; --e: clamp(0, calc((var(--p, 0) - 0.76) / 0.12), 1); opacity: clamp(0, calc((0.96 - var(--p, 0)) / 0.03), 1); }
     html.js .belts__enso circle { stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--e)); }
 
     /* 6e: no glyph. After the enso closes, a soft ink bloom grows behind the last chapter (transform + opacity only). */
-    html.js .belts__bloom { display: block; position: absolute; left: 50%; top: 52%; z-index: 1; width: min(120vh, 96vw); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; pointer-events: none; background: radial-gradient(circle, var(--ink-belt-black) 0%, rgba(28, 26, 23, 0.55) 38%, transparent 68%); --bloom: clamp(0, calc((var(--p, 0) - 0.9) / 0.1), 1); transform: scale(calc(0.2 + 1.2 * var(--bloom))); opacity: calc(0.4 * var(--bloom)); will-change: transform, opacity; }
+    html.js .belts__bloom { display: block; position: absolute; left: 50%; top: 52%; z-index: 4; width: min(120vh, 96vw); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; pointer-events: none; background: radial-gradient(circle, var(--ink-belt-black) 0%, rgba(28, 26, 23, 0.55) 38%, transparent 68%); --bloom: clamp(0, calc((var(--p, 0) - 0.9) / 0.1), 1); transform: scale(calc(0.2 + 1.2 * var(--bloom))); opacity: calc(0.4 * var(--bloom)); will-change: transform, opacity; }
     html.js .chapter__seal { display: none; }
     /* Black belt closing: appears only after the enso and the bloom (opacity only). */
     html.js .chapter__closing { opacity: clamp(0, calc((var(--p, 0) - 0.94) / 0.05), 1); }
