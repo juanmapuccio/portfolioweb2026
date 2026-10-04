@@ -26,14 +26,14 @@ describe('hero as a manga page', () => {
   test('at least four panels with data-panel, on a black gutter grid', () => {
     const panels = [...hero.matchAll(/data-panel="([a-z]+)"/g)].map((m) => m[1]);
     expect(panels.length).toBeGreaterThanOrEqual(4);
-    expect(panels).toEqual(['name', 'tagline', 'portrait', 'role', 'cue']);
+    expect(panels).toEqual(['name', 'tagline', 'portrait', 'balloon', 'cue']);
     expect(hero).toContain("t('hero.tagline')");
   });
 
   test('irregular panels: clip-path polygons with slanted edges, black frames of varied weight', () => {
     // every panel has its own polygon, the frame is a black ::before plus a paper ::after inset by --b
-    const clips = [...hero.matchAll(/\.hero__panel--(name|tagline|portrait|role|cue) \{[^}]*--clip: polygon\(([^;]+)\);/g)];
-    expect(new Set(clips.map((m) => m[1]))).toEqual(new Set(['name', 'tagline', 'portrait', 'role', 'cue']));
+    const clips = [...hero.matchAll(/\.hero__panel--(name|tagline|portrait|balloon|cue) \{[^}]*--clip: polygon\(([^;]+)\);/g)];
+    expect(new Set(clips.map((m) => m[1]))).toEqual(new Set(['name', 'tagline', 'portrait', 'balloon', 'cue']));
     // slanted: at least one polygon vertex off the rectangle (a calc() offset or a non-0/100% y on a side)
     expect(hero).toMatch(/--clip: polygon\([^;]*calc\(100% - var\(--tilt\)\)/);
     expect(hero).toMatch(/\.hero__panel::before \{[^}]*background: var\(--ink-belt-black\)/);
@@ -66,7 +66,8 @@ describe('hero as a manga page', () => {
     expect(hero).toContain('<p class="hero__caption hero__tagline">{t(\'hero.tagline\')}</p>');
     expect(hero).toMatch(/\.hero__balloon \{[^}]*border-radius: 50%/);
     expect(hero).toContain('.hero__balloon::before');
-    expect(hero).toContain("t('hero.role')");
+    expect(hero).toContain("t('hero.balloon')");
+    expect(hero).not.toMatch(/hero\.role|hero\.fig|hero__fig/);
     expect(hero).toMatch(/\.hero__panel--name[^{]*\{[^}]*\}[\s\S]*\.hero__name \{[^}]*font: 800[^}]*text-transform: uppercase/);
     expect(hero).not.toMatch(/sfx/i);
     expect(ui).not.toMatch(/hero\.sfx|¡PUM!|BAM!|POW!/);
@@ -94,28 +95,54 @@ describe('hero as a manga page', () => {
     // clip-path inset wipe, a different side per panel
     expect(hero).toContain('.hero__panel--tagline { clip-path: inset(-15% var(--w) -15% -15%)');
     expect(hero).toContain('.hero__panel--portrait { clip-path: inset(var(--w) -15% -15% -15%)');
-    expect(hero).toContain('.hero__panel--role { clip-path: inset(-15% -15% -15% var(--w))');
+    expect(hero).toContain('.hero__panel--balloon { clip-path: inset(-15% -15% -15% var(--w))');
+    expect(hero).toContain('html.js .hero__panel--name, html.js .hero__panel--cue { clip-path: inset(-15% -15% var(--w) -15%)');
     // content eases in with opacity and a 20px translateY
     expect(hero).toContain('html.js .hero__in { transform: translateY(calc((1 - var(--e)) * 20px)); opacity: var(--e)');
     expect(hero).toMatch(/html\.js \.hero__panel \{[^}]*opacity: clamp\(0, calc\(var\(--i\) \* 4\), 1\)/);
-    // camera: push-in 1.04 -> 1 and a slower portrait cut-out
-    expect(hero).toContain('scale(calc(1.04 - var(--cam) * 0.04))');
+    // the page itself never scales (the old push-in cropped the edges); only the portrait drifts slower
+    expect(hero).not.toMatch(/scale\(/);
     expect(hero).toContain('html.js .hero__cutout { transform: translateY(calc((1 - var(--e)) * 24px + (1 - var(--cam)) * 3%))');
     expect(hero).not.toMatch(/animation\s*:\s*hero-panel|@keyframes|hero-ready|cubic-bezier|var\(--k\)/);
     expect(loader).not.toContain('hero-ready');
-    const windows = [...hero.matchAll(/data-panel="([a-z]+)" style="--s: (-?[\d.]+); --l: ([\d.]+)"/g)].map((m) => ({ n: m[1], s: +m[2], l: +m[3] }));
-    expect(windows.length).toBe(5);
-    for (const w of windows) expect(w.s + w.l).toBeLessThanOrEqual(0.64);
-    // name and cue are complete at p = 0: the first screen is never empty and the cue is visible
-    for (const n of ['name', 'cue']) {
-      const w = windows.find((x) => x.n === n)!;
-      expect(Math.min(1, Math.max(0, (0 - w.s) / w.l))).toBe(1);
+    expect(windows().length).toBe(5);
+  });
+
+  const windows = () =>
+    [...hero.matchAll(/data-panel="([a-z]+)" style="--s: (-?[\d.]+); --l: ([\d.]+)"/g)].map((m) => ({ n: m[1], s: +m[2], l: +m[3], e: +m[2] + +m[3] }));
+
+  test('p = 0 shows only the black page: every window starts after 0, in order name < cue < tagline < portrait < balloon', () => {
+    const w = Object.fromEntries(windows().map((x) => [x.n, x]));
+    for (const x of Object.values(w)) {
+      expect(x.s).toBeGreaterThan(0);
+      expect(Math.min(1, Math.max(0, (0 - x.s) / x.l))).toBe(0);
+      expect(x.e).toBeLessThanOrEqual(0.64);
     }
-    // the others start hidden and appear in order
-    const [, tagline, portrait, role] = windows;
-    expect(tagline.s).toBeGreaterThan(0);
-    expect(tagline.s).toBeLessThan(portrait.s);
-    expect(portrait.s).toBeLessThan(role.s);
+    const order = ['name', 'cue', 'tagline', 'portrait', 'balloon'];
+    for (let i = 1; i < order.length; i++) expect(w[order[i - 1]].s).toBeLessThan(w[order[i]].s);
+    // the cue arrives almost with the name (nothing at p = 0 invites scrolling)
+    expect(w.cue.s).toBeLessThanOrEqual(0.12);
+    expect(w.cue.e).toBeLessThanOrEqual(0.2);
+  });
+
+  test('the page sits inside a black ground with margins and a max width, never flush to the viewport', () => {
+    expect(hero).toMatch(/\.hero__manga \{[^}]*--page-pad: clamp\(16px, 3vw, 48px\)/);
+    expect(hero).toMatch(/\.hero__manga \{[^}]*max-width: 1600px[^}]*margin: 0 auto[^}]*padding: var\(--page-pad\)/);
+    // no breakpoint overrides the page padding back to a thin value
+    expect(hero).not.toMatch(/\.hero__manga \{[^}]*;\s*padding: \d+px/);
+    expect(hero).not.toMatch(/html\.js \.hero__manga \{[^}]*padding:/);
+  });
+
+  test('speech balloon: "Full Stack · Rosario · Disponible" from i18n in es, en, pt, with the availability dot before the status', () => {
+    expect(ui).toContain("'hero.balloon': 'Full Stack · Rosario · Disponible'");
+    expect(ui).toContain("'hero.balloon': 'Full Stack · Rosario · Available'");
+    expect(ui).toContain("'hero.balloon': 'Full Stack · Rosário · Disponível'");
+    expect(ui).not.toMatch(/'hero\.(role|fig)'/);
+    expect(hero).toContain('{balloonLead}<span class="hero__dot" aria-hidden="true"></span>{balloonStatus}');
+    expect(hero).toMatch(/\.hero__balloon \{[^}]*padding: 18px 34px[^}]*border: 2px solid var\(--ink-belt-black\)/);
+    // tail: black triangle plus a paper triangle on top, so the border is continuous
+    expect(hero).toMatch(/\.hero__balloon::before \{[^}]*background: var\(--ink-belt-black\)/);
+    expect(hero).toMatch(/\.hero__balloon::after \{[^}]*background: var\(--paper\)/);
   });
 
   test('the hero scene is smoothed (data-ink-smooth) and ink.ts only smooths those scenes', async () => {
@@ -136,7 +163,7 @@ describe('hero as a manga page', () => {
   test('pinned stage: 450svh desktop, 360svh mobile (room for a slow exit), svh only', () => {
     expect(hero).toContain('html.js .hero { height: 360svh; }');
     expect(hero).toContain('html.js .hero { height: 450svh; }');
-    expect(hero).toContain('--exit: clamp(0, calc((var(--p, 0) - 0.66) / 0.34), 1)');
+    expect(hero).toContain('--exit: clamp(0, calc((var(--p, 0) - 0.7) / 0.3), 1)');
     expect(hero).not.toMatch(/\d(vh|dvh|lvh)/);
   });
 
@@ -168,15 +195,12 @@ describe('hero as a manga page', () => {
     expect(hero).toContain('--x: calc(var(--exit) * var(--exit) * (3 - 2 * var(--exit)))');
   });
 
-  test('scrolled panels appear one at a time: windows do not overlap', () => {
-    const windows = ['tagline', 'portrait', 'role'].map((name) => {
-      const m = hero.match(new RegExp(`data-panel="${name}" style="--s: ([\\d.]+); --l: ([\\d.]+)"`));
-      expect(m).not.toBeNull();
-      return { start: Number(m![1]), end: Number(m![1]) + Number(m![2]) };
-    });
-    for (let i = 1; i < windows.length; i++) {
-      expect(windows[i].start).toBeGreaterThanOrEqual(windows[i - 1].end);
-    }
+  test('elements appear one at a time: after the name/cue hand-off, windows do not overlap', () => {
+    const w = Object.fromEntries(windows().map((x) => [x.n, x]));
+    const order = ['cue', 'tagline', 'portrait', 'balloon'];
+    for (let i = 1; i < order.length; i++) expect(w[order[i]].s).toBeGreaterThanOrEqual(w[order[i - 1]].e);
+    // name and cue may overlap, but only slightly
+    expect(w.name.e - w.cue.s).toBeLessThanOrEqual(0.03);
   });
 });
 

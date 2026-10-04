@@ -50,13 +50,13 @@ describe('landing: placeholders replaced', () => {
 
 describe('S1 hero', () => {
   test('tagline, role and scroll cue come from i18n in es, en and pt', () => {
-    for (const key of ['hero.tagline', 'hero.tagline.l1', 'hero.tagline.l2', 'hero.tagline.l3', 'hero.role', 'hero.fig', 'hero.scroll', 'hero.portraitAlt', 'belts.label', 'belts.chapter']) {
+    for (const key of ['hero.tagline', 'hero.tagline.l1', 'hero.tagline.l2', 'hero.tagline.l3', 'hero.balloon', 'hero.scroll', 'hero.portraitAlt', 'belts.label', 'belts.chapter']) {
       expect(ui.split(`'${key}':`)).toHaveLength(4);
     }
     expect(ui).toContain("'hero.tagline': 'Audito procesos de empresas y los resuelvo con código.'");
     expect(ui).toContain("'hero.tagline': 'I audit business processes and solve them with code.'");
     expect(ui).toContain("'hero.tagline': 'Audito processos de empresas e os resolvo com código.'");
-    for (const key of ['hero.tagline', 'hero.role', 'hero.fig', 'hero.scroll', 'hero.portraitAlt', 'header.name']) {
+    for (const key of ['hero.tagline', 'hero.balloon', 'hero.scroll', 'hero.portraitAlt', 'header.name']) {
       expect(hero).toContain(`t('${key}')`);
     }
   });

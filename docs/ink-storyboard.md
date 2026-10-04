@@ -66,7 +66,7 @@ Un solo árbol HTML responsive. Lo que cambia entre desktop y mobile es el layou
 
 Decisión 2026-10-03: el hero es una página de manga (catálogo 5a, `design/Franjas Pincel.dc.html`). Sin glifos ni sellos asiáticos en toda la landing. Sin pull-back 10a, sin zoom/destello 10l. Rediseño koma-wari (misma fecha, tras feedback "no parece manga"): ver `docs/research-manga-hero.md`.
 
-**Desktop** (>= 768, pin 300svh, salida con `--p`)
+**Desktop** (>= 768, pin 450svh, salida con `--p`)
 ```
 ┌ marco de página negro 3px, papel entre viñetas (gutters 14px) ─┐
 │ ╔══════════════════════════╗╲  ╱‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾╲             │
@@ -75,7 +75,7 @@ Decisión 2026-10-03: el hero es una página de manga (catálogo 5a, `design/Fra
 │ ║  -1deg + speed lines →)  ║   ╲╱  ┌ retrato tinta ┐            │
 │ ╚══════════════════════════╝╲  ╱   │ (PNG alfa)    │ rompe el   │
 │ ┌ caption ─────────┐╲ ▓▓▓▓▓▓▓▓▓▓▓▓ │ cruza borde   │ marco      │
-│ │ tagline (i18n)   │ ╲▓ ( rol · fig )▓ superior     │ y gutter   │
+│ │ tagline (i18n)   │ ╲▓ ( Full Stack · … )▓ superior     │ y gutter   │
 │ └──────────────────┘  ╲▓▓ globo + cola ▓            │            │
 │ ↓ cue (9j)            ╲ viñeta negra (spot black)  └─────────────┘│
 └─────────────────────────────────────────────────────────────────┘
@@ -84,12 +84,15 @@ Decisión 2026-10-03: el hero es una página de manga (catálogo 5a, `design/Fra
 - Una figura rompe el marco: el retrato es un PNG de tinta con alfa (`src/assets/fotojmPerfil-ink.png`, generado por `scripts/make-ink-portrait.mjs`) dentro de `.hero__cutout`, que desborda la viñeta (-3% arriba, -12% a la izquierda), por encima del marco. Sin trama de puntos, sin `filter` en runtime.
 - Focus lines y speed lines finas y de baja opacidad (.2 a .32): `repeating-conic-gradient` estáticos con máscara. Hatching de tagline/rol a .07/.08. Nunca animadas.
 - Caption de narración (tagline): borde 2px, sombra suave 3px. Globo de diálogo (rol + fig) con borde 2px y cola, sobre viñeta negra. Nombre 800 mayúsculas, tracking -0.045em, rotate -1deg. SIN palabra SFX (eliminada, también `hero.sfx` en i18n).
-- Aparición cinematográfica CON EL SCROLL (sin cascada temporal): cada viñeta tiene su ventana de `--p` y `--e = i*i*(3-2i)` (smoothstep). Un wipe `clip-path: inset()` abre el marco desde un lado distinto (tagline desde la izquierda, retrato desde abajo, rol desde la derecha) y el contenido entra con opacity + translateY 20px. Nombre y cue completos en p=0; tagline .08-.24, retrato .28-.46, rol .50-.64, pausa hasta .72.
-- Cámara: push-in de la página (scale 1.04 -> 1 sobre p 0 -> .64) y parallax del recorte del retrato (translateY 3% más lento que su viñeta).
+- Página: el manga vive sobre fondo negro con márgenes (`--page-pad: clamp(16px, 3vw, 48px)`, `max-width: 1600px`, centrado). Nada escala la página, así que ninguna viñeta se recorta en el borde del viewport (el push-in 1.04 anterior recortaba y se eliminó).
+- Caption de narración (tagline): borde 2px, sombra suave 3px. Nombre 800 mayúsculas, tracking -0.045em, rotate -1deg. SIN palabra SFX.
+- Globo de diálogo: óvalo de papel, borde 2px, padding generoso, una línea mono con tracking, `hero.balloon` = "Full Stack · Rosario · Disponible" (EN "... Available", PT "Full Stack · Rosário · Disponível"); el punto verde va justo antes del último segmento (el estado). Cola = triángulo negro + triángulo de papel encima, borde continuo; apunta al retrato (derecha en desktop, arriba en mobile). Decisión: el globo queda en su propia viñeta negra junto al retrato, no flotando. Se eliminaron `hero.role` y `hero.fig`.
+- Aparición cinematográfica CON EL SCROLL, un elemento a la vez (sin cascada temporal): cada viñeta tiene su ventana de `--p` y `--e = i*i*(3-2i)` (smoothstep). Un wipe `clip-path: inset()` abre el marco desde un lado distinto y el contenido entra con opacity + translateY 20px. En p=0 solo se ve el fondo negro. Ventanas: nombre .02-.12, cue .10-.18, tagline .22-.34, retrato .38-.50, globo .54-.64, pausa hasta .70. El cue se solapa .02 con el nombre y aparece casi enseguida (en p=0 nada invita a scrollear; se eligió esto en vez de un hint aparte sobre el negro).
+- Parallax: el recorte del retrato deriva 3% más lento que su viñeta (sin cámara que escale la página).
 - Suavizado: `data-ink-smooth` en el hero; `ink.ts` hace un tween corto (0.7s, power2.out) sobre un proxy que escribe `--p`, solo para esas escenas, sobre el ticker de GSAP.
-- Salida (--p .72 -> 1, suavizada con smoothstep): la página deriva hacia arriba (-6svh) y se desvanece mientras una aguada suave de papel sube. Solo transform, opacity y clip-path.
+- Salida (--p .70 -> 1, suavizada con smoothstep): la página deriva hacia arriba (-6svh) y se desvanece mientras una aguada suave de papel sube. Solo transform, opacity y clip-path.
 
-**Mobile** (< 768, pin 250svh)
+**Mobile** (< 768, pin 360svh)
 ```
 ┌ marco negro ─────┐
 │ ▛ NOMBRE ▜       │  mismas viñetas apiladas, cada una con
