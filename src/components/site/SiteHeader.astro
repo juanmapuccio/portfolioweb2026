@@ -57,12 +57,46 @@ const hookAttr = preview ? { 'data-site-header-preview': '' } : { 'data-site-hea
 
   .site-header { position: fixed; top: 0; left: 0; right: 0; z-index: 50; height: var(--header-h); transition: transform 0.35s var(--reveal-easing); }
   .site-header--preview { position: relative; z-index: auto; }
-  .site-header .ink-11j { height: var(--header-h); padding: 0 var(--gutter); gap: 12px; }
+  .site-header .ink-11j {
+    height: var(--header-h);
+    padding: 0 var(--gutter);
+    gap: 12px;
+    transition: background-color 0.4s var(--reveal-easing), border-color 0.4s var(--reveal-easing), color 0.4s var(--reveal-easing);
+  }
   .site-header .ink-11j__brand { white-space: nowrap; }
 
   .site-header__avail { display: inline-flex; align-items: center; gap: 8px; }
   .site-header__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok-green); }
-  .site-header__status { font: 600 10px/1 var(--font-mono); letter-spacing: var(--tracking-meta); color: var(--text-dim); }
+  .site-header__status {
+    font: 600 10px/1 var(--font-mono);
+    letter-spacing: var(--tracking-meta);
+    color: var(--text-dim);
+    transition: color 0.4s var(--reveal-easing);
+  }
+
+  /* Chameleon mode over Hero scene: blends seamlessly with the dark manga ground */
+  html[data-in-hero] .site-header .ink-11j {
+    background: rgba(28, 26, 23, 0.72);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(244, 239, 228, 0.12);
+    color: var(--paper);
+  }
+  html[data-in-hero] .site-header__status {
+    color: rgba(244, 239, 228, 0.65);
+  }
+  html[data-in-hero] .site-header .ink-11j__link {
+    color: var(--paper);
+  }
+  html[data-in-hero] .site-header .ink-11m__lang {
+    color: var(--paper);
+  }
+  html[data-in-hero] .site-header .ink-11m__c {
+    fill: rgba(244, 239, 228, 0.65);
+  }
+  html[data-in-hero] .site-header__progress {
+    background: rgba(244, 239, 228, 0.08);
+  }
 
   /* Touch targets >= 44px. Links grow in height; the stroke sits inside the taller box.
      Language options grow through ::after (28px + 16px gap = 44px step, 22px + 22px). */

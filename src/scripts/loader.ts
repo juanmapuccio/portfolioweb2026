@@ -66,6 +66,8 @@ function createPlayer(el: HTMLElement, preview: boolean, reduced: boolean) {
     if (preview) return;
     (window as LenisWindow).__lenis?.start();
     setBusy(false);
+    document.documentElement.classList.add('is-ready');
+    window.dispatchEvent(new CustomEvent('loader:done'));
     // After the curtain is gone, take it out of the accessibility tree and the DOM.
     exitTimer = window.setTimeout(() => {
       el.hidden = true;

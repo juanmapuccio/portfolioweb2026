@@ -147,13 +147,22 @@ function initSiteHeader(): void {
     }
   };
 
+  // Set default initial state for hero if at page top
+  if (window.scrollY < 100) {
+    root.setAttribute('data-in-hero', '');
+    setActive('hero');
+  }
+
   document.querySelectorAll<HTMLElement>('main section[id]').forEach((section) => {
     ScrollTrigger.create({
       trigger: section,
       start: 'top 50%',
       end: 'bottom 50%',
       onToggle: (self) => {
-        if (self.isActive) setActive(section.id);
+        if (self.isActive) {
+          setActive(section.id);
+          root.toggleAttribute('data-in-hero', section.id === 'hero');
+        }
       },
     });
   });

@@ -52,9 +52,17 @@ const balloonStatus = cut === -1 ? balloon : balloon.slice(cut + 3);
       <div class="hero__panel hero__panel--name" data-panel="name" style="--s: 0.02; --l: 0.12">
         <span class="hero__lines hero__lines--name" aria-hidden="true"></span>
         <div class="hero__in">
-          <h1 class="hero__name" id="hero-name">
-            {nameLines.map((word) => <span class="hero__word">{word}</span>)}
-          </h1>
+          <div class="hero__name-stack">
+            <span class="hero__name-ghost hero__name-ghost--1" aria-hidden="true">
+              {nameLines.map((word) => <span class="hero__word">{word}</span>)}
+            </span>
+            <span class="hero__name-ghost hero__name-ghost--2" aria-hidden="true">
+              {nameLines.map((word) => <span class="hero__word">{word}</span>)}
+            </span>
+            <h1 class="hero__name" id="hero-name">
+              {nameLines.map((word) => <span class="hero__word">{word}</span>)}
+            </h1>
+          </div>
         </div>
       </div>
       <div class="hero__panel hero__panel--tagline" data-panel="tagline" style="--s: 0.16; --l: 0.12">
@@ -86,6 +94,13 @@ const balloonStatus = cut === -1 ? balloon : balloon.slice(cut + 3);
         </div>
       </div>
     </div>
+    <!-- Floating scroll indicator that appears right after the site loader completes -->
+    <aside class="hero__scroll-indicator" data-scroll-indicator aria-hidden="true">
+      <div class="hero__scroll-mouse">
+        <span class="hero__scroll-wheel"></span>
+      </div>
+      <span class="hero__scroll-text">{t('hero.scroll')}</span>
+    </aside>
     <span class="hero__wash" aria-hidden="true"></span>
   </div>
 </section>
@@ -110,16 +125,69 @@ const balloonStatus = cut === -1 ? balloon : balloon.slice(cut + 3);
   .hero__panel--balloon { --b: 3px; --clip: polygon(0 var(--tilt), 100% 0, 100% 100%, 0 100%); --fill: var(--ink-belt-black); --hatch: repeating-linear-gradient(-60deg, transparent 0 8px, rgba(244, 239, 228, 0.08) 8px 9px); }
   .hero__panel--cue { --b: 2px; --clip: polygon(0 0, 100% var(--tilt), 100% 100%, 0 100%); }
 
-  /* Manga title: bold display type, uppercase, tight tracking, barely tilted. */
+  /* Manga title: bold display type, uppercase, tight tracking, barely tilted + afterimage clone stack */
   .hero__panel--name .hero__in { align-items: flex-end; padding: 20px 20px 24px; }
-  .hero__name { display: flex; flex-direction: column; margin: 0; font: 800 clamp(42px, 13vw, 76px) / 0.94 var(--font-sans); text-transform: uppercase; letter-spacing: -0.045em; transform: rotate(-1deg); transform-origin: 0 100%; }
+  .hero__name-stack { position: relative; width: 100%; display: grid; }
+  .hero__name {
+    grid-area: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    font: 800 clamp(42px, 13vw, 76px) / 0.94 var(--font-sans);
+    text-transform: uppercase;
+    letter-spacing: -0.045em;
+    transform: rotate(-1deg);
+    transform-origin: 0 100%;
+    position: relative;
+    z-index: 2;
+  }
+  .hero__name-ghost {
+    grid-area: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    font: 800 clamp(42px, 13vw, 76px) / 0.94 var(--font-sans);
+    text-transform: uppercase;
+    letter-spacing: -0.045em;
+    transform-origin: 0 100%;
+    pointer-events: none;
+    user-select: none;
+    z-index: 1;
+    transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+  }
+  .hero__name-ghost--1 {
+    color: rgba(28, 26, 23, 0.2);
+    transform: rotate(-1deg) translate(calc((1 - var(--e, 0)) * -40px), calc((1 - var(--e, 0)) * -12px));
+    opacity: calc(var(--e, 0) * 0.45);
+  }
+  .hero__name-ghost--2 {
+    color: rgba(3, 105, 161, 0.28);
+    transform: rotate(-1deg) translate(calc((1 - var(--e, 0)) * -80px), calc((1 - var(--e, 0)) * -24px));
+    opacity: calc(var(--e, 0) * 0.25);
+  }
   .hero__word { display: block; }
 
-  /* Speed lines on the name panel: static repeating-conic-gradient from the right edge. */
+  /* Speed lines on the name panel: animated repeating-conic-gradient from the right edge. */
   .hero__lines { position: absolute; z-index: 0; pointer-events: none; }
-  .hero__lines--name { inset: var(--b); clip-path: var(--clip); background: repeating-conic-gradient(from 90deg at 100% 50%, rgba(28, 26, 23, 0.2) 0 0.35deg, transparent 0.35deg 3.4deg); -webkit-mask-image: linear-gradient(to right, transparent 40%, #000 100%); mask-image: linear-gradient(to right, transparent 40%, #000 100%); }
+  .hero__lines--name {
+    inset: var(--b);
+    clip-path: var(--clip);
+    background: repeating-conic-gradient(from 90deg at 100% 50%, rgba(28, 26, 23, 0.24) 0 0.35deg, transparent 0.35deg 3.4deg);
+    -webkit-mask-image: linear-gradient(to right, transparent 35%, #000 100%);
+    mask-image: linear-gradient(to right, transparent 35%, #000 100%);
+    opacity: clamp(0.2, calc(var(--e, 0) * 1.2), 1);
+    transform: scale(calc(1 + (1 - var(--e, 0)) * 0.15));
+    transition: transform 0.3s ease-out;
+  }
   /* Focus lines (shuchusen) around the portrait: two conic layers, clear centre. */
-  .hero__lines--focus { inset: var(--b); clip-path: var(--clip); background: repeating-conic-gradient(from 3deg at 50% 38%, rgba(28, 26, 23, 0.32) 0 0.4deg, transparent 0.4deg 5deg), repeating-conic-gradient(from 0deg at 50% 38%, rgba(28, 26, 23, 0.2) 0 0.22deg, transparent 0.22deg 2.6deg); -webkit-mask-image: radial-gradient(ellipse 70% 62% at 50% 38%, transparent 0 24%, #000 62%); mask-image: radial-gradient(ellipse 70% 62% at 50% 38%, transparent 0 24%, #000 62%); }
+  .hero__lines--focus {
+    inset: var(--b);
+    clip-path: var(--clip);
+    background: repeating-conic-gradient(from 3deg at 50% 38%, rgba(28, 26, 23, 0.36) 0 0.4deg, transparent 0.4deg 5deg), repeating-conic-gradient(from 0deg at 50% 38%, rgba(28, 26, 23, 0.22) 0 0.22deg, transparent 0.22deg 2.6deg);
+    -webkit-mask-image: radial-gradient(ellipse 70% 62% at 50% 38%, transparent 0 24%, #000 62%);
+    mask-image: radial-gradient(ellipse 70% 62% at 50% 38%, transparent 0 24%, #000 62%);
+    transform: scale(calc(1 + (1 - var(--e, 0)) * 0.2)) rotate(calc((1 - var(--e, 0)) * 4deg));
+  }
 
   /* Narration caption box: rectangular, black border, hard offset shadow. */
   .hero__panel--tagline .hero__in { align-items: center; padding: 14px 18px 18px; }
@@ -189,18 +257,90 @@ const balloonStatus = cut === -1 ? balloon : balloon.slice(cut + 3);
     color: rgba(28, 26, 23, 0.85);
   }
   .hero__dot {
-    width: 7px;
-    height: 7px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: var(--ok-green);
-    box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+    box-shadow: 0 0 0 1.5px rgba(28, 26, 23, 0.4), 0 0 8px rgba(4, 120, 87, 0.4);
     flex: none;
   }
 
-  .hero__panel--cue .hero__in { justify-content: center; align-items: center; padding: 10px 12px 14px; min-height: 44px; }
+  /* Floating post-load scroll indicator over the hero's black background */
+  .hero__scroll-indicator {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(24px);
+    z-index: 20;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: rgba(28, 26, 23, 0.88);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(244, 239, 228, 0.28);
+    border-radius: 9999px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 12px rgba(244, 239, 228, 0.08);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  html.is-ready .hero__scroll-indicator {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  /* Fades out as soon as the user starts scrolling the hero scene */
+  html.js .hero[style*="--p"] .hero__scroll-indicator {
+    opacity: calc(1 - clamp(0, calc(var(--p, 0) * 16), 1));
+    transform: translateX(-50%) translateY(calc(clamp(0, calc(var(--p, 0) * 16), 1) * 20px));
+  }
+  .hero__scroll-mouse {
+    width: 16px;
+    height: 26px;
+    border: 1.5px solid var(--paper);
+    border-radius: 9px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    padding-top: 4px;
+    box-sizing: border-box;
+  }
+  .hero__scroll-wheel {
+    width: 2.5px;
+    height: 6px;
+    background: var(--paper);
+    border-radius: 2px;
+    animation: heroScrollWheel 1.5s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  }
+  @keyframes heroScrollWheel {
+    0% { transform: translateY(0); opacity: 1; }
+    60% { transform: translateY(8px); opacity: 0; }
+    61% { transform: translateY(0); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  .hero__scroll-text {
+    font: 600 10px/1 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--paper);
+  }
 
   /* Stacked order on mobile follows the DOM; the wash only exists with motion. */
   .hero__wash { display: none; }
+
+  /* Tablet portrait transition: 640px to 767px */
+  @media (min-width: 640px) and (max-width: 767px) {
+    .hero__manga {
+      max-width: 600px;
+      gap: 14px;
+    }
+    .hero__balloon {
+      flex-direction: row;
+      gap: 10px;
+      padding: 12px 24px;
+    }
+  }
 
   @media (min-width: 768px) {
     .hero__manga { grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.9fr) minmax(0, 1.1fr); grid-template-rows: minmax(0, 1.5fr) minmax(0, 1fr) auto; grid-template-areas: 'name name portrait' 'tagline balloon portrait' 'cue cue portrait'; height: calc(100svh - var(--header-h)); gap: 20px; }
@@ -215,7 +355,7 @@ const balloonStatus = cut === -1 ? balloon : balloon.slice(cut + 3);
     .hero__panel--tagline .hero__in { padding: 22px 36px 26px 24px; }
     .hero__panel--balloon .hero__in { padding: 18px 28px; }
     .hero__panel--cue .hero__in { justify-content: flex-start; padding: 6px 22px 8px; }
-    .hero__name { flex-direction: row; flex-wrap: wrap; gap: 0 0.26em; font-size: clamp(48px, 6.6vw, 116px); }
+    .hero__name, .hero__name-ghost { flex-direction: row; flex-wrap: wrap; gap: 0 0.26em; font-size: clamp(48px, 6.6vw, 116px); }
     .hero__caption { font-size: clamp(18px, 1.9vw, 30px); }
     .hero__cutout { left: -12%; right: -3%; top: -2%; }
     .hero__balloon {
