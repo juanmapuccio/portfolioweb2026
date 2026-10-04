@@ -20,7 +20,7 @@
 // is never empty and the cue tells the user to scroll.
 // Windows (--p), one panel at a time: name and cue visible at 0, tagline .08-.24, portrait .28-.46,
 // role .50-.64, hold, exit .72-1 (the page drifts up and fades under a soft paper wash).
-// Pin: desktop 300svh, mobile 250svh (svh only), sticky 100svh stage. Only transform, opacity and
+// Pin: desktop 450svh, mobile 360svh (svh only), sticky 100svh stage. Only transform, opacity and
 // clip-path animate. Reduced motion / no JS: all panels visible and static, no pin.
 import { Picture } from 'astro:assets';
 import portrait from '../../assets/fotojmPerfil-ink.png';
@@ -166,7 +166,7 @@ const nameLines = t('header.name').split(' ');
     html.js .hero__manga { transform: translateY(calc(var(--x) * -6svh)) scale(calc(1.04 - var(--cam) * 0.04)); opacity: calc(1 - var(--x)); will-change: transform, opacity; }
     html.js .hero__wash { display: block; position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; height: 120%; pointer-events: none; background: linear-gradient(to top, var(--paper) 0%, var(--paper) 55%, rgba(244, 239, 228, 0.6) 78%, transparent 100%); transform: translateY(calc((1 - var(--x)) * 100%)); will-change: transform; }
 
-    /* Mobile: pinned stage too (250svh). The stack is squeezed to fit one screen. */
+    /* Mobile: pinned stage too (360svh). The stack is squeezed to fit one screen. */
     html.js .hero { height: 360svh; }
     html.js .hero__stage { position: sticky; top: 0; height: 100svh; min-height: 0; }
     html.js .hero__manga { height: calc(100svh - var(--header-h)); min-height: 0; grid-template-rows: auto auto minmax(0, 1fr) auto auto; gap: 11px; padding: 10px; }
