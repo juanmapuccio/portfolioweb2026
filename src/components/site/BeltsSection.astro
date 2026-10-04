@@ -1,14 +1,10 @@
 ---
-// S2 Cinturones. One responsive tree, six chapters from src/data/martialExperience.ts.
-// Desktop (>=1024, motion allowed, JS): 700svh section, sticky stage, a horizontal track of
-// six chapters scrubbed by the section's `--p` (10d chapter cards), 10o rail on top, 6b
-// brush wipe at the mid-point of every segment, 6d enso before the 1o dan, then a soft ink
-// bloom (no glyph, no flash) as the black belt lands.
-// Mobile / tablet (<1024): 7c sticky stacked cards, 2d bamboo growing with --p, and one 7e
-// drip per belt change (InkDrip).
-// Reduced motion / no JS: chapters stacked in a plain column, final states, no flashes.
-// Active belt: ink.ts reads [data-belt-scene] + [data-belt-chapter] and sets <html data-belt>.
-// TODO(raster): flat --paper stands in for the washi texture behind the wipes.
+// S2 Cinturones · DOJO SHOWCASE & MANGA KOMA-WARI (Rediseño Cinematográfico)
+// Reemplaza el slider de tarjetas corporativas con un dojo escénico inmersivo:
+// - Escenario sticky 100svh con split editorial.
+// - Lado izquierdo: Koma-wari Martial Showcase con el emblema, kanji y trazo caligráfico que muta con la etapa.
+// - Lado derecho: Crónica narrativa con tipografía editorial pura sobre fondo washi, sin bordes de caja pesados.
+// - Transiciones fluidas por corte de tinta y sincronización con el riel superior.
 import InkUnderlineSweep from '../ink/InkUnderlineSweep.astro';
 import BeltRail from './BeltRail.astro';
 import BambooGrow from './BambooGrow.astro';
@@ -32,6 +28,15 @@ const toneOf: Record<MartialStage['beltKey'], Tone> = {
   negro: 'black',
 };
 
+const kanjiOf: Record<MartialStage['beltKey'], string> = {
+  blanco: '白',
+  amarillo: '黄',
+  verde: '緑',
+  azul: '青',
+  rojo: '赤',
+  negro: '黒',
+};
+
 const stages = martialExperienceData[lang].stages;
 const chapters = stages.map((stage, i) => {
   const belt = BELTS[stage.beltKey];
@@ -42,6 +47,7 @@ const chapters = stages.map((stage, i) => {
     key: stage.beltKey,
     tone: toneOf[stage.beltKey],
     grade: belt.gup,
+    kanji: kanjiOf[stage.beltKey],
     beltName: belt.beltName[lang],
     title: stage.title,
     years: stage.years,
@@ -57,49 +63,90 @@ const railNodes = chapters.map((chapter) => ({ grade: chapter.grade, tone: chapt
 
 <section id="cinturones" class="belts" data-belt="amarillo" data-belt-scene data-ink-scene data-ink-smooth style={`--count: ${chapters.length}`}>
   <div class="belts__stage">
+    <!-- Active Belt Wipes across stages -->
     <div class="belts__wipes" aria-hidden="true">
       {chapters.slice(1).map((chapter) => (
         <span class="belt-wipe" style={`--i: ${chapter.index}; --tone: var(--ink-belt-${chapter.tone})`}></span>
       ))}
     </div>
 
-    <svg class="belts__enso" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
-      <circle cx="50" cy="50" r="42" pathLength="1" fill="none" stroke-width="3.2" stroke-linecap="round"></circle>
-    </svg>
-
+    <!-- Dojo Top Header Bar & Progress Rail -->
     <div class="belts__head">
       <h2 class="belts__label">{t('belts.label')}</h2>
       <BeltRail nodes={railNodes} />
     </div>
 
-    <ol class="belts__track">
-      {chapters.map((chapter) => (
-        <li class="chapter" data-belt={chapter.key} data-belt-chapter style={`--i: ${chapter.index}; --tone: var(--ink-belt-${chapter.tone})`}>
-          {chapter.index > 0 && <InkDrip class="chapter__drip" tone={chapter.tone} />}
-          <article class="chapter__card" data-ink>
-            <!-- 2h: Sumi-e water halo band behind card -->
-            <span class="chapter__halo" aria-hidden="true"></span>
-            <span class="chapter__band" aria-hidden="true"></span>
-            <header class="chapter__head">
-              <span class="chapter__no">{t('belts.chapter')} {chapter.number}</span>
-              <span class="chapter__grade">{chapter.grade}</span>
-              <span class="chapter__years">{chapter.years}</span>
-            </header>
-            <p class="chapter__kicker">{chapter.kicker}</p>
-            <div class="chapter__title" role="heading" aria-level="3">
-              <InkUnderlineSweep eyebrow={chapter.beltName} title={chapter.title} tone={chapter.tone} />
+    <!-- Split Dojo Showcase & Manga Koma-wari stage -->
+    <div class="dojo-showcase">
+      <!-- Left Panel: Manga Koma-wari Emblem Showcase -->
+      <aside class="dojo-showcase__monolith" aria-hidden="true">
+        <div class="koma-frame">
+          <div class="koma-frame__inner">
+            <span class="koma-frame__ambient-wash"></span>
+            <!-- Giant calligraphy kanji watermark -->
+            <div class="koma-frame__kanji-stack">
+              {chapters.map((ch) => (
+                <span class="koma-kanji" data-koma-kanji={ch.index}>{ch.kanji}</span>
+              ))}
             </div>
-            <p class="chapter__line">{chapter.line}</p>
-            {chapter.detail && <p class="chapter__detail">{chapter.detail}</p>}
-            {chapter.closing && <p class="chapter__closing">{chapter.closing}</p>}
-            <p class="chapter__orgs">{chapter.orgs}</p>
-            {chapter.key === 'negro' && <span class="chapter__seal ink-stamp" aria-hidden="true">JMP</span>}
-          </article>
-        </li>
-      ))}
-    </ol>
 
-    <!-- 6i: Kurohomura / Amaterasu scrub transition before Dan 1 -->
+            <!-- Dynamic Ink Stroke Core -->
+            <div class="koma-frame__stroke-core">
+              <svg viewBox="0 0 320 320" class="koma-enso-ring">
+                <circle cx="160" cy="160" r="128" fill="none" stroke="currentColor" stroke-width="12" stroke-dasharray="800" stroke-dashoffset="120" stroke-linecap="round"></circle>
+              </svg>
+              <div class="koma-frame__seal-badge">
+                <span class="koma-seal-text">道場</span>
+              </div>
+            </div>
+
+            <div class="koma-frame__meta-footer">
+              <span class="koma-meta-tag">TAEKWON-DO ITF</span>
+              <span class="koma-meta-line"></span>
+              <span class="koma-meta-tag">KOREAN MARTIAL ARTS</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right Panel: The Chronicle (Editorial Storytelling Stack) -->
+      <main class="dojo-showcase__chronicle">
+        <ol class="chronicle-stack">
+          {chapters.map((chapter) => (
+            <li class="chronicle-stage" data-belt={chapter.key} data-belt-chapter style={`--i: ${chapter.index}; --tone: var(--ink-belt-${chapter.tone})`}>
+              <article class="chronicle-body">
+                <header class="chronicle-header">
+                  <div class="chronicle-badge">
+                    <span class="chronicle-num">{chapter.number}</span>
+                    <span class="chronicle-sep">/</span>
+                    <span class="chronicle-grade">{chapter.grade}</span>
+                  </div>
+                  <time class="chronicle-years">{chapter.years}</time>
+                </header>
+
+                <p class="chronicle-kicker">{chapter.kicker}</p>
+
+                <div class="chronicle-title" role="heading" aria-level="3">
+                  <InkUnderlineSweep eyebrow={chapter.beltName} title={chapter.title} tone={chapter.tone} />
+                </div>
+
+                <p class="chronicle-lede">{chapter.line}</p>
+                {chapter.detail && <p class="chronicle-detail">{chapter.detail}</p>}
+                {chapter.closing && <p class="chronicle-closing">{chapter.closing}</p>}
+
+                <footer class="chronicle-footer">
+                  <span class="chronicle-orgs-dot" aria-hidden="true"></span>
+                  <span class="chronicle-orgs">{chapter.orgs}</span>
+                  {chapter.key === 'negro' && <span class="chronicle-stamp" aria-hidden="true">JMP</span>}
+                </footer>
+              </article>
+            </li>
+          ))}
+        </ol>
+      </main>
+    </div>
+
+    <!-- Kurohomura Sumi-e Transition towards Dan 1 -->
     <div class="belts__kurohomura" aria-hidden="true">
       <span class="kurohomura-slash"></span>
       <span class="kurohomura-flame kurohomura-flame--top"></span>
@@ -112,94 +159,277 @@ const railNodes = chapters.map((chapter) => ({ grade: chapter.grade, tone: chapt
 </section>
 
 <style is:global>
-  /* ---- Static layout (reduced motion, no JS): a plain column of chapter cards ---- */
+  /* ============================================================
+     DOJO SHOWCASE & MANGA KOMA-WARI (Editorial Cinematic Style)
+     ============================================================ */
   .belts { position: relative; background: var(--paper); color: var(--text-main); }
-  .belts__stage { position: relative; padding: calc(var(--header-h) + var(--section-pad)) var(--gutter) var(--section-pad); }
+  .belts__stage { position: relative; box-sizing: border-box; }
   .belts__head { display: grid; gap: 14px; margin-bottom: 20px; }
   .belts__label { margin: 0; font: 600 var(--fs-caption) / 1 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; color: var(--text-dim); }
-  .belts__track { display: flex; flex-direction: column; gap: 20px; margin: 0; padding: 0; list-style: none; }
 
-  .chapter { position: relative; }
-  .chapter__card { position: relative; display: grid; gap: 14px; box-sizing: border-box; padding: 28px 22px 22px 34px; border: 2px solid var(--text-main); background: var(--paper); box-shadow: 6px 6px 0 rgba(28, 26, 23, 0.16); }
-  .chapter__band { position: absolute; left: 0; top: 0; bottom: 0; width: 12px; background: var(--tone); border-right: 2px solid var(--text-main); }
-  .chapter__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; font: 600 11px/1 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; color: var(--text-dim); }
-  .chapter__no { color: var(--text-main); }
-  .chapter__years { margin-left: auto; color: var(--text-main); }
-  .chapter .ink-1a { max-width: none; padding: 0; }
-  .chapter .ink-1a__title { font-size: clamp(34px, 9vw, 56px); line-height: 1.05; }
-  .chapter__line { margin: 0; font: 400 var(--fs-lede) / 1.35 var(--font-serif); }
-  .chapter__kicker { margin: 0; font: 600 11px/1 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; color: var(--text-dim); }
-  .chapter__detail { display: none; margin: 0; font: 400 var(--fs-caption) / 1.5 var(--font-sans, var(--font-serif)); color: var(--text-dim); max-width: 46em; }
-  .chapter__closing { margin: 0; padding-top: 12px; border-top: 2px solid var(--text-main); font: italic 400 var(--fs-lede) / 1.4 var(--font-serif); max-width: 34em; }
-  .chapter__orgs { margin: 0; font: 400 var(--fs-caption) / 1.4 var(--font-mono); color: var(--text-dim); }
-  .chapter__seal { position: absolute; right: 18px; bottom: 16px; display: grid; place-items: center; width: 52px; height: 52px; border: 3px solid var(--seal-red); color: var(--seal-red); font: 700 14px/1 var(--font-serif); letter-spacing: 0.06em; rotate: -5deg; }
+  /* Static / Fallback layout (Mobile or Reduced Motion) */
+  .chronicle-stack { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 32px; }
+  .chronicle-body { position: relative; display: grid; gap: 14px; padding: 24px; border-left: 3px solid var(--text-main); background: var(--bg-surface); box-shadow: 4px 4px 0 rgba(28, 26, 23, 0.08); }
+  .chronicle-header { display: flex; justify-content: space-between; align-items: baseline; font: 600 11px/1 var(--font-mono); letter-spacing: var(--tracking-meta); }
+  .chronicle-kicker { margin: 0; font: 600 11px/1 var(--font-mono); letter-spacing: var(--tracking-meta); text-transform: uppercase; color: var(--text-dim); }
+  .chronicle-lede { margin: 0; font: 400 var(--fs-lede) / 1.35 var(--font-serif); }
+  .chronicle-detail { margin: 0; font: 400 var(--fs-caption) / 1.5 var(--font-sans); color: var(--text-dim); }
+  .chronicle-closing { margin: 0; padding-top: 10px; border-top: 1px solid var(--border-subtle); font: italic 400 var(--fs-lede) / 1.4 var(--font-serif); }
+  .chronicle-footer { display: flex; align-items: center; gap: 8px; font: 400 var(--fs-caption) / 1.4 var(--font-mono); color: var(--text-dim); }
+  .chronicle-orgs-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--tone); }
+  .chronicle-stamp { margin-left: auto; color: var(--seal-red); font: 700 13px var(--font-serif); border: 2px solid var(--seal-red); padding: 2px 6px; }
 
-  /* Desktop-only layers are hidden in the static layout. */
-  .belts__wipes, .belts__enso, .belts__bloom, .belts__bamboo { display: none; }
+  .dojo-showcase__monolith { display: none; }
+  .belts__wipes, .belts__enso, .belts__bloom, .belts__bamboo, .belts__kurohomura { display: none; }
 
-  @media (min-width: 1024px) {
-    .belts__track { gap: 32px; }
-    .chapter__card { width: min(980px, 100%); padding: 40px 48px 36px 60px; margin: 0 auto; }
-    .chapter .ink-1a__title { font-size: clamp(48px, 5.4vw, 92px); }
-    .chapter__band { width: 18px; }
-    .chapter__line { font-size: clamp(20px, 1.8vw, 28px); max-width: 28em; }
-    .chapter__detail { display: block; font-size: clamp(14px, 1.05vw, 16px); }
-    .chapter__closing { font-size: clamp(16px, 1.3vw, 20px); }
-  }
-
-  /* ---- Mobile / tablet scrub: 7c sticky stacked cards + 2d bamboo ---- */
+  /* ---- Mobile / Tablet scrub (< 1024px) ---- */
   @media (max-width: 1023.98px) and (prefers-reduced-motion: no-preference) {
-    html.js .belts__track { display: block; }
-    html.js .chapter { position: sticky; top: calc(var(--header-h) + 16px + var(--i) * 12px); height: calc(100svh - var(--header-h) - 56px); margin-bottom: calc(var(--header-h) + 56px); z-index: calc(1 + var(--i)); }
-    html.js .chapter:last-child { margin-bottom: 0; }
-    html.js .chapter__card { height: 100%; align-content: start; background: var(--paper); }
-    html.js .chapter__drip { top: -24px; }
+    .belts__stage { padding: calc(var(--header-h) + var(--section-pad)) var(--gutter) var(--section-pad); }
+    html.js .chronicle-stage { position: sticky; top: calc(var(--header-h) + 16px + var(--i) * 12px); height: calc(100svh - var(--header-h) - 56px); margin-bottom: calc(var(--header-h) + 56px); z-index: calc(1 + var(--i)); }
+    html.js .chronicle-stage:last-child { margin-bottom: 0; }
+    html.js .chronicle-body { height: 100%; align-content: start; background: var(--paper); border: 2px solid var(--text-main); }
     html.js .belts__bamboo { display: block; position: absolute; right: 3px; top: 0; bottom: 0; width: 14px; z-index: 40; pointer-events: none; }
     html.js .belts__bamboo .bamboo { display: block; position: sticky; top: var(--header-h); height: calc(100svh - var(--header-h) - 24px); }
   }
 
-  /* ---- Desktop scrub: pinned horizontal track ---- */
+  /* ---- Desktop Dojo Showcase & Manga Koma-wari scrub (>= 1024px) ---- */
   @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
-    html.js .belts { height: 700svh; }
+    html.js .belts { height: 600svh; }
     html.js .belts__stage { position: sticky; top: 0; height: 100svh; padding: 0; overflow: hidden; transform: translateZ(0); }
 
+    /* Washi wash background */
     html.js .belts__wipes { display: block; position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-    /* 6b: belt colour wipes in, left to right, using GPU hardware-accelerated scaleX instead of costly full-viewport clip-path */
-    html.js .belt-wipe { position: absolute; inset: 0; background: var(--tone); --w: clamp(0, calc((var(--p, 0) - (var(--i) - 0.5) / 5 + 0.05) / 0.1), 1); transform-origin: left center; transform: scaleX(var(--w)) translateZ(0); will-change: transform; }
+    html.js .belt-wipe { position: absolute; inset: 0; background: var(--tone); opacity: 0.12; --w: clamp(0, calc((var(--p, 0) - (var(--i) - 0.5) / 5 + 0.05) / 0.1), 1); transform-origin: left center; transform: scaleX(var(--w)) translateZ(0); will-change: transform; }
 
-    html.js .belts__head { position: absolute; left: var(--gutter); right: var(--gutter); top: calc(var(--header-h) + 18px); z-index: 4; display: flex; align-items: center; gap: 24px; margin: 0; padding: 12px 20px 22px; border: 2px solid var(--text-main); background: var(--paper); transform: translateZ(0); }
+    /* Pinned top rail bar */
+    html.js .belts__head { position: absolute; left: var(--gutter); right: var(--gutter); top: calc(var(--header-h) + 14px); z-index: 10; display: flex; align-items: center; gap: 24px; margin: 0; padding: 10px 24px; border: 2px solid var(--text-main); background: var(--paper); transform: translateZ(0); }
     html.js .belts__label { flex: none; }
     html.js .belt-rail { display: flex; flex: 1; padding: 0 14px; }
 
-    html.js .belts__track { position: absolute; inset: 0; z-index: 2; width: calc(var(--count) * 100%); flex-direction: row; gap: 0; transform: translateX(calc(var(--p, 0) * -1 * (var(--count) - 1) / var(--count) * 100%)) translateZ(0); will-change: transform; }
-    html.js .chapter { flex: 0 0 calc(100% / var(--count)); display: grid; place-items: center; box-sizing: border-box; padding: calc(var(--header-h) + 150px) var(--gutter) 48px; height: 100%; }
-    html.js .chapter__drip { display: none; }
-
-    /* 2h: Sumi halo behind the active chapter card */
-    .chapter__halo {
+    /* DOJO SPLIT STAGE */
+    html.js .dojo-showcase {
       position: absolute;
-      inset: -12px -20px;
-      z-index: -1;
-      background: radial-gradient(ellipse at center, var(--tone) 0%, transparent 72%);
-      opacity: 0.22;
-      filter: blur(14px);
-      pointer-events: none;
-      transform: translateZ(0);
+      inset: calc(var(--header-h) + 72px) var(--gutter) 28px;
+      display: grid;
+      grid-template-columns: minmax(360px, 440px) 1fr;
+      gap: 36px;
+      z-index: 2;
     }
 
-    /* 6i: Kurohomura (黒炎) scrub transition before 1o dan */
-    .belts__kurohomura {
+    /* LEFT: Koma-wari Manga Panel */
+    html.js .dojo-showcase__monolith {
+      display: block;
+      position: relative;
+      height: 100%;
+      transform: translateZ(0);
+    }
+    html.js .koma-frame {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      --tilt: 14px;
+      clip-path: polygon(0 0, 100% 0, calc(100% - var(--tilt)) 100%, 0 100%);
+      background: var(--ink-belt-black);
+      padding: 3px;
+      box-sizing: border-box;
+      filter: drop-shadow(6px 6px 0 rgba(28, 26, 23, 0.2));
+    }
+    html.js .koma-frame__inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      clip-path: polygon(0 0, 100% 0, calc(100% - var(--tilt)) 100%, 0 100%);
+      background: var(--paper);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 32px 28px;
+      box-sizing: border-box;
+    }
+    html.js .koma-frame__ambient-wash {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, var(--tone, #fbbf24) 0%, transparent 68%);
+      opacity: 0.18;
+      pointer-events: none;
+      transition: background-color 0.4s ease;
+    }
+
+    /* Kanji Watermark stack */
+    html.js .koma-frame__kanji-stack {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+      z-index: 1;
+    }
+    html.js .koma-kanji {
+      grid-area: 1 / 1;
+      font: 900 240px/1 var(--font-serif);
+      color: var(--text-main);
+      opacity: 0;
+      transform: scale(0.85);
+      transition: opacity 0.5s var(--reveal-easing), transform 0.5s var(--reveal-easing);
+    }
+    /* Active Kanji linked to data-chapter on parent scene */
+    html[data-belt='blanco'] .koma-kanji[data-koma-kanji='0'],
+    html[data-belt='amarillo'] .koma-kanji[data-koma-kanji='1'],
+    html[data-belt='verde'] .koma-kanji[data-koma-kanji='2'],
+    html[data-belt='azul'] .koma-kanji[data-koma-kanji='3'],
+    html[data-belt='rojo'] .koma-kanji[data-koma-kanji='4'],
+    html[data-belt='negro'] .koma-kanji[data-koma-kanji='5'] {
+      opacity: 0.14;
+      transform: scale(1);
+    }
+
+    /* Enso ring & Martial seal */
+    html.js .koma-frame__stroke-core {
+      position: relative;
+      z-index: 2;
+      width: 220px;
+      height: 220px;
+      display: grid;
+      place-items: center;
+      margin: auto 0;
+    }
+    html.js .koma-enso-ring {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      color: var(--tone, #1c1a17);
+      transition: color 0.4s ease;
+      filter: url(#dryH);
+    }
+    html.js .koma-frame__seal-badge {
+      width: 72px;
+      height: 72px;
+      border: 3px solid var(--seal-red);
+      background: var(--paper);
+      display: grid;
+      place-items: center;
+      transform: rotate(-6deg);
+      box-shadow: 2px 2px 0 rgba(28, 26, 23, 0.25);
+    }
+    html.js .koma-seal-text {
+      font: 700 24px/1 var(--font-serif);
+      color: var(--seal-red);
+      letter-spacing: 0.1em;
+    }
+
+    html.js .koma-frame__meta-footer {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      font: 600 10px/1 var(--font-mono);
+      letter-spacing: var(--tracking-meta);
+      color: var(--text-dim);
+    }
+    html.js .koma-meta-line {
+      width: 36px;
+      height: 2px;
+      background: var(--text-main);
+    }
+
+    /* RIGHT: Editorial Chronicle Storytelling Stack */
+    html.js .dojo-showcase__chronicle {
+      position: relative;
+      height: 100%;
+      display: grid;
+      align-items: center;
+      overflow: hidden;
+    }
+    html.js .chronicle-stack {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: grid;
+    }
+    html.js .chronicle-stage {
+      grid-area: 1 / 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      /* Active visibility based on scroll window */
+      opacity: clamp(0, calc(1 - abs(var(--p, 0) - (var(--i) / 5)) * 6), 1);
+      transform: translateY(calc((1 - clamp(0, calc((var(--p, 0) - (var(--i) * 0.18)) / 0.12), 1)) * 32px)) translateZ(0);
+      pointer-events: none;
+      will-change: opacity, transform;
+      transition: opacity 0.2s ease-out;
+    }
+    /* Current stage in focus gets pointer events */
+    html.js .chronicle-stage:has(.chronicle-body) {
+      pointer-events: auto;
+    }
+
+    html.js .chronicle-body {
+      background: transparent;
+      box-shadow: none;
+      border: none;
+      border-left: 4px solid var(--tone);
+      padding: 0 0 0 36px;
+      max-width: 780px;
+    }
+    html.js .chronicle-badge {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    html.js .chronicle-num {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    html.js .chronicle-years {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    html.js .chronicle-title .ink-1a {
+      padding: 8px 0 16px 0;
+      max-width: none;
+    }
+    html.js .chronicle-title .ink-1a__title {
+      font-size: clamp(38px, 4.2vw, 68px);
+      line-height: 1.06;
+    }
+    html.js .chronicle-lede {
+      font-size: clamp(20px, 1.8vw, 28px);
+      line-height: 1.35;
+      max-width: 28em;
+    }
+    html.js .chronicle-detail {
+      font-size: clamp(14px, 1.1vw, 16px);
+      line-height: 1.6;
+      max-width: 44em;
+    }
+    html.js .chronicle-closing {
+      font-size: clamp(16px, 1.3vw, 20px);
+      max-width: 34em;
+      border-top: 2px solid var(--text-main);
+      padding-top: 14px;
+    }
+
+    /* Kurohomura Sumi-e Transition */
+    html.js .belts__kurohomura {
       display: block;
       position: absolute;
       inset: 0;
-      z-index: 3;
+      z-index: 12;
       pointer-events: none;
-      /* Active between p=0.84 and p=0.96 (transition to Black Belt) */
       --kprog: clamp(0, calc((var(--p, 0) - 0.84) / 0.10), 1);
       opacity: clamp(0, calc((var(--p, 0) - 0.84) * 20), 1);
       transform: translateZ(0);
     }
-    .kurohomura-slash {
+    html.js .kurohomura-slash {
       position: absolute;
       left: 0;
       top: 50%;
@@ -209,7 +439,7 @@ const railNodes = chapters.map((chapter) => ({ grade: chapter.grade, tone: chapt
       opacity: clamp(0, calc(1 - var(--kprog) * 3), 1);
       transform: translateY(-50%) rotate(-4deg) translateZ(0);
     }
-    .kurohomura-flame {
+    html.js .kurohomura-flame {
       position: absolute;
       left: 0;
       right: 0;
@@ -217,31 +447,40 @@ const railNodes = chapters.map((chapter) => ({ grade: chapter.grade, tone: chapt
       will-change: transform;
       transform: translateZ(0);
     }
-    .kurohomura-flame--top {
+    html.js .kurohomura-flame--top {
       top: 0;
       height: 52%;
       transform-origin: top left;
       transform: scaleX(var(--kprog)) skewX(-12deg) translateZ(0);
     }
-    .kurohomura-flame--bottom {
+    html.js .kurohomura-flame--bottom {
       bottom: 0;
       height: 52%;
       transform-origin: bottom right;
       transform: scaleX(var(--kprog)) skewX(12deg) translateZ(0);
     }
 
-    /* 6d enso: draws before the 1o dan, then fades. */
-    html.js .belts__enso { display: block; position: absolute; left: 50%; top: 52%; z-index: 4; width: min(78vh, 62vw); height: auto; translate: -50% -50%; pointer-events: none; stroke: var(--paper); fill: none; --e: clamp(0, calc((var(--p, 0) - 0.76) / 0.12), 1); opacity: clamp(0, calc((0.96 - var(--p, 0)) / 0.03), 1); }
-    html.js .belts__enso circle { stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--e)); }
-
-    /* 6e: no glyph. After the enso closes, a soft ink bloom grows behind the last chapter (transform + opacity only). */
-    html.js .belts__bloom { display: block; position: absolute; left: 50%; top: 52%; z-index: 4; width: min(120vh, 96vw); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; pointer-events: none; background: radial-gradient(circle, var(--ink-belt-black) 0%, rgba(28, 26, 23, 0.55) 38%, transparent 68%); --bloom: clamp(0, calc((var(--p, 0) - 0.9) / 0.1), 1); transform: scale(calc(0.2 + 1.2 * var(--bloom))); opacity: calc(0.4 * var(--bloom)); will-change: transform, opacity; }
-    html.js .chapter__seal { display: none; }
-    /* Black belt closing: appears only after the enso and the bloom (opacity only). */
-    html.js .chapter__closing { opacity: clamp(0, calc((var(--p, 0) - 0.94) / 0.05), 1); }
+    /* 6e Ink Bloom & Final Seal */
+    html.js .belts__bloom {
+      display: block;
+      position: absolute;
+      left: 50%;
+      top: 52%;
+      z-index: 11;
+      width: min(120vh, 96vw);
+      aspect-ratio: 1;
+      translate: -50% -50%;
+      border-radius: 50%;
+      pointer-events: none;
+      background: radial-gradient(circle, var(--ink-belt-black) 0%, rgba(28, 26, 23, 0.55) 38%, transparent 68%);
+      --bloom: clamp(0, calc((var(--p, 0) - 0.9) / 0.1), 1);
+      transform: scale(calc(0.2 + 1.2 * var(--bloom))) translateZ(0);
+      opacity: calc(0.4 * var(--bloom));
+      will-change: transform, opacity;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .belts__wipes, .belts__enso, .belts__bloom, .belts__bamboo { display: none; }
+    .belts__wipes, .belts__enso, .belts__bloom, .belts__bamboo, .belts__kurohomura { display: none; }
   }
 </style>
