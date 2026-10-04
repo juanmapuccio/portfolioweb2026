@@ -55,7 +55,7 @@ const chapters = stages.map((stage, i) => {
 const railNodes = chapters.map((chapter) => ({ grade: chapter.grade, tone: chapter.tone }));
 ---
 
-<section id="cinturones" class="belts" data-belt="amarillo" data-belt-scene data-ink-scene style={`--count: ${chapters.length}`}>
+<section id="cinturones" class="belts" data-belt="amarillo" data-belt-scene data-ink-scene data-ink-smooth style={`--count: ${chapters.length}`}>
   <div class="belts__stage">
     <div class="belts__wipes" aria-hidden="true">
       {chapters.slice(1).map((chapter) => (
@@ -152,17 +152,17 @@ const railNodes = chapters.map((chapter) => ({ grade: chapter.grade, tone: chapt
   /* ---- Desktop scrub: pinned horizontal track ---- */
   @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
     html.js .belts { height: 700svh; }
-    html.js .belts__stage { position: sticky; top: 0; height: 100svh; padding: 0; overflow: hidden; }
+    html.js .belts__stage { position: sticky; top: 0; height: 100svh; padding: 0; overflow: hidden; transform: translateZ(0); }
 
-    html.js .belts__wipes { display: block; position: absolute; inset: 0; z-index: 0; }
-    /* 6b: belt colour wipes in, left to right, at the mid-point of each segment. */
-    html.js .belt-wipe { position: absolute; inset: 0; background: var(--tone); --w: clamp(0, calc((var(--p, 0) - (var(--i) - 0.5) / 5 + 0.05) / 0.1), 1); clip-path: inset(0 calc((1 - var(--w)) * 100%) 0 0); }
+    html.js .belts__wipes { display: block; position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+    /* 6b: belt colour wipes in, left to right, using GPU hardware-accelerated scaleX instead of costly full-viewport clip-path */
+    html.js .belt-wipe { position: absolute; inset: 0; background: var(--tone); --w: clamp(0, calc((var(--p, 0) - (var(--i) - 0.5) / 5 + 0.05) / 0.1), 1); transform-origin: left center; transform: scaleX(var(--w)) translateZ(0); will-change: transform; }
 
-    html.js .belts__head { position: absolute; left: var(--gutter); right: var(--gutter); top: calc(var(--header-h) + 18px); z-index: 4; display: flex; align-items: center; gap: 24px; margin: 0; padding: 12px 20px 22px; border: 2px solid var(--text-main); background: var(--paper); }
+    html.js .belts__head { position: absolute; left: var(--gutter); right: var(--gutter); top: calc(var(--header-h) + 18px); z-index: 4; display: flex; align-items: center; gap: 24px; margin: 0; padding: 12px 20px 22px; border: 2px solid var(--text-main); background: var(--paper); transform: translateZ(0); }
     html.js .belts__label { flex: none; }
     html.js .belt-rail { display: flex; flex: 1; padding: 0 14px; }
 
-    html.js .belts__track { position: absolute; inset: 0; z-index: 2; width: calc(var(--count) * 100%); flex-direction: row; gap: 0; transform: translateX(calc(var(--p, 0) * -1 * (var(--count) - 1) / var(--count) * 100%)); will-change: transform; }
+    html.js .belts__track { position: absolute; inset: 0; z-index: 2; width: calc(var(--count) * 100%); flex-direction: row; gap: 0; transform: translateX(calc(var(--p, 0) * -1 * (var(--count) - 1) / var(--count) * 100%)) translateZ(0); will-change: transform; }
     html.js .chapter { flex: 0 0 calc(100% / var(--count)); display: grid; place-items: center; box-sizing: border-box; padding: calc(var(--header-h) + 150px) var(--gutter) 48px; height: 100%; }
     html.js .chapter__drip { display: none; }
 
