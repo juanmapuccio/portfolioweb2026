@@ -50,13 +50,13 @@ describe('landing: placeholders replaced', () => {
 
 describe('S1 hero', () => {
   test('tagline, role and scroll cue come from i18n in es, en and pt', () => {
-    for (const key of ['hero.tagline', 'hero.tagline.l1', 'hero.tagline.l2', 'hero.tagline.l3', 'hero.role', 'hero.fig', 'hero.scroll', 'hero.sfx', 'hero.portraitAlt', 'belts.label', 'belts.chapter']) {
+    for (const key of ['hero.tagline', 'hero.tagline.l1', 'hero.tagline.l2', 'hero.tagline.l3', 'hero.role', 'hero.fig', 'hero.scroll', 'hero.portraitAlt', 'belts.label', 'belts.chapter']) {
       expect(ui.split(`'${key}':`)).toHaveLength(4);
     }
     expect(ui).toContain("'hero.tagline': 'Audito procesos de empresas y los resuelvo con código.'");
     expect(ui).toContain("'hero.tagline': 'I audit business processes and solve them with code.'");
     expect(ui).toContain("'hero.tagline': 'Audito processos de empresas e os resolvo com código.'");
-    for (const key of ['hero.tagline', 'hero.role', 'hero.fig', 'hero.scroll', 'hero.sfx', 'hero.portraitAlt', 'header.name']) {
+    for (const key of ['hero.tagline', 'hero.role', 'hero.fig', 'hero.scroll', 'hero.portraitAlt', 'header.name']) {
       expect(hero).toContain(`t('${key}')`);
     }
   });
@@ -72,7 +72,7 @@ describe('S1 hero', () => {
   test('manga page: soft exit scrubbed through --p (drift + fade + wash), no pull-back, zoom, flash or drip', () => {
     expect(hero).toContain('data-ink-scene');
     expect(hero).toContain('.hero__wash');
-    expect(hero).toContain('translateY(calc(var(--exit) * -6svh))');
+    expect(hero).toContain('translateY(calc(var(--x) * -6svh))');
     expect(hero).toContain('position: sticky');
     expect(hero).toContain('data-belt="blanco"');
     expect(hero).not.toContain('<InkDrip');
@@ -186,9 +186,9 @@ describe('perf and single engine', () => {
   test('only transform, opacity, clip-path and stroke-dashoffset are driven by --p', () => {
     for (const text of [hero, belts, rail, bamboo]) {
       const css = text.slice(text.indexOf('<style'));
-      const driven = [...css.matchAll(/([a-z-]+):[^;{}]*var\(--(?:p|pull|exit|t|r|w|e|dan)[,)]/g)].map((m) => m[1]);
+      const driven = [...css.matchAll(/([a-z-]+):[^;{}]*var\(--(?:p|pull|exit|t|r|w|e|cam|x|dan)[,)]/g)].map((m) => m[1]);
       for (const prop of driven) {
-        expect(['transform', 'opacity', 'clip-path', 'stroke-dashoffset', '--pull', '--exit', '--t', '--r', '--w', '--e', '--dan', '--bloom', '--i', 'translate']).toContain(prop);
+        expect(['transform', 'opacity', 'clip-path', 'stroke-dashoffset', '--pull', '--exit', '--t', '--r', '--w', '--e', '--cam', '--x', '--dan', '--bloom', '--i', 'translate']).toContain(prop);
       }
     }
   });

@@ -40,7 +40,8 @@ describe('hero as a manga page', () => {
     expect(hero).toMatch(/\.hero__panel::after \{[^}]*inset: var\(--b\)/);
     // varied border weights
     const weights = new Set([...hero.matchAll(/\.hero__panel--\w+ \{ --b: (\d+)px/g)].map((m) => m[1]));
-    expect(weights.size).toBeGreaterThanOrEqual(3);
+    expect(weights.size).toBeGreaterThanOrEqual(2);
+    for (const w of weights) expect(Number(w)).toBeLessThanOrEqual(3);
     // solid black page: gutters read as black between the panels
     expect(hero).toMatch(/\.hero__manga \{[^}]*background: var\(--ink-belt-black\)/);
   });
@@ -60,16 +61,15 @@ describe('hero as a manga page', () => {
     expect(hero).not.toMatch(/\.hero__lines[^{]*\{[^}]*(animation|transition|var\(--p)/);
   });
 
-  test('narration caption box, speech balloon and SFX word, all from i18n', () => {
-    expect(hero).toMatch(/\.hero__caption \{[^}]*border: 3px solid var\(--ink-belt-black\)/);
+  test('narration caption box and speech balloon with light 2px borders, all from i18n, no SFX word', () => {
+    expect(hero).toMatch(/\.hero__caption \{[^}]*border: 2px solid var\(--ink-belt-black\)/);
     expect(hero).toContain('<p class="hero__caption hero__tagline">{t(\'hero.tagline\')}</p>');
     expect(hero).toMatch(/\.hero__balloon \{[^}]*border-radius: 50%/);
     expect(hero).toContain('.hero__balloon::before');
     expect(hero).toContain("t('hero.role')");
     expect(hero).toMatch(/\.hero__panel--name[^{]*\{[^}]*\}[\s\S]*\.hero__name \{[^}]*font: 800[^}]*text-transform: uppercase/);
-    expect(hero).toContain('<span class="hero__sfx" aria-hidden="true">{t(\'hero.sfx\')}</span>');
-    // the SFX words are Latin letters
-    for (const w of ['¡PUM!', 'BAM!', 'POW!']) expect(ui).toContain(`'hero.sfx': '${w}'`);
+    expect(hero).not.toMatch(/sfx/i);
+    expect(ui).not.toMatch(/hero\.sfx|¡PUM!|BAM!|POW!/);
   });
 
   test('portrait is manga ink (pre-processed asset), with no dot screentone and no runtime filter', async () => {
@@ -88,15 +88,24 @@ describe('hero as a manga page', () => {
     expect(hero).toContain('repeating-linear-gradient');
   });
 
-  test('panels are scrubbed by --p (own windows), not by a timer', () => {
+  test('panels are scrubbed by --p (own windows) with a smoothstep and a clip-path wipe, not by a timer', () => {
     expect(hero).toContain('calc((var(--p, 0) - var(--s, 0)) / var(--l, 0.1))');
-    expect(hero).toContain('translateY(calc((1 - var(--i)) * 32px)) scale(calc(0.98 + var(--i) * 0.02))');
-    expect(hero).toMatch(/html\.js \.hero__panel \{[^}]*opacity: var\(--i\)/);
+    expect(hero).toContain('--e: calc(var(--i) * var(--i) * (3 - 2 * var(--i)))');
+    // clip-path inset wipe, a different side per panel
+    expect(hero).toContain('.hero__panel--tagline { clip-path: inset(-15% var(--w) -15% -15%)');
+    expect(hero).toContain('.hero__panel--portrait { clip-path: inset(var(--w) -15% -15% -15%)');
+    expect(hero).toContain('.hero__panel--role { clip-path: inset(-15% -15% -15% var(--w))');
+    // content eases in with opacity and a 20px translateY
+    expect(hero).toContain('html.js .hero__in { transform: translateY(calc((1 - var(--e)) * 20px)); opacity: var(--e)');
+    expect(hero).toMatch(/html\.js \.hero__panel \{[^}]*opacity: clamp\(0, calc\(var\(--i\) \* 4\), 1\)/);
+    // camera: push-in 1.04 -> 1 and a slower portrait cut-out
+    expect(hero).toContain('scale(calc(1.04 - var(--cam) * 0.04))');
+    expect(hero).toContain('html.js .hero__cutout { transform: translateY(calc((1 - var(--e)) * 24px + (1 - var(--cam)) * 3%))');
     expect(hero).not.toMatch(/animation\s*:\s*hero-panel|@keyframes|hero-ready|cubic-bezier|var\(--k\)/);
     expect(loader).not.toContain('hero-ready');
     const windows = [...hero.matchAll(/data-panel="([a-z]+)" style="--s: (-?[\d.]+); --l: ([\d.]+)"/g)].map((m) => ({ n: m[1], s: +m[2], l: +m[3] }));
     expect(windows.length).toBe(5);
-    for (const w of windows) expect(w.s + w.l).toBeLessThanOrEqual(0.6);
+    for (const w of windows) expect(w.s + w.l).toBeLessThanOrEqual(0.64);
     // name and cue are complete at p = 0: the first screen is never empty and the cue is visible
     for (const n of ['name', 'cue']) {
       const w = windows.find((x) => x.n === n)!;
@@ -107,6 +116,21 @@ describe('hero as a manga page', () => {
     expect(tagline.s).toBeGreaterThan(0);
     expect(tagline.s).toBeLessThan(portrait.s);
     expect(portrait.s).toBeLessThan(role.s);
+  });
+
+  test('the hero scene is smoothed (data-ink-smooth) and ink.ts only smooths those scenes', async () => {
+    expect(hero).toContain('data-ink-scene data-ink-smooth');
+    const ink = await read('../src/scripts/ink.ts');
+    expect(ink).toContain("el.hasAttribute('data-ink-smooth')");
+    expect(ink).toMatch(/if \(!smooth\) \{\s*write\(self\.progress\);\s*return;\s*\}\s*gsap\.to\(proxy/);
+    expect(ink).not.toMatch(/requestAnimationFrame|addEventListener\('scroll'/);
+  });
+
+  test('refined: tilt 7px mobile, 12px desktop, hairline hatching', () => {
+    expect(hero).toContain('--tilt: 7px;');
+    expect(hero).toContain('.hero__panel { --tilt: 12px; }');
+    expect(hero).not.toMatch(/--tilt: (1[3-9]|[2-9]\d)px/);
+    for (const [, a] of hero.matchAll(/rgba\(28, 26, 23, ([\d.]+)\)/g)) expect(Number(a)).toBeLessThanOrEqual(0.55);
   });
 
   test('pinned stage: 300svh desktop, 250svh mobile, svh only', () => {
@@ -124,11 +148,11 @@ describe('hero as a manga page', () => {
   test('reduced motion and no JS: everything visible and static, no pin, B/W kept', () => {
     expect(hero).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.hero__panel \{ opacity: 1; transform: none; animation: none; \}/);
     // every hiding / pinning rule lives under html.js inside the no-preference media query
-    const scrub = hero.indexOf('html.js .hero__panel { --i');
+    const scrub = hero.indexOf('html.js .hero__panel { --i:');
     const noPref = hero.lastIndexOf('@media (prefers-reduced-motion: no-preference)', scrub);
     expect(noPref).toBeGreaterThan(-1);
     expect(hero.slice(noPref, scrub)).not.toContain('@media (prefers-reduced-motion: reduce)');
-    expect(hero.slice(0, noPref)).not.toMatch(/opacity: var\(--i\)|position: sticky/);
+    expect(hero.slice(0, noPref)).not.toMatch(/opacity: var\(--e\)|clip-path: inset|position: sticky/);
     // the frame, focus lines, caption and balloon are outside any media query, so they hold under reduced motion
     for (const marker of ['.hero__panel::before', '.hero__lines--focus {', '.hero__caption {', '.hero__balloon {']) {
       expect(hero.indexOf(marker)).toBeGreaterThan(-1);
@@ -138,8 +162,9 @@ describe('hero as a manga page', () => {
 
   test('exit is a soft wash scrubbed by --p, animating only transform and opacity', () => {
     expect(hero).toContain('.hero__wash');
-    expect(hero).toMatch(/\.hero__wash \{[^}]*transform: translateY\(calc\(\(1 - var\(--exit\)\) \* 100%\)\)/);
-    expect(hero).toContain('opacity: calc(1 - var(--exit))');
+    expect(hero).toMatch(/\.hero__wash \{[^}]*transform: translateY\(calc\(\(1 - var\(--x\)\) \* 100%\)\)/);
+    expect(hero).toContain('opacity: calc(1 - var(--x))');
+    expect(hero).toContain('--x: calc(var(--exit) * var(--exit) * (3 - 2 * var(--exit)))');
   });
 
   test('scrolled panels appear one at a time: windows do not overlap', () => {

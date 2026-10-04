@@ -91,15 +91,28 @@ function initScenes(): void {
 
   scenes.forEach((el) => {
     let last = '';
+    const write = (progress: number): void => {
+      const value = progress.toFixed(4);
+      if (value === last) return;
+      last = value;
+      el.style.setProperty('--p', value);
+    };
+
+    // [data-ink-smooth] scenes ease --p toward the scroll progress with a short tween on a proxy
+    // (the GSAP ticker drives it; no rAF or scroll listener of our own). Other scenes are exact.
+    const smooth = el.hasAttribute('data-ink-smooth');
+    const proxy = { v: 0 };
+
     ScrollTrigger.create({
       trigger: el,
       start: 'top top',
       end: 'bottom bottom',
       onUpdate: (self) => {
-        const value = self.progress.toFixed(4);
-        if (value === last) return;
-        last = value;
-        el.style.setProperty('--p', value);
+        if (!smooth) {
+          write(self.progress);
+          return;
+        }
+        gsap.to(proxy, { v: self.progress, duration: 0.7, ease: 'power2.out', overwrite: true, onUpdate: () => write(proxy.v) });
       },
     });
   });

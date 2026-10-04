@@ -69,10 +69,10 @@ Decisión 2026-10-03: el hero es una página de manga (catálogo 5a, `design/Fra
 **Desktop** (>= 768, pin 300svh, salida con `--p`)
 ```
 ┌ marco de página negro 3px, papel entre viñetas (gutters 14px) ─┐
-│ ╔══════════════════════════╗╲  ╱‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾╲  ¡PUM!      │
-│ ║ JUAN MANUEL PUCCIO       ║ ╲╱   ╱  focus lines  ╲  (SFX)     │
+│ ╔══════════════════════════╗╲  ╱‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾╲             │
+│ ║ JUAN MANUEL PUCCIO       ║ ╲╱   ╱  focus lines  ╲            │
 │ ║ (título, 800, mayúsc.,   ║  ╲  ╱  (shūchūsen)    ╲            │
-│ ║  -2deg + speed lines →)  ║   ╲╱  ┌ retrato tinta ┐            │
+│ ║  -1deg + speed lines →)  ║   ╲╱  ┌ retrato tinta ┐            │
 │ ╚══════════════════════════╝╲  ╱   │ (PNG alfa)    │ rompe el   │
 │ ┌ caption ─────────┐╲ ▓▓▓▓▓▓▓▓▓▓▓▓ │ cruza borde   │ marco      │
 │ │ tagline (i18n)   │ ╲▓ ( rol · fig )▓ superior     │ y gutter   │
@@ -80,20 +80,22 @@ Decisión 2026-10-03: el hero es una página de manga (catálogo 5a, `design/Fra
 │ ↓ cue (9j)            ╲ viñeta negra (spot black)  └─────────────┘│
 └─────────────────────────────────────────────────────────────────┘
 ```
-- Viñetas irregulares: cada `data-panel` tiene un `clip-path: polygon()` propio (bordes inclinados, `--tilt` 26px desktop, 12px mobile). El marco negro es un `::before` con el polígono y un `::after` de papel con el mismo polígono inset `--b`, así el borde sigue el corte. Grosores distintos: nombre 6px, retrato 5px, rol 4px, tagline/cue 3px.
-- Una figura rompe el marco: el retrato es un PNG de tinta con alfa (`src/assets/fotojmPerfil-ink.png`, generado por `scripts/make-ink-portrait.mjs`: gris + normalise + curva dura, luminancia a alfa) dentro de `.hero__cutout`, que desborda la viñeta (-3% arriba, -12% a la izquierda), por encima del marco. Sin trama de puntos sobre la foto, sin `filter` en runtime.
-- Focus lines (shūchūsen) detrás del retrato y speed lines en el panel del nombre: `repeating-conic-gradient` estáticos con máscara radial/lineal (centro limpio). Nunca animadas.
-- Caption de narración (tagline): caja rectangular, borde negro 3px, sombra dura 5px, sobre viñeta rayada. Globo de diálogo (rol + fig) con cola, sobre una viñeta negra con hatching claro. SFX en letras latinas (`hero.sfx`: ¡PUM! / BAM! / POW!), contorneado, `aria-hidden`.
-- Aparición CON EL SCROLL (no hay cascada temporal): cada viñeta tiene su ventana de `--p`; opacity + translateY 32px + scale .98 -> 1, lineal, sin rebote. Nombre y cue completos en p=0; tagline .04-.26, retrato .10-.40, rol .30-.55.
-- Salida (--p .65 -> 1): la página deriva hacia arriba (-6svh) y se desvanece mientras una aguada suave de papel sube. Solo transform y opacity.
+- Viñetas irregulares: cada `data-panel` tiene un `clip-path: polygon()` propio (bordes inclinados, `--tilt` 12px desktop, 7px mobile). El marco negro es un `::before` con el polígono y un `::after` de papel con el mismo polígono inset `--b`, así el borde sigue el corte. Bordes finos y consistentes: 3px nombre/retrato/rol, 2px tagline/cue.
+- Una figura rompe el marco: el retrato es un PNG de tinta con alfa (`src/assets/fotojmPerfil-ink.png`, generado por `scripts/make-ink-portrait.mjs`) dentro de `.hero__cutout`, que desborda la viñeta (-3% arriba, -12% a la izquierda), por encima del marco. Sin trama de puntos, sin `filter` en runtime.
+- Focus lines y speed lines finas y de baja opacidad (.2 a .32): `repeating-conic-gradient` estáticos con máscara. Hatching de tagline/rol a .07/.08. Nunca animadas.
+- Caption de narración (tagline): borde 2px, sombra suave 3px. Globo de diálogo (rol + fig) con borde 2px y cola, sobre viñeta negra. Nombre 800 mayúsculas, tracking -0.045em, rotate -1deg. SIN palabra SFX (eliminada, también `hero.sfx` en i18n).
+- Aparición cinematográfica CON EL SCROLL (sin cascada temporal): cada viñeta tiene su ventana de `--p` y `--e = i*i*(3-2i)` (smoothstep). Un wipe `clip-path: inset()` abre el marco desde un lado distinto (tagline desde la izquierda, retrato desde abajo, rol desde la derecha) y el contenido entra con opacity + translateY 20px. Nombre y cue completos en p=0; tagline .08-.24, retrato .28-.46, rol .50-.64, pausa hasta .72.
+- Cámara: push-in de la página (scale 1.04 -> 1 sobre p 0 -> .64) y parallax del recorte del retrato (translateY 3% más lento que su viñeta).
+- Suavizado: `data-ink-smooth` en el hero; `ink.ts` hace un tween corto (0.7s, power2.out) sobre un proxy que escribe `--p`, solo para esas escenas, sobre el ticker de GSAP.
+- Salida (--p .72 -> 1, suavizada con smoothstep): la página deriva hacia arriba (-6svh) y se desvanece mientras una aguada suave de papel sube. Solo transform, opacity y clip-path.
 
 **Mobile** (< 768, pin 250svh)
 ```
 ┌ marco negro ─────┐
 │ ▛ NOMBRE ▜       │  mismas viñetas apiladas, cada una con
-│ ▙ caption ▟      │  corte inclinado arriba/abajo (--tilt 12px),
+│ ▙ caption ▟      │  corte inclinado arriba/abajo (--tilt 7px),
 │  retrato + focus │  bordes de distinto grosor, focus lines,
-│  ¡PUM! (rompe)   │  retrato que cruza el borde superior,
+│  (retrato rompe) │  retrato que cruza el borde superior,
 │ ( globo rol )    │  stage sticky de 100svh, solo svh.
 │ ↓ cue            │
 └──────────────────┘
