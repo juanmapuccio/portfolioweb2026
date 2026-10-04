@@ -64,7 +64,7 @@ describe('hero as a manga page', () => {
   test('narration caption box and speech balloon with light 2px borders, all from i18n, no SFX word', () => {
     expect(hero).toMatch(/\.hero__caption \{[^}]*border: 2px solid var\(--ink-belt-black\)/);
     expect(hero).toContain('<p class="hero__caption hero__tagline">{t(\'hero.tagline\')}</p>');
-    expect(hero).toMatch(/\.hero__balloon \{[^}]*border-radius: 50%/);
+    expect(hero).toMatch(/\.hero__balloon \{[^}]*border-radius: 9999px/);
     expect(hero).toContain('.hero__balloon::before');
     expect(hero).toContain("t('hero.balloon')");
     expect(hero).not.toMatch(/hero\.role|hero\.fig|hero__fig/);
@@ -111,18 +111,18 @@ describe('hero as a manga page', () => {
   const windows = () =>
     [...hero.matchAll(/data-panel="([a-z]+)" style="--s: (-?[\d.]+); --l: ([\d.]+)"/g)].map((m) => ({ n: m[1], s: +m[2], l: +m[3], e: +m[2] + +m[3] }));
 
-  test('p = 0 shows only the black page: every window starts after 0, in order name < cue < tagline < portrait < balloon', () => {
+  // Order chosen by the user (2026-10-03): name < tagline < portrait < balloon < cue, cue last.
+  const ORDER = ['name', 'tagline', 'portrait', 'balloon', 'cue'];
+
+  test('p = 0 shows only the black page: every window starts after 0, in order name < tagline < portrait < balloon < cue', () => {
     const w = Object.fromEntries(windows().map((x) => [x.n, x]));
     for (const x of Object.values(w)) {
       expect(x.s).toBeGreaterThan(0);
       expect(Math.min(1, Math.max(0, (0 - x.s) / x.l))).toBe(0);
-      expect(x.e).toBeLessThanOrEqual(0.64);
+      // everything has finished entering before the exit wash starts (p = 0.7)
+      expect(x.e).toBeLessThanOrEqual(0.7);
     }
-    const order = ['name', 'cue', 'tagline', 'portrait', 'balloon'];
-    for (let i = 1; i < order.length; i++) expect(w[order[i - 1]].s).toBeLessThan(w[order[i]].s);
-    // the cue arrives almost with the name (nothing at p = 0 invites scrolling)
-    expect(w.cue.s).toBeLessThanOrEqual(0.12);
-    expect(w.cue.e).toBeLessThanOrEqual(0.2);
+    for (let i = 1; i < ORDER.length; i++) expect(w[ORDER[i - 1]].s).toBeLessThan(w[ORDER[i]].s);
   });
 
   test('the page sits inside a black ground with margins and a max width, never flush to the viewport', () => {
@@ -138,8 +138,10 @@ describe('hero as a manga page', () => {
     expect(ui).toContain("'hero.balloon': 'Full Stack · Rosario · Available'");
     expect(ui).toContain("'hero.balloon': 'Full Stack · Rosário · Disponível'");
     expect(ui).not.toMatch(/'hero\.(role|fig)'/);
-    expect(hero).toContain('{balloonLead}<span class="hero__dot" aria-hidden="true"></span>{balloonStatus}');
-    expect(hero).toMatch(/\.hero__balloon \{[^}]*padding: 18px 34px[^}]*border: 2px solid var\(--ink-belt-black\)/);
+    // lead on its own, then the status with the green dot just before it
+    expect(hero).toContain('<span class="hero__balloon-lead">{balloonLead}</span>');
+    expect(hero).toMatch(/<span class="hero__balloon-status">\s*<span class="hero__dot" aria-hidden="true"><\/span>\s*<span>\{balloonStatus\}<\/span>/);
+    expect(hero).toMatch(/\.hero__balloon \{[^}]*border: 2px solid var\(--ink-belt-black\)[^}]*border-radius: 9999px/);
     // tail: black triangle plus a paper triangle on top, so the border is continuous
     expect(hero).toMatch(/\.hero__balloon::before \{[^}]*background: var\(--ink-belt-black\)/);
     expect(hero).toMatch(/\.hero__balloon::after \{[^}]*background: var\(--paper\)/);
@@ -157,7 +159,8 @@ describe('hero as a manga page', () => {
     expect(hero).toContain('--tilt: 7px;');
     expect(hero).toContain('.hero__panel { --tilt: 12px; }');
     expect(hero).not.toMatch(/--tilt: (1[3-9]|[2-9]\d)px/);
-    for (const [, a] of hero.matchAll(/rgba\(28, 26, 23, ([\d.]+)\)/g)) expect(Number(a)).toBeLessThanOrEqual(0.55);
+    // hairline hatching: ink inside repeating gradients stays faint (text colours are not hatching)
+    for (const [, a] of hero.matchAll(/repeating-[a-z]+-gradient\([^;]*?rgba\(28, 26, 23, ([\d.]+)\)/g)) expect(Number(a)).toBeLessThanOrEqual(0.55);
   });
 
   test('pinned stage: 450svh desktop, 360svh mobile (room for a slow exit), svh only', () => {
@@ -195,12 +198,10 @@ describe('hero as a manga page', () => {
     expect(hero).toContain('--x: calc(var(--exit) * var(--exit) * (3 - 2 * var(--exit)))');
   });
 
-  test('elements appear one at a time: after the name/cue hand-off, windows do not overlap', () => {
+  test('elements appear one at a time: windows do not overlap', () => {
     const w = Object.fromEntries(windows().map((x) => [x.n, x]));
-    const order = ['cue', 'tagline', 'portrait', 'balloon'];
-    for (let i = 1; i < order.length; i++) expect(w[order[i]].s).toBeGreaterThanOrEqual(w[order[i - 1]].e);
-    // name and cue may overlap, but only slightly
-    expect(w.name.e - w.cue.s).toBeLessThanOrEqual(0.03);
+    // 1e-9 absorbs float noise (0.46 + 0.12 is not exactly 0.58)
+    for (let i = 1; i < ORDER.length; i++) expect(w[ORDER[i]].s).toBeGreaterThanOrEqual(w[ORDER[i - 1]].e - 1e-9);
   });
 });
 
