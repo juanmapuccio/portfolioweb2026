@@ -162,12 +162,12 @@ const nameLines = t('header.name').split(' ');
     html.js .hero__cutout { transform: translateY(calc((1 - var(--e)) * 24px + (1 - var(--cam)) * 3%)); opacity: var(--e); will-change: transform, opacity; }
 
     /* Camera: slow push-in over the assembly (--cam 0 -> 1 across p 0 -> .64), then the exit. */
-    html.js .hero { --cam: clamp(0, calc(var(--p, 0) / 0.64), 1); --exit: clamp(0, calc((var(--p, 0) - 0.72) / 0.28), 1); --x: calc(var(--exit) * var(--exit) * (3 - 2 * var(--exit))); }
+    html.js .hero { --cam: clamp(0, calc(var(--p, 0) / 0.64), 1); --exit: clamp(0, calc((var(--p, 0) - 0.66) / 0.34), 1); --x: calc(var(--exit) * var(--exit) * (3 - 2 * var(--exit))); }
     html.js .hero__manga { transform: translateY(calc(var(--x) * -6svh)) scale(calc(1.04 - var(--cam) * 0.04)); opacity: calc(1 - var(--x)); will-change: transform, opacity; }
     html.js .hero__wash { display: block; position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; height: 120%; pointer-events: none; background: linear-gradient(to top, var(--paper) 0%, var(--paper) 55%, rgba(244, 239, 228, 0.6) 78%, transparent 100%); transform: translateY(calc((1 - var(--x)) * 100%)); will-change: transform; }
 
     /* Mobile: pinned stage too (250svh). The stack is squeezed to fit one screen. */
-    html.js .hero { height: 250svh; }
+    html.js .hero { height: 360svh; }
     html.js .hero__stage { position: sticky; top: 0; height: 100svh; min-height: 0; }
     html.js .hero__manga { height: calc(100svh - var(--header-h)); min-height: 0; grid-template-rows: auto auto minmax(0, 1fr) auto auto; gap: 11px; padding: 10px; }
     html.js .hero__panel--portrait { aspect-ratio: auto; }
@@ -181,7 +181,7 @@ const nameLines = t('header.name').split(' ');
   }
 
   @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
-    html.js .hero { height: 300svh; }
+    html.js .hero { height: 450svh; }
     html.js .hero__manga { grid-template-rows: minmax(0, 1.5fr) minmax(0, 1fr) auto; gap: 20px; padding: 14px; }
     html.js .hero__panel--name .hero__in { padding: 28px 40px 32px 32px; }
     html.js .hero__panel--tagline .hero__in { padding: 22px 36px 26px 24px; }

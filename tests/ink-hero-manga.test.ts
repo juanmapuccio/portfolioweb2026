@@ -133,9 +133,10 @@ describe('hero as a manga page', () => {
     for (const [, a] of hero.matchAll(/rgba\(28, 26, 23, ([\d.]+)\)/g)) expect(Number(a)).toBeLessThanOrEqual(0.55);
   });
 
-  test('pinned stage: 300svh desktop, 250svh mobile, svh only', () => {
-    expect(hero).toContain('html.js .hero { height: 250svh; }');
-    expect(hero).toContain('html.js .hero { height: 300svh; }');
+  test('pinned stage: 450svh desktop, 360svh mobile (room for a slow exit), svh only', () => {
+    expect(hero).toContain('html.js .hero { height: 360svh; }');
+    expect(hero).toContain('html.js .hero { height: 450svh; }');
+    expect(hero).toContain('--exit: clamp(0, calc((var(--p, 0) - 0.66) / 0.34), 1)');
     expect(hero).not.toMatch(/\d(vh|dvh|lvh)/);
   });
 
