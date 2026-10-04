@@ -55,7 +55,7 @@ const hookAttr = preview ? { 'data-site-header-preview': '' } : { 'data-site-hea
   html[data-belt='rojo'] { --belt-now: var(--ink-belt-red); }
   html[data-belt='negro'] { --belt-now: var(--ink-belt-black); }
 
-  .site-header { position: fixed; top: 0; left: 0; right: 0; z-index: 50; height: var(--header-h); transition: transform 0.35s var(--reveal-easing); }
+  .site-header { position: fixed; top: 0; left: 0; right: 0; z-index: 50; height: var(--header-h); transform: translateZ(0); will-change: transform; transition: transform 0.35s var(--reveal-easing); }
   .site-header--preview { position: relative; z-index: auto; }
   .site-header .ink-11j {
     height: var(--header-h);

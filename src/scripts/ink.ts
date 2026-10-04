@@ -53,7 +53,9 @@ function initScroll(): void {
 
   const lenis = new Lenis({
     duration: 0.9,
-    wheelMultiplier: 1.5,
+    wheelMultiplier: 1.25,
+    touchMultiplier: 1,
+    syncTouch: false,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     smoothWheel: true,
     autoRaf: false,
@@ -77,7 +79,8 @@ function initScroll(): void {
     updateHeaderVisibility(instance.scroll, instance.direction);
   });
   gsap.ticker.add((time) => lenis.raf(time * 1000));
-  gsap.ticker.lagSmoothing(0);
+  // Keep smooth responsiveness across 120Hz/144Hz monitors while cushioning GC pauses
+  gsap.ticker.lagSmoothing(500, 33);
 }
 
 function initScenes(): void {
@@ -90,12 +93,12 @@ function initScenes(): void {
   }
 
   scenes.forEach((el) => {
-    let last = '';
+    let last = -1;
     const write = (progress: number): void => {
-      const value = progress.toFixed(4);
-      if (value === last) return;
-      last = value;
-      el.style.setProperty('--p', value);
+      // Throttle sub-pixel micro calculations below perceptual threshold (0.0005)
+      if (Math.abs(progress - last) < 0.0005 && progress !== 0 && progress !== 1) return;
+      last = progress;
+      el.style.setProperty('--p', progress.toFixed(4));
     };
 
     // [data-ink-smooth] scenes ease --p toward the scroll progress with a short tween on a proxy
@@ -112,7 +115,7 @@ function initScenes(): void {
           write(self.progress);
           return;
         }
-        gsap.to(proxy, { v: self.progress, duration: 0.7, ease: 'power2.out', overwrite: true, onUpdate: () => write(proxy.v) });
+        gsap.to(proxy, { v: self.progress, duration: 0.6, ease: 'power2.out', overwrite: true, onUpdate: () => write(proxy.v) });
       },
     });
   });
