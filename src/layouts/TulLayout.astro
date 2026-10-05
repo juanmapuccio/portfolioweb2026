@@ -1,0 +1,65 @@
+---
+import '@fontsource-variable/archivo/wdth.css';
+import '@fontsource-variable/atkinson-hyperlegible-next/wght.css';
+import '../styles/tul/tokens.css';
+import '../styles/tul/base.css';
+import TulHeader from '../components/tul/TulHeader.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  title: string;
+  description: string;
+  lang?: Lang;
+  noindex?: boolean;
+}
+
+const { title, description, lang = 'es', noindex = false } = Astro.props;
+const t = useTranslations(lang);
+
+const siteUrl = (Astro.site ?? new URL('https://juanpuccio.vercel.app')).toString().replace(/\/$/, '');
+const localePaths: Record<Lang, string> = { es: '/', en: '/en/', pt: '/pt/' };
+const ogLocales: Record<Lang, string> = { es: 'es_AR', en: 'en_US', pt: 'pt_BR' };
+const canonicalUrl = siteUrl + localePaths[lang];
+const ogImageUrl = siteUrl + '/og/og-juan-puccio.png';
+const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
+---
+
+<!doctype html>
+<html lang={lang} data-belt="blanco">
+  <head>
+    <meta charset="UTF-8" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:locale" content={ogLocales[lang]} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt} />
+    <link rel="canonical" href={canonicalUrl} />
+    {Object.keys(localePaths).map((code) => (
+      <link rel="alternate" hreflang={code} href={siteUrl + localePaths[code as Lang]} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={siteUrl + localePaths.es} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t('tul.skip')}</a>
+    <TulHeader lang={lang} />
+    <slot />
+  </body>
+</html>

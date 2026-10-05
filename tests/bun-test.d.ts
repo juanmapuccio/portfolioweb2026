@@ -12,9 +12,13 @@ declare module 'bun:test' {
     toMatch(expected: RegExp): void;
     toBeNull(): void;
     toBeUndefined(): void;
+    toBeDefined(): void;
   }
 
   export function describe(name: string, callback: () => void): void;
   export function test(name: string, callback: () => void): void;
+  export namespace test {
+    function skip(name: string, callback: () => void): void;
+  }
   export function expect(value: unknown): Matchers;
 }

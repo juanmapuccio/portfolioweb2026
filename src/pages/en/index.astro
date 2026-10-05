@@ -1,25 +1,14 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import HeroSection from '../../components/site/HeroSection.astro';
-import BeltsSection from '../../components/site/BeltsSection.astro';
-import FrictionSection from '../../components/site/FrictionSection.astro';
-import ProjectsSection from '../../components/site/ProjectsSection.astro';
-import StackSection from '../../components/site/StackSection.astro';
-import PrinciplesSection from '../../components/site/PrinciplesSection.astro';
-import ContactSection from '../../components/site/ContactSection.astro';
+import TulLayout from '../../layouts/TulLayout.astro';
 import { useTranslations } from '../../i18n/ui';
 
 const t = useTranslations('en');
 ---
 
-<Layout lang="en" title={t('meta.title')} description={t('meta.description')}>
-  <main>
-    <HeroSection lang="en" />
-    <BeltsSection lang="en" />
-    <FrictionSection lang="en" />
-    <ProjectsSection lang="en" />
-    <StackSection lang="en" />
-    <PrinciplesSection lang="en" />
-    <ContactSection lang="en" />
+<TulLayout lang="en" title={t('meta.title')} description={t('meta.description')}>
+  <main id="main">
+    <section data-belt="blanco">
+      <h1 class="grade-type">{t('header.name')}</h1>
+    </section>
   </main>
-</Layout>
+</TulLayout>

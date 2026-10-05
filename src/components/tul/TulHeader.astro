@@ -1,0 +1,318 @@
+---
+import { languages, useTranslations, type Lang } from '../../i18n/ui';
+import { BELTS } from '../../data/martialExperience';
+import { TUL_CHAPTERS, type BeltKey } from '../../data/tuls';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'es' } = Astro.props;
+const t = useTranslations(lang);
+
+const localePaths: Record<Lang, string> = { es: '/', en: '/en/', pt: '/pt/' };
+const beltOrder: BeltKey[] = ['blanco', 'amarillo', 'verde', 'azul', 'rojo', 'negro'];
+
+/** Grade label and form name per belt, for the first paint and for the T3 engine. */
+const grades = Object.fromEntries(
+  beltOrder.map((key) => [
+    key,
+    {
+      gup: BELTS[key].gup,
+      form: TUL_CHAPTERS[key].forms.map((f) => f.name).join(' / ')
+    }
+  ])
+) as Record<BeltKey, { gup: string; form: string }>;
+
+const initial = grades[beltOrder[0]];
+
+const legend = [
+  { id: 'footprint', term: t('tul.legend.footprint.term'), desc: t('tul.legend.footprint.desc') },
+  { id: 'arrow', term: t('tul.legend.arrow.term'), desc: t('tul.legend.arrow.desc') },
+  { id: 'number', term: t('tul.legend.number.term'), desc: t('tul.legend.number.desc') },
+  { id: 'line', term: t('tul.legend.line.term'), desc: t('tul.legend.line.desc') }
+] as const;
+---
+
+<header class="tul-header">
+  <nav class="tul-header__bar" aria-label={t('tul.nav.label')}>
+    <p
+      class="tul-grade"
+      data-grade-indicator
+      data-grades={JSON.stringify(grades)}
+      role="status"
+      aria-label={t('tul.grade.label')}
+    >
+      <svg class="tul-grade__swatch" viewBox="0 0 28 12" width="28" height="12" aria-hidden="true">
+        <rect x="0.75" y="0.75" width="26.5" height="10.5" fill="var(--field)" stroke="var(--ink)" stroke-width="1.5"></rect>
+        <path d="M14 0.75V11.25" stroke="var(--ink)" stroke-width="1.5" fill="none"></path>
+      </svg>
+      <span class="tul-grade__gup num" data-grade-gup>{initial.gup}</span>
+      <span class="tul-grade__form" data-grade-form>{initial.form}</span>
+    </p>
+
+    <div class="tul-header__tools">
+      <button
+        class="tul-btn"
+        type="button"
+        popovertarget="tul-legend"
+        aria-haspopup="dialog"
+      >
+        {t('tul.legend.button')}
+      </button>
+
+      <ul class="tul-lang" aria-label={t('tul.lang.label')}>
+        {(Object.keys(languages) as Lang[]).map((code) => (
+          <li>
+            <a
+              class="tul-btn"
+              href={localePaths[code]}
+              hreflang={code}
+              lang={code}
+              aria-current={code === lang ? 'page' : undefined}
+              aria-label={languages[code]}
+            >
+              {code.toUpperCase()}
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <a class="tul-btn tul-btn--contact" href="#contacto">{t('tul.header.contact')}</a>
+    </div>
+  </nav>
+
+  <div id="tul-legend" class="tul-legend" popover="auto" aria-label={t('tul.legend.title')}>
+    <div class="tul-legend__head">
+      <h2 class="tul-legend__title">{t('tul.legend.title')}</h2>
+      <button
+        class="tul-btn"
+        type="button"
+        popovertarget="tul-legend"
+        popovertargetaction="hide"
+        aria-label={t('tul.legend.close')}
+      >
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+          <path d="M3 3L13 13M13 3L3 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"></path>
+        </svg>
+      </button>
+    </div>
+    <p class="tul-legend__intro">{t('tul.legend.intro')}</p>
+    <dl class="tul-legend__list">
+      {legend.map((item) => (
+        <div class="tul-legend__row">
+          <dt>
+            <svg class="tul-legend__icon" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+              {item.id === 'footprint' && (
+                <>
+                  <path d="M7 5H13V16H7Z M7 19H13V23H7Z"></path>
+                  <path d="M19 10H25V21H19Z M19 24H25V28H19Z"></path>
+                </>
+              )}
+              {item.id === 'arrow' && (
+                <>
+                  <path d="M4 16H27"></path>
+                  <path d="M21 10L27 16L21 22"></path>
+                </>
+              )}
+              {item.id === 'number' && (
+                <>
+                  <circle cx="16" cy="16" r="10"></circle>
+                  <path d="M13 13L16.5 10.5V21.5"></path>
+                </>
+              )}
+              {item.id === 'line' && (
+                <>
+                  <path d="M5 24H14V8H27"></path>
+                  <rect x="3" y="22" width="4" height="4" fill="currentColor"></rect>
+                  <rect x="25" y="6" width="4" height="4" fill="currentColor"></rect>
+                </>
+              )}
+            </svg>
+            <span>{item.term}</span>
+          </dt>
+          <dd>{item.desc}</dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+</header>
+
+<style>
+  .tul-header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    background-color: var(--field);
+    color: var(--ink);
+    border-bottom: var(--line) solid var(--ink);
+  }
+
+  .tul-header__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    min-height: 3rem;
+    padding: 0 var(--gutter);
+  }
+
+  .tul-grade {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    min-width: 0;
+    margin: 0;
+    font-size: var(--step--1);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .tul-grade__swatch {
+    flex: none;
+  }
+
+  .tul-grade__gup {
+    flex: none;
+  }
+
+  .tul-grade__form {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+
+  .tul-grade__form::before {
+    content: '\00b7';
+    margin-right: var(--space-2xs);
+  }
+
+  .tul-header__tools {
+    display: flex;
+    align-items: center;
+    flex: none;
+    gap: var(--space-2xs);
+  }
+
+  .tul-lang {
+    display: flex;
+    gap: 0;
+  }
+
+  .tul-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    padding: 0 var(--space-xs);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    text-decoration: none;
+    border: var(--line) solid transparent;
+    background: transparent;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out);
+  }
+
+  .tul-btn:hover {
+    border-color: var(--ink);
+  }
+
+  .tul-btn:active,
+  .tul-btn[aria-current='page'] {
+    background-color: var(--ink);
+    color: var(--field);
+    border-color: var(--ink);
+  }
+
+  .tul-btn--contact {
+    border-color: var(--ink);
+  }
+
+  .tul-btn--contact:hover {
+    background-color: var(--ink);
+    color: var(--field);
+  }
+
+  .tul-legend {
+    position: fixed;
+    inset: 3.5rem var(--gutter) auto auto;
+    width: min(26rem, calc(100vw - 2 * var(--gutter)));
+    margin: 0;
+    padding: var(--space-m);
+    background-color: var(--field);
+    color: var(--ink);
+    border: var(--line-strong) solid var(--ink);
+  }
+
+  .tul-legend:not(:popover-open) {
+    display: none;
+  }
+
+  .tul-legend__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+  }
+
+  .tul-legend__title {
+    font-size: var(--step-1);
+    font-variation-settings: 'wght' 700, 'wdth' 100;
+  }
+
+  .tul-legend__intro {
+    margin-top: var(--space-2xs);
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+  }
+
+  .tul-legend__list {
+    margin: var(--space-s) 0 0;
+    display: grid;
+    gap: 0;
+  }
+
+  .tul-legend__row {
+    display: grid;
+    grid-template-columns: 9rem 1fr;
+    align-items: center;
+    gap: var(--space-s);
+    padding: var(--space-2xs) 0;
+    border-top: var(--line) solid var(--ink-soft);
+  }
+
+  .tul-legend__row dt {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-weight: 700;
+  }
+
+  .tul-legend__row dd {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+
+  .tul-legend__icon {
+    flex: none;
+  }
+
+  @media (max-width: 30rem) {
+    .tul-btn--contact {
+      padding: 0 var(--space-2xs);
+    }
+
+    .tul-legend__row {
+      grid-template-columns: 7rem 1fr;
+    }
+  }
+</style>

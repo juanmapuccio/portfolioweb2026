@@ -1,0 +1,115 @@
+/*
+ * Tul diagram tokens.
+ * Belt colours are the only chromatic inks. Any element with data-belt="<key>"
+ * takes that belt's field (background) and ink (text and diagram line).
+ * Values are hex so tests/tul-tokens.test.ts can parse and check contrast.
+ */
+
+/* Fields */
+
+[data-belt="blanco"] {
+  --field: #f3f8fd;
+  --ink: #0b1a2b;
+  --ink-soft: #41546b;
+  --grade: 0;
+}
+
+[data-belt="amarillo"] {
+  --field: #f4c62b;
+  --ink: #241b00;
+  --ink-soft: #4f3d06;
+  --grade: 0.2;
+}
+
+[data-belt="verde"] {
+  --field: #1d6a44;
+  --ink: #f3fbf6;
+  --ink-soft: #cfe9da;
+  --grade: 0.4;
+}
+
+[data-belt="azul"] {
+  --field: #1d4a99;
+  --ink: #f2f7ff;
+  --ink-soft: #cbdcfb;
+  --grade: 0.6;
+}
+
+[data-belt="rojo"] {
+  --field: #b3312a;
+  --ink: #fff6f4;
+  --ink-soft: #ffdcd7;
+  --grade: 0.8;
+}
+
+[data-belt="negro"] {
+  --field: #111418;
+  --ink: #f3f6f9;
+  --ink-soft: #a9b4c0;
+  --grade: 1;
+}
+
+/* Paint: a belt element drenches its own box in field and ink. */
+[data-belt] {
+  background-color: var(--field);
+  color: var(--ink);
+}
+
+/* Scales */
+
+:root {
+  /* Typefaces */
+  --font-display: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  --font-body: 'Atkinson Hyperlegible Next Variable', 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+
+  /* Spacing */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-s: 1rem;
+  --space-m: 1.5rem;
+  --space-l: 2.5rem;
+  --space-xl: 4rem;
+  --space-2xl: 6rem;
+  --space-3xl: 10rem;
+  --gutter: clamp(1rem, 0.5rem + 2.5vw, 2.5rem);
+
+  /* Fluid type scale (display tops out at 6rem) */
+  --step--1: clamp(0.8125rem, 0.78rem + 0.15vw, 0.9rem);
+  --step-0: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --step-1: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
+  --step-2: clamp(1.5rem, 1.3rem + 1vw, 2.125rem);
+  --step-3: clamp(2rem, 1.6rem + 2vw, 3.25rem);
+  --step-4: clamp(2.75rem, 2rem + 3.75vw, 4.75rem);
+  --step-display: clamp(3.25rem, 2rem + 6vw, 6rem);
+  --track-display: -0.03em;
+  --measure: 68ch;
+
+  /* Diagram lines */
+  --line: 1px;
+  --line-strong: 2px;
+
+  /* Motion: one exponential ease-out */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 160ms;
+  --dur: 420ms;
+}
+
+/*
+ * Grade type: the name gets heavier and more condensed with rank.
+ * wght 400 -> 800, wdth 112 -> 75 as --grade goes 0 -> 1.
+ */
+.grade-type {
+  font-family: var(--font-display);
+  font-variation-settings:
+    'wght' calc(400 + 400 * var(--grade, 0)),
+    'wdth' calc(112 - 37 * var(--grade, 0));
+}
+
+/* Tabular numerals for dates and numbers */
+.num,
+time,
+[data-num] {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+}
