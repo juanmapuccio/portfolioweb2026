@@ -32,7 +32,10 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - Per task: delegated direct, with one bounded `sonnet` writer per task that touches 2 or more non-trivial files. The parent verifies and commits.
 - TDD: not configured. Source: `odd/tasks/ink-redesign.md` and `odd/tasks/mobile-immersive-portfolio.md`. Ordinary functional checks apply.
 - Runner: `bunx astro check`, `bun run build`, `bun test`.
-- Delivery strategy: `ask-on-risk`. The forecast is well over 400 authored lines, so the chain strategy is asked before the first commit that crosses the budget.
+- Delivery strategy: `ask-on-risk`. Chain strategy chosen by the user on 2026-10-05: `feature-branch-chain`. Each PR targets the previous slice, and everything integrates into `feat/tul-redesign`, which reaches `master` once.
+- Slices (one PR each):
+  - S1 = T0 and T1: `181152a`, `8796b6b`, `64f902d`.
+  - S2 = T2: `3eddaac`. About 740 authored lines, which is over budget. It is one coherent foundation (tokens, layout, header, i18n, test), so it stays as a single slice.
 
 ## Tasks
 - [x] T0 Prepare: WIP committed on `feat/ink-redesign` as `3de8f84`, and branch `feat/tul-redesign` created from it. This feature document and its Engram mirror `odd/tul-redesign/tasks` created. Surface brief with the direction contract (THESIS, OWN-WORLD, STORY, FIRST VIEWPORT, FORM, FINISH) is in `.impeccable/` (see Progress).
@@ -46,7 +49,7 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
   - User validated (2026-10-05): one form per belt. White = Saju Jirugi, yellow = Dan-Gun, green = Won-Hyo, blue = Joong-Gun, red = Hwa-Rang. Black uses three tul as a passage through the products: Kwang-Gae for NodoFit, Po-Eun for Satori Dojo, Ge-Baek for Don Pizza, with NodoSur as the frame.
   - Route: delegated (writer trigger, 4 files). Commit `8796b6b`. CV drift: none found, data already matched the CV.
   - To confirm: 12 movements for Saju Jirugi.
-- [ ] T2 Base system: new tokens (belt fields, ink, variable type), layout, header with grade indicator and legend.
+- [x] T2 Base system: new tokens (belt fields, ink, variable type), layout, header with grade indicator and legend.
 - [ ] T3 Joon-bi hero plus the `src/scripts/tul.ts` scene engine (`--p` scenes, line tracing, reduced motion).
 - [ ] T4 Chapters 1 to 6, with a reusable FloorDiagram. One commit per chapter or per pair.
 - [ ] T5 Principles, technical sheet (stack, certifications, education, languages) and the Kyong-ye close, where the line returns to the origin.
@@ -76,8 +79,14 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
   - `bun test tests/tuls.test.ts`: 7 pass (parent re-ran it).
   - Full `bun test`: 108 pass, 13 fail. The 13 failures pre-exist on the base and are ink-redesign scroll-engine contract tests. They go away in T7.
 - RDD: off (global). Delivery is unmanaged.
-- Running authored lines: about 500, past the budget, so the chain strategy is pending (ask-on-risk).
+- 2026-10-05 T2 commit `3eddaac`. Route: delegated (writer trigger).
+  - Fonts: `@fontsource-variable/archivo` (wdth.css: wght 100 to 900, width 62 to 125%) and `@fontsource-variable/atkinson-hyperlegible-next`.
+  - Belt field contrast: all pairs at or above 4.86:1.
+  - Checks: `astro check` 0 errors; build OK; `bun test` 113 pass, 3 skip, 13 fail (the same baseline names).
+  - Skipped, to be removed in T7: the 3 old-world page-composition assertions in `ink-s0`, `ink-sections-a` and `ink-sections-b`.
+  - No visual check yet; it is batched after T3.
+- Running authored lines (before T2): about 500, past the budget, so the chain strategy is pending (ask-on-risk).
 - 2026-10-05 T0: `3de8f84` on `feat/ink-redesign`. Branch `feat/tul-redesign` created. Doc and mirror written.
 
 ## Next step
-Ask for the chain strategy, then start T2 (base system).
+T3: the Joon-bi hero plus the `src/scripts/tul.ts` engine. After that, the first batched visual check at 1440 and 390.
