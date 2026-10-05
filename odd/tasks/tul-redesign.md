@@ -36,14 +36,16 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 
 ## Tasks
 - [x] T0 Prepare: WIP committed on `feat/ink-redesign` as `3de8f84`, and branch `feat/tul-redesign` created from it. This feature document and its Engram mirror `odd/tul-redesign/tasks` created. Surface brief with the direction contract (THESIS, OWN-WORLD, STORY, FIRST VIEWPORT, FORM, FINISH) is in `.impeccable/` (see Progress).
-- [ ] T1 Data: `src/data/tuls.ts` (diagram shape per belt, stops mapped to position ids) plus CV-to-data corrections in es/en/pt:
+- [x] T1 Data: `src/data/tuls.ts` (diagram shape per belt, stops mapped to position ids) plus CV-to-data corrections in es/en/pt:
   - Aurea Med Jan to Apr 2025.
   - NodoSur running in parallel with Repuestos JL from Jun 2025.
   - Certifications: AWS, AZ-900, GCP, CS50.
   - English B2.
   - Licenciatura en Filosofía at UNR, in progress.
   - Data integrity tests.
-  - Blocked on the user validating the white-belt exercise and the 1st dan tul.
+  - User validated (2026-10-05): one form per belt. White = Saju Jirugi, yellow = Dan-Gun, green = Won-Hyo, blue = Joong-Gun, red = Hwa-Rang. Black uses three tul as a passage through the products: Kwang-Gae for NodoFit, Po-Eun for Satori Dojo, Ge-Baek for Don Pizza, with NodoSur as the frame.
+  - Route: delegated (writer trigger, 4 files). Commit `8796b6b`. CV drift: none found, data already matched the CV.
+  - To confirm: 12 movements for Saju Jirugi.
 - [ ] T2 Base system: new tokens (belt fields, ink, variable type), layout, header with grade indicator and legend.
 - [ ] T3 Joon-bi hero plus the `src/scripts/tul.ts` scene engine (`--p` scenes, line tracing, reduced motion).
 - [ ] T4 Chapters 1 to 6, with a reusable FloorDiagram. One commit per chapter or per pair.
@@ -67,7 +69,15 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - Whether to add the roles missing from the CV PDF (Grido, Al Natural, Providus, AS MED).
 
 ## Progress / evidence
+- 2026-10-05 T0 commit `181152a` (doc, surface brief).
+- 2026-10-05 T1 commit `8796b6b`. Checks:
+  - `bunx astro check`: 0 errors.
+  - `bun run build`: OK.
+  - `bun test tests/tuls.test.ts`: 7 pass (parent re-ran it).
+  - Full `bun test`: 108 pass, 13 fail. The 13 failures pre-exist on the base and are ink-redesign scroll-engine contract tests. They go away in T7.
+- RDD: off (global). Delivery is unmanaged.
+- Running authored lines: about 500, past the budget, so the chain strategy is pending (ask-on-risk).
 - 2026-10-05 T0: `3de8f84` on `feat/ink-redesign`. Branch `feat/tul-redesign` created. Doc and mirror written.
 
 ## Next step
-T1, once the user answers the tul validation question.
+Ask for the chain strategy, then start T2 (base system).
