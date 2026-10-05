@@ -75,6 +75,8 @@ export const BELTS: Record<string, MartialBelt> = {
 };
 
 export interface MartialPosition {
+  /** Stable id, identical across es/en/pt. Referenced by `tuls.ts` stops. */
+  id: string;
   dates: string;
   role: string;
   org: string;
@@ -126,6 +128,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Egresé de la Escuela Técnica Manuel Belgrano con orientación en Robótica y Programación. Primeros cimientos de hardware, circuitos y lógica de control.',
         positions: [
           {
+            id: 'secundario-belgrano',
             dates: '2011',
             role: 'Secundario Técnico: Robótica y Programación',
             org: 'Instituto Belgrano (ex Escuela Técnica Nº 2060)',
@@ -145,6 +148,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Desarrollé habilidades de negociación directa en la calle, empatía inmediata con el cliente, capacidad de persuasión y un entendimiento profundo de la cadena comercial sin timidez operativa.',
         positions: [
           {
+            id: 'grido',
             dates: 'Ene 2012 — Ene 2013',
             role: 'Vendedor y Atención al Público',
             org: 'Grido Helados',
@@ -153,6 +157,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Responsabilidad de caja, velocidad de despacho y empatía.'
           },
           {
+            id: 'al-natural',
             dates: 'Feb 2013 — Abr 2013',
             role: 'Gastronómico',
             org: 'Al Natural',
@@ -161,6 +166,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Coordinación operativa y templanza en momentos de pico de atención.'
           },
           {
+            id: 'providus',
             dates: 'May 2013 — Ene 2014',
             role: 'Vendedor Viajante de Planes de Ahorro',
             org: 'Providus S.A.',
@@ -169,6 +175,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Persuasión ética, constancia diaria y resiliencia comercial.'
           },
           {
+            id: 'as-med',
             dates: 'Mar 2015 — Sep 2015',
             role: 'Vendedor Viajante de Servicios de Salud',
             org: 'AS MED S.A.',
@@ -188,6 +195,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Me forjé en la gestión de expedientes masivos, control documental estricto y legislaciones vigentes en materia previsional y social.',
         positions: [
           {
+            id: 'anses-contract',
             dates: 'Dic 2015 — Mar 2019',
             role: 'Administrativo Integral (contratado)',
             org: 'ANSES',
@@ -207,6 +215,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Frente a la reestructuración estatal, emprendí de forma autónoma en el rubro audiovisual corporativo, y luego reingresé a ANSES por concurso de mérito a planta permanente, dando soporte técnico a racks de servidores.',
         positions: [
           {
+            id: 'freelance-media',
             dates: 'Mar 2019 — Ene 2020',
             role: 'Fotógrafo y Filmmaker Freelance',
             org: 'Emprendimiento propio',
@@ -215,6 +224,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Autogestión, resiliencia frente a la incertidumbre y reinvención técnica autodidacta.'
           },
           {
+            id: 'anses-permanent',
             dates: 'Dic 2021 — Mar 2024',
             role: 'Administrativo Integral y Gestión de Datos (planta permanente)',
             org: 'ANSES',
@@ -234,6 +244,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Vivir en primera persona la ineficiencia de los sistemas arcaicos de salud y comercio me confirmó que mi verdadero aporte estaba en la automatización con software moderno e integraciones.',
         positions: [
           {
+            id: 'sanatorio-delta',
             dates: 'May 2024 — Ene 2025',
             role: 'Administrativo, Gestión en Salud',
             org: 'Sanatorio Delta',
@@ -242,6 +253,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Auditoría médica, tolerancia a la alta demanda y visión de optimización de procesos.'
           },
           {
+            id: 'aurea-med',
             dates: 'Ene 2025 — Abr 2025',
             role: 'Administrativo, Gestión en Salud',
             org: 'Aurea Med S.A.',
@@ -250,6 +262,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Auditoría administrativa en salud, atención al detalle y manejo de sistemas médicos.'
           },
           {
+            id: 'repuestos-jl',
             dates: 'Jun 2025 — Oct 2025',
             role: 'Administrativo Contable y Logística',
             org: 'Repuestos JL SRL',
@@ -269,6 +282,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Fundé NodoSur, la marca y software factory bajo la que diseño, despliego y mantengo sistemas propios: NodoFit, gestión administrativa y contable integrando webservices de ARCA para gimnasios y dojos de artes marciales, y el trabajo que hago para clientes como Satori Dojo, Don Pizza y Seiton Motors.',
         positions: [
           {
+            id: 'nodosur',
             dates: 'Jun 2025 — Presente',
             role: 'Fundador y Desarrollador',
             org: 'NodoSur',
@@ -296,6 +310,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Graduated from Manuel Belgrano Technical High School with a focus on Robotics and Programming. First foundations in hardware, circuits, and control logic.',
         positions: [
           {
+            id: 'secundario-belgrano',
             dates: '2011',
             role: 'Technical High School: Robotics & Programming',
             org: 'Instituto Belgrano (formerly Technical School No. 2060)',
@@ -315,6 +330,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Built direct street-level negotiation skills, immediate client empathy, persuasion, and a deep understanding of the commercial chain without operational hesitation.',
         positions: [
           {
+            id: 'grido',
             dates: 'Jan 2012 — Jan 2013',
             role: 'Customer Service & Cashier',
             org: 'Grido Helados',
@@ -323,6 +339,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Cash register accountability, order dispatch speed, and hospitality.'
           },
           {
+            id: 'al-natural',
             dates: 'Feb 2013 — Apr 2013',
             role: 'Food Service Attendant',
             org: 'Al Natural',
@@ -331,6 +348,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Operational coordination and composure during peak service pressure.'
           },
           {
+            id: 'providus',
             dates: 'May 2013 — Jan 2014',
             role: 'Field Sales Representative, Savings Plans',
             org: 'Providus S.A.',
@@ -339,6 +357,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Ethical persuasion, daily discipline, and sales resilience.'
           },
           {
+            id: 'as-med',
             dates: 'Mar 2015 — Sep 2015',
             role: 'Field Sales Representative, Healthcare Services',
             org: 'AS MED S.A.',
@@ -358,6 +377,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Forged in mass case-file management, strict document control, and current social security and welfare legislation.',
         positions: [
           {
+            id: 'anses-contract',
             dates: 'Dec 2015 — Mar 2019',
             role: 'Operations Administrator (contract)',
             org: 'ANSES',
@@ -377,6 +397,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Faced with state restructuring, I went independent in corporate audiovisual work, then rejoined ANSES through a merit competition into a permanent position, providing technical support for server racks.',
         positions: [
           {
+            id: 'freelance-media',
             dates: 'Mar 2019 — Jan 2020',
             role: 'Freelance Photographer and Filmmaker',
             org: 'Self-employed',
@@ -385,6 +406,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Autonomous business management, career resilience, and self-directed technical education.'
           },
           {
+            id: 'anses-permanent',
             dates: 'Dec 2021 — Mar 2024',
             role: 'Full-Cycle Administrator & Data Management (permanent staff)',
             org: 'ANSES',
@@ -404,6 +426,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Living the inefficiency of archaic healthcare and commerce systems first-hand confirmed that my real contribution lay in automation with modern software and integrations.',
         positions: [
           {
+            id: 'sanatorio-delta',
             dates: 'May 2024 — Jan 2025',
             role: 'Healthcare Administrator',
             org: 'Sanatorio Delta',
@@ -412,6 +435,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Medical auditing, operational tolerance under heavy patient volume, and systems optimization.'
           },
           {
+            id: 'aurea-med',
             dates: 'Jan 2025 — Apr 2025',
             role: 'Healthcare Administrator',
             org: 'Aurea Med S.A.',
@@ -420,6 +444,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Healthcare administrative auditing, regulatory precision, and patient management workflows.'
           },
           {
+            id: 'repuestos-jl',
             dates: 'Jun 2025 — Oct 2025',
             role: 'Accounting and Logistics Administrator',
             org: 'Repuestos JL SRL',
@@ -439,6 +464,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Founded NodoSur, the brand and software factory under which I design, deploy, and maintain custom systems: NodoFit, administrative and accounting management with ARCA fiscal APIs, and client solutions for Satori Dojo, Don Pizza, and Seiton Motors.',
         positions: [
           {
+            id: 'nodosur',
             dates: 'Jun 2025 — Present',
             role: 'Founder and Developer',
             org: 'NodoSur',
@@ -466,6 +492,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Formado na Escola Técnica Manuel Belgrano com habilitação em Robótica e Programação. Primeiros alicerces de hardware, circuitos e lógica de controle.',
         positions: [
           {
+            id: 'secundario-belgrano',
             dates: '2011',
             role: 'Ensino Médio Técnico: Robótica e Programação',
             org: 'Instituto Belgrano (ex Escola Técnica Nº 2060)',
@@ -485,6 +512,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Desenvolvi habilidades de negociação direta na rua, empatia imediata com o cliente, capacidade de persuasão e um entendimento profundo da cadeia comercial, sem timidez operacional.',
         positions: [
           {
+            id: 'grido',
             dates: 'Jan 2012 — Jan 2013',
             role: 'Atendente e Operador de Caixa',
             org: 'Grido Helados',
@@ -493,6 +521,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Responsabilidade financeira, agilidade de atendimento e empatia.'
           },
           {
+            id: 'al-natural',
             dates: 'Fev 2013 — Abr 2013',
             role: 'Atendente Gastronômico',
             org: 'Al Natural',
@@ -501,6 +530,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Coordenação operacional e equilíbrio em momentos de pico.'
           },
           {
+            id: 'providus',
             dates: 'Mai 2013 — Jan 2014',
             role: 'Representante Comercial, Planos de Capitalização',
             org: 'Providus S.A.',
@@ -509,6 +539,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Persuasão ética, disciplina diária e resiliência comercial.'
           },
           {
+            id: 'as-med',
             dates: 'Mar 2015 — Set 2015',
             role: 'Representante Comercial, Serviços de Saúde',
             org: 'AS MED S.A.',
@@ -528,6 +559,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Forjei-me na gestão de processos em massa, controle documental rigoroso e legislação vigente em matéria previdenciária e social.',
         positions: [
           {
+            id: 'anses-contract',
             dates: 'Dez 2015 — Mar 2019',
             role: 'Administrativo Operacional (contratado)',
             org: 'ANSES',
@@ -547,6 +579,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Diante da reestruturação estatal, empreendi de forma autônoma na área audiovisual corporativa e depois reingressei no ANSES por concurso de mérito para o quadro permanente, dando suporte técnico a racks de servidores.',
         positions: [
           {
+            id: 'freelance-media',
             dates: 'Mar 2019 — Jan 2020',
             role: 'Fotógrafo e Produtor Audiovisual Freelance',
             org: 'Empreendimento próprio',
@@ -555,6 +588,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Autogestão, resiliência profissional e aprendizado técnico autodidata.'
           },
           {
+            id: 'anses-permanent',
             dates: 'Dez 2021 — Mar 2024',
             role: 'Administrativo e Gestão de Dados (efetivo)',
             org: 'ANSES',
@@ -574,6 +608,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Viver na pele a ineficiência dos sistemas arcaicos de saúde e comércio confirmou que minha verdadeira contribuição estava na automação com software moderno e integrações.',
         positions: [
           {
+            id: 'sanatorio-delta',
             dates: 'Mai 2024 — Jan 2025',
             role: 'Administrativo Hospitalar',
             org: 'Sanatorio Delta',
@@ -582,6 +617,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Auditoria médica, tolerância à alta rotina hospitalar e otimização de rotinas.'
           },
           {
+            id: 'aurea-med',
             dates: 'Jan 2025 — Abr 2025',
             role: 'Administrativo Hospitalar',
             org: 'Aurea Med S.A.',
@@ -590,6 +626,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             transferableCompetency: 'Auditoria administrativa médica, precisão regulatória e gestão de sistemas hospitalares.'
           },
           {
+            id: 'repuestos-jl',
             dates: 'Jun 2025 — Out 2025',
             role: 'Administrativo Contábil e Logística',
             org: 'Repuestos JL SRL',
@@ -609,6 +646,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         lede: 'Fundei a NodoSur, a marca e software factory sob a qual projeto, implanto e mantenho sistemas próprios: NodoFit, gestão administrativa e contábil integrando webservices da ARCA, e o trabalho que faço para clientes como Satori Dojo, Don Pizza e Seiton Motors.',
         positions: [
           {
+            id: 'nodosur',
             dates: 'Jun 2025 — Presente',
             role: 'Fundador e Desenvolvedor',
             org: 'NodoSur',
