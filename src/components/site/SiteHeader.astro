@@ -124,8 +124,23 @@ const hookAttr = preview ? { 'data-site-header-preview': '' } : { 'data-site-hea
     .site-header .ink-11j nav { display: block; margin-left: auto; margin-right: 24px; }
     .site-header .ink-11m { margin-left: 0; }
     .site-header__status { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
-    /* 11k: hide on scroll down, show on scroll up (direction from Lenis, ink.ts). */
-    html[data-header-hidden] .site-header[data-site-header]:not(:focus-within) { transform: translateY(calc(-100% + 3px)); }
+    /* 11k: hide on scroll down, keep hidden on scroll up.
+       Reveals when the user hovers over the top edge or when focusing inside. */
+    html[data-header-hidden] .site-header[data-site-header]:not(:focus-within) {
+      transform: translateY(calc(-100% + 3px));
+    }
+    html[data-header-hidden] .site-header[data-site-header]::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      height: 18px;
+      pointer-events: auto;
+    }
+    html[data-header-hidden] .site-header[data-site-header]:hover {
+      transform: translateY(0);
+    }
   }
   @media (max-width: 767.98px) {
     .site-header .ink-11j__brand-full { display: none; }

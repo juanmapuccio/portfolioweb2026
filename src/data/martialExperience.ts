@@ -266,7 +266,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         kicker: 'Madurez',
         line: 'Hoy diseño, despliego y sostengo sistemas que usan personas reales: NodoFit, Satori Dojo y Don Pizza.',
         closing: 'En Taekwon-Do, el cinturón negro no es la meta: es el primer grado de quien se toma el camino en serio. Llego con oficio, y con ganas de seguir aprendiendo en equipo.',
-        lede: 'Fundé NodoSur, la marca y software factory bajo la que diseño, despliego y mantengo sistemas propios: NodoFit, gestión administrativa y contable integrando webservices de ARCA, y el trabajo que hago para clientes como Satori Dojo, Don Pizza y Seiton Motors.',
+        lede: 'Fundé NodoSur, la marca y software factory bajo la que diseño, despliego y mantengo sistemas propios: NodoFit, gestión administrativa y contable integrando webservices de ARCA para gimnasios y dojos de artes marciales, y el trabajo que hago para clientes como Satori Dojo, Don Pizza y Seiton Motors.',
         positions: [
           {
             dates: 'Jun 2025 — Presente',

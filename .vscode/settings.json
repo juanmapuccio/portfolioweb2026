@@ -2,7 +2,17 @@
   "html.validate.scripts": false,
   "html.validate.styles": false,
   "htmlhint.enable": false,
+  "html.format.enable": false,
+  "sonar.exclusions": "design/**,**/design/**",
+  "sonarlint.analysisExcludesStandalone": "design/**,**/design/**",
+  "sonarlint.rules": {
+    "Web:InlineStyleCheck": {
+      "level": "off"
+    }
+  },
   "files.watcherExclude": {
-    "**/*.html": true
-  }
+    "**/*.html": true,
+    "**/design/**": true
+  },
+  "html-validate.enable": false
 }

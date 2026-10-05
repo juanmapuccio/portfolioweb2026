@@ -19,6 +19,7 @@ import 'lenis/dist/lenis.css';
 import InkDefs from '../components/ink/InkDefs.astro';
 import SiteHeader from '../components/site/SiteHeader.astro';
 import SiteLoader from '../components/site/SiteLoader.astro';
+import Belt3D from '../components/site/Belt3D.astro';
 import type { Lang } from '../i18n/ui';
 
 interface Props {
@@ -77,6 +78,7 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     <InkDefs />
     {chrome && <SiteLoader lang={lang} />}
     {chrome && <SiteHeader lang={lang} />}
+    {chrome && <Belt3D />}
     <slot />
     <script>
       import '../scripts/ink';

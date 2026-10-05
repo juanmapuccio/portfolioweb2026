@@ -1,0 +1,249 @@
+/* Franjas Pincel - wireframe styles, extracted from the .dc.html canvas */
+body{margin:0;background:#f2eee6}
+@keyframes draw{0%{stroke-dashoffset:1}45%,85%{stroke-dashoffset:0}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes bleed{0%{transform:scale(0);opacity:0}10%{opacity:1}55%,90%{transform:scale(1);opacity:1}100%{transform:scale(1.04);opacity:0}}
+@keyframes leaf{0%,30%{transform:scale(0)}50%,90%{transform:scale(1)}100%{transform:scale(1);opacity:0}}
+@keyframes inkIn{0%{opacity:0;transform:translateY(10px)}35%,88%{opacity:1;transform:none}100%{opacity:0}}
+@keyframes stamp{0%,55%{transform:scale(1.6);opacity:0}62%{transform:scale(.94);opacity:1}68%,94%{transform:scale(1);opacity:1}100%{opacity:0}}
+@keyframes splat{0%,40%{transform:scale(0)}48%{transform:scale(1.2)}54%,90%{transform:scale(1)}100%{transform:scale(1);opacity:0}}
+@keyframes fiber{0%{transform:translateX(0)}100%{transform:translateX(-40px)}}
+@keyframes zoomHit{0%,20%{transform:scale(3);opacity:0}28%{transform:scale(.92);opacity:1}34%,90%{transform:scale(1);opacity:1}100%{opacity:0}}
+@keyframes linesIn{0%,18%{opacity:0;transform:scale(1.4) rotate(0)}26%,80%{opacity:1;transform:scale(1) rotate(4deg)}100%{opacity:0;transform:scale(1) rotate(8deg)}}
+@keyframes flash{0%,30%{background:#f4efe4}32%{background:#1c1a17}36%{background:#f4efe4}38%{background:#1c1a17}44%,100%{background:#f4efe4}}
+@keyframes invert{0%,30%,44%,100%{filter:none}32%,38%{filter:invert(1)}}
+@keyframes shake{0%,30%,50%,100%{transform:none}33%{transform:translate(-8px,4px)}36%{transform:translate(7px,-5px)}40%{transform:translate(-4px,3px)}44%{transform:translate(3px,-2px)}}
+@keyframes unroll{0%,10%{clip-path:inset(0 50% 0 50%)}45%,88%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 50% 0 50%)}}
+@keyframes rollL{0%,10%{transform:translateX(170px)}45%,88%{transform:none}100%{transform:translateX(170px)}}
+@keyframes rollR{0%,10%{transform:translateX(-170px)}45%,88%{transform:none}100%{transform:translateX(-170px)}}
+@keyframes slashLine{0%,15%{stroke-dashoffset:1;opacity:1}25%{stroke-dashoffset:0;opacity:1}35%,100%{stroke-dashoffset:0;opacity:0}}
+@keyframes splitA{0%,30%{transform:none}55%,100%{transform:translate(-60px,-120px)}}
+@keyframes splitB{0%,30%{transform:none}55%,100%{transform:translate(60px,120px)}}
+@keyframes puff{0%,10%{transform:scale(0);opacity:0}25%{transform:scale(1.1);opacity:1}55%{transform:scale(1.4);opacity:0}100%{opacity:0}}
+@keyframes appear{0%,30%{opacity:0;transform:scale(.8)}38%,90%{opacity:1;transform:none}100%{opacity:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes barsIn{0%,8%{transform:scaleY(0)}22%,86%{transform:scaleY(1)}100%{transform:scaleY(0)}}
+@keyframes vsL{0%,20%{transform:translateX(-110%)}34%,86%{transform:none}100%{transform:translateX(-110%)}}
+@keyframes vsR{0%,20%{transform:translateX(110%)}34%,86%{transform:none}100%{transform:translateX(110%)}}
+@keyframes blot{0%{transform:translateX(-120%) scale(.6)}45%{transform:translateX(0) scale(1.6)}55%,70%{transform:translateX(10%) scale(1.6)}100%{transform:translateX(130%) scale(.8)}}
+@keyframes swap{0%,48%{background:#f4efe4}50%,100%{background:#0284c7}}
+@keyframes throw{0%,10%{transform:translateX(-460px)}26%{transform:translateX(0)}29%{transform:translateX(-6px) rotate(-2deg)}32%,90%{transform:none}100%{transform:none;opacity:0}}
+@keyframes trail{0%,10%{stroke-dashoffset:1;opacity:1}26%{stroke-dashoffset:0;opacity:1}45%,100%{stroke-dashoffset:0;opacity:0}}
+@keyframes aura{0%,100%{transform:scale(1,1);opacity:.55}50%{transform:scale(1.08,1.18);opacity:.9}}
+@keyframes cut4{0%,24.9%{opacity:1}25%,100%{opacity:0}}
+@keyframes ghost{0%,15%{transform:translateX(-200px);opacity:0}35%,85%{transform:none;opacity:var(--o)}100%{opacity:0}}
+@keyframes drop{0%{transform:translateY(-120%)}12%,90%{transform:none}100%{transform:none;opacity:0}}
+@keyframes bolt{0%,30%{stroke-dashoffset:1;opacity:1}36%{stroke-dashoffset:0}40%{opacity:.2}42%{opacity:1}46%{opacity:.3}50%,70%{opacity:1}80%,100%{opacity:0;stroke-dashoffset:0}}
+@keyframes hit{0%,20%{transform:scale(0) rotate(-12deg)}26%{transform:scale(1.4) rotate(-6deg)}32%,90%{transform:scale(1) rotate(-6deg)}100%{opacity:0}}
+@keyframes burn{0%,10%{r:0}60%,88%{r:280}100%{r:280;opacity:0}}
+@keyframes wIn{0%{opacity:.12;transform:scale(1)}8%{opacity:1;transform:scale(1.25)}14%,88%{opacity:1;transform:scale(1)}100%{opacity:.12}}
+@keyframes flood{0%,10%{transform:scaleY(0)}40%,100%{transform:scaleY(1)}}
+@keyframes rise{0%,45%{opacity:0;transform:translateY(30px)}60%,92%{opacity:1;transform:none}100%{opacity:0}}
+@keyframes beltFill{0%{width:0}100%{width:100%}}
+@keyframes tick6{0%,16.6%{transform:translateY(0)}16.7%,33.3%{transform:translateY(-36px)}33.4%,50%{transform:translateY(-72px)}50.1%,66.6%{transform:translateY(-108px)}66.7%,83.3%{transform:translateY(-144px)}83.4%,100%{transform:translateY(-180px)}}
+@keyframes beltCol{0%,16.6%{background:#e5e0d3}16.7%,33.3%{background:oklch(0.84 0.15 90)}33.4%,50%{background:oklch(0.58 0.12 150)}50.1%,66.6%{background:oklch(0.5 0.13 255)}66.7%,83.3%{background:oklch(0.56 0.17 28)}83.4%,100%{background:#1c1a17}}
+@keyframes burstP{0%,100%{transform:scale(.6);opacity:0}4%{transform:scale(1);opacity:1}12%{transform:scale(1.3);opacity:0}}
+@keyframes stripScroll{0%,10%{transform:translateY(0)}90%,100%{transform:translateY(-420px)}}
+@keyframes drawOnce{0%{stroke-dashoffset:1}35%,100%{stroke-dashoffset:0}}
+@keyframes sw6a{0%,44%{background:#f4efe4}45%,100%{background:oklch(0.84 0.15 90)}}
+@keyframes fall6{0%{transform:translateY(0)}22%{transform:translateY(140px)}23%,100%{transform:translateY(140px);opacity:0}}
+@keyframes splash6{0%,22%{r:0;opacity:1}42%,55%{r:330;opacity:1}85%,100%{r:330;opacity:0}}
+@keyframes splash6s{0%,24%{r:0;opacity:1}38%,55%{r:60;opacity:1}85%,100%{r:60;opacity:0}}
+@keyframes sw6b{0%,47%{background:oklch(0.84 0.15 90)}48%,100%{background:oklch(0.58 0.12 150)}}
+@keyframes brush6{0%,5%{stroke-dashoffset:1}45%,52%{stroke-dashoffset:0}92%,100%{stroke-dashoffset:-1}}
+@keyframes sw6c{0%,49%{background:oklch(0.58 0.12 150)}50%,100%{background:oklch(0.5 0.13 255)}}
+@keyframes drip6{0%,5%{transform:scaleY(0)}45%,52%{transform:scaleY(1)}90%,100%{transform:translateY(110%) scaleY(1)}}
+@keyframes sw6d{0%,59%{background:oklch(0.5 0.13 255)}60%,100%{background:oklch(0.56 0.17 28)}}
+@keyframes enso6{0%,5%{stroke-dashoffset:1;opacity:1}35%,60%{stroke-dashoffset:0;opacity:1}75%,100%{stroke-dashoffset:0;opacity:0}}
+@keyframes fill6{0%,32%{r:0;opacity:1}60%{r:300;opacity:1}61%,100%{r:300;opacity:0}}
+@keyframes sw6e{0%,49%{background:oklch(0.56 0.17 28)}50%,100%{background:repeating-linear-gradient(135deg,#1c1a17 0 12px,#24211d 12px 24px)}}
+@keyframes zoom6{0%{transform:scale(.3);opacity:0;color:#1c1a17}15%,25%{transform:scale(1);opacity:1;color:#1c1a17}50%{transform:scale(14);opacity:1;color:#1c1a17}51%,100%{transform:scale(.3);opacity:0}}
+@keyframes sw6f{0%,59%{background:oklch(0.58 0.12 150)}60%,100%{background:oklch(0.5 0.13 255)}}
+@keyframes bloom6{0%,5%{transform:scale(0);opacity:0}45%,60%{transform:scale(1.5);opacity:.85}61%,100%{transform:scale(1.5);opacity:0}}
+@keyframes slash6{0%,10%{stroke-dashoffset:1;opacity:1}20%{stroke-dashoffset:0;opacity:1}30%,100%{stroke-dashoffset:0;opacity:0}}
+@keyframes cutA6{0%,22%{transform:none}50%,100%{transform:translate(-40px,-200px) rotate(-6deg)}}
+@keyframes cutB6{0%,22%{transform:none}50%,100%{transform:translate(40px,200px) rotate(6deg)}}
+@keyframes after6{0%,40%{opacity:0;transform:scale(1.2)}55%,92%{opacity:1;transform:none}100%{opacity:0}}
+@keyframes mProg{0%{transform:scaleX(0)}100%{transform:scaleX(1)}}
+@keyframes mScroll{0%{transform:translateY(0)}100%{transform:translateY(-200px)}}
+@keyframes mStack{0%,5%{transform:translateY(420px)}25%,90%{transform:none}100%{transform:none;opacity:0}}
+@keyframes mSwipe{0%,18%{transform:translateX(0)}25%,43%{transform:translateX(-180px)}50%,68%{transform:translateX(-360px)}75%,93%{transform:translateX(-540px)}100%{transform:translateX(0)}}
+@keyframes mDot{0%,24.9%{opacity:1}25%,100%{opacity:.2}}
+@keyframes mSwap{0%,49%{background:#f4efe4}50%,100%{background:oklch(0.58 0.12 150)}}
+@keyframes mStrike{0%,10%{transform:scaleX(0)}30%,90%{transform:scaleX(1)}100%{transform:scaleX(1);opacity:0}}
+@keyframes mReveal{0%,50%{opacity:0;transform:translateY(20px)}65%,92%{opacity:1;transform:none}100%{opacity:0}}
+@keyframes mDim{0%,35%{opacity:0}45%,85%{opacity:1}95%,100%{opacity:0}}
+@keyframes mSheet{0%,35%{transform:translateY(100%)}48%,85%{transform:none}95%,100%{transform:translateY(100%)}}
+@keyframes mFab{0%,30%{transform:none}33%{transform:scale(.92)}36%,100%{transform:none}}
+@keyframes mConverge{0%,15%{transform:none;opacity:1}45%{transform:translate(var(--dx),120px) scale(.2);opacity:0}100%{opacity:0}}
+@keyframes mCurtain{0%,5%{transform:translateY(100%)}50%,90%{transform:none}100%{transform:none;opacity:0}}
+@keyframes bgPan{to{transform:translate(-40px,-20px)}}
+@keyframes bgPanX{to{transform:translateX(-28px)}}
+@keyframes toneBreath{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:.7;transform:scale(1.06)}}
+@keyframes mist{from{transform:translateX(-30px)}to{transform:translateX(30px)}}
+@keyframes leafFall{from{transform:translate(0,-20px)}to{transform:translate(-60px,260px)}}
+@keyframes spot{from{transform:translate(-80px,-30px)}to{transform:translate(80px,30px)}}
+@keyframes vFlow{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+@keyframes cloudDrift{from{transform:translateX(0)}to{transform:translateX(400px)}}
+@keyframes flashBg{0%,88%,100%{opacity:0}90%{opacity:.9}92%{opacity:0}94%{opacity:.6}96%{opacity:0}}
+@keyframes icSpeed{0%{opacity:0;transform:translateX(10px)}40%{opacity:1}100%{opacity:0;transform:translateX(-6px)}}
+@keyframes icNudge{0%,100%{transform:none}40%{transform:translateX(4px)}}
+@keyframes mnTop{0%,30%{transform:none}50%,80%{transform:translateY(8px) rotate(45deg)}100%{transform:none}}
+@keyframes mnBot{0%,30%{transform:none}50%,80%{transform:translateY(-8px) rotate(-45deg)}100%{transform:none}}
+@keyframes mnMid{0%,30%{opacity:1;transform:none}45%,80%{opacity:0;transform:translateX(30px)}100%{opacity:1;transform:none}}
+@keyframes mnSlash{0%,30%{stroke-dashoffset:1;opacity:0}36%{stroke-dashoffset:0;opacity:1}46%,100%{stroke-dashoffset:0;opacity:0}}
+@keyframes icThrow{0%,10%{transform:translate(10px,130px)}35%,90%{transform:translate(220px,14px)}100%{transform:translate(220px,14px);opacity:0}}
+@keyframes sealL{0%,40%{transform:rotate(-4deg)}55%,90%{transform:translate(-4px,3px) rotate(-12deg)}100%{transform:rotate(-4deg)}}
+@keyframes sealR{0%,40%{transform:rotate(-4deg)}55%,90%{transform:translate(4px,-2px) rotate(4deg)}100%{transform:rotate(-4deg)}}
+@keyframes curPath{0%{transform:translate(11px,141px)}25%{transform:translate(90px,100px)}50%{transform:translate(150px,140px)}75%{transform:translate(220px,75px)}100%{transform:translate(271px,61px)}}
+@keyframes dropDown{0%{transform:translateY(0);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateY(68px);opacity:0}}
+@keyframes pullBack{0%,8%{transform:scale(5);opacity:0}14%{opacity:1}50%,90%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:0}}
+@keyframes orbit{0%,5%{transform:rotateY(-70deg) rotateX(12deg) translateZ(-200px);opacity:0}45%,88%{transform:rotateY(-12deg) rotateX(4deg);opacity:1}100%{transform:rotateY(8deg);opacity:0}}
+@keyframes slUp{0%,10%{transform:translateY(105%)}35%,88%{transform:none}100%{transform:translateY(-105%)}}
+@keyframes slDn{0%,10%{transform:translateY(-105%)}35%,88%{transform:none}100%{transform:translateY(105%)}}
+@keyframes glyphIn{0%{opacity:0;transform:scale(1.3)}30%,88%{opacity:.09;transform:none}100%{opacity:0}}
+@keyframes letterDrop{0%,5%{transform:translateY(-40px);opacity:0}15%,88%{transform:none;opacity:1}100%{opacity:0}}
+@keyframes sliceT{0%,15%{transform:translateX(-70px);opacity:0}40%,88%{transform:none;opacity:1}100%{opacity:0}}
+@keyframes sliceB{0%,15%{transform:translateX(70px);opacity:0}40%,88%{transform:none;opacity:1}100%{opacity:0}}
+@keyframes shard{0%,30%{transform:none;opacity:1}70%,100%{transform:translate(var(--tx),var(--ty)) rotate(var(--r));opacity:0}}
+@keyframes crack{0%,18%{opacity:0}22%,30%{opacity:1}34%,100%{opacity:0}}
+@keyframes zoomOld{0%{transform:scale(1);opacity:1}44%{transform:scale(2.4);opacity:1}45%,100%{transform:scale(2.4);opacity:0}}
+@keyframes whiteFlash{0%,40%{opacity:0}44%,52%{opacity:1}70%,100%{opacity:0}}
+@keyframes newIn{0%,45%{opacity:0;transform:scale(1.15)}70%,92%{opacity:1;transform:none}100%{opacity:0}}
+@keyframes barSweep{0%,5%{transform:translateX(-140%) skewX(-20deg)}40%,58%{transform:translateX(0) skewX(-20deg)}95%,100%{transform:translateX(140%) skewX(-20deg)}}
+@keyframes hide50{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes show50{0%,49%{opacity:0}50%,96%{opacity:1}100%{opacity:0}}
+@keyframes unrollV{0%,10%{clip-path:inset(0 0 100% 0)}50%,88%{clip-path:inset(0)}100%{clip-path:inset(0 0 100% 0)}}
+@keyframes rollerV{0%,10%{transform:translateY(0)}50%,88%{transform:translateY(var(--h))}100%{transform:translateY(0)}}
+@keyframes drawLin{0%{stroke-dashoffset:1}90%,100%{stroke-dashoffset:0}}
+@keyframes selMove{0%,22%{transform:translate(0,0)}25%,47%{transform:translate(76px,0)}50%,72%{transform:translate(152px,0)}75%,97%{transform:translate(76px,76px)}100%{transform:translate(0,0)}}
+@keyframes ring5{0%,16%{transform:rotate(0)}20%,36%{transform:rotate(-72deg)}40%,56%{transform:rotate(-144deg)}60%,76%{transform:rotate(-216deg)}80%,96%{transform:rotate(-288deg)}100%{transform:rotate(-360deg)}}
+@keyframes ringFix{0%,16%{transform:rotate(0)}20%,36%{transform:rotate(72deg)}40%,56%{transform:rotate(144deg)}60%,76%{transform:rotate(216deg)}80%,96%{transform:rotate(288deg)}100%{transform:rotate(360deg)}}
+@keyframes cut5{0%,19.9%{opacity:1}20%,100%{opacity:0}}
+@keyframes fillClip{0%,15%{clip-path:inset(0 100% 0 0)}55%,94%{clip-path:inset(0)}100%{clip-path:inset(0 100% 0 0)}}
+@keyframes credRoll{0%{transform:translateY(240px)}60%,100%{transform:translateY(-100%)}}
+@keyframes ctaEnd{0%,62%{opacity:0;transform:translateY(12px)}70%,95%{opacity:1;transform:none}100%{opacity:0}}
+@keyframes typeL{0%,15%{clip-path:inset(0 100% 0 0)}45%,92%{clip-path:inset(0)}100%{clip-path:inset(0 100% 0 0)}}
+@keyframes boxPop{0%,4%{transform:scale(.6);opacity:0}10%{transform:scale(1.06);opacity:1}14%,92%{transform:none;opacity:1}100%{opacity:0}}
+.dv-turn{scroll-margin-top:60px}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(28,26,23,.12)}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}
+.dv-tid{font:600 10px 'IBM Plex Mono',monospace;padding:3px 7px;background:#1c1a17;color:#f2eee6;text-decoration:none}
+.dv-tname{font:600 13px 'Hanken Grotesk',sans-serif;color:#1c1a17}
+.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px}
+.dv-oid{font:600 10.5px 'IBM Plex Mono',monospace;padding:3px 7px;background:rgba(28,26,23,.08);color:#1c1a17;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 12px 'Hanken Grotesk',sans-serif;color:#6a645a}
+.dv-card{background:#fff;box-shadow:0 4px 20px rgba(28,26,23,.04);overflow:hidden}
+.dv-opt:target .dv-oid{background:#0369a1;color:#fff}
+.dv-next{margin:22px 0 0;font:13px/1.5 'Hanken Grotesk',sans-serif;color:#6a645a}
+a{color:#1c1a17}a:hover{color:#0369a1}
+
+/* --- Enhancements (js/main.js) --- */
+html{scroll-behavior:smooth}
+/* Pause looping animations of off-screen options to save CPU */
+.dv-opt:not(.is-visible),.dv-opt:not(.is-visible) *,.dv-opt:not(.is-visible) *::before,.dv-opt:not(.is-visible) *::after{animation-play-state:paused!important}
+/* Active category in the sticky nav */
+.cat-nav a.is-active{color:#0369a1;text-decoration:underline!important;text-underline-offset:4px}
+
+/* Interactive card behaviors (tilt 3D, hover sheen, ink splatter) */
+.dv-card {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+  position: relative;
+}
+.dv-card:hover {
+  box-shadow: 0 12px 32px rgba(28, 26, 23, 0.12), 0 2px 6px rgba(28, 26, 23, 0.08);
+}
+.dv-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle 180px at var(--mx, -500px) var(--my, -500px), rgba(255, 255, 255, 0.35), transparent 80%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  mix-blend-mode: overlay;
+  z-index: 50;
+}
+.dv-card:hover::after {
+  opacity: 1;
+}
+
+/* Mouse Ink Splat Ripple on click */
+.ink-ripple {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #1c1a17;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0);
+  animation: inkRippleAnim 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  z-index: 99;
+  filter: url(#bleedF);
+}
+@keyframes inkRippleAnim {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0.85; }
+  60% { transform: translate(-50%, -50%) scale(4.5); opacity: 0.6; }
+  100% { transform: translate(-50%, -50%) scale(7); opacity: 0; }
+}
+
+/* Fluid mouse trail canvas */
+#brushCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Specimen 6i: Kurohomura (黒炎) · Amaterasu Sumi-e Voracious Ink Ignition */
+@keyframes amaterasuBg {
+  0%, 25% { background: oklch(0.56 0.17 28); } /* Cinturón Rojo */
+  35% { background: #b91c1c; }
+  36% { background: #000000; }
+  37% { background: #b91c1c; }
+  45%, 100% { background: #1c1a17; } /* 1º Dan Negro */
+}
+
+@keyframes amaterasuEyeSlash {
+  0%, 20% { stroke-dashoffset: 1; opacity: 0; }
+  28% { stroke-dashoffset: 0; opacity: 1; }
+  35% { opacity: 0.8; stroke-width: 4px; }
+  45%, 100% { opacity: 0; stroke-dashoffset: 0; }
+}
+
+@keyframes amaterasuCoreIgnition {
+  0%, 26% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  30% { transform: translate(-50%, -50%) scale(0.6); opacity: 1; filter: drop-shadow(0 0 16px #b91c1c); }
+  38% { transform: translate(-50%, -50%) scale(1.4); opacity: 1; filter: drop-shadow(0 0 8px #b91c1c); }
+  55%, 100% { transform: translate(-50%, -50%) scale(4.5); opacity: 0; }
+}
+
+@keyframes amaterasuSlashConsumeTop {
+  0%, 30% { transform: translateX(-105%) skewX(-18deg); opacity: 0; }
+  38% { transform: translateX(-40%) skewX(-12deg); opacity: 1; }
+  58%, 88% { transform: translateX(0%) skewX(0deg); opacity: 1; }
+  100% { transform: translateX(0%) skewX(0deg); opacity: 0; }
+}
+
+@keyframes amaterasuSlashConsumeBottom {
+  0%, 32% { transform: translateX(105%) skewX(18deg); opacity: 0; }
+  42% { transform: translateX(30%) skewX(8deg); opacity: 1; }
+  60%, 88% { transform: translateX(0%) skewX(0deg); opacity: 1; }
+  100% { transform: translateX(0%) skewX(0deg); opacity: 0; }
+}
+
+@keyframes amaterasuAshRise {
+  0%, 30% { transform: translateY(20px) scale(0); opacity: 0; }
+  38% { transform: translateY(0) scale(1); opacity: 0.9; }
+  75% { transform: translateY(-140px) translateX(var(--drift, 15px)) scale(0.4); opacity: 0.5; }
+  90%, 100% { transform: translateY(-200px) translateX(var(--drift, 25px)) scale(0); opacity: 0; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .dv-card:hover { transform: none !important; }
+}

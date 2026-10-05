@@ -35,6 +35,7 @@ rules/
 # Reference content and assets (original HTML bundles, 3D models, source docs).
 # Local-only: the public repo ships code, not raw reference material.
 content/
+design/
 
 odd/tasks/docs-stoky-y-reencuadre-empleo.md
 odd/tasks/tres-puertas-y-reencuadre-sitio.md

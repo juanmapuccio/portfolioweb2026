@@ -18,11 +18,12 @@ const desktop = matchMedia('(min-width: 768px)');
 
 gsap.registerPlugin(ScrollTrigger);
 
-// 11k: header hides on scroll down and returns on scroll up (desktop only).
-const HEADER_HIDE_AFTER = 160;
-function updateHeaderVisibility(scroll: number, direction: number): void {
-  if (!desktop.matches || direction === 0) return;
-  const hide = direction > 0 && scroll > HEADER_HIDE_AFTER;
+// 11k: header hides once scrolled down, and only returns when returning to the very top (scroll < 100)
+// or when the user hovers over the top edge (CSS hover trigger).
+const HEADER_HIDE_AFTER = 120;
+function updateHeaderVisibility(scroll: number, _direction: number): void {
+  if (!desktop.matches) return;
+  const hide = scroll > HEADER_HIDE_AFTER;
   if (root.hasAttribute('data-header-hidden') !== hide) root.toggleAttribute('data-header-hidden', hide);
 }
 

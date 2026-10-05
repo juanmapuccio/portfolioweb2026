@@ -30,6 +30,7 @@ import InkFeedback from '../components/ink/InkFeedback.astro';
 import InkContactSeals from '../components/ink/InkContactSeals.astro';
 import InkScrollDrop from '../components/ink/InkScrollDrop.astro';
 import { inkIconNames } from '../components/ink/inkIcons';
+import PincelCatalog from '../components/lab/PincelCatalog.astro';
 
 const navItems = [
   { label: 'Projects', href: '#' },
@@ -176,6 +177,9 @@ const channels = [
       </div>
       <p class="lab__skipped">Not ported from M: 9b (construction sheet, documentation), 9h (language scrolls, static), 9i (cursor trail, needs JS), 9k (wireframe).</p>
     </section>
+
+    <!-- Catálogo Completo A-M de Franjas Pincel Wireframe -->
+    <PincelCatalog />
   </main>
 
   <script>
