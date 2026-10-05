@@ -35,6 +35,7 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - Delivery strategy: `ask-on-risk`. Chain strategy chosen by the user on 2026-10-05: `feature-branch-chain`. Each PR targets the previous slice, and everything integrates into `feat/tul-redesign`, which reaches `master` once.
 - Slices (one PR each):
   - S1 = T0 and T1: `181152a`, `8796b6b`, `64f902d`.
+  - S3 = T3: `739b965`, about 850 lines. It is the hero, the FloorDiagram primitive and the engine as one coherent unit.
   - S2 = T2: `3eddaac`. About 740 authored lines, which is over budget. It is one coherent foundation (tokens, layout, header, i18n, test), so it stays as a single slice.
 
 ## Tasks
@@ -50,7 +51,7 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
   - Route: delegated (writer trigger, 4 files). Commit `8796b6b`. CV drift: none found, data already matched the CV.
   - To confirm: 12 movements for Saju Jirugi.
 - [x] T2 Base system: new tokens (belt fields, ink, variable type), layout, header with grade indicator and legend.
-- [ ] T3 Joon-bi hero plus the `src/scripts/tul.ts` scene engine (`--p` scenes, line tracing, reduced motion).
+- [x] T3 Joon-bi hero plus the `src/scripts/tul.ts` scene engine (`--p` scenes, line tracing, reduced motion).
 - [ ] T4 Chapters 1 to 6, with a reusable FloorDiagram. One commit per chapter or per pair.
 - [ ] T5 Principles, technical sheet (stack, certifications, education, languages) and the Kyong-ye close, where the line returns to the origin.
 - [ ] T6 `/cv` route (es/en/pt) plus a mobile "CV in 30 s" button and the PDF download.
@@ -85,8 +86,17 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
   - Checks: `astro check` 0 errors; build OK; `bun test` 113 pass, 3 skip, 13 fail (the same baseline names).
   - Skipped, to be removed in T7: the 3 old-world page-composition assertions in `ink-s0`, `ink-sections-a` and `ink-sections-b`.
   - No visual check yet; it is batched after T3.
+- 2026-10-05 T3 commit `739b965`. Route: delegated (writer trigger).
+  - Files: FloorDiagram (ghost line, `pathLength=1`, `--draw`, lateral arrow offsets, ready label), HeroJoonbi, the `tul.ts` engine (ScrollTrigger `--p` and `--draw`, IntersectionObserver chapter tracking, no Lenis), font preload and metric fallbacks.
+  - Checks: `astro check` 0 errors; build OK; `bun test` 134 pass, 3 skip, 13 fail (baseline).
+  - Visual: 2 rounds at 1440x900 and 390x844 (the limit reached). Round 1 fixes: role line, ghost route, overlapping arrows, desktop composition, ready label. The "10°" in the screenshot is the Archivo glyph for U+00BA, so the source was already correct; a test now guards it.
+  - Deferred to the T8 review: the "Listo" label touches the ghost line, and there is idle space in the middle of the left column on desktop.
+- Engine API for T4:
+  - `[data-tul-scene]` gets `--p` and `--draw` (top top to bottom bottom, scrub 0.4), with `data-p-from` and `data-p-to`.
+  - The hero exposes `data-draw-end=0.25`.
+  - Each `main section[data-belt]` sets `html[data-belt]` and the grade indicator.
 - Running authored lines (before T2): about 500, past the budget, so the chain strategy is pending (ask-on-risk).
 - 2026-10-05 T0: `3de8f84` on `feat/ink-redesign`. Branch `feat/tul-redesign` created. Doc and mirror written.
 
 ## Next step
-T3: the Joon-bi hero plus the `src/scripts/tul.ts` engine. After that, the first batched visual check at 1440 and 390.
+T4: chapters 1 to 6 with FloorDiagram.
