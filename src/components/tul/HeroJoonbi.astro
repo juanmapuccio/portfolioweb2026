@@ -1,0 +1,320 @@
+---
+import FloorDiagram from './FloorDiagram.astro';
+import { useTranslations, type Lang } from '../../i18n/ui';
+import { BELTS, martialExperienceData } from '../../data/martialExperience';
+import { TUL_CHAPTERS } from '../../data/tuls';
+
+/**
+ * First viewport, on the white field: name, hook, availability, both CTAs and
+ * the Joon-bi ready point of the white chapter's floor diagram. The scene is
+ * pinned (about 160svh) and traces the first quarter of Saju Jirugi; the white
+ * chapter in T4 continues from `data-draw-end`.
+ */
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'es' } = Astro.props;
+const t = useTranslations(lang);
+
+const form = TUL_CHAPTERS.blanco.forms[0];
+const stage = martialExperienceData[lang].stages.find((s) => s.beltKey === 'blanco');
+const readyLabel = `${BELTS.blanco.gup} · ${stage?.years ?? ''}`;
+
+/** Share of the white form's path drawn while the hero plays. */
+const DRAW_END = 0.25;
+const CV_HREF = '/CV-Juan-Manuel-Puccio-2026-1.pdf';
+---
+
+<section
+  class="hero"
+  data-belt="blanco"
+  data-tul-scene
+  data-p-from="0"
+  data-p-to={DRAW_END}
+  data-draw-end={DRAW_END}
+  aria-labelledby="hero-title"
+>
+  <div class="hero__stage">
+    <div class="hero__copy">
+      <div class="hero__id">
+        <h1 id="hero-title" class="hero__name grade-type">{t('header.name')}</h1>
+        <p class="hero__role">{t('header.role')}</p>
+      </div>
+      <p class="hero__hook">{t('hero.tagline')}</p>
+
+      <div class="hero__actions">
+        <a class="cta cta--primary" href="#contacto">
+          <span>{t('tul.hero.cta.contact')}</span>
+          <svg class="cta__icon cta__icon--next" viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+            <path d="M3 10H16M11 5L16 10L11 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"></path>
+          </svg>
+        </a>
+        <a class="cta cta--secondary" href={CV_HREF} download>
+          <span>{t('hero.btn.cv')}</span>
+          <svg class="cta__icon cta__icon--down" viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+            <path d="M10 3V13M5 8.5L10 13.5L15 8.5M4 17H16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"></path>
+          </svg>
+        </a>
+      </div>
+
+      <div class="hero__foot">
+        <p class="hero__avail">{t('tul.hero.availability')}</p>
+        <p class="hero__cue">{t('tul.hero.cue')}</p>
+      </div>
+    </div>
+
+    <figure class="hero__figure">
+      <FloorDiagram form={form} labelled progress readyLabel={t('tul.hero.readyShort')} />
+      <figcaption class="hero__label">
+        <span class="num">{readyLabel}</span>
+        <span class="visually-hidden">{t('tul.hero.ready')}. {t('tul.hero.diagramNote')}</span>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding: 0;
+  }
+
+  .hero__stage {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    height: 100svh;
+    padding: calc(3rem + var(--space-m)) var(--gutter) var(--space-m);
+  }
+
+  .hero__copy {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-s);
+  }
+
+  .hero__name {
+    font-size: var(--step-display);
+    letter-spacing: var(--track-display);
+    line-height: 0.98;
+    text-wrap: wrap;
+    overflow-wrap: break-word;
+    max-width: 100%;
+  }
+
+  .hero__id {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .hero__role {
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-variation-settings: 'wght' 500, 'wdth' 88;
+    letter-spacing: 0.01em;
+  }
+
+  .hero__hook {
+    max-width: 24ch;
+    font-size: var(--step-2);
+    line-height: 1.2;
+    font-weight: 500;
+  }
+
+  .hero__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xs);
+    width: 100%;
+    margin-top: var(--space-2xs);
+  }
+
+  .hero__foot {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    width: 100%;
+    max-width: 38ch;
+    padding-top: var(--space-xs);
+    border-top: var(--line) solid var(--ink-soft);
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+  }
+
+  .hero__figure {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    min-height: 7rem;
+    margin: 0;
+  }
+
+  .hero__figure :global(.floor-diagram) {
+    flex: 1 1 0;
+    min-height: 0;
+    height: 100%;
+  }
+
+  .hero__label {
+    font-size: var(--step-0);
+    font-weight: 600;
+  }
+
+  /* Rule-and-label controls */
+
+  .cta {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-xs);
+    min-height: 3.25rem;
+    padding: 0 var(--space-xs);
+    border: var(--line-strong) solid var(--ink);
+    color: var(--ink);
+    font-size: var(--step-0);
+    font-weight: 700;
+    line-height: 1.1;
+    text-decoration: none;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out);
+  }
+
+  .cta__icon {
+    flex: none;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .cta--primary {
+    background-color: var(--ink);
+    color: var(--field);
+  }
+
+  .cta--primary:hover {
+    background-color: var(--field);
+    color: var(--ink);
+  }
+
+  .cta--primary:hover .cta__icon--next {
+    transform: translateX(4px);
+  }
+
+  .cta--primary:active {
+    background-color: var(--ink-soft);
+    color: var(--field);
+    transform: translateY(1px);
+  }
+
+  /* The secondary is a label over a rule; the rule thickens on interaction. */
+  .cta--secondary {
+    border-color: transparent;
+    background-color: transparent;
+  }
+
+  .cta--secondary::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: var(--line-strong);
+    background-color: var(--ink);
+    transform-origin: bottom;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .cta--secondary:hover::after {
+    transform: scaleY(3);
+  }
+
+  .cta--secondary:hover .cta__icon--down {
+    transform: translateY(3px);
+  }
+
+  .cta--secondary:active {
+    transform: translateY(1px);
+  }
+
+  .cta:focus-visible {
+    outline: var(--line-strong) solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  /* Pinned scene: only when JS runs and motion is allowed. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .hero {
+      height: 160svh;
+      /* Undrawn start state; the engine then owns --p and --draw. */
+      --draw: 0;
+    }
+
+    :global(html.js) .hero__stage {
+      position: sticky;
+      top: 0;
+    }
+  }
+
+  @media (min-width: 30rem) {
+    .hero__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-m);
+    }
+
+    .cta {
+      padding: 0 var(--space-m);
+    }
+
+    .cta--primary {
+      min-width: 13rem;
+    }
+
+    .cta--secondary {
+      padding: 0 var(--space-2xs);
+    }
+  }
+
+  /* Desktop: copy top-left; availability and cue anchored to the diagram's baseline. */
+  @media (min-width: 62rem) {
+    .hero__stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: var(--space-xl);
+      align-items: stretch;
+      padding-block: calc(3rem + var(--space-m)) var(--space-m);
+    }
+
+    .hero__copy {
+      gap: var(--space-m);
+    }
+
+    .hero__hook {
+      max-width: 22ch;
+    }
+
+    .hero__foot {
+      margin-top: auto;
+    }
+
+    .hero__figure {
+      justify-content: flex-end;
+      align-items: flex-end;
+      min-height: 0;
+    }
+
+    .hero__figure :global(.floor-diagram) {
+      flex: none;
+      width: min(100%, calc(100svh - 8.5rem));
+      height: auto;
+    }
+
+    .hero__label {
+      width: min(100%, calc(100svh - 8.5rem));
+    }
+  }
+</style>

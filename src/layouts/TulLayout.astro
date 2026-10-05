@@ -4,6 +4,8 @@ import '@fontsource-variable/atkinson-hyperlegible-next/wght.css';
 import '../styles/tul/tokens.css';
 import '../styles/tul/base.css';
 import TulHeader from '../components/tul/TulHeader.astro';
+import archivoLatin from '../../node_modules/@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url';
+import atkinsonLatin from '../../node_modules/@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2?url';
 import { useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -30,6 +32,8 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     <meta charset="UTF-8" />
     <script is:inline>document.documentElement.classList.add('js');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <link rel="preload" href={archivoLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={atkinsonLatin} as="font" type="font/woff2" crossorigin />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -61,5 +65,8 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     <a class="skip-link" href="#main">{t('tul.skip')}</a>
     <TulHeader lang={lang} />
     <slot />
+    <script>
+      import '../scripts/tul.ts';
+    </script>
   </body>
 </html>

@@ -311,6 +311,21 @@ const legend = [
       padding: 0 var(--space-2xs);
     }
 
+    /* Keep the grade readable at 390: swatch and form name give way to the tools. */
+    .tul-grade__swatch,
+    .tul-grade__form {
+      display: none;
+    }
+
+    .tul-header__tools {
+      gap: 0;
+    }
+
+    .tul-lang .tul-btn {
+      min-width: 2.25rem;
+      padding: 0 var(--space-3xs);
+    }
+
     .tul-legend__row {
       grid-template-columns: 7rem 1fr;
     }

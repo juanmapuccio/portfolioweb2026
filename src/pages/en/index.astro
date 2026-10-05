@@ -1,4 +1,5 @@
 ---
+import HeroJoonbi from '../../components/tul/HeroJoonbi.astro';
 import TulLayout from '../../layouts/TulLayout.astro';
 import { useTranslations } from '../../i18n/ui';
 
@@ -7,8 +8,6 @@ const t = useTranslations('en');
 
 <TulLayout lang="en" title={t('meta.title')} description={t('meta.description')}>
   <main id="main">
-    <section data-belt="blanco">
-      <h1 class="grade-type">{t('header.name')}</h1>
-    </section>
+    <HeroJoonbi lang="en" />
   </main>
 </TulLayout>

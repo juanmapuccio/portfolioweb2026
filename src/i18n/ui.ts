@@ -92,6 +92,12 @@ export const ui = {
     'tul.legend.line.desc': 'el camino que une los hitos',
     'tul.lang.label': 'Idioma',
     'tul.header.contact': 'Contacto',
+    'tul.hero.availability': 'Disponible para incorporarme ya, full-time, desde Rosario.',
+    'tul.hero.cta.contact': 'Contactame',
+    'tul.hero.diagramNote': 'Diagrama de piso de Saju Jirugi, el ejercicio de mi primer cinturón. La línea se traza a medida que bajás.',
+    'tul.hero.ready': 'Joon-bi, posición de listo',
+    'tul.hero.readyShort': 'Listo',
+    'tul.hero.cue': 'Scrolleá para ejecutar la forma',
   },
   en: {
     'meta.title': 'Juan Manuel Puccio | Full Stack Developer · Process Auditing & Automation',
@@ -176,6 +182,12 @@ export const ui = {
     'tul.legend.line.desc': 'the path that joins the milestones',
     'tul.lang.label': 'Language',
     'tul.header.contact': 'Contact',
+    'tul.hero.availability': 'Available to start right away, full-time, from Rosario.',
+    'tul.hero.cta.contact': 'Contact me',
+    'tul.hero.diagramNote': 'Floor diagram of Saju Jirugi, the exercise of my first belt. The line is traced as you scroll down.',
+    'tul.hero.ready': 'Joon-bi, ready stance',
+    'tul.hero.readyShort': 'Ready',
+    'tul.hero.cue': 'Scroll to perform the form',
   },
   pt: {
     'meta.title': 'Juan Manuel Puccio | Desenvolvedor Full Stack · Auditoria e Automação de Processos',
@@ -260,6 +272,12 @@ export const ui = {
     'tul.legend.line.desc': 'o caminho que une os marcos',
     'tul.lang.label': 'Idioma',
     'tul.header.contact': 'Contato',
+    'tul.hero.availability': 'Disponível para começar já, full-time, a partir de Rosário.',
+    'tul.hero.cta.contact': 'Fale comigo',
+    'tul.hero.diagramNote': 'Diagrama de piso do Saju Jirugi, o exercício da minha primeira faixa. A linha é traçada conforme você rola.',
+    'tul.hero.ready': 'Joon-bi, posição de pronto',
+    'tul.hero.readyShort': 'Pronto',
+    'tul.hero.cue': 'Role para executar a forma',
   }
 } as const;
 

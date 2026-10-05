@@ -1,0 +1,239 @@
+---
+import type { TulForm } from '../../data/tuls';
+
+/**
+ * Floor diagram of one tul, drawn as technical-manual notation.
+ *
+ * - One <path> carries the line of movement (pathLength="1"), so a `--draw`
+ *   custom property (0..1) on any ancestor drives stroke-dashoffset in CSS.
+ *   Without `--draw` the line is fully drawn (no-JS and reduced-motion default).
+ * - Stops, numbers and arrowheads fade in once `--draw` passes their `--t`.
+ * - Decorative only: the SVG is aria-hidden, the real content lives in HTML.
+ * - Geometry is design layer, never the technical execution of the form.
+ */
+interface Props {
+  form: TulForm;
+  /** Show the movement number inside each stop. */
+  labelled?: boolean;
+  /** Mark the diagram as scroll-driven (engine hook, `data-diagram-progress`). */
+  progress?: boolean;
+  /** Mobile minimap: no frame ticks, no arrowheads, no numbers. */
+  compact?: boolean;
+  /** Short "ready" label drawn next to the footprints (passed in by the caller). */
+  readyLabel?: string;
+  class?: string;
+}
+
+const { form, labelled = false, progress = false, compact = false, readyLabel, class: className } = Astro.props;
+
+const SCALE = 100;
+const pts = form.path.map(([x, y]) => [x * SCALE, y * SCALE] as const);
+
+const fmt = (n: number) => Number(n.toFixed(2));
+
+// Cumulative polyline lengths, computed at build time.
+const segs = pts.slice(1).map((p, i) => {
+  const a = pts[i];
+  const len = Math.hypot(p[0] - a[0], p[1] - a[1]);
+  return { a, b: p, len };
+});
+const total = segs.reduce((sum, s) => sum + s.len, 0);
+
+let acc = 0;
+const segMeta = segs.map((s) => {
+  const start = acc;
+  acc += s.len;
+  return { ...s, start };
+});
+
+function pointAt(t: number) {
+  const target = Math.min(1, Math.max(0, t)) * total;
+  const seg = segMeta.find((s) => target <= s.start + s.len) ?? segMeta[segMeta.length - 1];
+  const k = seg.len === 0 ? 0 : (target - seg.start) / seg.len;
+  return { x: seg.a[0] + (seg.b[0] - seg.a[0]) * k, y: seg.a[1] + (seg.b[1] - seg.a[1]) * k };
+}
+
+const d = pts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${fmt(x)} ${fmt(y)}`).join(' ');
+
+// Direction arrowheads: one per segment, offset to the travel-right side so
+// segments walked back over the same line keep separate arrows.
+// Segments that retrace the same line also get distinct positions along it (30% and 70%
+// of the line), so out-and-back pairs never stack their glyphs.
+const overlaps = (i: number, j: number) => {
+  const A = segMeta[i];
+  const B = segMeta[j];
+  const sameX = A.a[0] === A.b[0] && B.a[0] === B.b[0] && A.a[0] === B.a[0];
+  const sameY = A.a[1] === A.b[1] && B.a[1] === B.b[1] && A.a[1] === B.a[1];
+  if (!sameX && !sameY) return false;
+  const k: 0 | 1 = sameX ? 1 : 0;
+  const lo = Math.max(Math.min(A.a[k], A.b[k]), Math.min(B.a[k], B.b[k]));
+  const hi = Math.min(Math.max(A.a[k], A.b[k]), Math.max(B.a[k], B.b[k]));
+  return hi - lo > 1;
+};
+
+const arrows = compact
+  ? []
+  : segMeta
+      .map((s, i) => {
+        if (s.len < 12) return null;
+        const others = segMeta.map((_, j) => j).filter((j) => j !== i && overlaps(i, j));
+        const rank = others.filter((j) => j < i).length;
+        const along = others.length === 0 ? 0.5 : rank === 0 ? 0.3 : 0.7;
+        // `along` is measured from the lower-coordinate end of the line, not the travel start.
+        const forward = s.b[0] > s.a[0] || (s.b[0] === s.a[0] && s.b[1] > s.a[1]);
+        const f = forward ? along : 1 - along;
+        const ux = (s.b[0] - s.a[0]) / s.len;
+        const uy = (s.b[1] - s.a[1]) / s.len;
+        return {
+          x: fmt(s.a[0] + (s.b[0] - s.a[0]) * f - uy * 3.4),
+          y: fmt(s.a[1] + (s.b[1] - s.a[1]) * f + ux * 3.4),
+          angle: fmt((Math.atan2(uy, ux) * 180) / Math.PI),
+          t: fmt((s.start + s.len * f) / total)
+        };
+      })
+      .filter((a): a is NonNullable<typeof a> => a !== null);
+
+const stops = form.stops.map((stop) => {
+  const p = pointAt(stop.t);
+  return { x: fmt(p.x), y: fmt(p.y), t: stop.t, move: stop.move };
+});
+
+// Ready point (Joon-bi): footprint pair facing the first segment.
+const first = segMeta[0];
+const readyAngle =
+  (Math.atan2(first.b[1] - first.a[1], first.b[0] - first.a[0]) * 180) / Math.PI + 90;
+const ready = { x: fmt(pts[0][0]), y: fmt(pts[0][1]), angle: fmt(readyAngle) };
+
+// Measuring frame: ticks every 10 units, longer at 0, 50 and 100.
+const ticks = compact ? [] : Array.from({ length: 11 }, (_, i) => i * 10);
+const tickLen = (v: number) => (v % 50 === 0 ? 4 : 2);
+---
+
+<svg
+  class:list={['floor-diagram', { 'floor-diagram--compact': compact }, className]}
+  viewBox="-8 -8 116 122"
+  aria-hidden="true"
+  focusable="false"
+  data-diagram-progress={progress ? '' : undefined}
+  data-form={form.id}
+>
+  <rect class="fd-frame" x="0" y="0" width="100" height="100"></rect>
+  {ticks.map((v) => (
+    <path
+      class="fd-tick"
+      d={`M${v} 0V${-tickLen(v)} M${v} 100V${100 + tickLen(v)} M0 ${v}H${-tickLen(v)} M100 ${v}H${100 + tickLen(v)}`}
+    ></path>
+  ))}
+  {!compact && (
+    <path class="fd-dim" d="M0 109H100 M0 106V112 M100 106V112 M3.4 106.8L0 109L3.4 111.2 M96.6 106.8L100 109L96.6 111.2"></path>
+  )}
+
+  <path class="fd-ghost" d={d}></path>
+  <path class="fd-line" d={d} pathLength="1"></path>
+
+  {arrows.map((a) => (
+    <path
+      class="fd-arrow"
+      d="M-2.4 -2L1 0L-2.4 2"
+      transform={`translate(${a.x} ${a.y}) rotate(${a.angle})`}
+      style={`--t:${a.t}`}
+    ></path>
+  ))}
+
+  {stops.map((s) => (
+    <g class="fd-stop" style={`--t:${s.t}`} transform={`translate(${s.x} ${s.y})`}>
+      {labelled && !compact ? (
+        <>
+          <circle class="fd-stop__disc" r="4.6"></circle>
+          <text class="fd-stop__num" y="1.6" text-anchor="middle">{s.move}</text>
+        </>
+      ) : (
+        <rect class="fd-stop__dot" x="-2.2" y="-2.2" width="4.4" height="4.4"></rect>
+      )}
+    </g>
+  ))}
+
+  <g class="fd-ready" transform={`translate(${ready.x} ${ready.y}) rotate(${ready.angle})`}>
+    <path class="fd-foot" d="M-5.9 -4.5H-2.9V1.5L-3.5 4.5H-5.3L-5.9 1.5Z"></path>
+    <path class="fd-foot" d="M2.9 -4.5H5.9V1.5L5.3 4.5H3.5L2.9 1.5Z"></path>
+    {labelled && !compact && readyLabel && (
+      <text class="fd-ready__label" transform={`rotate(${-ready.angle})`} x="8.5" y="7">{readyLabel}</text>
+    )}
+  </g>
+</svg>
+
+<style>
+  .floor-diagram {
+    --fd-stroke: 0.7;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    color: var(--ink);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: var(--fd-stroke);
+    stroke-linecap: butt;
+    stroke-linejoin: miter;
+  }
+
+  .floor-diagram--compact {
+    --fd-stroke: 1.1;
+  }
+
+  .fd-frame,
+  .fd-tick,
+  .fd-dim {
+    stroke: var(--ink-soft);
+    stroke-width: 0.4;
+  }
+
+  .fd-ghost {
+    stroke: var(--ink-soft);
+    stroke-width: 0.5;
+    stroke-dasharray: 1.4 1.6;
+    opacity: 0.85;
+  }
+
+  .fd-ready__label {
+    fill: var(--ink-soft);
+    stroke: none;
+    font-family: var(--font-display);
+    font-size: 4.4px;
+    font-weight: 600;
+  }
+
+  .fd-line {
+    stroke-width: calc(var(--fd-stroke) * 1.25);
+    stroke-dasharray: 1 2;
+    stroke-dashoffset: calc(1 - var(--draw, 1));
+  }
+
+  .fd-arrow,
+  .fd-stop {
+    opacity: clamp(0, calc((var(--draw, 1) - var(--t, 0)) * 24), 1);
+  }
+
+  .fd-stop__disc {
+    fill: var(--field);
+    stroke-width: calc(var(--fd-stroke) * 1.25);
+  }
+
+  .fd-stop__dot {
+    fill: currentColor;
+    stroke: none;
+  }
+
+  .fd-stop__num {
+    fill: currentColor;
+    stroke: none;
+    font-family: var(--font-display);
+    font-size: 5.2px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  .fd-foot {
+    fill: var(--field);
+    stroke-width: calc(var(--fd-stroke) * 1.25);
+  }
+</style>

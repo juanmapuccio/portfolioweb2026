@@ -1,3 +1,22 @@
+/* Metric-matched fallbacks (values estimated) keep the swap to the real fonts shift-free. */
+@font-face {
+  font-family: 'Archivo Fallback';
+  src: local('Arial');
+  size-adjust: 108%;
+  ascent-override: 86%;
+  descent-override: 21%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Atkinson Fallback';
+  src: local('Arial');
+  size-adjust: 102%;
+  ascent-override: 92%;
+  descent-override: 24%;
+  line-gap-override: 0%;
+}
+
 /* Tul base: reset, body defaults and browser surfaces themed from the palette. */
 
 *,

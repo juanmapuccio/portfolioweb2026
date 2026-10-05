@@ -59,8 +59,8 @@
 
 :root {
   /* Typefaces */
-  --font-display: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
-  --font-body: 'Atkinson Hyperlegible Next Variable', 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  --font-display: 'Archivo Variable', 'Archivo Fallback', system-ui, sans-serif;
+  --font-body: 'Atkinson Hyperlegible Next Variable', 'Atkinson Fallback', system-ui, sans-serif;
 
   /* Spacing */
   --space-3xs: 0.25rem;
