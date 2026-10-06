@@ -61,6 +61,12 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
   - Checks: `astro check` 0 errors; build OK; `bun test` 139 pass, 3 skip, 13 fail (baseline).
   - Visual: rest, mid and late at 1440 and 390, plus reduced motion.
 - [x] T4 Chapters 1 to 6, with a reusable FloorDiagram. One commit per chapter or per pair.
+- [x] T4b NodoFit reframe (user, 2026-10-05):
+  - NodoFit is presented as an integral system born from Satori Dojo, covering gyms, trainers, dojos and clubs with court bookings. All of it is in production (user confirmed).
+  - Impact softened: the "a cero" claim is removed.
+  - Black passage order is now origin to evolution: Kwang-Gae for Satori, Po-Eun for NodoFit, Ge-Baek for Don Pizza.
+  - Canon docs updated.
+  - Checks: `bun test` 158 pass, 3 skip, 13 fail (baseline). Build OK. NodoFit captured at 1440 and 390 with 0 overflow.
 - [ ] T5 Principles, technical sheet (stack, certifications, education, languages) and the Kyong-ye close, where the line returns to the origin.
 - [ ] T6 `/cv` route (es/en/pt) plus a mobile "CV in 30 s" button and the PDF download.
 - [ ] T7 Retire the old world: `src/components/ink/*`, `src/components/lab/*` and `/lab`, `Belt3D`, `proceduralBelt.ts`, the `three` and Lenis dependencies, and old tokens and tests.
@@ -110,7 +116,7 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
     - Arrowheads read like text chevrons.
     - Spare space under the negro and rojo desktop stages.
     - On mobile the rojo friction stage scrolls with no pin between scenes.
-- Engine API for T4 (T3b adds `data-q-end` and `data-draw-start`; the hero pin is 220svh):
+- Black mapping changed in T4b: Kwang-Gae/satori, Po-Eun/nodofit. Engine API for T4 (T3b adds `data-q-end` and `data-draw-start`; the hero pin is 220svh):
   - `[data-tul-scene]` gets `--p` and `--draw` (top top to bottom bottom, scrub 0.4), with `data-p-from` and `data-p-to`.
   - The hero exposes `data-draw-end=0.25`.
   - Each `main section[data-belt]` sets `html[data-belt]` and the grade indicator.
