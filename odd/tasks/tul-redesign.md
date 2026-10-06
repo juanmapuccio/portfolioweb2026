@@ -52,6 +52,13 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
   - To confirm: 12 movements for Saju Jirugi.
 - [x] T2 Base system: new tokens (belt fields, ink, variable type), layout, header with grade indicator and legend.
 - [x] T3 Joon-bi hero plus the `src/scripts/tul.ts` scene engine (`--p` scenes, line tracing, reduced motion).
+- [x] T3b Hero portrait (user request 2026-10-05):
+  - Profile photo shown as the plate inside the measuring frame. It is served through `astro:assets` as AVIF/WebP at about 26 kB, eager with `fetchpriority=high`.
+  - Cinematic entrance of about 1.6 s with a curtain, scale and blur, gated by `html.tul-intro`.
+  - On scroll, the portrait becomes the path: `--q` scales and fades the portrait, then the ghost route and footprints appear.
+  - The parent fixed the ghost route crossing the face: it is now hidden while the portrait is legible.
+  - Checks: `astro check` 0 errors; build OK; `bun test` 139 pass, 3 skip, 13 fail (baseline).
+  - Visual: rest, mid and late at 1440 and 390, plus reduced motion.
 - [ ] T4 Chapters 1 to 6, with a reusable FloorDiagram. One commit per chapter or per pair.
 - [ ] T5 Principles, technical sheet (stack, certifications, education, languages) and the Kyong-ye close, where the line returns to the origin.
 - [ ] T6 `/cv` route (es/en/pt) plus a mobile "CV in 30 s" button and the PDF download.
@@ -91,7 +98,7 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
   - Checks: `astro check` 0 errors; build OK; `bun test` 134 pass, 3 skip, 13 fail (baseline).
   - Visual: 2 rounds at 1440x900 and 390x844 (the limit reached). Round 1 fixes: role line, ghost route, overlapping arrows, desktop composition, ready label. The "10°" in the screenshot is the Archivo glyph for U+00BA, so the source was already correct; a test now guards it.
   - Deferred to the T8 review: the "Listo" label touches the ghost line, and there is idle space in the middle of the left column on desktop.
-- Engine API for T4:
+- Engine API for T4 (T3b adds `data-q-end` and `data-draw-start`; the hero pin is 220svh):
   - `[data-tul-scene]` gets `--p` and `--draw` (top top to bottom bottom, scrub 0.4), with `data-p-from` and `data-p-to`.
   - The hero exposes `data-draw-end=0.25`.
   - Each `main section[data-belt]` sets `html[data-belt]` and the grade indicator.
