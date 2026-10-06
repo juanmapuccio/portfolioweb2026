@@ -14,7 +14,7 @@ import type { MartialBelt } from './martialExperience';
 
 export type BeltKey = MartialBelt['key'];
 
-export type TulShape = 'cross' | 'i-bar' | 'shi-long-top' | 'to-long-bottom' | 'single-line';
+export type TulShape = 'cross' | 'i-bar' | 'shi-long-top' | 'to-long-bottom' | 'single-line' | 'return-loop';
 
 export type TulPoint = readonly [x: number, y: number];
 
@@ -195,3 +195,20 @@ export const TUL_CHAPTERS: Record<BeltKey, TulChapter> = {
 export function getTulChapter(beltKey: string): TulChapter | undefined {
   return (TUL_CHAPTERS as Record<string, TulChapter>)[beltKey];
 }
+
+/**
+ * Kyong-ye, the closing bow. DESIGN LAYER, NOT TECHNIQUE: a closed line that sweeps across
+ * the frame and returns to the Joon-bi footprints where the hero started (the centre of the
+ * white chapter's diagram). Not part of TUL_CHAPTERS: it is the page's close, not a belt.
+ */
+export const RETURN_FORM: TulForm = {
+  id: 'kyong-ye',
+  name: 'Kyong-ye',
+  kind: 'exercise',
+  movements: 6,
+  shape: 'return-loop',
+  path: [
+    [0.5, 0.5], [0.5, 0.1], [0.9, 0.1], [0.9, 0.9], [0.1, 0.9], [0.1, 0.5], [0.5, 0.5]
+  ],
+  stops: []
+};

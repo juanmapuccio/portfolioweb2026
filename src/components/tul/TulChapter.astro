@@ -36,7 +36,8 @@ if (!stage || !chapter) throw new Error(`TulChapter: unknown belt "${beltKey}"`)
 
 const belt = BELTS[beltKey];
 const isBlack = beltKey === 'negro';
-const nextBelt = BELT_ORDER[BELT_ORDER.indexOf(beltKey) + 1] as BeltKey | undefined;
+// After the black belt the line returns to the white field (principles, sheet, Kyong-ye).
+const nextBelt = (isBlack ? 'blanco' : BELT_ORDER[BELT_ORDER.indexOf(beltKey) + 1]) as BeltKey | undefined;
 const mainForm = chapter.forms[0];
 const projects = projectsContent[lang];
 
@@ -266,7 +267,18 @@ const caption = (name: string, movements: number) =>
   ))}
 
   {isBlack && stage.closing && (
-    <p class="tc__closing grade-type">{stage.closing}</p>
+    <div
+      class="tc__scene tc__scene--pin tc__outro"
+      style="--n:1"
+      data-tul-scene
+      data-next-belt={nextBelt}
+      data-next-grade-belt="negro"
+    >
+      <div class="tc__stage tc__stage--closing">
+        <p class="tc__closing grade-type">{stage.closing}</p>
+      </div>
+      {nextBelt && <div class="tc__next" data-belt={nextBelt} aria-hidden="true"></div>}
+    </div>
   )}
 </section>
 
@@ -590,6 +602,14 @@ const caption = (name: string, movements: number) =>
 
   .tc__facts dd {
     margin: 0;
+  }
+
+  .tc__stage--closing {
+    align-content: center;
+  }
+
+  .tc__stage--closing .tc__closing {
+    padding-block: var(--space-2xl);
   }
 
   .tc__closing {

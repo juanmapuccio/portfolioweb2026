@@ -13,6 +13,10 @@
 //   data-next-belt     optional on a scene: once its tie-in plane has risen (--p past TIE_AT) the
 //                      header flips to that belt early, so the bar never shows the old field on the
 //                      new one. The plane itself is CSS-only (clip-path driven by --p).
+//   data-grade-belt    optional on a chapter section: the header indicator text (gup, form) comes from
+//                      this belt while html[data-belt] still follows the field. Used by the white-field
+//                      close (principles, sheet, Kyong-ye), which the visitor reaches as 1st dan.
+//   data-next-grade-belt  optional on a scene with data-next-belt: the grade shown once the tie-in flips.
 //   data-form-label    optional on a sub-scene (black belt passages): the header's form text shows
 //                      this label while the sub-scene sits at mid-viewport.
 // With reduced motion nothing is scrubbed: --p and --draw are 1, everything is drawn.
@@ -44,10 +48,14 @@ try {
   grades = {};
 }
 
-function setBelt(belt: string): void {
-  if (root.dataset.belt === belt) return;
-  root.dataset.belt = belt;
-  const grade = grades[belt];
+/** Belt whose grade the indicator currently shows (can differ from the field belt). */
+let shownGrade = '';
+
+function setBelt(belt: string, gradeBelt: string = belt): void {
+  if (root.dataset.belt !== belt) root.dataset.belt = belt;
+  if (shownGrade === gradeBelt) return;
+  shownGrade = gradeBelt;
+  const grade = grades[gradeBelt];
   if (grade && gupEl) gupEl.textContent = grade.gup;
   if (grade && formEl) formEl.textContent = grade.form;
 }
@@ -99,7 +107,10 @@ function initScenes(): void {
 
     // Early flip, driven by raw scroll (not the smoothed scrub) so fast jumps cannot race.
     const nextBelt = el.dataset.nextBelt;
-    const ownBelt = el.closest<HTMLElement>('[data-belt]')?.dataset.belt;
+    const ownSection = el.closest<HTMLElement>('[data-belt]');
+    const ownBelt = ownSection?.dataset.belt;
+    const ownGrade = ownSection?.dataset.gradeBelt ?? ownBelt;
+    const nextGrade = el.dataset.nextGradeBelt ?? nextBelt;
     if (nextBelt && ownBelt) {
       gsap.to({}, {
         scrollTrigger: {
@@ -107,9 +118,11 @@ function initScenes(): void {
           start: 'top top',
           end: 'bottom bottom',
           onUpdate: (self) => {
-            if (self.progress > 0 && self.progress < 1) setBelt(self.progress >= TIE_AT ? nextBelt : ownBelt);
+            if (self.progress <= 0 || self.progress >= 1) return;
+            if (self.progress >= TIE_AT) setBelt(nextBelt, nextGrade);
+            else setBelt(ownBelt, ownGrade);
           },
-          onLeave: () => setBelt(nextBelt)
+          onLeave: () => setBelt(nextBelt, nextGrade)
         }
       });
     }
@@ -124,7 +137,10 @@ function initChapters(): void {
   const observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
-        if (entry.isIntersecting) setBelt((entry.target as HTMLElement).dataset.belt ?? 'blanco');
+        if (!entry.isIntersecting) continue;
+        const target = entry.target as HTMLElement;
+        const belt = target.dataset.belt ?? 'blanco';
+        setBelt(belt, target.dataset.gradeBelt ?? belt);
       }
     },
     { rootMargin: '-50% 0px -50% 0px', threshold: 0 }
@@ -142,7 +158,7 @@ function initChapters(): void {
       // Exits first, so moving from one passage to the next never ends on the fallback.
       for (const entry of entries) {
         if (entry.isIntersecting) continue;
-        const fallback = grades[root.dataset.belt ?? '']?.form;
+        const fallback = grades[shownGrade || (root.dataset.belt ?? '')]?.form;
         if (fallback) formEl.textContent = fallback;
       }
       for (const entry of entries) {

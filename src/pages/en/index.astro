@@ -1,5 +1,8 @@
 ---
 import TulChapter from '../../components/tul/TulChapter.astro';
+import Principles from '../../components/tul/Principles.astro';
+import TechSheet from '../../components/tul/TechSheet.astro';
+import KyongYe from '../../components/tul/KyongYe.astro';
 import HeroJoonbi from '../../components/tul/HeroJoonbi.astro';
 import TulLayout from '../../layouts/TulLayout.astro';
 import { useTranslations } from '../../i18n/ui';
@@ -16,5 +19,8 @@ const t = useTranslations('en');
     <TulChapter lang="en" beltKey="azul" />
     <TulChapter lang="en" beltKey="rojo" />
     <TulChapter lang="en" beltKey="negro" />
+    <Principles lang="en" />
+    <TechSheet lang="en" />
+    <KyongYe lang="en" />
   </main>
 </TulLayout>
