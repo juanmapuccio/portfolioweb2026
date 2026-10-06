@@ -15,6 +15,9 @@
 //                      close) carry data-belt="negro" as their accent, so the header keeps showing 1st dan.
 //   data-form-label    optional on a sub-scene (black belt passages): the header's form text shows
 //                      this label while the sub-scene sits at mid-viewport.
+//   [data-tul-passage] sumi-e ink passage between two chapters (InkPassage.astro): `--p` (0..1) while the
+//                      passage crosses the viewport (top at the bottom edge to bottom at the top edge). The
+//                      CSS turns it into ink that peaks at mid-crossing and recedes, so the field ends white.
 // With reduced motion nothing is scrubbed: --p and --draw are 1, everything is drawn.
 // Only GSAP's ticker schedules frames here; only CSS-driven transform, opacity, clip-path
 // and stroke-dashoffset react to the variables.
@@ -143,6 +146,22 @@ function initScrubs(): void {
   }
 }
 
+// [data-tul-passage]  an in-flow ink passage. It only needs its own `--p`; nothing else reacts. With reduced
+//                     motion it stays a static divider (the CSS shows it only under html.js and motion).
+function initPassages(): void {
+  if (reduced) return;
+  for (const el of document.querySelectorAll<HTMLElement>('[data-tul-passage]')) {
+    const state = { p: 0 };
+    el.style.setProperty('--p', '0');
+    gsap.to(state, {
+      p: 1,
+      ease: 'none',
+      scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: 0.4 },
+      onUpdate: () => el.style.setProperty('--p', state.p.toFixed(4))
+    });
+  }
+}
+
 function initChapters(): void {
   const sections = document.querySelectorAll<HTMLElement>('main section[data-belt]');
   if (!sections.length) return;
@@ -247,6 +266,7 @@ function initEntrances(): void {
 
 initScenes();
 initScrubs();
+initPassages();
 initChapters();
 initEntrances();
 endIntro();

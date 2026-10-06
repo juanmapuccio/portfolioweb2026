@@ -1,5 +1,6 @@
 ---
 import TulChapter from '../../components/tul/TulChapter.astro';
+import InkPassage from '../../components/tul/InkPassage.astro';
 import Principles from '../../components/tul/Principles.astro';
 import TechSheet from '../../components/tul/TechSheet.astro';
 import KyongYe from '../../components/tul/KyongYe.astro';
@@ -14,10 +15,15 @@ const t = useTranslations('en');
   <main id="main">
     <HeroJoonbi lang="en" />
     <TulChapter lang="en" beltKey="blanco" />
+    <InkPassage from="blanco" to="amarillo" />
     <TulChapter lang="en" beltKey="amarillo" />
+    <InkPassage from="amarillo" to="verde" />
     <TulChapter lang="en" beltKey="verde" />
+    <InkPassage from="verde" to="azul" />
     <TulChapter lang="en" beltKey="azul" />
+    <InkPassage from="azul" to="rojo" />
     <TulChapter lang="en" beltKey="rojo" />
+    <InkPassage from="rojo" to="negro" />
     <TulChapter lang="en" beltKey="negro" />
     <Principles lang="en" />
     <TechSheet lang="en" />

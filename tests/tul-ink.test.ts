@@ -70,3 +70,28 @@ describe('ink passage fallback and motion', () => {
     for (const prop of props) expect(allowed.has(prop)).toBe(true);
   });
 });
+
+describe('ink passages between chapters', () => {
+  const BELTS = ['blanco', 'amarillo', 'verde', 'azul', 'rojo', 'negro'];
+
+  for (const [lang, file] of [['es', 'src/pages/index.astro'], ['en', 'src/pages/en/index.astro'], ['pt', 'src/pages/pt/index.astro']]) {
+    test(`${lang}: one passage between every pair of belt chapters, in order`, () => {
+      const page = read(file);
+      const order = [...page.matchAll(/<TulChapter lang="\w+" beltKey="(\w+)" \/>|<InkPassage from="(\w+)" to="(\w+)" \/>/g)].map((m) =>
+        m[1] ? m[1] : `${m[2]}>${m[3]}`
+      );
+      const expected = BELTS.flatMap((belt, i) => (i === 0 ? [belt] : [`${BELTS[i - 1]}>${belt}`, belt]));
+      expect(order).toEqual(expected);
+    });
+  }
+
+  test('the engine scrubs passages with ScrollTrigger only and skips them with reduced motion', () => {
+    const engine = read('src/scripts/tul.ts');
+    const fn = engine.slice(engine.indexOf('function initPassages'), engine.indexOf('function initChapters'));
+    expect(fn).toContain('[data-tul-passage]');
+    expect(fn).toMatch(/if \(reduced\) return;/);
+    expect(fn).toContain('scrollTrigger');
+    expect(fn).not.toMatch(/requestAnimationFrame|lenis/i);
+    expect(engine).toMatch(/initScrubs\(\);\s*initPassages\(\);/);
+  });
+});
