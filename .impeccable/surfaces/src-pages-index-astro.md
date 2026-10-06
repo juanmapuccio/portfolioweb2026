@@ -16,11 +16,12 @@ Mode: Experience. Scope: the full landing page, plus the `/cv` quick-scan route.
 
 **Proof:** real production systems (NodoSur, NodoFit, Satori Dojo, Don Pizza) and the real CV trajectory, 2011 to today.
 
-**Memorable moment:** scrolling performs the tul. The line of movement draws across each belt's floor diagram, and the final line returns to the starting point at contact.
+**Memorable moment:** scrolling performs the tul on a floor seen in perspective. A 3D white belt lands on the floor at the start, and the belt is tied red to black at 1st dan. The final line returns to the starting point at contact.
 
 **Unresolved decisions:**
-- The white-belt exercise and the 1st dan tul (to be validated by Juan).
 - Whether the missing roles get added to the CV PDF.
+
+**Revised 2026-10-06 (user):** belt colours never fill the screen. The field is always white, colour lives in drawn details, and immersion comes from a hybrid 3D: a CSS perspective floor everywhere plus a desktop-only WebGL belt at two moments.
 
 ## Direction contract
 
@@ -28,23 +29,30 @@ Mode: Experience. Scope: the full landing page, plus the `/cv` quick-scan route.
 
 **OWN-WORLD.** The language is ITF manual notation:
 - a thin line of movement, numbered footprints, direction arrows, dimension marks and a legend;
-- belt colours (white, yellow, green, blue, red, black) are the only chromatic inks, and each chapter drenches the full viewport in its belt colour;
-- diagram ink inverts for contrast;
-- variable type whose weight and width grow with grade;
-- no shadows, cards or glow.
+- Restrained colour: one white field and dark ink everywhere. The belt colours (white, yellow, green, blue, red, black) are the only chromatic inks and appear ONLY as drawn details:
+  - the line of movement, stops and footprints;
+  - the active row marker and the title-cut rule;
+  - a drawn tied-belt mark per chapter, filled with the belt colour and outlined in ink.
+  - Strokes use an accessible `--belt-line` (yellow becomes ochre).
+- Depth through perspective, not decoration:
+  - the floor diagram is a tilted plane, and its numbered stops stand up as posts;
+  - a procedural WebGL belt appears on desktop only; everywhere else the drawn belt is the poster.
+- Variable type whose weight and width grow with grade.
+- No shadows, cards, glow or gradients.
 
 **STORY.** Within seconds the visitor knows who Juan is: "Audito procesos de empresas y los resuelvo con código". They walk six forms of rising complexity and reach 1st dan with real production systems. The line then returns to its origin, which is contact.
 
 **FIRST VIEWPORT.** A white field.
 - Top-left: a large name, then the one-line hook.
-- Primary CTA "Contactame" and secondary "Descargar CV", visible without scrolling.
-- Right on desktop, below on mobile: the Joon-bi ready point, a footprint pair labelled `10º gup · 2011`. The line starts tracing on the first scroll.
+- Primary CTA "Contactame" and secondary "Ver CV" (opens the Drive file), visible without scrolling.
+- Right on desktop, below on mobile: the portrait plate inside the measuring frame, labelled `10º gup · 2011`.
+- On scroll, the portrait gives way to the floor tilting into perspective. The white 3D belt lands at the Joon-bi ready point on desktop, and the line starts tracing.
 - A persistent grade indicator in one corner.
 
 **FORM.** "Tul diagram", position 1 on the grounded list (the pick card, chosen by the user). Seed key `050d9965`.
 
 **Raises:**
-- Riso: belt inks are the only colour.
+- Riso: belt inks are the only colour, now as strokes and fills on white.
 - Split-flap: fixed date, role and org columns on every milestone.
 - Cephalopod: type weight tracks grade.
 - Broadcast: a persistent grade indicator.

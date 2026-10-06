@@ -70,10 +70,10 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - [x] T5 Principles, technical sheet (stack, certifications, education, languages) and the Kyong-ye close, where the line returns to the origin.
 - [x] T6 `/cv` route (es/en/pt) plus a mobile "CV in 30 s" button and the PDF download.
 - [x] T7 Retire the old world: `src/components/ink/*`, `src/components/lab/*` and `/lab`, `Belt3D`, `proceduralBelt.ts`, the `three` and Lenis dependencies, and old tokens and tests.
-- [ ] T9a Always-white field. Add `--belt-fill` / `--belt-line` tokens; remove the drench, the tie plane, the early flip, the header field swap and `data-grade-belt`. Move the accent to strokes, stops, rows, the title cut, the header and `/cv`. Add a line hand-off transition. Update the tests. (User 2026-10-06: no full-screen belt colours.)
-- [ ] T9b `BeltMark.astro`: a drawn tied belt (SVG, ink outline plus belt fill, contour draw-in) in chapter heads, the header, the legend and `/cv`. It is also the 3D poster.
-- [ ] T9c Perspective floor in `FloorDiagram` (CSS 3D plane, upright HTML stop markers, scroll camera). Mobile gets a lighter tilt; reduced motion gets a static mild tilt.
-- [ ] T9d WebGL belt (desktop >=1024 only, lazy, procedural belt from `feat/ink-redesign:src/scripts/proceduralBelt.ts`):
+- [x] T9a Always-white field. Add `--belt-fill` / `--belt-line` tokens; remove the drench, the tie plane, the early flip, the header field swap and `data-grade-belt`. Move the accent to strokes, stops, rows, the title cut, the header and `/cv`. Add a line hand-off transition. Update the tests. (User 2026-10-06: no full-screen belt colours.)
+- [x] T9b `BeltMark.astro`: a drawn tied belt (SVG, ink outline plus belt fill, contour draw-in) in chapter heads, the header, the legend and `/cv`. It is also the 3D poster.
+- [x] T9c Perspective floor in `FloorDiagram` (CSS 3D plane, upright HTML stop markers, scroll camera). Mobile gets a lighter tilt; reduced motion gets a static mild tilt.
+- [x] T9d WebGL belt (desktop >=1024 only, lazy, procedural belt from `feat/ink-redesign:src/scripts/proceduralBelt.ts`):
   - Moment A: the white belt lands on the hero floor.
   - Moment B: the belt is tied red to black at 1st dan.
   - Re-add `three`. Delete the unused 5.4 MB GLBs.
@@ -96,6 +96,18 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - Whether to add the roles missing from the CV PDF (Grido, Al Natural, Providus, AS MED).
 
 ## Progress / evidence
+- 2026-10-06 T9 (user: always-white field plus hybrid 3D). Route: delegated, one writer per task in order. The parent reviewed every capture.
+  - T9a `df69be8`: one white field. Per-belt `--belt-fill`, and a `--belt-line` stroke that passes ≥4.5:1 on all six belts (yellow becomes ochre `#8a6700`). Removed the tie plane, early flip, header field swap and `data-grade-belt`. The header swatch wipes on chapter change.
+  - T9b `c2f5587`: `BeltMark.astro`, a drawn tied belt with ink outline and flat fill. Negro gets a light knot keyline. It is used in the chapter heads, header (mini), legend and `/cv`, with an outline draw-in.
+  - T9c `3a7d769`: FloorDiagram is a CSS 3D perspective plane with HTML stop posts that counter-rotate.
+    - Tilt follows `--p`: 58° to 44° on desktop, 34° fixed on mobile, 30° static under reduced motion. The hero floor tilts in as the portrait fades.
+  - T9d `d6af3c7`: WebGL belt, lazy and desktop-only. The gate checks width ≥1024, no reduced motion, WebGL available and no saveData.
+    - three is loaded only through a dynamic import after `load` plus idle. The scene chunk is 145 KB gzip.
+    - One shared renderer serves both moments: the white belt lands on the hero floor, and the belt ties red to black with gold stitches at 1st dan. It handles context loss and disposes when off-screen.
+    - The unused 5.4 MB GLBs were deleted.
+    - Network checks (Playwright): mobile requests no three chunk; desktop requests it after `load`; reduced motion requests none.
+  - Direction contract updated (OWN-WORLD is now restrained white plus drawn belts and perspective). Checks: `bun test` 157 pass, 0 fail; build 6 pages.
+  - Risks to review in T8: real-GPU performance is unmeasured (headless swiftshader only); the white 3D belt has modest contrast on white; the negro seal box reserves 15rem on desktop even when 3D is off.
 - 2026-10-06 T7c and T7d, commit `135e922`. Route: delegated; the parent verified deep entry.
   - The user picked 2 of 4 candidates from the `/lab` shortlist: the horizontal cut for chapter titles (two halves plus a drawn underline) and the word-by-word reveal for the principles. They were ported without any ink look: only transform, opacity, clip-path and stroke-dashoffset, with no filters.
   - The title keeps a single real `h2`; the split copies are `aria-hidden` and are removed after the animation.
