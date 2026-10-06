@@ -2,6 +2,7 @@
 import { languages, useTranslations, type Lang } from '../../i18n/ui';
 import { BELTS, martialExperienceData } from '../../data/martialExperience';
 import type { BeltKey } from '../../data/tuls';
+import BeltMark from './BeltMark.astro';
 
 interface Props {
   lang?: Lang;
@@ -34,7 +35,8 @@ const legend = [
   { id: 'footprint', term: t('tul.legend.footprint.term'), desc: t('tul.legend.footprint.desc') },
   { id: 'arrow', term: t('tul.legend.arrow.term'), desc: t('tul.legend.arrow.desc') },
   { id: 'number', term: t('tul.legend.number.term'), desc: t('tul.legend.number.desc') },
-  { id: 'line', term: t('tul.legend.line.term'), desc: t('tul.legend.line.desc') }
+  { id: 'line', term: t('tul.legend.line.term'), desc: t('tul.legend.line.desc') },
+  { id: 'belt', term: t('tul.legend.belt.term'), desc: t('tul.legend.belt.desc') }
 ] as const;
 ---
 
@@ -48,12 +50,10 @@ const legend = [
       data-grade-indicator
       data-grades={JSON.stringify(grades)}
     >
-      <svg class="tul-grade__swatch" viewBox="0 0 28 12" width="28" height="12" aria-hidden="true">
-        <rect class="tul-grade__prev" x="0.75" y="0.75" width="26.5" height="10.5" data-swatch-prev></rect>
-        <rect class="tul-grade__fill" x="0.75" y="0.75" width="26.5" height="10.5" data-swatch-fill></rect>
-        <rect x="0.75" y="0.75" width="26.5" height="10.5" fill="none" stroke="var(--ink)" stroke-width="1.5"></rect>
-        <path d="M14 0.75V11.25" stroke="var(--ink)" stroke-width="1.5" fill="none"></path>
-      </svg>
+      <span class="tul-grade__mark" aria-hidden="true">
+        <span class="tul-grade__prev" data-swatch-prev><BeltMark size="mini" /></span>
+        <span class="tul-grade__fill" data-swatch-fill><BeltMark size="mini" /></span>
+      </span>
       <span class="visually-hidden">{t('tul.grade.label')}:</span>
       <span class="tul-grade__live" role="status">
         <span class="tul-grade__gup num" data-grade-gup>{initial.gup}</span>
@@ -116,6 +116,9 @@ const legend = [
       {legend.map((item) => (
         <div class="tul-legend__row">
           <dt>
+            {item.id === 'belt' ? (
+              <span class="tul-legend__icon tul-legend__icon--belt"><BeltMark size="mini" /></span>
+            ) : (
             <svg class="tul-legend__icon" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
               {item.id === 'footprint' && (
                 <>
@@ -143,6 +146,7 @@ const legend = [
                 </>
               )}
             </svg>
+            )}
             <span>{item.term}</span>
           </dt>
           <dd>{item.desc}</dd>
@@ -208,18 +212,26 @@ const legend = [
     min-width: 0;
   }
 
-  .tul-grade__swatch {
+  /* The mark follows the active chapter (html[data-active-belt]); the page field never changes.
+     Two marks are stacked: a change wipes the new one over the previous belt's colours (see tul.ts). */
+  .tul-grade__mark {
+    display: grid;
     flex: none;
+    width: 28px;
+    height: 22px;
   }
 
-  /* The swatch follows the active chapter (html[data-active-belt]); the page field never changes.
-     A change wipes the new belt over the previous one (see tul.ts). */
-  .tul-grade__prev {
-    fill: var(--swatch-prev, var(--belt-fill));
-  }
-
+  .tul-grade__prev,
   .tul-grade__fill {
-    fill: var(--belt-fill);
+    grid-area: 1 / 1;
+    display: block;
+  }
+
+  .tul-legend__icon--belt {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
   }
 
   .tul-grade__gup {

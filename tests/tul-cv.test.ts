@@ -97,8 +97,7 @@ describe('QuickCv source contract', () => {
 
   test('every position carries a belt swatch with an accessible belt name', () => {
     expect(quick).toContain('BELTS[p.beltKey].beltName[lang]');
-    expect(quick).toContain('data-belt={p.beltKey}');
-    expect(quick).toContain('fill="var(--belt-fill)"');
+    expect(quick).toContain('<BeltMark beltKey={p.beltKey} size="mini"');
   });
 
   test('projects come from the black-belt passages of tuls.ts, NodoSur as the frame', () => {

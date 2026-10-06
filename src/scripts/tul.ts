@@ -10,7 +10,7 @@
 //   --draw             consumed by FloorDiagram: stroke-dashoffset, stops and arrows.
 //   main section[data-belt]  the section at mid-viewport sets html[data-active-belt] and the header
 //                      grade indicator ([data-grade-gup], [data-grade-form]). The page background never
-//                      changes: the belt only drives the header swatch (a short clip-path wipe from the
+//                      changes: the belt only drives the header belt mark (a short clip-path wipe from the
 //                      previous belt) and accent colours. Sections after the black belt (principles, sheet,
 //                      close) carry data-belt="negro" as their accent, so the header keeps showing 1st dan.
 //   data-form-label    optional on a sub-scene (black belt passages): the header's form text shows
@@ -41,16 +41,17 @@ try {
   grades = {};
 }
 
-const swatchPrev = document.querySelector<SVGElement>('[data-swatch-prev]');
-const swatchFill = document.querySelector<SVGElement>('[data-swatch-fill]');
+const swatchPrev = document.querySelector<HTMLElement>('[data-swatch-prev]');
+const swatchFill = document.querySelector<HTMLElement>('[data-swatch-fill]');
 
 /** Belt whose grade the indicator currently shows. */
 let shownGrade = '';
 
 /** Line hand-off: the new belt's fill wipes over the previous one (instant with reduced motion). */
-function wipeSwatch(from: string): void {
+function wipeSwatch(from: string, key: string): void {
   if (reduced || !swatchFill || !swatchPrev || !swatchFill.animate) return;
-  swatchPrev.style.setProperty('--swatch-prev', from);
+  swatchPrev.style.setProperty('--belt-fill', from);
+  swatchPrev.style.setProperty('--belt-key', key);
   swatchFill.animate(
     [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0 0 0)' }],
     { duration: 450, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }
@@ -60,11 +61,13 @@ function wipeSwatch(from: string): void {
 function setBelt(belt: string): void {
   if (shownGrade === belt) return;
   const header = swatchFill?.closest<HTMLElement>('.tul-header');
-  const from = header ? getComputedStyle(header).getPropertyValue('--belt-fill').trim() : '';
+  const style = header ? getComputedStyle(header) : undefined;
+  const from = style?.getPropertyValue('--belt-fill').trim() ?? '';
+  const key = style?.getPropertyValue('--belt-key').trim() ?? '';
   const first = shownGrade === '';
   shownGrade = belt;
   root.dataset.activeBelt = belt;
-  if (!first && from) wipeSwatch(from);
+  if (!first && from) wipeSwatch(from, key);
   const grade = grades[belt];
   if (grade && gupEl) gupEl.textContent = grade.gup;
   if (grade && formEl) formEl.textContent = grade.form;
@@ -175,9 +178,10 @@ function endIntro(): void {
 //                       rule has drawn) swaps the decorative halves for the real h2.
 //   [data-words]        build-time word spans (`--i`): `.is-in` lets them settle, staggered by CSS.
 //   [data-rise]         a block that rises with opacity: `.is-in`.
+//   [data-belt-mark]    chapter belt mark: `.is-in` draws the outline in (700 ms), then fades the fill.
 function initEntrances(): void {
   const titles = document.querySelectorAll<HTMLElement>('[data-split-title]');
-  const reveals = document.querySelectorAll<HTMLElement>('[data-words], [data-rise]');
+  const reveals = document.querySelectorAll<HTMLElement>('[data-words], [data-rise], [data-belt-mark]');
   if (!titles.length && !reveals.length) return;
 
   const finish = (el: HTMLElement): void => {

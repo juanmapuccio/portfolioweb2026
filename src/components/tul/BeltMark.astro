@@ -1,0 +1,165 @@
+---
+import type { BeltKey } from '../../data/tuls';
+
+/**
+ * A tied ITF belt seen from the front, drawn like a manual figure: a band that bleeds off both
+ * sides, a square knot on it and two tails hanging at different angles. Flat fills, 1.5 px ink
+ * outline, one second tone for shading. Parts are stacked back to front (tails, band, knot) and
+ * each one carries its own fill and outline, so the knot really sits over the band.
+ *
+ * Colour comes from the belt tokens (--belt-fill, --belt-key). With `beltKey` the mark sets its
+ * own belt; without it, the mark follows the nearest ancestor (the header follows the active belt).
+ * Black belt: the 1.5 px ink outline alone vanishes on #111418, so the knot also gets an inset
+ * 1 px light keyline (token --belt-key, transparent for every other belt). The silhouette stays
+ * ink on the white field.
+ *
+ * `animate` marks the chapter head seal: the outline draws in, then the fill fades in (see tul.ts,
+ * [data-belt-mark]). Without JS or with reduced motion the mark is drawn and filled.
+ */
+interface Props {
+  beltKey?: BeltKey;
+  size?: 'mark' | 'mini';
+  animate?: boolean;
+  title?: string;
+  /** Stripe of another belt near the end of one tail (ITF "punta"). Off by default. */
+  tip?: BeltKey;
+  class?: string;
+}
+
+const { beltKey, size = 'mark', animate = false, title, tip, class: className } = Astro.props;
+const mini = size === 'mini';
+const [w, h] = mini ? [28, 22] : [120, 88];
+---
+
+<svg
+  class:list={['bm', `bm--${size}`, className]}
+  viewBox={`0 0 ${w} ${h}`}
+  width={w}
+  height={h}
+  data-belt={beltKey}
+  data-belt-mark={animate ? '' : undefined}
+  role={title ? 'img' : undefined}
+  aria-hidden={title ? undefined : 'true'}
+  focusable="false"
+>
+  {title && <title>{title}</title>}
+  {mini ? (
+    <>
+      <g class="bm__part">
+        <path class="bm__f" d="M11 11L9 21L13 21.5L14 11Z M14 11L16 21.5L20 20L17 11Z"></path>
+        <path class="bm__o" pathLength="1" d="M11 11L9 21L13 21.5L14 11 M14 11L16 21.5L20 20L17 11"></path>
+      </g>
+      <g class="bm__part">
+        <path class="bm__f" d="M0 6H28V13H0Z"></path>
+        <path class="bm__o" pathLength="1" d="M0 6H28 M0 13H28"></path>
+      </g>
+      <g class="bm__part">
+        <path class="bm__f" d="M11 4H14V16H11Z"></path>
+        <path class="bm__s" d="M14 4H17V16H14Z"></path>
+        <path class="bm__o" pathLength="1" d="M11 4H17V16H11Z M14 4V16"></path>
+        <path class="bm__k" d="M12.5 5.5H15.5V14.5H12.5Z M14 5.5V14.5"></path>
+      </g>
+    </>
+  ) : (
+    <>
+      <g class="bm__part">
+        <path class="bm__f" d="M49 32L42 78L54 82L60 32Z M60 32L67 78L78 74L71 32Z"></path>
+        <path class="bm__s" d="M47.33 43H58.68L57.84 50H46.26Z M61.67 43H72.83L74 50H62.74Z"></path>
+        {tip && (
+          <g data-belt={tip}>
+            <path class="bm__f" d="M64.26 60H75.67L76.67 66H65.17Z"></path>
+          </g>
+        )}
+        <path class="bm__o" pathLength="1" d="M49 32L42 78L54 82L60 32 M60 32L67 78L78 74L71 32"></path>
+        {tip && <path class="bm__o" pathLength="1" d="M64.26 60H75.67 M65.17 66H76.67"></path>}
+      </g>
+      <g class="bm__part">
+        <path class="bm__f" d="M0 24H120V38H0Z"></path>
+        <path class="bm__s" d="M45 24H49V38H45Z M71 24H75V38H71Z"></path>
+        <path class="bm__o" pathLength="1" d="M0 24H120 M0 38H120"></path>
+      </g>
+      <g class="bm__part">
+        <path class="bm__f" d="M49 19H60V43H49Z"></path>
+        <path class="bm__s" d="M60 19H71V43H60Z"></path>
+        <path class="bm__o" pathLength="1" d="M49 19H71V43H49Z M60 19V43"></path>
+        <path class="bm__k" d="M51 21H69V41H51Z M60 21V41"></path>
+      </g>
+    </>
+  )}
+</svg>
+
+<style>
+  .bm {
+    display: block;
+    flex: none;
+    overflow: visible;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .bm__f {
+    fill: var(--belt-fill);
+  }
+
+  /* The only shading: one flat second tone. */
+  .bm__s {
+    fill: color-mix(in srgb, var(--belt-fill) 82%, var(--ink));
+  }
+
+  .bm__o {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.5;
+    stroke-linejoin: miter;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+
+  .bm__k {
+    fill: none;
+    stroke: var(--belt-key, transparent);
+    stroke-width: 1;
+    stroke-linejoin: miter;
+  }
+
+  .bm--mini .bm__k {
+    stroke-width: 0.75;
+  }
+
+  @keyframes bm-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes bm-fill {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Entrance: only under html.js with motion allowed. The observer in tul.ts adds .is-in. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .bm[data-belt-mark]:not(.is-in) .bm__o {
+      stroke-dashoffset: 1;
+    }
+
+    :global(html.js) .bm[data-belt-mark]:not(.is-in) :is(.bm__f, .bm__s, .bm__k) {
+      opacity: 0;
+    }
+
+    :global(html.js) .bm[data-belt-mark].is-in .bm__o {
+      animation: bm-draw 700ms var(--ease-out) both;
+    }
+
+    :global(html.js) .bm[data-belt-mark].is-in :is(.bm__f, .bm__s, .bm__k) {
+      animation: bm-fill 250ms var(--ease-out) 700ms both;
+    }
+  }
+</style>

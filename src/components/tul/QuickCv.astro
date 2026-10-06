@@ -1,5 +1,6 @@
 ---
 import ExternalDocIcon from './ExternalDocIcon.astro';
+import BeltMark from './BeltMark.astro';
 import { useTranslations, type Lang } from '../../i18n/ui';
 import { BELTS, martialExperienceData } from '../../data/martialExperience';
 import { TUL_CHAPTERS } from '../../data/tuls';
@@ -97,11 +98,7 @@ const certs = certifications(lang);
     <ol class="qcv__list" role="list" reversed>
       {rows.map((p) => (
         <li class="qcv__row" data-position={p.id} data-group-start={p.groupStart ? '' : undefined}>
-          <svg class="qcv__sw" viewBox="0 0 28 12" width="28" height="12" role="img" aria-labelledby={`sw-${p.id}`}>
-            <title id={`sw-${p.id}`}>{BELTS[p.beltKey].beltName[lang]}</title>
-            <rect x="0.5" y="0.5" width="27" height="11" fill="none" stroke="currentColor"></rect>
-            <rect data-belt={p.beltKey} x="1.5" y="1.5" width="25" height="9" fill="var(--belt-fill)"></rect>
-          </svg>
+          <span class="qcv__sw"><BeltMark beltKey={p.beltKey} size="mini" title={BELTS[p.beltKey].beltName[lang]} /></span>
           <time class="qcv__date num">{p.dates}</time>
           <span class="qcv__what">{p.role}</span>
           <span class="qcv__org">{p.org}</span>
@@ -344,7 +341,7 @@ const certs = certifications(lang);
     align-self: start;
     margin-top: 0.3em;
     width: 1.75rem;
-    height: auto;
+    height: 1.375rem;
     color: var(--ink);
   }
 
@@ -520,9 +517,14 @@ const certs = certifications(lang);
 
     :global(.tul-header),
     :global(.skip-link),
-    .qcv__actions,
-    .qcv__sw {
+    .qcv__actions {
       display: none !important;
+    }
+
+    /* The belt mark stays in print, with its colours. */
+    .qcv__sw {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
 
     .qcv {
@@ -565,10 +567,10 @@ const certs = certifications(lang);
     }
 
     .qcv__row {
-      grid-template-columns: 8.5rem minmax(0, 1fr) 12rem;
+      grid-template-columns: 1.75rem 8.5rem minmax(0, 1fr) 12rem;
       grid-template-areas:
-        'date what org'
-        '. teaser teaser';
+        'sw date what org'
+        '. . teaser teaser';
     }
 
     .qcv__chan,

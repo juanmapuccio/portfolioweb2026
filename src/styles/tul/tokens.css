@@ -4,6 +4,7 @@
  * with data-belt="<key>" only exposes that belt as drawn details.
  *   --belt-fill  the real belt colour, for fills that always carry an ink outline.
  *   --belt-line  a stroke colour that holds 3:1 on the field (also safe for text where noted in tests).
+ *   --belt-key   inner keyline of the belt mark: transparent, light only on the black belt.
  *   --grade      0..1 rank for the grade type.
  * Values are hex so tests/tul-tokens.test.ts can parse and check contrast.
  */
@@ -15,42 +16,49 @@
   /* Without a data-belt ancestor the accent is the blanco one. */
   --belt-fill: #ffffff;
   --belt-line: #41546b;
+  --belt-key: transparent;
   --grade: 0;
 }
 
 [data-belt="blanco"] {
   --belt-fill: #ffffff;
   --belt-line: #41546b;
+  --belt-key: transparent;
   --grade: 0;
 }
 
 [data-belt="amarillo"] {
   --belt-fill: #f4c62b;
   --belt-line: #8a6700;
+  --belt-key: transparent;
   --grade: 0.2;
 }
 
 [data-belt="verde"] {
   --belt-fill: #1d6a44;
   --belt-line: #1d6a44;
+  --belt-key: transparent;
   --grade: 0.4;
 }
 
 [data-belt="azul"] {
   --belt-fill: #1d4a99;
   --belt-line: #1d4a99;
+  --belt-key: transparent;
   --grade: 0.6;
 }
 
 [data-belt="rojo"] {
   --belt-fill: #b3312a;
   --belt-line: #b3312a;
+  --belt-key: transparent;
   --grade: 0.8;
 }
 
 [data-belt="negro"] {
   --belt-fill: #111418;
   --belt-line: #0b1a2b;
+  --belt-key: #cfd6de;
   --grade: 1;
 }
 
@@ -117,29 +125,35 @@ time,
 html[data-active-belt='blanco'] .tul-header {
   --belt-fill: #ffffff;
   --belt-line: #41546b;
+  --belt-key: transparent;
 }
 
 html[data-active-belt='amarillo'] .tul-header {
   --belt-fill: #f4c62b;
   --belt-line: #8a6700;
+  --belt-key: transparent;
 }
 
 html[data-active-belt='verde'] .tul-header {
   --belt-fill: #1d6a44;
   --belt-line: #1d6a44;
+  --belt-key: transparent;
 }
 
 html[data-active-belt='azul'] .tul-header {
   --belt-fill: #1d4a99;
   --belt-line: #1d4a99;
+  --belt-key: transparent;
 }
 
 html[data-active-belt='rojo'] .tul-header {
   --belt-fill: #b3312a;
   --belt-line: #b3312a;
+  --belt-key: transparent;
 }
 
 html[data-active-belt='negro'] .tul-header {
   --belt-fill: #111418;
   --belt-line: #0b1a2b;
+  --belt-key: #cfd6de;
 }
