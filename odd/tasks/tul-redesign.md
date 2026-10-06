@@ -89,6 +89,12 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - Whether to add the roles missing from the CV PDF (Grido, Al Natural, Providus, AS MED).
 
 ## Progress / evidence
+- 2026-10-06 T7b (user feedback round), route delegated in two writers.
+  - T7b-1 `4836b44`: chapter titles are now by professional area (Formación técnica, Ventas y atención al cliente, Administración pública, Reconversión profesional, Salud y logística, Software en producción). Career copy was neutralized: "sistemas arcaicos", "trinchera" and "la calle" removed, which also fixes a breach of the no-criticism-of-employers rule. Unused fields (`kicker`, `sectionBadge`, general title and subtitle) were removed. `tests/copy-tone.test.ts` guards the tone.
+  - T7b-2: tul are shown by grade ("Tul 8º gup · Diagrama de piso · 21 movimientos", "Tul 1º dan · 2 de 3"). The header shows grade plus area title, or the product name in the black passages. No Korean tul names appear on any screen; they live only in `src/data/tuls.ts`. CV buttons say "Ver CV" and use a new external-document icon, with a hidden new-tab hint.
+  - Checks: `bun test` 110 pass, 0 fail; build 6 pages.
+  - Pending from the plan: T7c (choose `/lab` animations; `/lab` is recoverable from `feat/ink-redesign` at `3de8f84` and `design/franjas-pincel/`), T7d (top-align the pinned stages on wide screens), then T8.
+  - Not touched: `rules/Narrativa.md`, `Storytelling.md` and `Copywriting.md` still contain "trinchera" and "La calle".
 - 2026-10-05 T0 commit `181152a` (doc, surface brief).
 - 2026-10-05 T1 commit `8796b6b`. Checks:
   - `bunx astro check`: 0 errors.
