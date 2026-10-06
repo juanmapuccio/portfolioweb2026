@@ -172,7 +172,7 @@ describe('copy rules', () => {
   test('the tul.cv strings hold no forbidden words, dashes or emoji', () => {
     for (const lang of ['es', 'en', 'pt'] as const) {
       const strings = Object.entries(ui[lang]).filter(([k]) => k.startsWith('tul.cv.'));
-      expect(strings.length).toBe(10);
+      expect(strings.length).toBe(11);
       for (const [, v] of strings) expect(FORBIDDEN.test(v)).toBe(false);
     }
   });

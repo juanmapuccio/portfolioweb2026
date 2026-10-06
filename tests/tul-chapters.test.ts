@@ -90,7 +90,7 @@ describe('milestone rows match the tul stops', () => {
     expect(forms.map((f) => f.id)).toEqual(['kwang-gae', 'po-eun', 'ge-baek']);
     expect(forms.map((f) => f.stops[0].ref.id)).toEqual(['satori', 'nodofit', 'donpizza']);
     expect(chapter).toContain('chapter.forms.flatMap');
-    expect(chapter).toContain('data-form-label={p.form.name}');
+    expect(chapter).toContain('data-form-label={p.project.name}');
   });
 });
 
@@ -107,6 +107,8 @@ describe('chapter i18n', () => {
     'tul.chapter.diagram',
     'tul.chapter.movements',
     'tul.chapter.passages',
+    'tul.chapter.tulLabel',
+    'tul.chapter.passageOf',
     'tul.project.problem',
     'tul.project.solution',
     'tul.project.impact',

@@ -1,7 +1,7 @@
 ---
 import { languages, useTranslations, type Lang } from '../../i18n/ui';
-import { BELTS } from '../../data/martialExperience';
-import { TUL_CHAPTERS, type BeltKey } from '../../data/tuls';
+import { BELTS, martialExperienceData } from '../../data/martialExperience';
+import type { BeltKey } from '../../data/tuls';
 
 interface Props {
   lang?: Lang;
@@ -16,13 +16,14 @@ const t = useTranslations(lang);
 const localePaths: Record<Lang, string> = { es: '/', en: '/en/', pt: '/pt/' };
 const beltOrder: BeltKey[] = ['blanco', 'amarillo', 'verde', 'azul', 'rojo', 'negro'];
 
-/** Grade label and form name per belt, for the first paint and for the T3 engine. */
+/** Grade and the chapter's professional-area title per belt, for the first paint and the engine. */
+const stages = martialExperienceData[lang].stages;
 const grades = Object.fromEntries(
   beltOrder.map((key) => [
     key,
     {
       gup: BELTS[key].gup,
-      form: TUL_CHAPTERS[key].forms.map((f) => f.name).join(' / ')
+      form: stages.find((s) => s.beltKey === key)?.title ?? ''
     }
   ])
 ) as Record<BeltKey, { gup: string; form: string }>;

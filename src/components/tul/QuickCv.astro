@@ -1,4 +1,5 @@
 ---
+import ExternalDocIcon from './ExternalDocIcon.astro';
 import { useTranslations, type Lang } from '../../i18n/ui';
 import { BELTS, martialExperienceData } from '../../data/martialExperience';
 import { TUL_CHAPTERS } from '../../data/tuls';
@@ -58,10 +59,8 @@ const certs = certifications(lang);
     <p class="qcv__avail">{t('tul.hero.availability')}</p>
     <div class="qcv__actions">
       <a class="qcv__btn" href={CV_PDF_HREF} target="_blank" rel="noopener noreferrer">
-        <span>{t('tul.cv.pdf')}</span>
-        <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
-          <path d="M10 3V13M5 8.5L10 13.5L15 8.5M4 17H16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"></path>
-        </svg>
+        <span>{t('tul.cv.pdf')}<span class="visually-hidden"> {t('tul.cv.newTab')}</span></span>
+        <ExternalDocIcon />
       </a>
       <a class="qcv__btn" href={email.url}>
         <span>{t('tul.close.cta')}</span>

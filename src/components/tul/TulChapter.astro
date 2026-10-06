@@ -26,7 +26,7 @@ const { lang = 'es', beltKey } = Astro.props;
 const t = useTranslations(lang);
 
 const BELT_ORDER: BeltKey[] = ['blanco', 'amarillo', 'verde', 'azul', 'rojo', 'negro'];
-/** The hero already draws this share of Saju Jirugi; the white chapter continues from it. */
+/** The hero already draws this share of the first tul; the white chapter continues from it. */
 const HERO_DRAW_END = 0.25;
 
 const content = martialExperienceData[lang];
@@ -100,8 +100,12 @@ const autoSteps = [
 ];
 const AUTO_T = autoSteps.map((_, i) => Number(((i + 1) / (autoSteps.length + 1)).toFixed(3)));
 
-const caption = (name: string, movements: number) =>
-  `${name} · ${t('tul.chapter.diagram')} · ${movements} ${t('tul.chapter.movements')}`;
+const tulLabel = (grade: string) => t('tul.chapter.tulLabel').replace('{grade}', grade);
+// Black belt passages are all 1st dan: "Tul 1º dan" plus the position in the series.
+const passageLabel = (i: number) =>
+  `${tulLabel(belt.gup)} · ${t('tul.chapter.passageOf').replace('{n}', String(i + 1)).replace('{total}', String(passages.length))}`;
+const caption = (label: string, movements: number) =>
+  `${label} · ${t('tul.chapter.diagram')} · ${movements} ${t('tul.chapter.movements')}`;
 ---
 
 <section
@@ -121,15 +125,15 @@ const caption = (name: string, movements: number) =>
             <div class="tc__fig tc__fig--mini">
               <FloorDiagram form={mainForm} compact progress />
             </div>
-            <figcaption class="tc__cap">{caption(mainForm.name, mainForm.movements)}</figcaption>
+            <figcaption class="tc__cap">{caption(tulLabel(belt.gup), mainForm.movements)}</figcaption>
           </figure>
         ) : (
           <nav class="tc__passages" aria-label={t('tul.chapter.passages')}>
             <ul>
-              {passages.map((p) => (
+              {passages.map((p, i) => (
                 <li>
                   <a href={`#${p.id}`}>
-                    <span class="tc__passage-form">{p.form.name}</span>
+                    <span class="tc__passage-form">{passageLabel(i)}</span>
                     <span class="tc__passage-name">{p.project.name}</span>
                   </a>
                 </li>
@@ -214,13 +218,13 @@ const caption = (name: string, movements: number) =>
     </aside>
   )}
 
-  {passages.map((p) => (
+  {passages.map((p, i) => (
     <article
       id={p.id}
       class="tc__scene tc__scene--pin tc__sub"
       style="--n:3"
       data-tul-scene
-      data-form-label={p.form.name}
+      data-form-label={p.project.name}
       data-form={p.form.id}
       aria-labelledby={`${p.id}-title`}
     >
@@ -233,14 +237,14 @@ const caption = (name: string, movements: number) =>
             <div class="tc__fig tc__fig--mini">
               <FloorDiagram form={p.form} compact progress />
             </div>
-            <figcaption class="tc__cap">{caption(p.form.name, p.form.movements)}</figcaption>
+            <figcaption class="tc__cap">{caption(tulLabel(belt.gup), p.form.movements)}</figcaption>
           </figure>
         </div>
 
         <div class="tc__copy tc__beats">
           <div class="tc__beat" style="--t:0.05">
             <h3 id={`${p.id}-title`} class="tc__project grade-type">{p.project.name}</h3>
-            <p class="tc__meta">{p.form.name} · {p.project.role}</p>
+            <p class="tc__meta">{passageLabel(i)} · {p.project.role}</p>
             <p class="tc__text">{p.project.description}</p>
           </div>
           <div class="tc__beat" style="--t:0.35">
