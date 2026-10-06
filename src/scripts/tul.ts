@@ -9,15 +9,16 @@
 //   data-draw-start    optional: --draw starts moving once the scene progress passes this value.
 //   --draw             consumed by FloorDiagram: stroke-dashoffset, stops and arrows.
 //   main section[data-belt]  the section at mid-viewport sets html[data-active-belt] and the header
-//                      grade indicator ([data-grade-gup], [data-grade-form]). The page background never
-//                      changes: the belt only drives the header belt mark (a short clip-path wipe from the
-//                      previous belt) and accent colours. Sections after the black belt (principles, sheet,
+//                      grade indicator ([data-grade-gup], [data-grade-form]). The belt never changes the
+//                      page background: the field is white up to the red belt and flips to black once, at 1st
+//                      dan (see [data-tul-passage]). The belt only drives the header belt mark (a short
+//                      clip-path wipe from the previous belt) and accent colours. Sections after the black belt (principles, sheet,
 //                      close) carry data-belt="negro" as their accent, so the header keeps showing 1st dan.
 //   data-form-label    optional on a sub-scene (black belt passages): the header's form text shows
 //                      this label while the sub-scene sits at mid-viewport.
-//   [data-tul-passage] sumi-e ink passage between two chapters (InkPassage.astro): `--p` (0..1) while the
-//                      passage crosses the viewport (top at the bottom edge to bottom at the top edge). The
-//                      CSS turns it into ink that peaks at mid-crossing and recedes, so the field ends white.
+//   [data-tul-passage] spacer between two chapters (InkPassage.astro): `--p` (0..1) while it crosses the
+//                      viewport (top at the bottom edge to bottom at the top edge). The one that arrives at
+//                      1st dan drives the black flood and sets html[data-field="dark"] at p >= 0.5.
 // With reduced motion nothing is scrubbed: --p and --draw are 1, everything is drawn.
 // Only GSAP's ticker schedules frames here; only CSS-driven transform, opacity, clip-path
 // and stroke-dashoffset react to the variables.
@@ -152,18 +153,38 @@ function initScrubs(): void {
   }
 }
 
-// [data-tul-passage]  an in-flow ink passage. It only needs its own `--p`; nothing else reacts. With reduced
-//                     motion it stays a static divider (the CSS shows it only under html.js and motion).
+// [data-tul-passage]  an in-flow spacer between two chapters. It only needs its own `--p` (the CSS of the
+//                     flood and, later, the belt drawing read it). With reduced motion nothing is written and
+//                     the CSS shows a static gap.
+// The passage that arrives at 1st dan (data-belt="negro") also owns the field flip: once its progress passes
+// FLOOD_FULL the black flood covers the whole view, so the page tokens are switched to the dark field
+// underneath it (html[data-field="dark"], tokens.css) and switched back when scrolling up past it. Both read
+// the same scrubbed `p`, so the flip always happens while the flood is fully opaque. Keep FLOOD_FULL equal to
+// the 0.5 in InkPassage.astro.
+const FLOOD_FULL = 0.5;
+
+function setField(dark: boolean): void {
+  if (dark) {
+    if (root.dataset.field !== 'dark') root.dataset.field = 'dark';
+  } else if (root.dataset.field) {
+    delete root.dataset.field;
+  }
+}
+
 function initPassages(): void {
   if (reduced) return;
   for (const el of document.querySelectorAll<HTMLElement>('[data-tul-passage]')) {
+    const flips = el.dataset.belt === 'negro';
     const state = { p: 0 };
     el.style.setProperty('--p', '0');
     gsap.to(state, {
       p: 1,
       ease: 'none',
       scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: 0.4 },
-      onUpdate: () => el.style.setProperty('--p', state.p.toFixed(4))
+      onUpdate: () => {
+        el.style.setProperty('--p', state.p.toFixed(4));
+        if (flips) setField(state.p >= FLOOD_FULL);
+      }
     });
   }
 }

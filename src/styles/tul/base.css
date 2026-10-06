@@ -102,11 +102,34 @@ main > section[data-belt] {
   padding: calc(var(--space-2xl) + 2rem) var(--gutter) var(--space-xl);
 }
 
+/*
+ * Black field without the flood: with no JS or with reduced motion nothing sets html[data-field], so
+ * the black chapter and everything after it (principles, sheet, close) take the dark tokens directly.
+ * With JS and motion the flood flips the root instead, and these sections stay transparent.
+ */
+html:not(.js) main > section[data-belt='negro'] {
+  --field: var(--field-dark);
+  --ink: var(--ink-dark);
+  --ink-soft: var(--ink-soft-dark);
+  background-color: var(--field);
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html main > section[data-belt='negro'] {
+    --field: var(--field-dark);
+    --ink: var(--ink-dark);
+    --ink-soft: var(--ink-soft-dark);
+    background-color: var(--field);
+    color: var(--ink);
+  }
+}
+
 /* Browser surfaces */
 
-/* Ink on a light tint of the active belt line; never a coloured field. */
+/* Ink on a light tint of the active belt line, over whichever field is showing; never a coloured field. */
 ::selection {
-  background: color-mix(in srgb, var(--belt-line) 22%, #ffffff);
+  background: color-mix(in srgb, var(--belt-line) 22%, var(--field));
   color: var(--ink);
 }
 

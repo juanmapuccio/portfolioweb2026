@@ -4,13 +4,28 @@ import type { BeltKey } from '../../data/tuls';
 /**
  * The spacer between two belt chapters. In flow, decorative, aria-hidden, no text.
  *
- * It no longer paints anything across the screen: the sumi-e ink lives only under the chapter titles
- * (TitleInk.astro). The spacer is a quiet gap, ~50svh on desktop and 40svh on mobile, that later layers
- * stand on (the black flood at 1st dan, the belt drawing).
+ * It paints nothing across the screen, except at one place: the passage that arrives at 1st dan
+ * (`to === 'negro'`) carries the black flood. The sumi-e ink lives only under the chapter titles
+ * (TitleInk.astro). The spacer is ~50svh on desktop and 40svh on mobile, a quiet gap that other
+ * layers stand on (the belt drawing, the flood).
  *
  * The engine (tul.ts, [data-tul-passage]) writes `--p` (0..1) on the passage while it crosses the
  * viewport (top at the bottom edge to bottom at the top edge). With reduced motion or without JS the
- * passage stays a static 8rem gap and `--p` is never written.
+ * passage stays a static 8rem gap, `--p` is never written and there is no flood: the black chapter and
+ * what follows are black by CSS (base.css).
+ *
+ * Flood (black passage only, html.js with motion):
+ *   - `.ink__flood` is a viewport layer above the chapters and below the header (z-index 10).
+ *   - Its fill is clipped by `clip-path: circle(r at x y)`. The radius grows with the square of the
+ *     flood progress `--f` (0 at p = 0.2, 1 at p = 0.5), so the black first spreads slowly from the knot
+ *     and then takes the whole view. At p = 0.5 it covers everything, tul.ts flips html[data-field="dark"]
+ *     under it and the layer is hidden; scrolling back reverses it.
+ *   - The centre is the knot. T11d (3D) publishes `--knot-x` / `--knot-y` (viewport px) on html; without
+ *     them the centre is the drawn belt knot of this spacer, placed at `--knot-fx` / `--knot-fy` (fractions
+ *     of the spacer) and moving with the scroll, computed from `--p` alone.
+ *   - Only clip-path and opacity change with scroll. The ink edge is a static feTurbulence +
+ *     feDisplacementMap filter (parameters never animate), desktop only; on mobile the edge is a clean circle.
+ *   - No mix-blend-mode.
  */
 interface Props {
   from: BeltKey;
@@ -18,27 +33,85 @@ interface Props {
 }
 
 const { from, to } = Astro.props;
+const floods = to === 'negro';
 ---
 
-<div class="ink" data-tul-passage data-belt={to} data-from={from} aria-hidden="true"></div>
+<div class="ink" data-tul-passage data-belt={to} data-from={from} aria-hidden="true">
+  {floods && (
+    <div class="ink__flood" data-ink-flood>
+      <div class="ink__fill"></div>
+    </div>
+  )}
+</div>
+{floods && (
+  <svg class="ink__defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <filter id="ink-edge" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.011 0.014" numOctaves="3" seed="4" result="noise"></feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="46" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
+    </filter>
+  </svg>
+)}
 
 <style>
   .ink {
     --ink-h: 8rem;
+    /* Where the drawn belt knot sits inside the spacer (fractions of its width and height). */
+    --knot-fx: 0.5;
+    --knot-fy: 0.5;
     position: relative;
     height: var(--ink-h);
     pointer-events: none;
+  }
+
+  .ink__defs {
+    position: absolute;
+  }
+
+  .ink__flood {
+    display: none;
   }
 
   @media (prefers-reduced-motion: no-preference) {
     :global(html.js) .ink {
       --ink-h: 50svh;
     }
+
+    :global(html.js) .ink__flood {
+      /* 0 until p = 0.2, 1 at p = 0.5. */
+      --f: clamp(0, calc((var(--p, 0) - 0.2) / 0.3), 1);
+      /* Flood centre in viewport coordinates: the 3D knot when published, otherwise the drawn knot. */
+      --cx: var(--knot-x, calc(100vw * var(--knot-fx)));
+      --cy: var(
+        --knot-y,
+        calc(100svh + var(--ink-h) * var(--knot-fy) - var(--p, 0) * (100svh + var(--ink-h)))
+      );
+      position: fixed;
+      /* Bleed past the viewport so the displaced ink edge never shows the layer's own border. */
+      inset: -3rem;
+      z-index: 10;
+      display: block;
+      /* Fully there up to p = 0.5, gone right after: the dark field takes over underneath. */
+      opacity: clamp(0, calc((0.5 - var(--p, 0)) * 1000 + 1), 1);
+    }
+
+    :global(html.js) .ink__fill {
+      position: absolute;
+      inset: 0;
+      background-color: var(--field-dark);
+      clip-path: circle(calc(var(--f) * var(--f) * 150vmax) at calc(var(--cx) + 3rem) calc(var(--cy) + 3rem));
+    }
   }
 
   @media (max-width: 47.99rem) and (prefers-reduced-motion: no-preference) {
     :global(html.js) .ink {
       --ink-h: 40svh;
+    }
+  }
+
+  /* Ink edge: desktop only. The filter is static; the circle grows under it. */
+  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+    :global(html.js) .ink__flood {
+      filter: url('#ink-edge');
     }
   }
 </style>

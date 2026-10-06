@@ -1,7 +1,8 @@
 /*
  * Tul diagram tokens.
- * The page is one white field with dark ink, always. Belt colours never fill a surface: any element
- * with data-belt="<key>" only exposes that belt as drawn details.
+ * The page is one white field with dark ink from the white belt to the red one. At 1st dan the field
+ * flips once to black (see [data-field="dark"] below); that is the only change of field. Belt colours
+ * never fill a surface: any element with data-belt="<key>" only exposes that belt as drawn details.
  *   --belt-fill  the real belt colour, for fills that always carry an ink outline.
  *   --belt-line  a stroke colour that holds 3:1 on the field (also safe for text where noted in tests).
  *   --belt-key   inner keyline of the belt mark: transparent, light only on the black belt.
@@ -18,6 +19,13 @@
   --belt-line: #41546b;
   --belt-key: transparent;
   --grade: 0;
+
+  /* The black field of 1st dan. [data-field="dark"] points the page tokens at these. */
+  --field-dark: #0a0d11;
+  --ink-dark: #f1eee8;
+  --ink-soft-dark: #aab0b8;
+  /* Warm light grey: strokes and the title ink on black (3:1 and up). */
+  --line-dark: #c8c1b6;
 }
 
 [data-belt="blanco"] {
@@ -55,11 +63,27 @@
   --grade: 0.8;
 }
 
+/* The black belt always sits on the black field (flood, or CSS fallback), so its line is the light one. */
 [data-belt="negro"] {
   --belt-fill: #111418;
-  --belt-line: #0b1a2b;
+  --belt-line: var(--line-dark);
   --belt-key: #cfd6de;
   --grade: 1;
+}
+
+/*
+ * Dark field. tul.ts sets html[data-field="dark"] once the black flood has covered the screen (the
+ * red to black passage at p >= 0.5) and removes it when scrolling back. Only the four page tokens
+ * invert; no belt tints anything. Text is >= 4.5:1, strokes >= 3:1 (tests/tul-tokens.test.ts).
+ * Without JS, or with reduced motion, nothing sets it: base.css gives the black chapter and what
+ * follows these same tokens directly.
+ */
+[data-field="dark"] {
+  --field: var(--field-dark);
+  --ink: var(--ink-dark);
+  --ink-soft: var(--ink-soft-dark);
+  --belt-line: var(--line-dark);
+  color-scheme: dark;
 }
 
 /* Scales */
@@ -152,8 +176,12 @@ html[data-active-belt='rojo'] .tul-header {
   --belt-key: transparent;
 }
 
+/* At 1st dan the header is on black even when nothing flipped the root (reduced motion). */
 html[data-active-belt='negro'] .tul-header {
   --belt-fill: #111418;
-  --belt-line: #0b1a2b;
+  --belt-line: var(--line-dark);
   --belt-key: #cfd6de;
+  --field: var(--field-dark);
+  --ink: var(--ink-dark);
+  --ink-soft: var(--ink-soft-dark);
 }

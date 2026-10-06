@@ -31,7 +31,8 @@ describe('InkPassage is a spacer', () => {
     expect(passage).toContain('data-tul-passage');
     expect(passage).not.toMatch(/ink__art|\.svg\?raw|assets\/brush/);
     expect(passage).not.toMatch(/<p\b|<h[1-6]\b|<span\b/);
-    expect(styleOf(passage)).not.toMatch(/position:\s*(fixed|sticky)/);
+    // The passage box itself stays in flow; only the flood layer (tul-flood.test.ts) is a viewport overlay.
+    expect(styleOf(passage)).not.toMatch(/\.ink \{[^}]*position:\s*(fixed|sticky|absolute)/);
   });
 
   test('about 50svh on desktop, smaller on mobile, a static 8rem gap without JS or with reduced motion', () => {
@@ -41,8 +42,8 @@ describe('InkPassage is a spacer', () => {
     expect(css).toMatch(/max-width: 47\.99rem\) and \(prefers-reduced-motion: no-preference\) \{\s*:global\(html\.js\) \.ink \{\s*--ink-h: 40svh/);
   });
 
-  test('nothing animates filters or shadows in the spacer', () => {
-    expect(styleOf(passage)).not.toMatch(/filter:|box-shadow|gradient/);
+  test('no shadows, gradients or blend modes in the spacer (the flood has its own tests)', () => {
+    expect(styleOf(passage).replace(/\/\*[\s\S]*?\*\//g, '')).not.toMatch(/box-shadow|gradient|mix-blend-mode/);
   });
 });
 

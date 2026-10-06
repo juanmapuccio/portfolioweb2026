@@ -39,10 +39,14 @@ describe('anchors', () => {
     expect(read('src/components/tul/HeroJoonbi.astro')).toContain('href="#contacto"');
   });
 
-  test('the three sections carry the negro belt as accent (1st dan in the header) on the white field', () => {
+  test('the three sections carry the negro belt (1st dan in the header) and so take the black field', () => {
+    const base = read('src/styles/tul/base.css');
+    // Every section that carries data-belt="negro" is covered by the black-field rules in base.css
+    // (CSS fallback) and by html[data-field="dark"] (flood).
+    expect(base).toContain("main > section[data-belt='negro']");
     for (const f of COMPONENTS) {
       const src = read(f);
-      expect(src).toContain('data-belt="negro"');
+      expect(src).toMatch(/<section[^>]*data-belt="negro"/);
       expect(src).not.toContain('data-grade-belt');
     }
   });
