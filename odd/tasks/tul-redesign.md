@@ -77,6 +77,10 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
   - Moment A: the white belt lands on the hero floor.
   - Moment B: the belt is tied red to black at 1st dan.
   - Re-add `three`. Delete the unused 5.4 MB GLBs.
+- [x] T10a Brush kit: own SVGs in `src/assets/brush/` (rule, drop, dry, drip, enso, vertical) plus `InkPassage.astro` (props `from`, `to`). `35c1750`.
+- [x] T10b Ink passages mounted between the six chapters in es/en/pt and scrubbed by `initPassages()` in `tul.ts` (`[data-tul-passage]`, ScrollTrigger only). `c2e4cea`.
+- [x] T10c Brush detail on white: dry brush title-cut rule in `--belt-line`, ensō behind the chapter BeltMark, bristle-masked route stroke in FloorDiagram. Paper grain skipped (the contract forbids decoration). `396ef8f`.
+- [x] T10d Direction contract (OWN-WORLD sumi-e ink, memorable moment with ink passages) and this document. Commit: the one that adds this line (`docs(tul): ...`, see git log).
 - [ ] T8 Finish: `impeccable detect`, then the finish reviewer at desktop 1440 and mobile 390, one fix round, and the documenter rewriting `DESIGN.md` and `.impeccable/design.json`.
 
 ## Acceptance criteria
@@ -96,6 +100,18 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - Whether to add the roles missing from the CV PDF (Grido, Al Natural, Providus, AS MED).
 
 ## Progress / evidence
+- 2026-10-06 T10 (user: sumi-e ink passages and brush detail; plan `codegraph-engram-context7-gentle-ai-snoopy-squid.md`). Route: delegated, one writer for T10a to T10d (writer trigger: 2+ non-trivial files per task). TDD: off (explicit in the request). Runner: `bunx astro check`, `bun test`, `bun run build`.
+  - T10a `35c1750`: kit and component. Each arriving belt has its own piece: yellow drop, green dry sweep, blue drip curtain, red ensō, black single vertical stroke. No text, no hangul.
+  - T10b `c2e4cea`: passages mounted in the three pages; the engine writes `--p` per passage (top at the bottom edge to bottom at the top edge). CSS derives `--k` (0, 1, 0).
+  - T10c `396ef8f`: brush detail. The old straight `<line>` stays but is stroked 6 wide under a static bristle mask (selector still matches the existing chapter test, so no test was edited for it).
+  - Design decisions:
+    - The passage box is in flow (60svh, 40svh mobile). Its ink layer is a fixed viewport overlay at z-index 10 (header is 50), invisible when `--k` is 0, so the field is white at both ends. First attempt with an absolute layer centred on the passage left ink over the previous chapter at p=0; replaced.
+    - Peak scale was reduced after the first capture (a flat full-screen fill read as a drench).
+    - Static SVG displacement filters only on dry, drip and vertical; they sit on the SVG and the HTML wrapper animates (transform, opacity, clip-path). Drop and ensō animate inside the SVG, so they have no filter. On mobile `filter: none`.
+    - Reduced motion or no JS: static 8rem divider (verified: 128 px, no overflow).
+  - Checks: `bunx astro check` 0 errors; `bun test` 171 pass, 0 fail (14 new in `tests/tul-ink.test.ts`); `bun run build` 6 pages; `rg "[가-힯]" src` matches only the pre-existing, unrendered `hangul` data fields in `src/data/principles.ts` (none in dist).
+  - Captures (Playwright, 1440 and 390): scroll sweeps of all five passages gave `--p` 0, 0.5 and 1 with no horizontal overflow; peak and recede frames reviewed for drop, drip, ensō, dry sweep and vertical stroke.
+  - Not measured: scroll performance trace on a real GPU; mobile peak captures were taken, not individually judged.
 - 2026-10-06 T9 (user: always-white field plus hybrid 3D). Route: delegated, one writer per task in order. The parent reviewed every capture.
   - T9a `df69be8`: one white field. Per-belt `--belt-fill`, and a `--belt-line` stroke that passes ≥4.5:1 on all six belts (yellow becomes ochre `#8a6700`). Removed the tie plane, early flip, header field swap and `data-grade-belt`. The header swatch wipes on chapter change.
   - T9b `c2f5587`: `BeltMark.astro`, a drawn tied belt with ink outline and flat fill. Negro gets a light knot keyline. It is used in the chapter heads, header (mini), legend and `/cv`, with an outline draw-in.

@@ -16,10 +16,12 @@ Mode: Experience. Scope: the full landing page, plus the `/cv` quick-scan route.
 
 **Proof:** real production systems (NodoSur, NodoFit, Satori Dojo, Don Pizza) and the real CV trajectory, 2011 to today.
 
-**Memorable moment:** scrolling performs the tul on a floor seen in perspective. A 3D white belt lands on the floor at the start, and the belt is tied red to black at 1st dan. The final line returns to the starting point at contact.
+**Memorable moment:** scrolling performs the tul on a floor seen in perspective. A 3D white belt lands on the floor at the start, and the belt is tied red to black at 1st dan. Between the belt chapters, sumi-e ink passages (a drop, a dry brush sweep, a drip curtain, an ensō, one vertical stroke) cross the screen as you scroll and recede to the white field. The final line returns to the starting point at contact.
 
 **Unresolved decisions:**
 - Whether the missing roles get added to the CV PDF.
+
+**Revised 2026-10-06 (user, ink):** the sumi-e brush returns as a stroke language and as scroll passages between chapters. No hangul or Korean text anywhere in the interface.
 
 **Revised 2026-10-06 (user):** belt colours never fill the screen. The field is always white, colour lives in drawn details, and immersion comes from a hybrid 3D: a CSS perspective floor everywhere plus a desktop-only WebGL belt at two moments.
 
@@ -34,11 +36,16 @@ Mode: Experience. Scope: the full landing page, plus the `/cv` quick-scan route.
   - the active row marker and the title-cut rule;
   - a drawn tied-belt mark per chapter, filled with the belt colour and outlined in ink.
   - Strokes use an accessible `--belt-line` (yellow becomes ochre).
+- Sumi-e ink: strokes are brush, not ruler lines.
+  - Five ink passages sit in flow between the chapters, scrubbed by scroll. The ink may cover the viewport at its peak and must recede to the white field before the next chapter. They use the colour of the belt they arrive at, and they never carry text.
+  - Brush detail on the white field: the title-cut rule is a dry brush stroke in `--belt-line`, the chapter seal has an ink ensō behind the belt, and the route line of the floor diagram has bristle texture.
+  - With reduced motion or without JS, each passage is a static 8rem brush divider.
+  - No paper grain: it would be decoration.
 - Depth through perspective, not decoration:
   - the floor diagram is a tilted plane, and its numbered stops stand up as posts;
   - a procedural WebGL belt appears on desktop only; everywhere else the drawn belt is the poster.
 - Variable type whose weight and width grow with grade.
-- No shadows, cards, glow or gradients.
+- No shadows, cards, glow or gradients. Brush edges come from static SVG masks and filters; only transform, opacity, clip-path and stroke-dashoffset animate.
 
 **STORY.** Within seconds the visitor knows who Juan is: "Audito procesos de empresas y los resuelvo con código". They walk six forms of rising complexity and reach 1st dan with real production systems. The line then returns to its origin, which is contact.
 
