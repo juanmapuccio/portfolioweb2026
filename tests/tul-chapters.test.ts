@@ -68,8 +68,8 @@ describe('chapter structure', () => {
     expect(chapter).not.toContain('data-next-belt');
   });
 
-  test('the title-cut rule and the active row marker use the belt line colour', () => {
-    expect(chapter).toMatch(/\.tc__slash line\s*\{\s*stroke: var\(--belt-line\)/);
+  test('the title ink and the active row marker use the belt line colour', () => {
+    expect(read('src/components/tul/TitleInk.astro')).toMatch(/color: var\(--belt-line\)/);
     expect(chapter).toContain('var(--belt-line) calc(var(--on) * 100%)');
   });
 });

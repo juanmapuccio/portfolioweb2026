@@ -11,33 +11,27 @@ const styleOf = (src: string) => src.slice(src.indexOf('<style>'));
 const block = (css: string, needle: string): string[] =>
   [...css.matchAll(/[^{}]+\{[^{}]*\}/g)].map((m) => m[0]).filter((b) => b.includes(needle));
 
-describe('chapter title cut', () => {
-  test('one real h2, two aria-hidden decorative halves', () => {
+describe('chapter title ink', () => {
+  test('one real h2 per chapter; the underline is a decorative svg', () => {
     expect(chapter.match(/<h2\b/g)?.length).toBe(1);
-    expect(chapter).toMatch(/class="tc__split" aria-hidden="true"/);
-    expect(chapter.match(/tc__half tc__half--[tb]/g)?.length).toBe(2);
-    expect(chapter).toMatch(/<svg class="tc__slash"[^>]*aria-hidden="true"/);
-    expect(chapter).toContain('pathLength="1"');
+    expect(chapter).toContain('<TitleInk beltKey={beltKey} />');
+    expect(read('src/components/tul/TitleInk.astro')).toMatch(/class="ti [^"]*"[^>]*aria-hidden="true"/);
+    expect(chapter).not.toMatch(/tc__split|tc__half/);
   });
 
-  test('the halves exist only under html.js with motion allowed; default is the plain h2', () => {
+  test('the title is hidden only under html.js with motion allowed; default is the plain h2', () => {
     const css = styleOf(chapter);
-    expect(css).toMatch(/\.tc__split \{\s*display: none;/);
     const motion = css.slice(css.indexOf('@media (prefers-reduced-motion: no-preference)'));
-    expect(motion).toContain('html.js) .tc__titlewrap .tc__split');
-    expect(motion).toContain('animation: tc-half-t 650ms var(--ease-out)');
-    expect(motion).toContain('animation: tc-slash 500ms var(--ease-out) 358ms');
+    expect(motion).toContain('html.js) .tc__titlewrap:not(.is-in) .tc__title');
+    expect(css.slice(0, css.indexOf('@media (prefers-reduced-motion: no-preference)'))).not.toMatch(/\.tc__title[^{]*\{[^}]*opacity: 0/);
   });
 
-  test('new CSS animates only transform, opacity, clip-path and stroke-dashoffset', () => {
+  test('the CSS around the title animates nothing and paints no filter', () => {
     const css = styleOf(chapter);
-    const parts = ['tc__titlewrap', 'tc__split', 'tc__half', 'tc__slash', 'tc-half-', 'tc-slash'];
-    const text = parts.flatMap((p) => block(css, p)).join('\n');
-    expect(text.length).toBeGreaterThan(200);
-    expect(text).not.toMatch(/filter:|box-shadow|text-shadow|gradient/);
-    const animated = [...css.matchAll(/@keyframes tc-[\s\S]*?\r?\n {2}\}\r?\n/g)].join('\n');
-    const props = [...animated.matchAll(/^\s+([a-z-]+):/gm)].map((m) => m[1]);
-    expect(new Set(props)).toEqual(new Set(['opacity', 'transform', 'stroke-dashoffset']));
+    const text = block(css, 'tc__titlewrap').join('\n');
+    expect(text.length).toBeGreaterThan(100);
+    expect(text).not.toMatch(/filter:|box-shadow|text-shadow|gradient|animation/);
+    expect(css).not.toMatch(/@keyframes tc-/);
   });
 });
 

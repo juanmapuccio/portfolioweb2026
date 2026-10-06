@@ -1,27 +1,16 @@
 ---
 import type { BeltKey } from '../../data/tuls';
-import rule from '../../assets/brush/rule.svg?raw';
-import drop from '../../assets/brush/drop.svg?raw';
-import dry from '../../assets/brush/dry.svg?raw';
-import drip from '../../assets/brush/drip.svg?raw';
-import enso from '../../assets/brush/enso.svg?raw';
-import vertical from '../../assets/brush/vertical.svg?raw';
 
 /**
- * Sumi-e ink passage between two belt chapters. In flow, decorative, aria-hidden, no text.
+ * The spacer between two belt chapters. In flow, decorative, aria-hidden, no text.
  *
- * Each jump has its own piece, chosen by the belt it arrives at:
- *   amarillo drop, verde dry sweep, azul drip curtain, rojo ensō, negro single vertical stroke.
- * The ink takes the colour of the arriving belt, peaks at mid-passage (it may cover the viewport) and
- * recedes to the white field before the next chapter: the field never stays coloured.
+ * It no longer paints anything across the screen: the sumi-e ink lives only under the chapter titles
+ * (TitleInk.astro). The spacer is a quiet gap, ~50svh on desktop and 40svh on mobile, that later layers
+ * stand on (the black flood at 1st dan, the belt drawing).
  *
  * The engine (tul.ts, [data-tul-passage]) writes `--p` (0..1) on the passage while it crosses the
- * viewport. CSS maps it onto `--k` (0, 1 at the peak, 0) and animates only transform, opacity,
- * clip-path and stroke-dashoffset. The SVG filters are static (rough edges); on mobile they are off.
- *
- * Without JS or with reduced motion the passage is a static ~8rem brush divider and covers nothing.
- * The passage box stays in flow (60svh, 40svh on mobile); its ink layer is a fixed viewport overlay that
- * is invisible (opacity 0) at both ends of the crossing.
+ * viewport (top at the bottom edge to bottom at the top edge). With reduced motion or without JS the
+ * passage stays a static 8rem gap and `--p` is never written.
  */
 interface Props {
   from: BeltKey;
@@ -29,138 +18,27 @@ interface Props {
 }
 
 const { from, to } = Astro.props;
-
-const pieces: Partial<Record<BeltKey, { name: string; svg: string }>> = {
-  amarillo: { name: 'drop', svg: drop },
-  verde: { name: 'dry', svg: dry },
-  azul: { name: 'drip', svg: drip },
-  rojo: { name: 'enso', svg: enso },
-  negro: { name: 'vertical', svg: vertical }
-};
-const piece = pieces[to];
-if (!piece) throw new Error(`InkPassage: no piece for the jump to "${to}"`);
 ---
 
-<div class={`ink ink--${piece.name}`} data-tul-passage data-belt={to} data-from={from} aria-hidden="true">
-  <div class="ink__rule" set:html={rule} />
-  <div class="ink__art" set:html={piece.svg} />
-</div>
+<div class="ink" data-tul-passage data-belt={to} data-from={from} aria-hidden="true"></div>
 
 <style>
-  /* Static divider (no JS, reduced motion): a thin brush stroke in the arriving belt's line colour. */
   .ink {
+    --ink-h: 8rem;
     position: relative;
-    height: 8rem;
-    color: var(--belt-line);
+    height: var(--ink-h);
     pointer-events: none;
-  }
-
-  .ink__rule {
-    position: absolute;
-    inset: 50% var(--gutter) auto;
-    height: 0.9rem;
-    transform: translateY(-50%);
-  }
-
-  .ink__rule :global(svg),
-  .ink__art :global(svg) {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-
-  .ink__art {
-    display: none;
   }
 
   @media (prefers-reduced-motion: no-preference) {
     :global(html.js) .ink {
-      /* 0 at both ends of the crossing, 1 at the peak. */
-      --k: min(calc(var(--p, 0) * 2), calc((1 - var(--p, 0)) * 2));
-      height: 60svh;
-      color: var(--belt-fill);
-    }
-
-    :global(html.js) .ink__rule {
-      display: none;
-    }
-
-    /* The art is a viewport-sized layer above the chapters and below the header. It is only visible
-       while the passage crosses the viewport (--k above 0), so it never lingers over a chapter. */
-    :global(html.js) .ink__art {
-      position: fixed;
-      inset: 0;
-      z-index: 10;
-      display: block;
-      opacity: clamp(0, calc(var(--k) * 30), 1);
-    }
-
-    /* Drop: falls, bursts into a splash that fills the view, then recedes. */
-    :global(html.js) .ink--drop {
-      --s: min(clamp(0, calc((var(--p, 0) - 0.3) * 5), 1), clamp(0, calc((0.95 - var(--p, 0)) * 2.2), 1));
-    }
-
-    :global(html.js) .ink--drop .ink__art :global(.ink__drop) {
-      transform-box: fill-box;
-      transform-origin: 50% 50%;
-      transform: translateY(calc((1 - min(1, var(--p, 0) * 2.8)) * -260%));
-      opacity: clamp(0, calc((0.4 - var(--p, 0)) * 12), 1);
-    }
-
-    :global(html.js) .ink--drop .ink__art :global(.ink__splash) {
-      transform-box: fill-box;
-      transform-origin: 50% 50%;
-      transform: scale(calc(0.05 + 2.2 * var(--s)));
-      opacity: clamp(0, calc(var(--s) * 6), 1);
-    }
-
-    /* Dry sweep: one wide dry stroke crosses from side to side and leaves. */
-    :global(html.js) .ink--dry .ink__art {
-      transform: translateX(calc((var(--p, 0) * 2 - 1) * 100%));
-    }
-
-    /* Drip curtain: falls over the view, then lifts away. */
-    :global(html.js) .ink--drip .ink__art {
-      transform: translateY(calc((var(--k) - 1) * 110%));
-    }
-
-    /* Ensō: the ring closes, the disc fills and swells, then both recede. */
-    :global(html.js) .ink--enso {
-      --d: clamp(0, calc((var(--k) - 0.5) * 2), 1);
-    }
-
-    :global(html.js) .ink--enso .ink__art :global(.ink__ring) {
-      stroke-dasharray: 1;
-      stroke-dashoffset: calc(1 - min(1, var(--p, 0) * 2.4));
-      opacity: clamp(0, calc(var(--k) * 4), 1);
-    }
-
-    :global(html.js) .ink--enso .ink__art :global(.ink__disc) {
-      transform-box: fill-box;
-      transform-origin: 50% 50%;
-      transform: scale(calc(0.1 + 1.5 * var(--d)));
-      opacity: clamp(0, calc(var(--d) * 5), 1);
-    }
-
-    /* Vertical stroke: one brush stroke is pulled down, then its tail follows it off. */
-    :global(html.js) .ink--vertical .ink__art {
-      clip-path: inset(
-        max(0%, calc((var(--p, 0) - 0.5) * 200%)) 0 max(0%, calc(100% - var(--p, 0) * 200%)) 0
-      );
-      transform: scaleX(calc(1 + 2.5 * var(--k)));
+      --ink-h: 50svh;
     }
   }
 
-  /* Mobile: less height, and no displacement filters (the shapes stay as pre-drawn edges). */
   @media (max-width: 47.99rem) and (prefers-reduced-motion: no-preference) {
     :global(html.js) .ink {
-      height: 40svh;
-    }
-  }
-
-  @media (max-width: 47.99rem) {
-    .ink__art :global([filter]) {
-      filter: none;
+      --ink-h: 40svh;
     }
   }
 </style>

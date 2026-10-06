@@ -1,6 +1,7 @@
 ---
 import FloorDiagram from './FloorDiagram.astro';
 import BeltMark from './BeltMark.astro';
+import TitleInk from './TitleInk.astro';
 import { useTranslations, type Lang } from '../../i18n/ui';
 import { BELTS, martialExperienceData } from '../../data/martialExperience';
 import { automationsContent, projectsContent } from '../../data/projects';
@@ -140,24 +141,7 @@ const caption = (label: string, movements: number) =>
         <header class="tc__head">
           <div class="tc__titlewrap" data-split-title>
             <h2 id={`${beltKey}-title`} class="tc__title grade-type">{stage.title}</h2>
-            <div class="tc__split" aria-hidden="true">
-              <span class="tc__half tc__half--t tc__title grade-type">{stage.title}</span>
-              <span class="tc__half tc__half--b tc__title grade-type">{stage.title}</span>
-            </div>
-            <svg class="tc__slash" aria-hidden="true" focusable="false">
-              <defs>
-                <mask id={`${beltKey}-bristle`} maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="6">
-                  <rect x="0" y="0" width="100%" height="1.3" fill="#fff"></rect>
-                  <rect x="0" y="1.3" width="72%" height="0.8" fill="#fff"></rect>
-                  <rect x="0" y="2.1" width="100%" height="1.1" fill="#fff"></rect>
-                  <rect x="14%" y="3.2" width="58%" height="0.7" fill="#fff"></rect>
-                  <rect x="0" y="3.9" width="100%" height="1" fill="#fff"></rect>
-                  <rect x="0" y="4.9" width="41%" height="0.7" fill="#fff"></rect>
-                  <rect x="58%" y="4.9" width="30%" height="0.5" fill="#fff"></rect>
-                </mask>
-              </defs>
-              <line x1="0" y1="3" x2="100%" y2="3" pathLength="1" mask={`url(#${beltKey}-bristle)`}></line>
-            </svg>
+            <TitleInk beltKey={beltKey} />
           </div>
           <div class="tc__id">
             <div class="tc__seal">
@@ -376,85 +360,19 @@ const caption = (label: string, movements: number) =>
   }
 
   .tc__title {
-    font-size: var(--step-3);
+    font-size: var(--tc-fs);
     letter-spacing: var(--track-display);
     line-height: 0.98;
     overflow-wrap: break-word;
   }
 
-  /* Horizontal cut: the title enters as two clipped halves (aria-hidden copies laid over the real
-     h2) and a dry brush stroke (a static bristle mask over the drawn line) draws under it. Default and reduced motion: the plain visible h2 and a
-     static rule; the halves do not exist. */
+  /* Title ink: a sumi-e mark per belt (TitleInk.astro) draws under, or beside, the real h2. With
+     motion the letters rise out of a mask while the brush draws (SplitText, DrawSVG, MorphSVG in
+     src/scripts/titleInk.ts). Default and reduced motion: the plain visible h2 and the finished mark. */
   .tc__titlewrap {
+    --tc-fs: var(--step-3);
     position: relative;
-    padding-bottom: 0.3em;
-  }
-
-  .tc__split {
-    display: none;
-  }
-
-  .tc__half {
-    position: absolute;
-    inset: 0;
-    display: block;
-    text-wrap: balance;
-    user-select: none;
-    pointer-events: none;
-  }
-
-  .tc__half--t {
-    clip-path: inset(0 0 50% 0);
-  }
-
-  .tc__half--b {
-    clip-path: inset(50% 0 0 0);
-  }
-
-  .tc__slash {
-    position: absolute;
-    inset: auto 0 0 0;
-    width: 100%;
-    height: 6px;
-    overflow: visible;
-  }
-
-  .tc__slash line {
-    stroke: var(--belt-line);
-    stroke-width: 6;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 0;
-  }
-
-  @keyframes tc-half-t {
-    from {
-      opacity: 0;
-      transform: translateX(-2.5rem);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes tc-half-b {
-    from {
-      opacity: 0;
-      transform: translateX(2.5rem);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes tc-slash {
-    from {
-      stroke-dashoffset: 1;
-    }
-    to {
-      stroke-dashoffset: 0;
-    }
+    padding-bottom: max(1.1rem, calc(var(--tc-fs) * 0.3));
   }
 
   /* Grade seal: the box is reserved (no layout shift), the belt mark fills it. */
@@ -893,39 +811,14 @@ const caption = (label: string, movements: number) =>
       max-height: none;
     }
 
-    /* Title cut: hidden until the engine marks it in view (html.js is set before first paint). */
-    :global(html.js) .tc__titlewrap:not(.is-done) .tc__title:not(.tc__half) {
+    /* Title ink: hidden until the engine marks it in view (html.js is set before first paint). */
+    :global(html.js) .tc__titlewrap:not(.is-in) .tc__title {
       opacity: 0;
     }
 
-    :global(html.js) .tc__titlewrap .tc__split {
-      display: block;
+    :global(html.js) .tc__titlewrap:not(.is-in) :global(.ti) {
+      visibility: hidden;
     }
-
-    :global(html.js) .tc__titlewrap.is-done .tc__split {
-      display: none;
-    }
-
-    :global(html.js) .tc__titlewrap:not(.is-in) .tc__half {
-      opacity: 0;
-    }
-
-    :global(html.js) .tc__titlewrap:not(.is-in) .tc__slash line {
-      stroke-dashoffset: 1;
-    }
-
-    :global(html.js) .tc__titlewrap.is-in .tc__half--t {
-      animation: tc-half-t 650ms var(--ease-out) both;
-    }
-
-    :global(html.js) .tc__titlewrap.is-in .tc__half--b {
-      animation: tc-half-b 650ms var(--ease-out) both;
-    }
-
-    :global(html.js) .tc__titlewrap.is-in .tc__slash line {
-      animation: tc-slash 500ms var(--ease-out) 358ms both;
-    }
-
   }
 
   @media (min-width: 62rem) {
@@ -975,8 +868,8 @@ const caption = (label: string, movements: number) =>
       padding-top: var(--space-2xl);
     }
 
-    .tc__title {
-      font-size: var(--step-4);
+    .tc__titlewrap {
+      --tc-fs: var(--step-4);
     }
 
     .tc__head {

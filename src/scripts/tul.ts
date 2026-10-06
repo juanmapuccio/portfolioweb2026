@@ -23,14 +23,20 @@
 // and stroke-dashoffset react to the variables.
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { SplitText } from 'gsap/SplitText';
+import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
+import { MorphSVGPlugin } from 'gsap/MorphSVGPlugin';
 import { bootBelt3d } from './belt3d/boot';
+import { playTitleInk } from './titleInk';
 
 type Grade = { gup: string; form: string };
 
 const root = document.documentElement;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-gsap.registerPlugin(ScrollTrigger);
+// GSAP's formerly paid plugins ship free in the `gsap` package: SplitText and DrawSVG for the title ink,
+// MorphSVG for the drop splat.
+gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin, MorphSVGPlugin);
 
 type Grades = Record<string, Grade>;
 
@@ -216,8 +222,9 @@ function endIntro(): void {
 // Entrances, once per element. Without motion, or without IntersectionObserver, nothing is
 // hidden: the CSS "from" states exist only under html.js with motion allowed, and the plain
 // state (visible title, full-opacity words) is what is left when this does not run.
-//   [data-split-title]  chapter title cut: `.is-in` starts the CSS animation, `.is-done` (after the
-//                       rule has drawn) swaps the decorative halves for the real h2.
+//   [data-split-title]  chapter title ink (titleInk.ts): `.is-in` once the entrance has been built and starts
+//                       (letters rise out of a SplitText mask while the TitleInk mark draws), `.is-done` when
+//                       it has finished and the real h2 is back.
 //   [data-words]        build-time word spans (`--i`): `.is-in` lets them settle, staggered by CSS.
 //   [data-rise]         a block that rises with opacity: `.is-in`.
 //   [data-belt-mark]    chapter belt mark: `.is-in` draws the outline in (700 ms), then fades the fill.
@@ -241,10 +248,7 @@ function initEntrances(): void {
         if (!entry.isIntersecting) continue;
         const el = entry.target as HTMLElement;
         titleObserver.unobserve(el);
-        el.classList.add('is-in');
-        const line = el.querySelector('.tc__slash line');
-        if (line) line.addEventListener('animationend', () => el.classList.add('is-done'), { once: true });
-        else el.classList.add('is-done');
+        if (!playTitleInk(el, () => el.classList.add('is-done'))) finish(el);
       }
     },
     { threshold: 0.4 }
