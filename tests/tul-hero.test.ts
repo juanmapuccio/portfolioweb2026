@@ -109,3 +109,39 @@ describe('grade labels and diagram contract', () => {
     expect(diagram).toContain('fd-ghost');
   });
 });
+
+describe('portrait and entrance', () => {
+  test('the portrait goes through astro:assets, not the raw PNG in public/', () => {
+    expect(hero).toContain("from 'astro:assets'");
+    expect(hero).toContain('<Picture');
+    expect(hero).toContain("../../assets/fotojmPerfil.png");
+    expect(hero).not.toContain('/fotojmPerfil.PNG');
+  });
+
+  test('the portrait is eager, high priority and sized', () => {
+    expect(hero).toContain('fetchpriority="high"');
+    expect(hero).toContain('loading="eager"');
+    expect(hero).toMatch(/width=\{\d+\}/);
+    expect(hero).toMatch(/height=\{\d+\}/);
+    expect(hero).toContain("formats={['avif', 'webp']}");
+  });
+
+  test('the portrait alt exists in es, en and pt', () => {
+    for (const lang of ['es', 'en', 'pt'] as const) {
+      expect((ui[lang] as Record<string, string>)['hero.portraitAlt']?.length).toBeGreaterThan(0);
+    }
+  });
+
+  test('the intro is gated by a JS-set class and every entrance rule hangs off it', () => {
+    expect(layout).toContain("c.add('tul-intro')");
+    expect(layout).toContain('prefers-reduced-motion: reduce');
+    expect(engine).toContain("'tul-intro'");
+    const rules = hero.match(/^\s*:global\(html\.tul-intro\)[^{]*\{/gm) ?? [];
+    expect(rules.length).toBeGreaterThan(5);
+    expect(hero).not.toMatch(/^\s*\.hero__[a-z]+\s*\{[^}]*animation:/m);
+  });
+
+  test('FloorDiagram exposes a portrait slot', () => {
+    expect(diagram).toContain('name="portrait"');
+  });
+});

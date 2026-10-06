@@ -109,23 +109,30 @@ const ticks = compact ? [] : Array.from({ length: 11 }, (_, i) => i * 10);
 const tickLen = (v: number) => (v % 50 === 0 ? 4 : 2);
 ---
 
+<div class:list={['fd', { 'fd--compact': compact }, className]}>
+{Astro.slots.has('portrait') && (
+  <div class="fd__plate">
+    <slot name="portrait" />
+  </div>
+)}
 <svg
-  class:list={['floor-diagram', { 'floor-diagram--compact': compact }, className]}
+  class:list={['floor-diagram', { 'floor-diagram--compact': compact }]}
   viewBox="-8 -8 116 122"
   aria-hidden="true"
   focusable="false"
   data-diagram-progress={progress ? '' : undefined}
   data-form={form.id}
 >
-  <rect class="fd-frame" x="0" y="0" width="100" height="100"></rect>
+  <rect class="fd-frame" x="0" y="0" width="100" height="100" pathLength="1"></rect>
   {ticks.map((v) => (
     <path
       class="fd-tick"
+      pathLength="1"
       d={`M${v} 0V${-tickLen(v)} M${v} 100V${100 + tickLen(v)} M0 ${v}H${-tickLen(v)} M100 ${v}H${100 + tickLen(v)}`}
     ></path>
   ))}
   {!compact && (
-    <path class="fd-dim" d="M0 109H100 M0 106V112 M100 106V112 M3.4 106.8L0 109L3.4 111.2 M96.6 106.8L100 109L96.6 111.2"></path>
+    <path class="fd-dim" pathLength="1" d="M0 109H100 M0 106V112 M100 106V112 M3.4 106.8L0 109L3.4 111.2 M96.6 106.8L100 109L96.6 111.2"></path>
   )}
 
   <path class="fd-ghost" d={d}></path>
@@ -161,12 +168,32 @@ const tickLen = (v: number) => (v % 50 === 0 ? 4 : 2);
     )}
   </g>
 </svg>
+</div>
 
 <style>
+  /* Wrapper: the SVG fills it; the optional portrait plate sits under the SVG, inside the frame. */
+  .fd {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 116 / 122;
+  }
+
+  /* Frame rect (0..100) inside the viewBox "-8 -8 116 122". */
+  .fd__plate {
+    position: absolute;
+    left: 6.897%;
+    top: 6.557%;
+    width: 86.207%;
+    height: 81.967%;
+    overflow: hidden;
+  }
+
   .floor-diagram {
     --fd-stroke: 0.7;
+    position: absolute;
+    inset: 0;
     width: 100%;
-    height: auto;
+    height: 100%;
     overflow: visible;
     color: var(--ink);
     fill: none;
@@ -174,6 +201,23 @@ const tickLen = (v: number) => (v % 50 === 0 ? 4 : 2);
     stroke-width: var(--fd-stroke);
     stroke-linecap: butt;
     stroke-linejoin: miter;
+  }
+
+  /* Intro: the measuring frame draws itself in. The class is removed once the intro ends. */
+  :global(html.tul-intro) .fd-frame,
+  :global(html.tul-intro) .fd-tick,
+  :global(html.tul-intro) .fd-dim {
+    stroke-dasharray: 1 2;
+    animation: fd-draw 1.1s var(--ease-out) 0.35s both;
+  }
+
+  @keyframes fd-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
   }
 
   .floor-diagram--compact {
@@ -191,7 +235,7 @@ const tickLen = (v: number) => (v % 50 === 0 ? 4 : 2);
     stroke: var(--ink-soft);
     stroke-width: 0.5;
     stroke-dasharray: 1.4 1.6;
-    opacity: 0.85;
+    opacity: var(--ghost-o, 0.85);
   }
 
   .fd-ready__label {
@@ -206,6 +250,10 @@ const tickLen = (v: number) => (v % 50 === 0 ? 4 : 2);
     stroke-width: calc(var(--fd-stroke) * 1.25);
     stroke-dasharray: 1 2;
     stroke-dashoffset: calc(1 - var(--draw, 1));
+  }
+
+  .fd-ready {
+    opacity: var(--ready-o, 1);
   }
 
   .fd-arrow,

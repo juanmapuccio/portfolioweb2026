@@ -4,6 +4,9 @@
 //   [data-tul-scene]   element whose scroll span (top of element at viewport top, to its
 //                      bottom at viewport bottom) writes `--p` (0..1) and `--draw`.
 //   data-p-from/to     optional range (default 0..1) that --p is mapped onto for `--draw`.
+//   data-q-end         optional: --q (0..1) runs over scene progress 0..q-end (the hero's portrait
+//                      turning into the path).
+//   data-draw-start    optional: --draw starts moving once the scene progress passes this value.
 //   --draw             consumed by FloorDiagram: stroke-dashoffset, stops and arrows.
 //   main section[data-belt]  the chapter that sits at mid-viewport sets html[data-belt] and
 //                      the header grade indicator ([data-grade-gup], [data-grade-form]).
@@ -26,9 +29,15 @@ function readRange(el: HTMLElement): [number, number] {
   return [Number.isFinite(from) ? from : 0, Number.isFinite(to) ? to : 1];
 }
 
+const clamp01 = (n: number): number => Math.min(1, Math.max(0, n));
+
 function write(el: HTMLElement, p: number, from: number, to: number): void {
+  const qEnd = parseFloat(el.dataset.qEnd ?? '');
+  const drawStart = parseFloat(el.dataset.drawStart ?? '0') || 0;
   el.style.setProperty('--p', p.toFixed(4));
-  el.style.setProperty('--draw', (from + (to - from) * p).toFixed(4));
+  if (Number.isFinite(qEnd) && qEnd > 0) el.style.setProperty('--q', clamp01(p / qEnd).toFixed(4));
+  const d = clamp01((p - drawStart) / (1 - drawStart));
+  el.style.setProperty('--draw', (from + (to - from) * d).toFixed(4));
 }
 
 function initScenes(): void {
@@ -36,6 +45,8 @@ function initScenes(): void {
 
   for (const el of scenes) {
     if (reduced) {
+      // A scene with a portrait phase stays in its static state (portrait shown, line undrawn).
+      if (el.dataset.qEnd) continue;
       el.style.setProperty('--p', '1');
       el.style.setProperty('--draw', '1');
       continue;
@@ -95,5 +106,13 @@ function initChapters(): void {
   for (const section of sections) observer.observe(section);
 }
 
+// The entrance is pure CSS keyed on html.tul-intro (set by the layout's inline script).
+// Clear it once it has played so the frame returns to solid strokes.
+function endIntro(): void {
+  if (!root.classList.contains('tul-intro')) return;
+  gsap.delayedCall(2.4, () => root.classList.remove('tul-intro'));
+}
+
 initScenes();
 initChapters();
+endIntro();

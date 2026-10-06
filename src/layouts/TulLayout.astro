@@ -30,7 +30,15 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
 <html lang={lang} data-belt="blanco">
   <head>
     <meta charset="UTF-8" />
-    <script is:inline>document.documentElement.classList.add('js');</script>
+    <script is:inline>
+      // `js` marks a working script. `tul-intro` arms the one entrance moment, only when motion is
+      // allowed; tul.ts removes it when the intro ends. Without this script everything stays visible.
+      (function () {
+        var c = document.documentElement.classList;
+        c.add('js');
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) c.add('tul-intro');
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="preload" href={archivoLatin} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={atkinsonLatin} as="font" type="font/woff2" crossorigin />
