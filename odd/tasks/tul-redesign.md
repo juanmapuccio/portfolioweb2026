@@ -68,7 +68,7 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
   - Canon docs updated.
   - Checks: `bun test` 158 pass, 3 skip, 13 fail (baseline). Build OK. NodoFit captured at 1440 and 390 with 0 overflow.
 - [x] T5 Principles, technical sheet (stack, certifications, education, languages) and the Kyong-ye close, where the line returns to the origin.
-- [ ] T6 `/cv` route (es/en/pt) plus a mobile "CV in 30 s" button and the PDF download.
+- [x] T6 `/cv` route (es/en/pt) plus a mobile "CV in 30 s" button and the PDF download.
 - [ ] T7 Retire the old world: `src/components/ink/*`, `src/components/lab/*` and `/lab`, `Belt3D`, `proceduralBelt.ts`, the `three` and Lenis dependencies, and old tokens and tests.
 - [ ] T8 Finish: `impeccable detect`, then the finish reviewer at desktop 1440 and mobile 390, one fix round, and the documenter rewriting `DESIGN.md` and `.impeccable/design.json`.
 
@@ -125,4 +125,4 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - 2026-10-05 T0: `3de8f84` on `feat/ink-redesign`. Branch `feat/tul-redesign` created. Doc and mirror written.
 
 ## Next step
-T6: the `/cv` quick-scan route plus the mobile "CV in 30 s" button.
+T7: retire the old world (ink, lab, Belt3D, three, Lenis, old tokens, fonts and tests). After that, the 13 baseline failures should be gone.
