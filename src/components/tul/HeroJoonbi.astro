@@ -6,6 +6,7 @@ import portrait from '../../assets/fotojmPerfil.png';
 import { useTranslations, type Lang } from '../../i18n/ui';
 import { BELTS, martialExperienceData } from '../../data/martialExperience';
 import { TUL_CHAPTERS } from '../../data/tuls';
+import { CV_PDF_HREF } from '../../data/cvSheet';
 
 /**
  * First viewport, on the white field: name, hook, availability, both CTAs and
@@ -32,7 +33,7 @@ const Q_END = 0.3;
 const nameWords = t('header.name').split(' ');
 const nameLines = [nameWords.slice(0, -1).join(' '), nameWords[nameWords.length - 1]];
 
-const CV_HREF = '/CV-Juan-Manuel-Puccio-2026-1.pdf';
+const CV_HREF = CV_PDF_HREF;
 ---
 
 <section
@@ -63,7 +64,7 @@ const CV_HREF = '/CV-Juan-Manuel-Puccio-2026-1.pdf';
             <path d="M3 10H16M11 5L16 10L11 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"></path>
           </svg>
         </a>
-        <a class="cta cta--secondary" href={CV_HREF} download>
+        <a class="cta cta--secondary" href={CV_HREF} target="_blank" rel="noopener noreferrer">
           <span>{t('hero.btn.cv')}</span>
           <svg class="cta__icon cta__icon--down" viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
             <path d="M10 3V13M5 8.5L10 13.5L15 8.5M4 17H16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"></path>

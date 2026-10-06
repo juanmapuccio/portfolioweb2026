@@ -82,7 +82,6 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - Copy follows the authorship and money rules.
 
 ## Open decisions (user)
-- Track the CV PDF in git: it is ignored by `.gitignore` `*.pdf`, so the download breaks on a git-based deploy.
 - Unreferenced public assets: `public/fotojmPerfil.PNG`, `public/models/*.glb`, and `public/fonts/` (27 MB of old fonts). There is also a stale `package-lock.json` and untracked PNGs under `tests/`.
 - Whether to add the "IA y agentes" skills category from the CV to `skills.ts`.
 - The white-belt (10th gup) exercise, and which 1st dan tul to use (Kwang-Gae, Po-Eun or Ge-Baek).

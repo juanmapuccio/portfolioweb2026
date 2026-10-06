@@ -107,10 +107,10 @@ describe('QuickCv source contract', () => {
     expect(order).toEqual(['satori', 'nodofit', 'donpizza']);
   });
 
-  test('the PDF link downloads', () => {
-    expect(quick).toMatch(/href=\{CV_PDF_HREF\} download/);
-    expect(read('src/data/cvSheet.ts')).toContain("'/CV-Juan-Manuel-Puccio-2026-1.pdf'");
-    expect(existsSync('public/CV-Juan-Manuel-Puccio-2026-1.pdf')).toBe(true);
+  test('the CV link opens the Google Drive file in a new tab', () => {
+    expect(quick).toMatch(/href=\{CV_PDF_HREF\} target="_blank" rel="noopener noreferrer"/);
+    expect(read('src/data/cvSheet.ts')).toContain('CV_PDF_HREF = CV_URL');
+    expect(read('src/data/contact.ts')).toMatch(/CV_URL = 'https:\/\/drive\.google\.com\//);
   });
 
   test('one h1, h2 per block, and a print stylesheet for A4', () => {

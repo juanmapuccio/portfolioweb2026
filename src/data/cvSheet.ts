@@ -1,7 +1,9 @@
 import type { Lang } from '../i18n/ui';
 import { skillsData } from './skills';
+import { CV_URL } from './contact';
 
-export const CV_PDF_HREF = '/CV-Juan-Manuel-Puccio-2026-1.pdf';
+/** The CV lives on Google Drive (single source: `CV_URL` in contact.ts), so there is no local PDF to ship. */
+export const CV_PDF_HREF = CV_URL;
 
 export interface StackRow {
   id: string;

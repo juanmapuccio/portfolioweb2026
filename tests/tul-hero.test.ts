@@ -18,13 +18,9 @@ describe('tul hero', () => {
     expect(hero).toMatch(/class="cta cta--primary" href="#contacto"/);
   });
 
-  test('secondary CTA downloads the CV PDF', () => {
-    expect(hero).toContain("const CV_HREF = '/CV-Juan-Manuel-Puccio-2026-1.pdf'");
-    expect(hero).toMatch(/href=\{CV_HREF\} download/);
-  });
-
-  test('the CV PDF exists in public/', () => {
-    expect(existsSync('public/CV-Juan-Manuel-Puccio-2026-1.pdf')).toBe(true);
+  test('secondary CTA opens the Drive CV in a new tab', () => {
+    expect(hero).toContain('const CV_HREF = CV_PDF_HREF');
+    expect(hero).toMatch(/href=\{CV_HREF\} target="_blank" rel="noopener noreferrer"/);
   });
 
   test('the scene exposes its draw range for the white chapter', () => {

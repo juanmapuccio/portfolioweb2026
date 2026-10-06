@@ -82,10 +82,10 @@ describe('technical sheet', () => {
   const sheet = read('src/components/tul/TechSheet.astro');
   const skills = read('src/data/skills.ts');
 
-  test('is a definition list with a heading and the CV download', () => {
+  test('is a definition list with a heading and the Drive CV link', () => {
     expect(sheet).toContain('<dl');
-    expect(read('src/data/cvSheet.ts')).toContain('/CV-Juan-Manuel-Puccio-2026-1.pdf');
-    expect(sheet).toContain('download');
+    expect(read('src/data/cvSheet.ts')).toContain('CV_URL');
+    expect(sheet).toContain('target="_blank" rel="noopener noreferrer"');
   });
 
   test('the data holds all five certifications with their year and English B2, in every language', () => {
