@@ -20,6 +20,7 @@
 // and stroke-dashoffset react to the variables.
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { bootBelt3d } from './belt3d/boot';
 
 type Grade = { gup: string; form: string };
 
@@ -116,6 +117,28 @@ function initScenes(): void {
         scrub: 0.4
       },
       onUpdate: () => write(el, state.p, from, to)
+    });
+  }
+}
+
+// [data-tul-scrub]  an element that only needs its own `--p` (0..1) while it travels up the viewport
+//                   (top at 90% to top at 25%). The 3D tie of the black belt reads it from the inline
+//                   style. Nothing else (`--draw`, `--q`) is written, so no row or label reacts.
+function initScrubs(): void {
+  // The 3D belt only exists from 1024 px up; below that the scrub would drive nothing.
+  if (!matchMedia('(min-width: 1024px)').matches) return;
+  for (const el of document.querySelectorAll<HTMLElement>('[data-tul-scrub]')) {
+    if (reduced) {
+      el.style.setProperty('--p', '1');
+      continue;
+    }
+    const state = { p: 0 };
+    el.style.setProperty('--p', '0');
+    gsap.to(state, {
+      p: 1,
+      ease: 'none',
+      scrollTrigger: { trigger: el, start: 'top 90%', end: 'top 25%', scrub: 0.4 },
+      onUpdate: () => el.style.setProperty('--p', state.p.toFixed(4))
     });
   }
 }
@@ -223,6 +246,9 @@ function initEntrances(): void {
 }
 
 initScenes();
+initScrubs();
 initChapters();
 initEntrances();
 endIntro();
+// Desktop only, after load and idle: the 3D belt (three never loads otherwise).
+bootBelt3d();

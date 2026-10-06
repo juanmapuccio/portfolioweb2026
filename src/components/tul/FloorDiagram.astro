@@ -12,6 +12,7 @@ import type { TulForm } from '../../data/tuls';
  *   line, footprints, on-floor dots) lies in a `preserve-3d` plane tilted by `--tilt`; stop numbers and
  *   the ready label are HTML posts inside that plane, counter-rotated so they stand up and stay legible.
  *   The camera (`--tv`, `--cam`) follows the scene `--p` in CSS only.
+ * - Optional `overlay` slot: an in-flow-box overlay inside the diagram box (the hero's 3D belt container).
  * - Decorative only: the SVG and the markers are aria-hidden, the real content lives in HTML.
  * - Geometry is design layer, never the technical execution of the form.
  */
@@ -191,6 +192,7 @@ const tickLen = (v: number) => (v % 50 === 0 ? 4 : 2);
 )}
 </div>
 </div>
+{Astro.slots.has('overlay') && <slot name="overlay" />}
 </div>
 
 <style>

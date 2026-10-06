@@ -151,6 +151,7 @@ const caption = (label: string, movements: number) =>
           <div class="tc__id">
             <div class="tc__seal">
               <BeltMark beltKey={beltKey} animate title={belt.beltName[lang]} />
+              {isBlack && <div class="tc__belt3d" data-belt3d="tie" data-tul-scrub aria-hidden="true"></div>}
             </div>
             <div class="tc__idtext">
               <p class="tc__meta">
@@ -456,11 +457,32 @@ const caption = (label: string, movements: number) =>
   .tc__seal {
     width: 4.5rem;
     aspect-ratio: 120 / 88;
+    position: relative;
   }
 
   .tc__seal :global(svg) {
     width: 100%;
     height: 100%;
+  }
+
+  /* Black belt: the box the 3D tie renders in (src/scripts/belt3d). The BeltMark above is the poster
+     and stays in the DOM; it is hidden only once the canvas has drawn its first frame. */
+  .tc__belt3d {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .tc__belt3d :global(canvas) {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  :global(.tc__seal:has(.tc__belt3d[data-state='ready']) > svg) {
+    visibility: hidden;
   }
 
   .tc__idtext {
@@ -952,6 +974,13 @@ const caption = (label: string, movements: number) =>
 
     .tc__seal {
       width: 120px;
+    }
+
+    /* Black belt head: a larger reserved square (no layout shift, fixed in CSS from the start) so the
+       tie has room; the poster simply fits inside it. */
+    .tc--black .tc__seal {
+      width: 15rem;
+      aspect-ratio: 1;
     }
 
     .ms {

@@ -97,6 +97,7 @@ const CV_HREF = CV_PDF_HREF;
             />
           </div>
         </div>
+        <div slot="overlay" class="hero__belt" data-belt3d="hero" aria-hidden="true"></div>
       </FloorDiagram>
       <figcaption class="hero__label">
         <span class="num">{readyLabel}</span>
@@ -233,6 +234,37 @@ const CV_HREF = CV_PDF_HREF;
   .hero__label {
     font-size: var(--step-0);
     font-weight: 600;
+  }
+
+  /* 3D belt (desktop only, see src/scripts/belt3d). The box is empty until the lazy scene mounts a
+     canvas in it: it is absolutely placed inside the diagram, so it never moves the layout. It is
+     centred on the ready point (the diagram centre) and tall enough for the belt to fall into it. */
+  .hero__belt {
+    display: none;
+  }
+
+  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+    :global(html.js) .hero__belt {
+      position: absolute;
+      left: 50%;
+      top: 47.5%;
+      z-index: 2;
+      display: block;
+      width: 70cqw;
+      aspect-ratio: 1;
+      transform: translate(-50%, -52%);
+      pointer-events: none;
+    }
+
+    .hero__belt :global(canvas) {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      pointer-events: auto;
+      touch-action: pan-y;
+    }
   }
 
   /* Rule-and-label controls */
