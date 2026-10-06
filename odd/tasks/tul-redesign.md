@@ -84,8 +84,8 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - [x] T11a Ink only under titles plus GSAP plugins: SplitText, DrawSVG and MorphSVG registered from the installed `gsap` 3.15 (free since 3.13, no bump). The fixed full-screen ink layer is gone and `InkPassage` is an in-flow spacer. Each chapter title gets its own sumi-e underline (`TitleInk.astro`). `303cc3e`.
 - [x] T11b Black flood at 1st dan: `[data-field="dark"]` tokens with measured contrast, a `clip-path` circle flood scrubbed by `--p`, `html[data-field]` set at p >= 0.5, CSS fallback for no JS and reduced motion. `67154ef`.
 - [x] T11c `BeltDrawing.astro`: detailed tied belt (pespunte, weave, knot folds, frayed cut tails, gold on 1st dan) mounted in every spacer; it unties and ties with DrawSVG scrubbed by `--p`, and the band wipes to the next belt colour. Mobile always, desktop poster until `html[data-belt3d="ready"]`. Commit: the one that adds this line (`feat(tul): ...`, see git log).
-- [ ] T11d Persistent 3D canvas (desktop), beats, `--knot-x` / `--knot-y`, posters. Not started.
-- [ ] T11e Direction contract (`.impeccable/surfaces/src-pages-index-astro.md`) and this document. Not started.
+- [x] T11d Persistent 3D canvas (desktop): beats (land, travel, untie and retie, tie, rest), noise-mask colour mix, `--knot-x` / `--knot-y` as the flood centre, reserved side column, posters replaced. `ff71ca3`.
+- [x] T11e Direction contract (`.impeccable/surfaces/src-pages-index-astro.md`) and this document. Commit: the one that adds this line (`docs(tul): ...`, see git log).
 - [ ] T8 Finish: `impeccable detect`, then the finish reviewer at desktop 1440 and mobile 390, one fix round, and the documenter rewriting `DESIGN.md` and `.impeccable/design.json`.
 
 ## Acceptance criteria
@@ -105,6 +105,27 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - Whether to add the roles missing from the CV PDF (Grido, Al Natural, Providus, AS MED).
 
 ## Progress / evidence
+- 2026-10-06 T11d and T11e (user: 3D belt as the thread of the journey on desktop; plan `codegraph-engram-context7-gentle-ai-snoopy-squid.md`). Route: delegated, one `sonnet` writer for both (writer trigger: 2+ non-trivial files; the parent read the plan and the T11a-c hooks first). TDD: off. Runner: `bunx astro check`, `bun test`, `bun run build`.
+  - T11d `ff71ca3`. Design:
+    - `journey.ts` (no three, no DOM) is the route as pure numbers. The scene reads inline custom properties and draws it. The active beat is the last one whose progress has started, so no visibility observer is needed.
+    - Beats are markup: `data-belt-beat="land"` (hero, `--p`/`--q` plus a new `--e` while it scrolls away), `"travel"` (each chapter, `--bp`), `"passage"` (each spacer, existing `--p`). `tul.ts` writes them with ScrollTrigger only, desktop and motion only.
+    - Continuity: each beat ends in the pose the next one starts with (tests assert it for every pair), so switching beats never jumps.
+    - The belt rides the empty spacer to the centre of the screen only while the spacer contains it vertically (asserted for 1440x900 and 1024x768). Everywhere else it stays in the reserved column.
+    - Colour change: `uMix` and `uColorB` on the cloth through `onBeforeCompile` with a 3D value-noise mask glued to the belt (`setColors(from, to, mix)`). Tie beat: red to black, knot tightens, stitches turn gold, rim light grows. `rest` (black chapter) keeps the rim light and fades out at 90 to 98% of the chapter, long before the close.
+    - Flood centre: the scene publishes `--knot-x` / `--knot-y` in px (with the unit, because the flood uses them in `calc()` next to lengths) while the tie passage is below p = 0.55, and removes them after. First capture had them unitless, which invalidated the clip-path and filled the screen black: fixed.
+    - `html[data-belt3d="ready"]` is set after the first drawn frame and removed on teardown and context loss, so the posters return.
+    - Reserved column: `--belt-col: clamp(8.5rem, 15vw, 17rem)`; every chapter stage reserves it as `padding-inline-end` at 1024 px and up with JS and motion. A fixed hidden probe with the same token gives `tul.ts` the exact box. `tul.ts` is the only place that reads layout (3 `getBoundingClientRect` calls, on ScrollTrigger refresh), and publishes `--belt-vw/vh`, `--belt-col-*`, `--belt-hero-*` on `<html>`.
+    - Between 1024 and 1360 px the milestone rows use the compact three-column form, because the reserved column narrows the copy (first capture at 1024 squeezed the role to one word per line).
+  - Deviations from the plan, both deliberate:
+    - The canvas is fixed and `pointer-events: none` but not full-viewport: it is a square sized from the belt's reach (about 0.4 m at the largest scale) and moved onto the belt with a transform. A full-screen layer costs 3 to 7 times the pixels and the MSAA on them. Visual output is identical (captures compared). In software GL it made no measurable difference (see perf), so this is a precaution for real GPUs, not a measured win.
+    - z-index 11: above the flood (10) so the belt stays visible while the flood grows from its own knot, below the header (50). The belt never lies over text because of the reserved column, so "behind the text" is not needed.
+    - The chapter head keeps its BeltMark seal (identity mark, reserved box, no CLS). Only the black chapter's 15rem 3D box is gone.
+  - Checks: `bunx astro check` 0 errors; `bun test` 242 pass, 0 fail (tests/tul-belt3d.test.ts rewritten for beats, journey continuity and the reserved column; one assertion in tul-ink.test.ts updated for `initBeats`); `bun run build` 6 pages; `rg "[가-힯]"` over `src/components`, `src/scripts`, `src/pages`, `src/styles` finds nothing.
+  - Captures (Playwright, software GL): 1440 and 1024: hero before, falling and landed; hero exit; a chapter with the belt in its column; a passage at p 0.1 to 0.9 (colour mix in blotches, belt loose at the centre); the tie at p 0.2, 0.35 (flood circle centred on the knot), 0.5 (field dark) and 0.7; rest on black; Principles and `#contacto` with the belt gone. A scroll sweep at 1440, 1280 and 1024 found no text under the column. 390: no three chunk, no canvas, drawing and flood as in T11c.
+  - Network: 390 and 1440 reduced motion request no three chunk; 1440 requests the scene chunk after `load` (243 ms vs 238 ms).
+  - Perf, software GL only (headless swiftshader, no GPU): with the scene 170 to 180 ms per frame scrolling the chapters and the black chapter; without it 16.7 ms. Antialias off gave about 50 ms, so the cost is triangle rasterisation of the procedural belt (roughly 200k triangles), not canvas size. Not measured: a real GPU. A real-GPU trace is the first thing to do in T8.
+  - Known and not caused here: `GSAP target  not found` console warning from `gsap.set(dots)` in `titleInk.ts` on belts that have no dots (T11a).
+  - T11e: direction contract rewritten (white to red then black from 1st dan by the flood, sumi-e only under titles, 3D belt as thread on desktop, detailed drawn belt on mobile).
 - 2026-10-06 T11a to T11c (user: ink only under titles, black flood at 1st dan, detailed belt drawing; plan `codegraph-engram-context7-gentle-ai-snoopy-squid.md`). Route: delegated, one writer for the three tasks in order (writer trigger: 2+ non-trivial files per task). TDD: off. Runner: `bunx astro check`, `bun test`, `bun run build`.
   - T11a `303cc3e`: the six full-screen brush SVGs in `src/assets/brush/` are now unreferenced (the underlines are authored paths in `TitleInk.astro` so DrawSVG and MorphSVG can drive them). Deleting them was refused by the shell policy, so they remain on disk and need a user decision.
   - T11a design: the real h2 is split by SplitText (`aria: 'auto'`, masked chars), reverted when the entrance ends. Amarillo splat morphs from a thin shape with MorphSVG; spatter scales in. Tween props: transform, opacity, stroke-dashoffset (DrawSVG), path data of one decorative splat.
@@ -189,4 +210,4 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - 2026-10-05 T0: `3de8f84` on `feat/ink-redesign`. Branch `feat/tul-redesign` created. Doc and mirror written.
 
 ## Next step
-T11d (3D canvas) and T11e (contract), then T8: finish review (impeccable detect, finish reviewer at 1440 and 390, one fix round, documenter rewrites DESIGN.md). Before deploy, the user decides whether the CV PDF gets tracked (see Open decisions).
+T8: finish review (impeccable detect, finish reviewer at 1440 and 390, one fix round, documenter rewrites DESIGN.md). Before deploy, the user decides whether the CV PDF gets tracked (see Open decisions).

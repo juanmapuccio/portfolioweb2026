@@ -16,7 +16,7 @@ Mode: Experience. Scope: the full landing page, plus the `/cv` quick-scan route.
 
 **Proof:** real production systems (NodoSur, NodoFit, Satori Dojo, Don Pizza) and the real CV trajectory, 2011 to today.
 
-**Memorable moment:** scrolling performs the tul on a floor seen in perspective. A 3D white belt lands on the floor at the start, and the belt is tied red to black at 1st dan. Between the belt chapters, sumi-e ink passages (a drop, a dry brush sweep, a drip curtain, an ensō, one vertical stroke) cross the screen as you scroll and recede to the white field. The final line returns to the starting point at contact.
+**Memorable moment:** the black flood at 1st dan. The page is white from the white belt to the red one. At the red to black passage the belt unties, ties again turning black with gold stitches, and ink floods out of its knot until the whole page is black, which it stays to the end. On desktop a 3D belt is the thread of the whole journey: it lands on the hero floor, travels every chapter in a reserved side column, and unties, changes colour and ties again in every spacer. On mobile a detailed drawn belt does the same in each spacer. The final line returns to the starting point at contact.
 
 **Unresolved decisions:**
 - Whether the missing roles get added to the CV PDF.
@@ -25,27 +25,42 @@ Mode: Experience. Scope: the full landing page, plus the `/cv` quick-scan route.
 
 **Revised 2026-10-06 (user):** belt colours never fill the screen. The field is always white, colour lives in drawn details, and immersion comes from a hybrid 3D: a CSS perspective floor everywhere plus a desktop-only WebGL belt at two moments.
 
+**Revised 2026-10-06 (user, black field and belt as thread):** this supersedes the always-white field, the full-screen ink passages and the two-moment belt above.
+- The field is white from the white belt to the red one and black from 1st dan to the end. The change is one flood that starts at the belt's knot.
+- Sumi-e ink survives only as a mark under each chapter title. It never covers the screen.
+- The 3D belt is the thread of the journey on desktop (T11d). The detailed drawn belt (T11c) plays that role on mobile and is the poster whenever 3D is off.
+
 ## Direction contract
 
 **THESIS.** The career is a form performed on a floor plan. Each stage is a tul and each movement a milestone. It refuses the vertical card timeline and the dark terminal developer portfolio.
 
 **OWN-WORLD.** The language is ITF manual notation:
 - a thin line of movement, numbered footprints, direction arrows, dimension marks and a legend;
-- Restrained colour: one white field and dark ink everywhere. The belt colours (white, yellow, green, blue, red, black) are the only chromatic inks and appear ONLY as drawn details:
+- Restrained colour: a white field with dark ink from the white belt to the red one, and a black field with light ink from 1st dan on. The field changes once, by the flood at the knot (`html[data-field="dark"]`, with its own measured contrast). Belt colours never fill a surface. They are the only chromatic inks and appear ONLY as drawn details:
   - the line of movement, stops and footprints;
   - the active row marker and the title-cut rule;
-  - a drawn tied-belt mark per chapter, filled with the belt colour and outlined in ink.
-  - Strokes use an accessible `--belt-line` (yellow becomes ochre).
-- Sumi-e ink: strokes are brush, not ruler lines.
-  - Five ink passages sit in flow between the chapters, scrubbed by scroll. The ink may cover the viewport at its peak and must recede to the white field before the next chapter. They use the colour of the belt they arrive at, and they never carry text.
-  - Brush detail on the white field: the title-cut rule is a dry brush stroke in `--belt-line`, the chapter seal has an ink ensō behind the belt, and the route line of the floor diagram has bristle texture.
-  - With reduced motion or without JS, each passage is a static 8rem brush divider.
+  - a drawn tied-belt mark per chapter, filled with the belt colour and outlined in ink;
+  - the belt itself, drawn in 3D on desktop and as a detailed drawing on mobile.
+  - Strokes use an accessible `--belt-line` (yellow becomes ochre; on black it is a warm light grey).
+- Sumi-e ink only under the chapter titles:
+  - Each title carries one brush mark of its own (a drop, a dry sweep, a drip, an ensō or a vertical stroke) in `--belt-line`. SplitText, DrawSVG and MorphSVG draw it as the letters rise out of a mask.
+  - No ink crosses the screen. The spacers between chapters are empty, in flow and carry no text.
+  - Brush detail on the white field: the chapter seal has an ink ensō behind the belt, and the route line of the floor diagram has bristle texture.
+  - With reduced motion or without JS the marks are finished and static, and the spacers are a plain 12rem gap.
   - No paper grain: it would be decoration.
+- The belt is the thread of the journey:
+  - Desktop (1024 px and up, motion allowed, WebGL): one fixed procedural 3D belt.
+    - It lands on the hero floor.
+    - It travels each chapter in a side column the layout reserves, so it never lies over text. It turns slowly with the scroll and its tails lean toward the route.
+    - In each spacer it rides to the middle of the screen, unties, changes colour through a noise mask and ties again.
+    - At 1st dan it ties red to black with gold stitches. Its knot is the centre of the black flood.
+    - On black it takes a rim light so it reads, and it fades out before the close.
+  - Mobile and no-3D: the detailed drawn belt (stitching, weave, knot folds, frayed tails, gold embroidery at 1st dan) unties and ties in every spacer, scrubbed by scroll. With reduced motion it is complete and static.
 - Depth through perspective, not decoration:
   - the floor diagram is a tilted plane, and its numbered stops stand up as posts;
-  - a procedural WebGL belt appears on desktop only; everywhere else the drawn belt is the poster.
+  - the 3D belt is a real procedural object lit like cloth, never a glow or a shadow.
 - Variable type whose weight and width grow with grade.
-- No shadows, cards, glow or gradients. Brush edges come from static SVG masks and filters; only transform, opacity, clip-path and stroke-dashoffset animate.
+- No shadows, cards, glow or gradients. Brush edges come from static SVG masks and filters; only transform, opacity, clip-path and stroke-dashoffset animate (the 3D canvas moves by transform and fades by opacity).
 
 **STORY.** Within seconds the visitor knows who Juan is: "Audito procesos de empresas y los resuelvo con código". They walk six forms of rising complexity and reach 1st dan with real production systems. The line then returns to its origin, which is contact.
 
@@ -53,13 +68,13 @@ Mode: Experience. Scope: the full landing page, plus the `/cv` quick-scan route.
 - Top-left: a large name, then the one-line hook.
 - Primary CTA "Contactame" and secondary "Ver CV" (opens the Drive file), visible without scrolling.
 - Right on desktop, below on mobile: the portrait plate inside the measuring frame, labelled `10º gup · 2011`.
-- On scroll, the portrait gives way to the floor tilting into perspective. The white 3D belt lands at the Joon-bi ready point on desktop, and the line starts tracing.
+- On scroll, the portrait gives way to the floor tilting into perspective. On desktop the white 3D belt falls and lands at the Joon-bi ready point (it can be dragged to turn), and the line starts tracing.
 - A persistent grade indicator in one corner.
 
 **FORM.** "Tul diagram", position 1 on the grounded list (the pick card, chosen by the user). Seed key `050d9965`.
 
 **Raises:**
-- Riso: belt inks are the only colour, now as strokes and fills on white.
+- Riso: belt inks are the only colour, as strokes and fills on white, then on black.
 - Split-flap: fixed date, role and org columns on every milestone.
 - Cephalopod: type weight tracks grade.
 - Broadcast: a persistent grade indicator.
