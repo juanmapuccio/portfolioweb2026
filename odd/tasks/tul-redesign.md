@@ -67,7 +67,7 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
   - Black passage order is now origin to evolution: Kwang-Gae for Satori, Po-Eun for NodoFit, Ge-Baek for Don Pizza.
   - Canon docs updated.
   - Checks: `bun test` 158 pass, 3 skip, 13 fail (baseline). Build OK. NodoFit captured at 1440 and 390 with 0 overflow.
-- [ ] T5 Principles, technical sheet (stack, certifications, education, languages) and the Kyong-ye close, where the line returns to the origin.
+- [x] T5 Principles, technical sheet (stack, certifications, education, languages) and the Kyong-ye close, where the line returns to the origin.
 - [ ] T6 `/cv` route (es/en/pt) plus a mobile "CV in 30 s" button and the PDF download.
 - [ ] T7 Retire the old world: `src/components/ink/*`, `src/components/lab/*` and `/lab`, `Belt3D`, `proceduralBelt.ts`, the `three` and Lenis dependencies, and old tokens and tests.
 - [ ] T8 Finish: `impeccable detect`, then the finish reviewer at desktop 1440 and mobile 390, one fix round, and the documenter rewriting `DESIGN.md` and `.impeccable/design.json`.
@@ -82,6 +82,7 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - Copy follows the authorship and money rules.
 
 ## Open decisions (user)
+- Whether to add the "IA y agentes" skills category from the CV to `skills.ts`.
 - The white-belt (10th gup) exercise, and which 1st dan tul to use (Kwang-Gae, Po-Eun or Ge-Baek).
 - The chain-PR strategy once the work passes about 400 lines.
 - Whether to add the roles missing from the CV PDF (Grido, Al Natural, Providus, AS MED).
@@ -124,4 +125,4 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - 2026-10-05 T0: `3de8f84` on `feat/ink-redesign`. Branch `feat/tul-redesign` created. Doc and mirror written.
 
 ## Next step
-T5: principles, technical sheet (stack, certifications, education, languages) and the Kyong-ye close.
+T6: the `/cv` quick-scan route plus the mobile "CV in 30 s" button.
