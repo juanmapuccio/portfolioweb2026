@@ -91,8 +91,6 @@ export interface MartialStage {
   beltKey: 'blanco' | 'amarillo' | 'verde' | 'azul' | 'rojo' | 'negro';
   years: string;
   title: string;
-  /** Belt symbol (ITF) shown above the title. */
-  kicker: string;
   /** One-line summary shown on the landing (desktop and mobile). */
   line: string;
   /** 2-3 sentence detail, desktop only. */
@@ -104,25 +102,18 @@ export interface MartialStage {
 }
 
 export interface MartialExperienceContent {
-  sectionBadge: string;
-  title: string;
-  subtitle: string;
   competencyLabel: string;
   stages: MartialStage[];
 }
 
 export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
   es: {
-    sectionBadge: 'TRAYECTORIA DE CAMPO · 10º GUP → 1º DAN',
-    title: 'Trinchera Operativa & Evolución Técnica',
-    subtitle: 'De la venta en calle, la gestión pública masiva y la salud de alta demanda, a la arquitectura de software en producción.',
     competencyLabel: 'Competencia transferible clave:',
     stages: [
       {
         beltKey: 'blanco',
         years: '2011',
-        title: 'Cimientos',
-        kicker: 'Mente en blanco',
+        title: 'Formación técnica',
         line: 'Secundario técnico en robótica y programación: mis primeras bases en el mundo tecnológico.',
         detail: 'Escuela Técnica Manuel Belgrano. Ahí entendí que la lógica también se escribe.',
         lede: 'Egresé de la Escuela Técnica Manuel Belgrano con orientación en Robótica y Programación. Primeros cimientos de hardware, circuitos y lógica de control.',
@@ -141,11 +132,10 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
       {
         beltKey: 'amarillo',
         years: '2012 — 2015',
-        title: 'La calle',
-        kicker: 'Tierra y raíces',
-        line: 'Atención al público y venta en frío: aprendí a escuchar antes de responder.',
+        title: 'Ventas y atención al cliente',
+        line: 'Atención al cliente y venta directa: aprendí a escuchar antes de responder.',
         detail: 'Grido, Al Natural, Providus y AS MED. Herramientas de diálogo, negociación cara a cara y comunicación persuasiva.',
-        lede: 'Desarrollé habilidades de negociación directa en la calle, empatía inmediata con el cliente, capacidad de persuasión y un entendimiento profundo de la cadena comercial sin timidez operativa.',
+        lede: 'Desarrollé negociación directa, empatía con el cliente, capacidad de persuasión y comprensión de la cadena comercial a través de la atención presencial diaria.',
         positions: [
           {
             id: 'grido',
@@ -188,11 +178,10 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
       {
         beltKey: 'verde',
         years: '2015 — 2019',
-        title: 'El Estado',
-        kicker: 'Crecimiento',
+        title: 'Administración pública',
         line: 'Miles de expedientes en ANSES bajo normativa previsional y de seguridad social estricta.',
         detail: 'En paralelo entrenaba Taekwon-Do en ACJ Rosario, turno noche. Esa disciplina sostuvo la responsabilidad de cada jornada.',
-        lede: 'Me forjé en la gestión de expedientes masivos, control documental estricto y legislaciones vigentes en materia previsional y social.',
+        lede: 'Me formé en la gestión de expedientes masivos, control documental estricto y legislaciones vigentes en materia previsional y social.',
         positions: [
           {
             id: 'anses-contract',
@@ -200,7 +189,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             role: 'Administrativo Integral (contratado)',
             org: 'ANSES',
             teaser: 'Administración masiva de expedientes, control documental estricto y normativa previsional.',
-            description: 'Primera etapa en ANSES: gestión de miles de expedientes, control documental estricto y aplicación de normativa legal previsional. Salida por reestructuración estatal de contratos.',
+            description: 'Primera etapa en ANSES: gestión de miles de expedientes, control documental estricto y aplicación de normativa legal previsional. Etapa cerrada por reestructuración de contratos del Estado.',
             transferableCompetency: 'Rigor normativo, gestión documental masiva y servicio al ciudadano en entornos regulados.'
           }
         ]
@@ -208,8 +197,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
       {
         beltKey: 'azul',
         years: '2019 — 2024',
-        title: 'Reconversión',
-        kicker: 'Hacia el cielo',
+        title: 'Reconversión profesional',
         line: 'Emprendí como fotógrafo y filmmaker, me formé en programación y volví a ANSES por mérito.',
         detail: 'Cubrí eventos de Santander, Federada Salud, ExpoAgro y Rooftop (ex Madame). Usé la pandemia para profundizar en programación. Convocado otra vez por ANSES, aprobé exámenes teóricos y de desempeño y pasé a planta permanente: mesa de ayuda junto al referente informático regional, soporte a PCs y servidores.',
         lede: 'Frente a la reestructuración estatal, emprendí de forma autónoma en el rubro audiovisual corporativo, y luego reingresé a ANSES por concurso de mérito a planta permanente, dando soporte técnico a racks de servidores.',
@@ -237,11 +225,10 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
       {
         beltKey: 'rojo',
         years: '2024 — 2025',
-        title: 'La fricción',
-        kicker: 'Control',
-        line: 'Salud de alta demanda y logística: viví sistemas arcaicos desde adentro y los automaticé con Python.',
+        title: 'Salud y logística',
+        line: 'Salud y logística: detecté tareas repetitivas y las automaticé con Python.',
         detail: 'Sanatorio Delta, Aurea Med y Repuestos JL. Bot lector de extractos bancarios: de horas a segundos.',
-        lede: 'Vivir en primera persona la ineficiencia de los sistemas arcaicos de salud y comercio me confirmó que mi verdadero aporte estaba en la automatización con software moderno e integraciones.',
+        lede: 'Trabajar con sistemas de gestión heterogéneos en salud y comercio me mostró cuánto tiempo insume la tarea manual repetitiva y confirmó que mi aporte está en la automatización con software e integraciones.',
         positions: [
           {
             id: 'sanatorio-delta',
@@ -275,10 +262,9 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
       {
         beltKey: 'negro',
         years: 'Jun 2025 — Presente',
-        title: 'Producción',
-        kicker: 'Madurez',
+        title: 'Software en producción',
         line: 'Hoy diseño, despliego y sostengo sistemas que usan personas reales: Satori Dojo, NodoFit y Don Pizza.',
-        closing: 'En Taekwon-Do, el cinturón negro no es la meta: es el primer grado de quien se toma el camino en serio. Llego con oficio, y con ganas de seguir aprendiendo en equipo.',
+        closing: 'En Taekwon-Do, el cinturón negro no es la meta: es el primer grado de quien se toma el camino en serio. Llego con oficio y con ganas de seguir aprendiendo en equipo.',
         lede: 'Fundé NodoSur, la marca y software factory bajo la que diseño, despliego y mantengo sistemas propios: NodoFit, un sistema integral con gestión administrativa y contable integrando webservices de ARCA para gimnasios, entrenadores, dojos y clubes con reservas de canchas, y el trabajo que hago para clientes como Satori Dojo, Don Pizza y Seiton Motors.',
         positions: [
           {
@@ -295,16 +281,12 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
     ]
   },
   en: {
-    sectionBadge: 'FIELD TIMELINE · 10TH GUP → 1ST DAN',
-    title: 'Operational Frontline & Technical Evolution',
-    subtitle: 'From street sales, mass public administration, and high-demand healthcare to production software architecture.',
     competencyLabel: 'Key transferable asset:',
     stages: [
       {
         beltKey: 'blanco',
         years: '2011',
-        title: 'Foundations',
-        kicker: 'Empty mind',
+        title: 'Technical foundations',
         line: 'Technical high school in robotics and programming: my first foundations in the tech world.',
         detail: 'Manuel Belgrano Technical School. That is where I realized logic can be written, too.',
         lede: 'Graduated from Manuel Belgrano Technical High School with a focus on Robotics and Programming. First foundations in hardware, circuits, and control logic.',
@@ -323,11 +305,10 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
       {
         beltKey: 'amarillo',
         years: '2012 — 2015',
-        title: 'The Streets',
-        kicker: 'Earth and roots',
-        line: 'Customer service and cold sales: I learned to listen before answering.',
+        title: 'Sales and customer service',
+        line: 'Customer service and direct sales: I learned to listen before answering.',
         detail: 'Grido, Al Natural, Providus and AS MED. Tools for dialogue, face-to-face negotiation and persuasive communication.',
-        lede: 'Built direct street-level negotiation skills, immediate client empathy, persuasion, and a deep understanding of the commercial chain without operational hesitation.',
+        lede: 'Built direct negotiation skills, client empathy, persuasion, and an understanding of the commercial chain through daily in-person customer service.',
         positions: [
           {
             id: 'grido',
@@ -370,11 +351,10 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
       {
         beltKey: 'verde',
         years: '2015 — 2019',
-        title: 'The State',
-        kicker: 'Growth',
+        title: 'Public administration',
         line: 'Thousands of case files at ANSES under strict pension and social security regulations.',
         detail: 'In parallel I trained Taekwon-Do at ACJ Rosario, night shift. That discipline sustained the responsibility of every working day.',
-        lede: 'Forged in mass case-file management, strict document control, and current social security and welfare legislation.',
+        lede: 'I trained in mass case-file management, strict document control, and current social security and welfare legislation.',
         positions: [
           {
             id: 'anses-contract',
@@ -382,7 +362,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             role: 'Operations Administrator (contract)',
             org: 'ANSES',
             teaser: 'Mass case-file administration, strict document control, and pension regulation enforcement.',
-            description: 'First stage at ANSES: handling thousands of case files, strict document control, and application of social security regulations. Departure due to state restructuring of contracts.',
+            description: 'First stage at ANSES: handling thousands of case files, strict document control, and application of social security regulations. Stage closed due to a restructuring of state contracts.',
             transferableCompetency: 'Regulatory compliance, massive case file handling, and citizen service in regulated environments.'
           }
         ]
@@ -390,8 +370,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
       {
         beltKey: 'azul',
         years: '2019 — 2024',
-        title: 'Reinvention',
-        kicker: 'Toward the sky',
+        title: 'Career change',
         line: 'I started as a photographer and filmmaker, trained in programming, and returned to ANSES on merit.',
         detail: 'I covered events for Santander, Federada Salud, ExpoAgro and Rooftop (formerly Madame). I used the pandemic to go deeper into programming. Called back by ANSES, I passed theoretical and performance exams and moved to permanent staff: help desk alongside the regional IT lead, plus PC and server support.',
         lede: 'Faced with state restructuring, I went independent in corporate audiovisual work, then rejoined ANSES through a merit competition into a permanent position, providing technical support for server racks.',
@@ -419,11 +398,10 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
       {
         beltKey: 'rojo',
         years: '2024 — 2025',
-        title: 'Friction',
-        kicker: 'Control',
-        line: 'High-demand healthcare and logistics: I lived archaic systems from the inside and automated them with Python.',
+        title: 'Healthcare and logistics',
+        line: 'Healthcare and logistics: I spotted repetitive tasks and automated them with Python.',
         detail: 'Sanatorio Delta, Aurea Med and Repuestos JL. A bank-statement reader bot: from hours to seconds.',
-        lede: 'Living the inefficiency of archaic healthcare and commerce systems first-hand confirmed that my real contribution lay in automation with modern software and integrations.',
+        lede: 'Working with varied management systems in healthcare and commerce showed me how much time repetitive manual work takes, and confirmed that my contribution lies in automation with software and integrations.',
         positions: [
           {
             id: 'sanatorio-delta',
@@ -457,10 +435,9 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
       {
         beltKey: 'negro',
         years: 'Jun 2025 — Present',
-        title: 'Production',
-        kicker: 'Maturity',
+        title: 'Software in production',
         line: 'Today I design, deploy and maintain systems real people use: Satori Dojo, NodoFit and Don Pizza.',
-        closing: "In Taekwon-Do, the black belt isn't the finish line: it's the first rank of those who take the path seriously. I bring craft, and the will to keep learning on a team.",
+        closing: "In Taekwon-Do, the black belt isn't the finish line: it's the first rank of those who take the path seriously. I bring craft and the will to keep learning on a team.",
         lede: 'Founded NodoSur, the brand and software factory under which I design, deploy, and maintain custom systems: NodoFit, an integral system with administrative and accounting management using ARCA fiscal APIs for gyms, trainers, dojos, and clubs with court bookings, and client solutions for Satori Dojo, Don Pizza, and Seiton Motors.',
         positions: [
           {
@@ -477,16 +454,12 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
     ]
   },
   pt: {
-    sectionBadge: 'TRAJETÓRIA PRÁTICA · 10º GUP → 1º DAN',
-    title: 'Trincheira Operacional & Evolução Técnica',
-    subtitle: 'Das vendas na rua, da gestão pública em massa e da saúde de alta demanda à arquitetura de software em produção.',
     competencyLabel: 'Competência transferível chave:',
     stages: [
       {
         beltKey: 'blanco',
         years: '2011',
-        title: 'Fundamentos',
-        kicker: 'Mente em branco',
+        title: 'Formação técnica',
         line: 'Ensino médio técnico em robótica e programação: minhas primeiras bases no mundo da tecnologia.',
         detail: 'Escola Técnica Manuel Belgrano. Ali percebi que a lógica também se escreve.',
         lede: 'Formado na Escola Técnica Manuel Belgrano com habilitação em Robótica e Programação. Primeiros alicerces de hardware, circuitos e lógica de controle.',
@@ -505,11 +478,10 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
       {
         beltKey: 'amarillo',
         years: '2012 — 2015',
-        title: 'A Rua',
-        kicker: 'Terra e raízes',
-        line: 'Atendimento ao público e venda a frio: aprendi a escutar antes de responder.',
+        title: 'Vendas e atendimento ao cliente',
+        line: 'Atendimento ao cliente e venda direta: aprendi a escutar antes de responder.',
         detail: 'Grido, Al Natural, Providus e AS MED. Ferramentas de diálogo, negociação presencial e comunicação persuasiva.',
-        lede: 'Desenvolvi habilidades de negociação direta na rua, empatia imediata com o cliente, capacidade de persuasão e um entendimento profundo da cadeia comercial, sem timidez operacional.',
+        lede: 'Desenvolvi negociação direta, empatia com o cliente, capacidade de persuasão e compreensão da cadeia comercial no atendimento presencial do dia a dia.',
         positions: [
           {
             id: 'grido',
@@ -552,11 +524,10 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
       {
         beltKey: 'verde',
         years: '2015 — 2019',
-        title: 'O Estado',
-        kicker: 'Crescimento',
+        title: 'Administração pública',
         line: 'Milhares de processos no ANSES sob normativa previdenciária e de seguridade social rigorosa.',
         detail: 'Em paralelo, treinava Taekwon-Do na ACJ Rosario, no turno da noite. Essa disciplina sustentou a responsabilidade de cada jornada.',
-        lede: 'Forjei-me na gestão de processos em massa, controle documental rigoroso e legislação vigente em matéria previdenciária e social.',
+        lede: 'Formei-me na gestão de processos em massa, controle documental rigoroso e legislação vigente em matéria previdenciária e social.',
         positions: [
           {
             id: 'anses-contract',
@@ -564,7 +535,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             role: 'Administrativo Operacional (contratado)',
             org: 'ANSES',
             teaser: 'Administração massiva de processos, controle documental rigoroso e normativa previdenciária.',
-            description: 'Primeira etapa no ANSES: gestão de milhares de processos, controle documental rigoroso e aplicação da normativa legal previdenciária. Saída por reestruturação estatal de contratos.',
+            description: 'Primeira etapa no ANSES: gestão de milhares de processos, controle documental rigoroso e aplicação da normativa legal previdenciária. Etapa encerrada por reestruturação de contratos do Estado.',
             transferableCompetency: 'Rigor documental, gestão de processos em massa e atendimento público regulado.'
           }
         ]
@@ -572,8 +543,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
       {
         beltKey: 'azul',
         years: '2019 — 2024',
-        title: 'Reconversão',
-        kicker: 'Rumo ao céu',
+        title: 'Reconversão profissional',
         line: 'Empreendi como fotógrafo e filmmaker, me formei em programação e voltei ao ANSES por mérito.',
         detail: 'Cobri eventos de Santander, Federada Salud, ExpoAgro e Rooftop (ex-Madame). Usei a pandemia para me aprofundar em programação. Convocado de novo pelo ANSES, passei em provas teóricas e de desempenho e entrei no quadro permanente: central de ajuda junto ao referente de TI regional, suporte a PCs e servidores.',
         lede: 'Diante da reestruturação estatal, empreendi de forma autônoma na área audiovisual corporativa e depois reingressei no ANSES por concurso de mérito para o quadro permanente, dando suporte técnico a racks de servidores.',
@@ -601,11 +571,10 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
       {
         beltKey: 'rojo',
         years: '2024 — 2025',
-        title: 'A Fricção',
-        kicker: 'Controle',
-        line: 'Saúde de alta demanda e logística: vivi sistemas arcaicos por dentro e os automatizei com Python.',
+        title: 'Saúde e logística',
+        line: 'Saúde e logística: identifiquei tarefas repetitivas e as automatizei com Python.',
         detail: 'Sanatorio Delta, Aurea Med e Repuestos JL. Bot leitor de extratos bancários: de horas a segundos.',
-        lede: 'Viver na pele a ineficiência dos sistemas arcaicos de saúde e comércio confirmou que minha verdadeira contribuição estava na automação com software moderno e integrações.',
+        lede: 'Trabalhar com sistemas de gestão heterogêneos em saúde e comércio mostrou quanto tempo a tarefa manual repetitiva consome e confirmou que minha contribuição está na automação com software e integrações.',
         positions: [
           {
             id: 'sanatorio-delta',
@@ -639,10 +608,9 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
       {
         beltKey: 'negro',
         years: 'Jun 2025 — Presente',
-        title: 'Produção',
-        kicker: 'Maturidade',
+        title: 'Software em produção',
         line: 'Hoje projeto, implanto e sustento sistemas usados por pessoas reais: Satori Dojo, NodoFit e Don Pizza.',
-        closing: 'No Taekwon-Do, a faixa preta não é a linha de chegada: é o primeiro grau de quem leva o caminho a sério. Chego com ofício, e com vontade de seguir aprendendo em equipe.',
+        closing: 'No Taekwon-Do, a faixa preta não é a linha de chegada: é o primeiro grau de quem leva o caminho a sério. Chego com ofício e com vontade de seguir aprendendo em equipe.',
         lede: 'Fundei a NodoSur, a marca e software factory sob a qual projeto, implanto e mantenho sistemas próprios: NodoFit, um sistema integral com gestão administrativa e contábil integrando webservices da ARCA para academias, treinadores, dojos e clubes com reservas de quadras, e o trabalho que faço para clientes como Satori Dojo, Don Pizza e Seiton Motors.',
         positions: [
           {

@@ -46,7 +46,7 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
       },
       {
         id: 'business',
-        title: 'Operación de Campo & Trinchera',
+        title: 'Operación de Campo',
         badge: 'Visión de Negocio',
         description: 'Capacidad de dialogar de igual a igual con directivos de sanatorios, personal de maestranza o dueños de comercios.',
         items: ['Auditoría Médica & Nomenclador', 'Facturación Contable & IVA', 'Gestión Masiva (ANSES)', 'Logística & Stock Real', 'Living Lab Comercial']
@@ -99,7 +99,7 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
       },
       {
         id: 'business',
-        title: 'Field Operations & the Trenches',
+        title: 'Field Operations',
         badge: 'Business Vision',
         description: 'Ability to speak on equal terms with sanatorium directors, maintenance staff, or shop owners.',
         items: ['Medical Auditing & Fee Schedule', 'Accounting Billing & VAT', 'Mass Case Management (ANSES)', 'Logistics & Real Stock', 'Commercial Living Lab']
@@ -152,7 +152,7 @@ export const skillsData: Record<Lang, SkillsSectionContent> = {
       },
       {
         id: 'business',
-        title: 'Operação de Campo & Trincheira',
+        title: 'Operação de Campo',
         badge: 'Visão de Negócio',
         description: 'Capacidade de dialogar de igual para igual com diretores de sanatórios, equipe de manutenção ou donos de comércios.',
         items: ['Auditoria Médica & Nomenclador', 'Faturamento Contábil & IVA', 'Gestão em Massa (ANSES)', 'Logística & Estoque Real', 'Living Lab Comercial']

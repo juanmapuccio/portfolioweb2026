@@ -57,14 +57,14 @@
 
 ## 2. Manifiesto y arco narrativo (`full.manifesto.*`)
 
-**Perfil.** No soy un programador de laboratorio aislado del mundo comercial, ni un administrativo pasivo que solo ejecuta tareas repetitivas. Soy un perfil híbrido: cimientos técnicos tempranos (robótica y programación), forjado en la trinchera operativa más exigente (salud de alta demanda, seguridad social masiva, logística comercial y ventas en calle), que hoy construye software de negocio en producción.
+**Perfil.** No soy un programador de laboratorio aislado del mundo comercial, ni un administrativo pasivo que solo ejecuta tareas repetitivas. Soy un perfil híbrido: cimientos técnicos tempranos (robótica y programación), con experiencia en entornos operativos exigentes (salud de alta demanda, seguridad social masiva, logística comercial y venta directa), que hoy construye software de negocio en producción.
 
 | Clave | ES | EN | PT |
 |---|---|---|---|
 | `full.manifesto.notIs1` | **[retirada del sitio (2026-10-03), solo referencia de entrevista]** un programador de laboratorio | a lab-only programmer | um programador de laboratório |
 | `full.manifesto.notIs2` | **[retirada del sitio (2026-10-03), solo referencia de entrevista]** ni un administrativo pasivo. | nor a passive administrator. | nem um administrativo passivo. |
 | `full.manifesto.both` | **[retirada del sitio (2026-10-03), solo referencia de entrevista]** Soy los dos. A la vez. | I am both. At once. | Sou os dois. Ao mesmo tempo. |
-| `full.manifesto.statement` | Cimientos en robótica y programación, forjados en la trinchera operativa más exigente. | Foundations in robotics and programming, forged in the most demanding operational trenches. | Fundamentos em robótica e programação, forjados na trincheira operacional mais exigente. |
+| `full.manifesto.statement` | Cimientos en robótica y programación, y experiencia en entornos operativos exigentes. | Foundations in robotics and programming, and experience in demanding operational environments. | Fundamentos em robótica e programação, e experiência em ambientes operacionais exigentes. |
 | `full.manifesto.quote` | La constancia vence a la improvisación; la templanza resuelve la urgencia. | Consistency beats improvisation; composure resolves urgency. | A constância vence a improvisação; a temperança resolve a urgência. |
 
 ### Tres arcos para distintas audiencias
@@ -88,62 +88,53 @@
 ### 3.1 Encabezado
 | Clave | ES | EN | PT |
 |---|---|---|---|
-| `full.belts.badge` | Trayectoria de campo · 10º gup → 1º dan | Field timeline · 10th gup → 1st dan | Trajetória prática · 10º gup → 1º dan |
-| `full.belts.title` | Trinchera Operativa & Evolución Técnica | Operational Frontline & Technical Evolution | Trincheira Operacional & Evolução Técnica |
-| `full.belts.subtitle` | De la venta en calle, la gestión pública masiva y la salud de alta demanda, a la arquitectura de software en producción. | From street sales, mass public administration, and high-demand healthcare to production software architecture. | Das vendas na rua, da gestão pública em massa e da saúde de alta demanda à arquitetura de software em produção. |
 | `full.belts.skillLabel` | Competencia transferible clave: | Key transferable asset: | Competência transferível chave: |
 
 ### 3.2 Las 6 etapas
 | Clave | Cinturón | Años | ES | EN | PT |
 |---|---|---|---|---|---|
-| `full.belts.1` | Blanco · 10º gup | 2011 | Cimientos | Foundations | Fundamentos |
-| `full.belts.2` | Amarillo · 8º gup | 2012 a 2015 | La calle | The Streets | A Rua |
-| `full.belts.3` | Verde · 6º gup | 2015 a 2019 | El Estado | The State | O Estado |
-| `full.belts.4` | Azul · 4º gup | 2019 a 2024 | Reconversión | Reinvention | Reconversão |
-| `full.belts.5` | Rojo · 2º gup | 2024 a 2025 | La fricción | Friction | A Fricção |
-| `full.belts.6` | Negro · 1º dan | Jun 2025 a presente | Producción | Production | Produção |
+| `full.belts.1` | Blanco · 10º gup | 2011 | Formación técnica | Technical foundations | Formação técnica |
+| `full.belts.2` | Amarillo · 8º gup | 2012 a 2015 | Ventas y atención al cliente | Sales and customer service | Vendas e atendimento ao cliente |
+| `full.belts.3` | Verde · 6º gup | 2015 a 2019 | Administración pública | Public administration | Administração pública |
+| `full.belts.4` | Azul · 4º gup | 2019 a 2024 | Reconversión profesional | Career change | Reconversão profissional |
+| `full.belts.5` | Rojo · 2º gup | 2024 a 2025 | Salud y logística | Healthcare and logistics | Saúde e logística |
+| `full.belts.6` | Negro · 1º dan | Jun 2025 a presente | Software en producción | Software in production | Software em produção |
 
-Símbolo (kicker), línea y detalle por etapa (`full.belts.N.kicker`, `.line`, `.detail`). La línea tiene como máximo 16 palabras y se ve en desktop y mobile; el detalle solo en desktop:
+Línea y detalle por etapa (`full.belts.N.line`, `.detail`). La línea tiene como máximo 16 palabras y se ve en desktop y mobile; el detalle solo en desktop:
 
-**1. Cimientos**
+**1. Formación técnica**
 | Clave | ES | EN | PT |
 |---|---|---|---|
-| `full.belts.1.kicker` | Mente en blanco | Empty mind | Mente em branco |
 | `full.belts.1.line` | Secundario técnico en robótica y programación: mis primeras bases en el mundo tecnológico. | Technical high school in robotics and programming: my first foundations in the tech world. | Ensino médio técnico em robótica e programação: minhas primeiras bases no mundo da tecnologia. |
 | `full.belts.1.detail` | Escuela Técnica Manuel Belgrano. Ahí entendí que la lógica también se escribe. | Manuel Belgrano Technical School. That is where I realized logic can be written, too. | Escola Técnica Manuel Belgrano. Ali percebi que a lógica também se escreve. |
 
-**2. La calle**
+**2. Ventas y atención al cliente**
 | Clave | ES | EN | PT |
 |---|---|---|---|
-| `full.belts.2.kicker` | Tierra y raíces | Earth and roots | Terra e raízes |
-| `full.belts.2.line` | Atención al público y venta en frío: aprendí a escuchar antes de responder. | Customer service and cold sales: I learned to listen before answering. | Atendimento ao público e venda a frio: aprendi a escutar antes de responder. |
+| `full.belts.2.line` | Atención al cliente y venta directa: aprendí a escuchar antes de responder. | Customer service and direct sales: I learned to listen before answering. | Atendimento ao cliente e venda direta: aprendi a escutar antes de responder. |
 | `full.belts.2.detail` | Grido, Al Natural, Providus y AS MED. Herramientas de diálogo, negociación cara a cara y comunicación persuasiva. | Grido, Al Natural, Providus and AS MED. Tools for dialogue, face-to-face negotiation and persuasive communication. | Grido, Al Natural, Providus e AS MED. Ferramentas de diálogo, negociação presencial e comunicação persuasiva. |
 
-**3. El Estado**
+**3. Administración pública**
 | Clave | ES | EN | PT |
 |---|---|---|---|
-| `full.belts.3.kicker` | Crecimiento | Growth | Crescimento |
 | `full.belts.3.line` | Miles de expedientes en ANSES bajo normativa previsional y de seguridad social estricta. | Thousands of case files at ANSES under strict pension and social security regulations. | Milhares de processos no ANSES sob normativa previdenciária e de seguridade social rigorosa. |
 | `full.belts.3.detail` | En paralelo entrenaba Taekwon-Do en ACJ Rosario, turno noche. Esa disciplina sostuvo la responsabilidad de cada jornada. | In parallel I trained Taekwon-Do at ACJ Rosario, night shift. That discipline sustained the responsibility of every working day. | Em paralelo, treinava Taekwon-Do na ACJ Rosario, no turno da noite. Essa disciplina sustentou a responsabilidade de cada jornada. |
 
-**4. Reconversión**
+**4. Reconversión profesional**
 | Clave | ES | EN | PT |
 |---|---|---|---|
-| `full.belts.4.kicker` | Hacia el cielo | Toward the sky | Rumo ao céu |
 | `full.belts.4.line` | Emprendí como fotógrafo y filmmaker, me formé en programación y volví a ANSES por mérito. | I started as a photographer and filmmaker, trained in programming, and returned to ANSES on merit. | Empreendi como fotógrafo e filmmaker, me formei em programação e voltei ao ANSES por mérito. |
 | `full.belts.4.detail` | Cubrí eventos de Santander, Federada Salud, ExpoAgro y Rooftop (ex Madame). Usé la pandemia para profundizar en programación. Convocado otra vez por ANSES, aprobé exámenes teóricos y de desempeño y pasé a planta permanente: mesa de ayuda junto al referente informático regional, soporte a PCs y servidores. | I covered events for Santander, Federada Salud, ExpoAgro and Rooftop (formerly Madame). I used the pandemic to go deeper into programming. Called back by ANSES, I passed theoretical and performance exams and moved to permanent staff: help desk alongside the regional IT lead, plus PC and server support. | Cobri eventos de Santander, Federada Salud, ExpoAgro e Rooftop (ex-Madame). Usei a pandemia para me aprofundar em programação. Convocado de novo pelo ANSES, passei em provas teóricas e de desempenho e entrei no quadro permanente: central de ajuda junto ao referente de TI regional, suporte a PCs e servidores. |
 
-**5. La fricción**
+**5. Salud y logística**
 | Clave | ES | EN | PT |
 |---|---|---|---|
-| `full.belts.5.kicker` | Control | Control | Controle |
-| `full.belts.5.line` | Salud de alta demanda y logística: viví sistemas arcaicos desde adentro y los automaticé con Python. | High-demand healthcare and logistics: I lived archaic systems from the inside and automated them with Python. | Saúde de alta demanda e logística: vivi sistemas arcaicos por dentro e os automatizei com Python. |
+| `full.belts.5.line` | Salud y logística: detecté tareas repetitivas y las automaticé con Python. | Healthcare and logistics: I spotted repetitive tasks and automated them with Python. | Saúde e logística: identifiquei tarefas repetitivas e as automatizei com Python. |
 | `full.belts.5.detail` | Sanatorio Delta, Aurea Med y Repuestos JL. Bot lector de extractos bancarios: de horas a segundos. | Sanatorio Delta, Aurea Med and Repuestos JL. A bank-statement reader bot: from hours to seconds. | Sanatorio Delta, Aurea Med e Repuestos JL. Bot leitor de extratos bancários: de horas a segundos. |
 
-**6. Producción**
+**6. Software en producción**
 | Clave | ES | EN | PT |
 |---|---|---|---|
-| `full.belts.6.kicker` | Madurez | Maturity | Maturidade |
 | `full.belts.6.line` | Hoy diseño, despliego y sostengo sistemas que usan personas reales: Satori Dojo, NodoFit y Don Pizza. | Today I design, deploy and maintain systems real people use: Satori Dojo, NodoFit and Don Pizza. | Hoje projeto, implanto e sustento sistemas usados por pessoas reais: Satori Dojo, NodoFit e Don Pizza. |
 | `full.belts.6.closing` | En Taekwon-Do, el cinturón negro no es la meta: es el primer grado de quien se toma el camino en serio. Llego con oficio, y con ganas de seguir aprendiendo en equipo. | In Taekwon-Do, the black belt isn't the finish line: it's the first rank of those who take the path seriously. I bring craft, and the will to keep learning on a team. | No Taekwon-Do, a faixa preta não é a linha de chegada: é o primeiro grau de quem leva o caminho a sério. Chego com ofício, e com vontade de seguir aprendendo em equipe. |
 
@@ -160,7 +151,7 @@ Cuerpos EN/PT transcritos desde `src/data/martialExperience.ts` el 2026-10-03 (�
 | `full.pos.8` | May 2024 a Ene 2025 · Rojo | Administrativo, Gestión en Salud · Sanatorio Delta | Admisión general, turnos, admisión de oncología, recepción de laboratorios y caja con el sistema Algoritmo y nomenclador nacional de salud. | Auditoría médica, tolerancia a la alta demanda y visión de optimización de procesos. |
 | `full.pos.7` | Dic 2021 a Mar 2024 · Azul | Administrativo Integral y Gestión de Datos (planta permanente) · ANSES | Reconvocado tras la etapa freelance, rendí y aprobé concursos de mérito hasta efectivizarme en planta permanente. Mesa de ayuda regional, soporte a racks de servidores del Estado Nacional y desarrollo de un sistema interno de métricas. | Tolerancia a la alta demanda masiva, infraestructura de red y servidores, y rigor normativo. |
 | `full.pos.6` | Mar 2019 a Ene 2020 · Azul | Fotógrafo y Filmmaker Freelance · emprendimiento propio | Producción audiovisual y cobertura corporativa para clientes de primera línea (Santander, Federada Salud, ExpoAgro). Profundización autodidacta intensiva en programación moderna durante la pandemia. | Autogestión, resiliencia frente a la incertidumbre y reinvención técnica autodidacta. |
-| `full.pos.5` | Dic 2015 a Mar 2019 · Verde | Administrativo Integral (contratado) · ANSES | Primera etapa en ANSES: gestión de miles de expedientes, control documental estricto y aplicación de normativa legal previsional. Salida por reestructuración estatal de contratos, no por desempeño. | Rigor normativo, gestión documental masiva y servicio al ciudadano en entornos regulados. |
+| `full.pos.5` | Dic 2015 a Mar 2019 · Verde | Administrativo Integral (contratado) · ANSES | Primera etapa en ANSES: gestión de miles de expedientes, control documental estricto y aplicación de normativa legal previsional. Etapa cerrada por reestructuración de contratos del Estado. | Rigor normativo, gestión documental masiva y servicio al ciudadano en entornos regulados. |
 | `full.pos.4` | Mar a Sep 2015 · Amarillo | Vendedor Viajante de Servicios de Salud · AS MED S.A. | Venta puerta a puerta de planes y servicios de salud, con negociación directa cara a cara. | Negociación directa, empatía con el cliente y comunicación cara a cara. |
 | `full.pos.3` | May 2013 a Ene 2014 · Amarillo | Vendedor Viajante de Planes de Ahorro · Providus S.A. | Venta directa puerta a puerta de planes de capitalización y ahorro con seguimiento comercial de cartera. | Persuasión ética, constancia diaria y resiliencia comercial. |
 | `full.pos.2` | Feb a Abr 2013 · Amarillo | Gastronómico · Al Natural | Atención al público en un local de comida saludable, despacho ágil y trabajo en equipo bajo presión. | Coordinación operativa y templanza en momentos de pico de atención. |
@@ -175,7 +166,7 @@ Cuerpos EN/PT transcritos desde `src/data/martialExperience.ts` el 2026-10-03 (�
 | `full.pos.8` | May 2024 — Jan 2025 · Healthcare Administrator · Sanatorio Delta | General admissions, scheduling, oncology admissions, laboratory reception, and cashier with the Algoritmo system and the national health fee schedule. | Medical auditing, operational tolerance under heavy patient volume, and systems optimization. |
 | `full.pos.7` | Dec 2021 — Mar 2024 · Full-Cycle Administrator & Data Management (permanent staff) · ANSES | Called back after the freelance stage, I passed merit competitions until becoming permanent staff. Regional help desk, support for National State server racks, and development of an internal metrics system. | Resilience under high-volume pressure, server rack infrastructure management, and compliance rigor. |
 | `full.pos.6` | Mar 2019 — Jan 2020 · Freelance Photographer and Filmmaker · Self-employed | Audiovisual production and corporate coverage for top-tier clients (Santander, Federada Salud, ExpoAgro). Intensive self-taught study of modern programming during the pandemic. | Autonomous business management, career resilience, and self-directed technical education. |
-| `full.pos.5` | Dec 2015 — Mar 2019 · Operations Administrator (contract) · ANSES | First stage at ANSES: handling thousands of case files, strict document control, and application of social security regulations. Departure due to state restructuring of contracts. | Regulatory compliance, massive case file handling, and citizen service in regulated environments. |
+| `full.pos.5` | Dec 2015 — Mar 2019 · Operations Administrator (contract) · ANSES | First stage at ANSES: handling thousands of case files, strict document control, and application of social security regulations. Stage closed due to a restructuring of state contracts. | Regulatory compliance, massive case file handling, and citizen service in regulated environments. |
 | `full.pos.4` | Mar 2015 — Sep 2015 · Field Sales Representative, Healthcare Services · AS MED S.A. | Door-to-door sales of healthcare plans, handling face-to-face commercial closing. | Direct negotiation, client empathy, and resilient communication. |
 | `full.pos.3` | May 2013 — Jan 2014 · Field Sales Representative, Savings Plans · Providus S.A. | Direct sales of capitalization and savings plans with active pipeline follow-up. | Ethical persuasion, daily discipline, and sales resilience. |
 | `full.pos.2` | Feb 2013 — Apr 2013 · Food Service Attendant · Al Natural | Customer service at a fast-paced health food establishment, working under rush-hour demand. | Operational coordination and composure during peak service pressure. |
@@ -192,7 +183,7 @@ Starting point (white belt, 2011): Technical High School: Robotics & Programming
 | `full.pos.8` | Mai 2024 — Jan 2025 · Administrativo Hospitalar · Sanatorio Delta | Admissão geral, agendamentos, admissão de oncologia, recepção de laboratórios e caixa com o sistema Algoritmo e nomenclador nacional de saúde. | Auditoria médica, tolerância à alta rotina hospitalar e otimização de rotinas. |
 | `full.pos.7` | Dez 2021 — Mar 2024 · Administrativo e Gestão de Dados (efetivo) · ANSES | Reconvocado após a etapa freelance, prestei e fui aprovado em concursos de mérito até ser efetivado no quadro permanente. Central de ajuda regional, suporte a racks de servidores do Estado Nacional e desenvolvimento de sistema interno de métricas. | Resiliência sob alta demanda, suporte a servidores/redes e rigor regulatório. |
 | `full.pos.6` | Mar 2019 — Jan 2020 · Fotógrafo e Produtor Audiovisual Freelance · Empreendimento próprio | Produção audiovisual e cobertura corporativa para clientes de primeira linha (Santander, Federada Salud, ExpoAgro). Aprofundamento autodidata intensivo em programação moderna durante a pandemia. | Autogestão, resiliência profissional e aprendizado técnico autodidata. |
-| `full.pos.5` | Dez 2015 — Mar 2019 · Administrativo Operacional (contratado) · ANSES | Primeira etapa no ANSES: gestão de milhares de processos, controle documental rigoroso e aplicação da normativa legal previdenciária. Saída por reestruturação estatal de contratos. | Rigor documental, gestão de processos em massa e atendimento público regulado. |
+| `full.pos.5` | Dez 2015 — Mar 2019 · Administrativo Operacional (contratado) · ANSES | Primeira etapa no ANSES: gestão de milhares de processos, controle documental rigoroso e aplicação da normativa legal previdenciária. Etapa encerrada por reestruturação de contratos do Estado. | Rigor documental, gestão de processos em massa e atendimento público regulado. |
 | `full.pos.4` | Mar 2015 — Set 2015 · Representante Comercial, Serviços de Saúde · AS MED S.A. | Vendas presenciais porta a porta de planos de saúde e fechamento comercial direto. | Negociação direta, empatia com o cliente e comunicação interpessoal. |
 | `full.pos.3` | Mai 2013 — Jan 2014 · Representante Comercial, Planos de Capitalização · Providus S.A. | Venda direta porta a porta de planos de capitalização e poupança, com acompanhamento comercial de carteira. | Persuasão ética, disciplina diária e resiliência comercial. |
 | `full.pos.2` | Fev 2013 — Abr 2013 · Atendente Gastronômico · Al Natural | Atendimento ao público em restaurante de alimentação saudável e trabalho em equipe sob pressão. | Coordenação operacional e equilíbrio em momentos de pico. |
@@ -201,7 +192,7 @@ Starting point (white belt, 2011): Technical High School: Robotics & Programming
 Ponto de partida (faixa branca, 2011): Ensino Médio Técnico: Robótica e Programação · Instituto Belgrano (ex Escola Técnica Nº 2060). Descrição: Formação técnica inicial: projeto de circuitos, robótica educacional e primeiros algoritmos estruturados. Competência transferível: Raciocínio lógico, estruturação técnica e resolução prática de problemas desde o hardware.
 
 #### Diferencias con el código (§3.3)
-- `full.pos.5` descripción ES: el doc agrega "no por desempeño"; el código (ES/EN/PT) termina en "Salida por reestructuración estatal de contratos". ES del doc sin cambios.
+- `full.pos.5` descripción ES: alineado con el código (ES/EN/PT): cierra con la frase neutra sobre la reestructuración de contratos del Estado.
 - `full.pos.7` descripción ES: el doc dice "desarrollo de un sistema interno de métricas"; el código, "desarrollo de sistema interno de métricas".
 - `full.pos.7` competencia ES: el doc dice "infraestructura de red y servidores"; el código, "infraestructura de red/servidores".
 - Formato de períodos: el doc ES usa "Jun a Oct 2025"; el código usa "Jun 2025 — Oct 2025" (idéntico en ES/EN/PT salvo abreviaturas de mes).
@@ -279,7 +270,7 @@ Transcrito desde `src/data/projects.ts` el 2026-10-03.
 #### Diferencias con el código (§4)
 El ES del doc en §4 es una versión condensada; el ES del código (`projectsContent.es`) difiere en:
 - `full.projects.1` solución: "Desarrollo de sistemas propietarios desplegados en infraestructura cloud propia (Linux, Docker, GitHub Actions) con integraciones fiscales."
-- `full.projects.2` descripción: "Sistema cloud moderno para..." (el doc omite "moderno"); fricción: "...y falta de control en el acceso y estado de las membresías."; solución: "Plataforma ágil con dashboard operativo en tiempo real, alertas de cuotas vencidas y métricas de retención de alumnos."; impacto: "En producción activa reduciendo a cero..." (sin coma).
+- `full.projects.2` descripción: "Sistema cloud moderno para..." (el doc omite "moderno"); fricción: "...y falta de control en el acceso y estado de las membresías."; solución: "Plataforma ágil con dashboard operativo en tiempo real, alertas de cuotas vencidas y métricas de retención de alumnos."; impacto: "En producción activa reduciendo..." (sin coma).
 - `full.projects.3` descripción: "Sistema personalizado para dojo..."; fricción: "Falta de centralización entre el progreso técnico de los practicantes, cobros de cuotas y difusión de eventos."; solución: "Portal unificado con seguimiento pedagógico marcial, control de asistencia y pasarela de comunicación con las familias."
 - `full.projects.4` descripción: "Rediseño completo de la web original del local, con un sistema propio de gestión de pedidos: catálogo digital, toma de pedidos rápidos y despacho en un entorno gastronómico de alta rotación."; fricción: "Fricciones en la toma de pedidos telefónicos y cuellos de botella en horas pico de elaboración y entrega."; solución: "...pensada para smartphones, con catálogo dinámico y canal directo a cocina/despacho."; impacto: "...en un entorno de alta demanda."
 - Sin textos EN/PT que violen §0.
@@ -300,7 +291,7 @@ El ES del doc en §4 es una versión condensada; el ES del código (`projectsCon
 | `full.stack.1` | Core Frontend & Arquitectura UI | Core Frontend & UI Architecture | Core Frontend & Arquitetura UI |
 | `full.stack.2` | Backend, Automatización & Datos | Backend, Automation & Data | Backend, Automação & Dados |
 | `full.stack.3` | Cloud, Infraestructura & DevOps | Cloud, Infrastructure & DevOps | Cloud, Infraestrutura & DevOps |
-| `full.stack.4` | Operación de Campo & Trinchera | Field Operations & the Trenches | Operação de Campo & Trincheira |
+| `full.stack.4` | Operación de Campo | Field Operations | Operação de Campo |
 | `full.stack.5` | Certificaciones & Idiomas | Certifications & Languages | Certificações & Idiomas |
 
 Descripciones e ítems (ES; EN/PT transcritos en §5.1.1 y §5.1.2 desde `src/data/skills.ts` el 2026-10-03):
@@ -316,7 +307,7 @@ Descripciones e ítems (ES; EN/PT transcritos en §5.1.1 y §5.1.2 desde `src/da
 | `full.stack.1` | Core Frontend & UI Architecture | Building resilient, accessible, instant-loading interfaces with minimal JavaScript overhead. | Strict TypeScript, React, Next.js, Astro 7, Tailwind CSS, Semantic HTML5, Zero CLS / Web Vitals |
 | `full.stack.2` | Backend, Automation & Data | Resolving operational friction through accounting analysis scripts, typed APIs, and government integrations. | Python, PostgreSQL, Node.js / Bun, REST APIs, ARCA (AFIP) Webservices, PDF & Data Processing |
 | `full.stack.3` | Cloud, Infrastructure & DevOps | Autonomous deployments on your own cloud environments without relying on expensive black boxes or bloated architectures. | Linux (Ubuntu Server), Docker & Compose, GitHub Actions, Nginx Reverse Proxy, Vercel Edge, Security & SSL |
-| `full.stack.4` | Field Operations & the Trenches | Ability to speak on equal terms with sanatorium directors, maintenance staff, or shop owners. | Medical Auditing & Fee Schedule, Accounting Billing & VAT, Mass Case Management (ANSES), Logistics & Real Stock, Commercial Living Lab |
+| `full.stack.4` | Field Operations | Ability to speak on equal terms with sanatorium directors, maintenance staff, or shop owners. | Medical Auditing & Fee Schedule, Accounting Billing & VAT, Mass Case Management (ANSES), Logistics & Real Stock, Commercial Living Lab |
 | `full.stack.5` | Certifications & Languages | Certified across the three major clouds, with a solid computer science foundation. | AWS Certified Cloud Practitioner (2025), Microsoft Certified: Azure Fundamentals · AZ-900 (2025), Google Cloud Computing Foundations (2024), CS50: Introduction to Computer Science · Harvard/edX (2023), Python from Zero to Developer · Udemy (2022), English B2: fluent technical reading |
 
 #### 5.1.2 Português
@@ -325,7 +316,7 @@ Descripciones e ítems (ES; EN/PT transcritos en §5.1.1 y §5.1.2 desde `src/da
 | `full.stack.1` | Core Frontend & Arquitetura UI | Construção de interfaces resilientes, acessíveis e de carregamento imediato, com sobrecarga mínima de JavaScript. | TypeScript Estrito, React, Next.js, Astro 7, Tailwind CSS, HTML5 Semântico, Zero CLS / Web Vitals |
 | `full.stack.2` | Backend, Automação & Dados | Resolução de fricções operacionais mediante scripts de análise contábil, APIs tipadas e integrações governamentais. | Python, PostgreSQL, Node.js / Bun, REST APIs, Webservices ARCA (AFIP), Processamento de PDFs e Dados |
 | `full.stack.3` | Cloud, Infraestrutura & DevOps | Implantações autônomas em ambientes cloud próprios, sem depender de caixas-pretas caras nem de arquiteturas inchadas. | Linux (Ubuntu Server), Docker & Compose, GitHub Actions, Nginx Reverse Proxy, Vercel Edge, Segurança & SSL |
-| `full.stack.4` | Operação de Campo & Trincheira | Capacidade de dialogar de igual para igual com diretores de sanatórios, equipe de manutenção ou donos de comércios. | Auditoria Médica & Nomenclador, Faturamento Contábil & IVA, Gestão em Massa (ANSES), Logística & Estoque Real, Living Lab Comercial |
+| `full.stack.4` | Operação de Campo | Capacidade de dialogar de igual para igual com diretores de sanatórios, equipe de manutenção ou donos de comércios. | Auditoria Médica & Nomenclador, Faturamento Contábil & IVA, Gestão em Massa (ANSES), Logística & Estoque Real, Living Lab Comercial |
 | `full.stack.5` | Certificações & Idiomas | Formação certificada nas três principais nuvens e uma base sólida em ciência da computação. | AWS Certified Cloud Practitioner (2025), Microsoft Certified: Azure Fundamentals · AZ-900 (2025), Google Cloud Computing Foundations (2024), CS50: Introduction to Computer Science · Harvard/edX (2023), Python do Zero ao Desenvolvedor · Udemy (2022), Inglês B2: leitura técnica fluente |
 
 #### Diferencias con el código (§5.1)
