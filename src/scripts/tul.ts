@@ -180,6 +180,57 @@ function endIntro(): void {
   gsap.delayedCall(2.4, () => root.classList.remove('tul-intro'));
 }
 
+// Entrances, once per element. Without motion, or without IntersectionObserver, nothing is
+// hidden: the CSS "from" states exist only under html.js with motion allowed, and the plain
+// state (visible title, full-opacity words) is what is left when this does not run.
+//   [data-split-title]  chapter title cut: `.is-in` starts the CSS animation, `.is-done` (after the
+//                       rule has drawn) swaps the decorative halves for the real h2.
+//   [data-words]        build-time word spans (`--i`): `.is-in` lets them settle, staggered by CSS.
+//   [data-rise]         a block that rises with opacity: `.is-in`.
+function initEntrances(): void {
+  const titles = document.querySelectorAll<HTMLElement>('[data-split-title]');
+  const reveals = document.querySelectorAll<HTMLElement>('[data-words], [data-rise]');
+  if (!titles.length && !reveals.length) return;
+
+  const finish = (el: HTMLElement): void => {
+    el.classList.add('is-in', 'is-done');
+  };
+  if (reduced || !('IntersectionObserver' in window)) {
+    for (const el of titles) finish(el);
+    for (const el of reveals) el.classList.add('is-in');
+    return;
+  }
+
+  const titleObserver = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const el = entry.target as HTMLElement;
+        titleObserver.unobserve(el);
+        el.classList.add('is-in');
+        const line = el.querySelector('.tc__slash line');
+        if (line) line.addEventListener('animationend', () => el.classList.add('is-done'), { once: true });
+        else el.classList.add('is-done');
+      }
+    },
+    { threshold: 0.4 }
+  );
+  for (const el of titles) titleObserver.observe(el);
+
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        revealObserver.unobserve(entry.target);
+        entry.target.classList.add('is-in');
+      }
+    },
+    { threshold: 0.4 }
+  );
+  for (const el of reveals) revealObserver.observe(el);
+}
+
 initScenes();
 initChapters();
+initEntrances();
 endIntro();

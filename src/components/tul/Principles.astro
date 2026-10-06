@@ -26,19 +26,33 @@ const TERMS: Record<TkdPrinciple['key'], string> = {
 
 const items = principlesData[lang].items;
 const quote = skillsData[lang].philosophy[1]?.quote;
+
+/**
+ * Words are split here, at build time. Only the first MAX_WORDS words of the section animate (each
+ * gets `--i`, its stagger index); anything beyond renders as plain text. The spaces between the
+ * word spans stay real text nodes, so wrapping, copy-paste and reading order are those of the text.
+ */
+const MAX_WORDS = 40;
+let used = 0;
+const split = (text: string): { word: string; i?: number }[] =>
+  text.split(' ').map((word) => (used < MAX_WORDS ? { word, i: used++ } : { word }));
+const introWords = split(t('tul.principles.intro'));
+const quoteWords = quote ? split(quote) : [];
 ---
 
 <section id="principios" class="pr" data-belt="blanco" data-grade-belt="negro" aria-labelledby="principios-title">
   <header class="pr__head">
     <h2 id="principios-title" class="pr__title grade-type">{t('tul.principles.title')}</h2>
-    <p class="pr__intro">{t('tul.principles.intro')}</p>
+    <p class="pr__intro" data-words>
+      {introWords.map(({ word, i }, n) => (<Fragment>{n > 0 && ' '}{i === undefined ? word : <span class="w" style={`--i:${i}`}>{word}</span>}</Fragment>))}
+    </p>
   </header>
 
   <ol class="pr__oath">
     {items.map((item, i) => (
       <li class="pr__item">
         <span class="pr__ord num" aria-hidden="true">{i + 1}</span>
-        <p class="pr__name grade-type">{item.name}</p>
+        <p class="pr__name grade-type" data-rise>{item.name}</p>
         <p class="pr__term">{TERMS[item.key]}</p>
         <p class="pr__line">{item.line}</p>
       </li>
@@ -47,7 +61,9 @@ const quote = skillsData[lang].philosophy[1]?.quote;
 
   {quote && (
     <blockquote class="pr__quote">
-      <p>{quote}</p>
+      <p data-words>
+        {quoteWords.map(({ word, i }, n) => (<Fragment>{n > 0 && ' '}{i === undefined ? word : <span class="w" style={`--i:${i}`}>{word}</span>}</Fragment>))}
+      </p>
     </blockquote>
   )}
 </section>
@@ -142,6 +158,36 @@ const quote = skillsData[lang].philosophy[1]?.quote;
     font-size: var(--step-2);
     font-variation-settings: 'wght' 600, 'wdth' 90;
     line-height: 1.2;
+  }
+
+  /* Word by word: only with JS and motion allowed. Default: every word fully visible. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .pr .w {
+      display: inline-block;
+      opacity: 0.12;
+      transform: scale(1.06);
+    }
+
+    :global(html.js) .pr [data-words].is-in .w {
+      opacity: 1;
+      transform: scale(1);
+      transition:
+        opacity 400ms var(--ease-out) calc(var(--i, 0) * 70ms),
+        transform 400ms var(--ease-out) calc(var(--i, 0) * 70ms);
+    }
+
+    :global(html.js) .pr [data-rise] {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+
+    :global(html.js) .pr [data-rise].is-in {
+      opacity: 1;
+      transform: translateY(0);
+      transition:
+        opacity var(--dur) var(--ease-out),
+        transform var(--dur) var(--ease-out);
+    }
   }
 
   @media (min-width: 62rem) {

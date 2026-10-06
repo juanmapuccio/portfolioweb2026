@@ -145,7 +145,16 @@ const caption = (label: string, movements: number) =>
 
       <div class="tc__copy">
         <header class="tc__head">
-          <h2 id={`${beltKey}-title`} class="tc__title grade-type">{stage.title}</h2>
+          <div class="tc__titlewrap" data-split-title>
+            <h2 id={`${beltKey}-title`} class="tc__title grade-type">{stage.title}</h2>
+            <div class="tc__split" aria-hidden="true">
+              <span class="tc__half tc__half--t tc__title grade-type">{stage.title}</span>
+              <span class="tc__half tc__half--b tc__title grade-type">{stage.title}</span>
+            </div>
+            <svg class="tc__slash" aria-hidden="true" focusable="false">
+              <line x1="0" y1="1" x2="100%" y2="1" pathLength="1"></line>
+            </svg>
+          </div>
           <p class="tc__meta">
             <span class="num">{belt.gup}</span> · {belt.beltName[lang]} · <span class="num">{stage.years}</span>
           </p>
@@ -365,6 +374,81 @@ const caption = (label: string, movements: number) =>
     letter-spacing: var(--track-display);
     line-height: 0.98;
     overflow-wrap: break-word;
+  }
+
+  /* Horizontal cut: the title enters as two clipped halves (aria-hidden copies laid over the real
+     h2) and a belt-ink rule draws under it. Default and reduced motion: the plain visible h2 and a
+     static rule; the halves do not exist. */
+  .tc__titlewrap {
+    position: relative;
+    padding-bottom: 0.3em;
+  }
+
+  .tc__split {
+    display: none;
+  }
+
+  .tc__half {
+    position: absolute;
+    inset: 0;
+    display: block;
+    text-wrap: balance;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .tc__half--t {
+    clip-path: inset(0 0 50% 0);
+  }
+
+  .tc__half--b {
+    clip-path: inset(50% 0 0 0);
+  }
+
+  .tc__slash {
+    position: absolute;
+    inset: auto 0 0 0;
+    width: 100%;
+    height: var(--line-strong);
+    overflow: visible;
+  }
+
+  .tc__slash line {
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+
+  @keyframes tc-half-t {
+    from {
+      opacity: 0;
+      transform: translateX(-2.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes tc-half-b {
+    from {
+      opacity: 0;
+      transform: translateX(2.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes tc-slash {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
   }
 
   .tc__meta {
@@ -762,6 +846,39 @@ const caption = (label: string, movements: number) =>
       max-height: none;
     }
 
+    /* Title cut: hidden until the engine marks it in view (html.js is set before first paint). */
+    :global(html.js) .tc__titlewrap:not(.is-done) .tc__title:not(.tc__half) {
+      opacity: 0;
+    }
+
+    :global(html.js) .tc__titlewrap .tc__split {
+      display: block;
+    }
+
+    :global(html.js) .tc__titlewrap.is-done .tc__split {
+      display: none;
+    }
+
+    :global(html.js) .tc__titlewrap:not(.is-in) .tc__half {
+      opacity: 0;
+    }
+
+    :global(html.js) .tc__titlewrap:not(.is-in) .tc__slash line {
+      stroke-dashoffset: 1;
+    }
+
+    :global(html.js) .tc__titlewrap.is-in .tc__half--t {
+      animation: tc-half-t 650ms var(--ease-out) both;
+    }
+
+    :global(html.js) .tc__titlewrap.is-in .tc__half--b {
+      animation: tc-half-b 650ms var(--ease-out) both;
+    }
+
+    :global(html.js) .tc__titlewrap.is-in .tc__slash line {
+      animation: tc-slash 500ms var(--ease-out) 358ms both;
+    }
+
     :global(html.js) .tc__next {
       --rise: clamp(0, calc((var(--p, 0) - 0.88) / 0.12), 1);
       display: block;
@@ -858,13 +975,23 @@ const caption = (label: string, movements: number) =>
       column-gap: var(--space-xl);
     }
 
+    /* Wide screens: pinned stages start at the top, like the diagram column. */
     .auto__flow,
     .auto__copy {
-      align-self: center;
+      align-self: start;
+    }
+
+    .auto__copy {
+      padding-top: var(--space-l);
+    }
+
+    .auto__flow {
+      margin-block: var(--space-l) 0;
     }
 
     .tc__beats {
-      align-content: center;
+      align-content: start;
+      padding-top: var(--space-l);
     }
 
     @media (prefers-reduced-motion: no-preference) {
