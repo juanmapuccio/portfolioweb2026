@@ -81,6 +81,11 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - [x] T10b Ink passages mounted between the six chapters in es/en/pt and scrubbed by `initPassages()` in `tul.ts` (`[data-tul-passage]`, ScrollTrigger only). `c2e4cea`.
 - [x] T10c Brush detail on white: dry brush title-cut rule in `--belt-line`, ensō behind the chapter BeltMark, bristle-masked route stroke in FloorDiagram. Paper grain skipped (the contract forbids decoration). `396ef8f`.
 - [x] T10d Direction contract (OWN-WORLD sumi-e ink, memorable moment with ink passages) and this document. Commit: the one that adds this line (`docs(tul): ...`, see git log).
+- [x] T11a Ink only under titles plus GSAP plugins: SplitText, DrawSVG and MorphSVG registered from the installed `gsap` 3.15 (free since 3.13, no bump). The fixed full-screen ink layer is gone and `InkPassage` is an in-flow spacer. Each chapter title gets its own sumi-e underline (`TitleInk.astro`). `303cc3e`.
+- [x] T11b Black flood at 1st dan: `[data-field="dark"]` tokens with measured contrast, a `clip-path` circle flood scrubbed by `--p`, `html[data-field]` set at p >= 0.5, CSS fallback for no JS and reduced motion. `67154ef`.
+- [x] T11c `BeltDrawing.astro`: detailed tied belt (pespunte, weave, knot folds, frayed cut tails, gold on 1st dan) mounted in every spacer; it unties and ties with DrawSVG scrubbed by `--p`, and the band wipes to the next belt colour. Mobile always, desktop poster until `html[data-belt3d="ready"]`. Commit: the one that adds this line (`feat(tul): ...`, see git log).
+- [ ] T11d Persistent 3D canvas (desktop), beats, `--knot-x` / `--knot-y`, posters. Not started.
+- [ ] T11e Direction contract (`.impeccable/surfaces/src-pages-index-astro.md`) and this document. Not started.
 - [ ] T8 Finish: `impeccable detect`, then the finish reviewer at desktop 1440 and mobile 390, one fix round, and the documenter rewriting `DESIGN.md` and `.impeccable/design.json`.
 
 ## Acceptance criteria
@@ -100,6 +105,15 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - Whether to add the roles missing from the CV PDF (Grido, Al Natural, Providus, AS MED).
 
 ## Progress / evidence
+- 2026-10-06 T11a to T11c (user: ink only under titles, black flood at 1st dan, detailed belt drawing; plan `codegraph-engram-context7-gentle-ai-snoopy-squid.md`). Route: delegated, one writer for the three tasks in order (writer trigger: 2+ non-trivial files per task). TDD: off. Runner: `bunx astro check`, `bun test`, `bun run build`.
+  - T11a `303cc3e`: the six full-screen brush SVGs in `src/assets/brush/` are now unreferenced (the underlines are authored paths in `TitleInk.astro` so DrawSVG and MorphSVG can drive them). Deleting them was refused by the shell policy, so they remain on disk and need a user decision.
+  - T11a design: the real h2 is split by SplitText (`aria: 'auto'`, masked chars), reverted when the entrance ends. Amarillo splat morphs from a thin shape with MorphSVG; spatter scales in. Tween props: transform, opacity, stroke-dashoffset (DrawSVG), path data of one decorative splat.
+  - T11b `67154ef`: flood layer is a fixed viewport layer (z-index 10, under the header) on the passage that arrives at negro. Radius is `--f * --f * 150vmax` with `--f` 0 at p 0.2 and 1 at p 0.5; centre is `--knot-x/--knot-y` when published, otherwise the drawn knot computed from `--p`. Static feTurbulence edge on desktop only.
+  - T11b contrast (tests): dark ink 17:1, soft ink about 9:1, light line about 10:1 on `#0a0d11`. Negro belt line is now the light line.
+  - T11b fallbacks verified at 1440: no JS and reduced motion give black negro, principles, sheet and close with no flood; the header goes dark with the active negro belt.
+  - T11c: spacer static height is 12rem (was 8rem) so the static drawing fits. Drawing is 480x260 with the knot at its centre (`KNOT_AT` in `beltDrawing.ts`, exposed as `--knot-fx/--knot-fy` on the passage).
+  - Checks: `bunx astro check` 0 errors; `bun test` 215 pass, 0 fail; `bun run build` 6 pages; `rg "[가-힯]"` over `src/components`, `src/scripts`, `src/pages` finds nothing.
+  - Captures (Playwright, 1440 and 390): all six title underlines, animation frames, flood at p 0.1 to 0.8, principles and close on black, no-JS and reduced motion, mobile spacer mid-scroll. A software-rendered sweep of the flood gave 17 ms frames and no long tasks. Not measured: a real GPU (the displacement edge filter re-runs per frame on desktop).
 - 2026-10-06 T10 (user: sumi-e ink passages and brush detail; plan `codegraph-engram-context7-gentle-ai-snoopy-squid.md`). Route: delegated, one writer for T10a to T10d (writer trigger: 2+ non-trivial files per task). TDD: off (explicit in the request). Runner: `bunx astro check`, `bun test`, `bun run build`.
   - T10a `35c1750`: kit and component. Each arriving belt has its own piece: yellow drop, green dry sweep, blue drip curtain, red ensō, black single vertical stroke. No text, no hangul.
   - T10b `c2e4cea`: passages mounted in the three pages; the engine writes `--p` per passage (top at the bottom edge to bottom at the top edge). CSS derives `--k` (0, 1, 0).
@@ -175,4 +189,4 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - 2026-10-05 T0: `3de8f84` on `feat/ink-redesign`. Branch `feat/tul-redesign` created. Doc and mirror written.
 
 ## Next step
-T8: finish review (impeccable detect, finish reviewer at 1440 and 390, one fix round, documenter rewrites DESIGN.md). Before deploy, the user decides whether the CV PDF gets tracked (see Open decisions).
+T11d (3D canvas) and T11e (contract), then T8: finish review (impeccable detect, finish reviewer at 1440 and 390, one fix round, documenter rewrites DESIGN.md). Before deploy, the user decides whether the CV PDF gets tracked (see Open decisions).

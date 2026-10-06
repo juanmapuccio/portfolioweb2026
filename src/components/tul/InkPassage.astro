@@ -1,17 +1,24 @@
 ---
 import type { BeltKey } from '../../data/tuls';
+import BeltDrawing from './BeltDrawing.astro';
+import { KNOT_AT } from './beltDrawing';
 
 /**
  * The spacer between two belt chapters. In flow, decorative, aria-hidden, no text.
  *
  * It paints nothing across the screen, except at one place: the passage that arrives at 1st dan
  * (`to === 'negro'`) carries the black flood. The sumi-e ink lives only under the chapter titles
- * (TitleInk.astro). The spacer is ~50svh on desktop and 40svh on mobile, a quiet gap that other
- * layers stand on (the belt drawing, the flood).
+ * (TitleInk.astro). The spacer is ~50svh on desktop and 40svh on mobile. It holds the detailed belt
+ * drawing (BeltDrawing.astro), centred, which unties and ties again as the passage scrolls by:
+ *   - mobile (< 1024px): always there, it is the thread of the journey (no 3D on mobile);
+ *   - desktop: the poster of the 3D belt. It shows until the 3D scene reports html[data-belt3d="ready"]
+ *     (T11d), and always when 3D never loads (no WebGL, reduced motion, save-data).
+ * The drawing's knot is at the centre of the box, which is why `--knot-fx` / `--knot-fy` below are
+ * KNOT_AT (beltDrawing.ts): the flood starts from it.
  *
  * The engine (tul.ts, [data-tul-passage]) writes `--p` (0..1) on the passage while it crosses the
  * viewport (top at the bottom edge to bottom at the top edge). With reduced motion or without JS the
- * passage stays a static 8rem gap, `--p` is never written and there is no flood: the black chapter and
+ * passage stays a static 12rem gap, `--p` is never written and there is no flood: the black chapter and
  * what follows are black by CSS (base.css).
  *
  * Flood (black passage only, html.js with motion):
@@ -36,7 +43,17 @@ const { from, to } = Astro.props;
 const floods = to === 'negro';
 ---
 
-<div class="ink" data-tul-passage data-belt={to} data-from={from} aria-hidden="true">
+<div
+  class="ink"
+  data-tul-passage
+  data-belt={to}
+  data-from={from}
+  style={`--knot-fx:${KNOT_AT.fx};--knot-fy:${KNOT_AT.fy}`}
+  aria-hidden="true"
+>
+  <div class="ink__drawing" data-ink-drawing>
+    <BeltDrawing from={from} to={to} />
+  </div>
   {floods && (
     <div class="ink__flood" data-ink-flood>
       <div class="ink__fill"></div>
@@ -54,13 +71,28 @@ const floods = to === 'negro';
 
 <style>
   .ink {
-    --ink-h: 8rem;
-    /* Where the drawn belt knot sits inside the spacer (fractions of its width and height). */
+    --ink-h: 12rem;
+    /* Where the drawn belt knot sits inside the spacer (fractions of its width and height); the inline
+       style of the element sets them from KNOT_AT, these are the safe defaults. */
     --knot-fx: 0.5;
     --knot-fy: 0.5;
     position: relative;
     height: var(--ink-h);
     pointer-events: none;
+  }
+
+  .ink__drawing {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  /* Desktop: the 3D belt takes over once it is ready. Until then (or if it never loads) this is the poster. */
+  @media (min-width: 64rem) {
+    :global(html[data-belt3d='ready']) .ink__drawing {
+      display: none;
+    }
   }
 
   .ink__defs {

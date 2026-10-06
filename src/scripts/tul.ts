@@ -17,8 +17,9 @@
 //   data-form-label    optional on a sub-scene (black belt passages): the header's form text shows
 //                      this label while the sub-scene sits at mid-viewport.
 //   [data-tul-passage] spacer between two chapters (InkPassage.astro): `--p` (0..1) while it crosses the
-//                      viewport (top at the bottom edge to bottom at the top edge). The one that arrives at
-//                      1st dan drives the black flood and sets html[data-field="dark"] at p >= 0.5.
+//                      viewport (top at the bottom edge to bottom at the top edge). The belt drawing inside
+//                      ([data-belt-drawing]) unties and ties with it. The one that arrives at 1st dan also
+//                      drives the black flood and sets html[data-field="dark"] at p >= 0.5.
 // With reduced motion nothing is scrubbed: --p and --draw are 1, everything is drawn.
 // Only GSAP's ticker schedules frames here; only CSS-driven transform, opacity, clip-path
 // and stroke-dashoffset react to the variables.
@@ -29,6 +30,7 @@ import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 import { MorphSVGPlugin } from 'gsap/MorphSVGPlugin';
 import { bootBelt3d } from './belt3d/boot';
 import { playTitleInk } from './titleInk';
+import { buildBeltTimeline } from './beltDrawing';
 
 type Grade = { gup: string; form: string };
 
@@ -153,9 +155,10 @@ function initScrubs(): void {
   }
 }
 
-// [data-tul-passage]  an in-flow spacer between two chapters. It only needs its own `--p` (the CSS of the
-//                     flood and, later, the belt drawing read it). With reduced motion nothing is written and
-//                     the CSS shows a static gap.
+// [data-tul-passage]  an in-flow spacer between two chapters. It writes its own `--p` (the CSS of the flood
+//                     reads it) and scrubs the belt drawing inside it (beltDrawing.ts) with the same value.
+//                     With reduced motion nothing is written and the CSS shows a static gap with the
+//                     finished drawing.
 // The passage that arrives at 1st dan (data-belt="negro") also owns the field flip: once its progress passes
 // FLOOD_FULL the black flood covers the whole view, so the page tokens are switched to the dark field
 // underneath it (html[data-field="dark"], tokens.css) and switched back when scrolling up past it. Both read
@@ -177,12 +180,29 @@ function initPassages(): void {
     const flips = el.dataset.belt === 'negro';
     const state = { p: 0 };
     el.style.setProperty('--p', '0');
+
+    // The belt drawing of the spacer unties and ties again with the same `p`. DrawSVG needs the drawing
+    // to be rendered, so the timeline is built the first time it is (it is hidden on desktop once the 3D
+    // belt is ready, and may only show after a resize).
+    const drawing = el.querySelector<SVGSVGElement>('[data-belt-drawing]');
+    let belt: gsap.core.Timeline | null = null;
+    let tried = false;
+    const ensureDrawing = (): void => {
+      if (tried || !drawing || drawing.getClientRects().length === 0) return;
+      tried = true;
+      belt = buildBeltTimeline(drawing);
+      belt?.progress(state.p);
+    };
+    ensureDrawing();
+
     gsap.to(state, {
       p: 1,
       ease: 'none',
       scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: 0.4 },
       onUpdate: () => {
         el.style.setProperty('--p', state.p.toFixed(4));
+        ensureDrawing();
+        belt?.progress(state.p);
         if (flips) setField(state.p >= FLOOD_FULL);
       }
     });

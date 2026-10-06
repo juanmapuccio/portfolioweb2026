@@ -35,9 +35,9 @@ describe('InkPassage is a spacer', () => {
     expect(styleOf(passage)).not.toMatch(/\.ink \{[^}]*position:\s*(fixed|sticky|absolute)/);
   });
 
-  test('about 50svh on desktop, smaller on mobile, a static 8rem gap without JS or with reduced motion', () => {
+  test('about 50svh on desktop, smaller on mobile, a static 12rem gap without JS or with reduced motion', () => {
     const css = styleOf(passage);
-    expect(css).toMatch(/\.ink \{[^}]*--ink-h: 8rem/);
+    expect(css).toMatch(/\.ink \{[^}]*--ink-h: 12rem/);
     expect(css).toMatch(/prefers-reduced-motion: no-preference\) \{\s*:global\(html\.js\) \.ink \{\s*--ink-h: 50svh/);
     expect(css).toMatch(/max-width: 47\.99rem\) and \(prefers-reduced-motion: no-preference\) \{\s*:global\(html\.js\) \.ink \{\s*--ink-h: 40svh/);
   });
