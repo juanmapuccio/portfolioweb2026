@@ -198,7 +198,8 @@ const tickLen = (v: number) => (v % 50 === 0 ? 4 : 2);
     width: 100%;
     height: 100%;
     overflow: visible;
-    color: var(--ink);
+    /* The line of movement, stops and footprints take the active belt's line colour. */
+    color: var(--belt-line);
     fill: none;
     stroke: currentColor;
     stroke-width: var(--fd-stroke);

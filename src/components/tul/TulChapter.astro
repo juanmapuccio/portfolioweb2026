@@ -25,7 +25,6 @@ interface Props {
 const { lang = 'es', beltKey } = Astro.props;
 const t = useTranslations(lang);
 
-const BELT_ORDER: BeltKey[] = ['blanco', 'amarillo', 'verde', 'azul', 'rojo', 'negro'];
 /** The hero already draws this share of the first tul; the white chapter continues from it. */
 const HERO_DRAW_END = 0.25;
 
@@ -36,8 +35,6 @@ if (!stage || !chapter) throw new Error(`TulChapter: unknown belt "${beltKey}"`)
 
 const belt = BELTS[beltKey];
 const isBlack = beltKey === 'negro';
-// After the black belt the line returns to the white field (principles, sheet, Kyong-ye).
-const nextBelt = (isBlack ? 'blanco' : BELT_ORDER[BELT_ORDER.indexOf(beltKey) + 1]) as BeltKey | undefined;
 const mainForm = chapter.forms[0];
 const projects = projectsContent[lang];
 
@@ -76,18 +73,13 @@ const passages = isBlack
   : [];
 
 const automation = beltKey === 'rojo' ? automationsContent[lang] : undefined;
-// The tie-in plane and the early belt flip live on the last scrubbed scene of the section.
-const tieOnMain = !isBlack && !automation && !!nextBelt;
-const tieOnAuto = !!automation && !!nextBelt;
-
 // The black belt's opening frame is plain flow; every other main scene is scrubbed and pinned.
 const mainScene: Record<string, string | number> = isBlack
   ? {}
   : {
       'data-tul-scene': '',
       'data-p-from': beltKey === 'blanco' ? HERO_DRAW_END : 0,
-      'data-p-to': 1,
-      ...(tieOnMain && nextBelt ? { 'data-next-belt': nextBelt } : {})
+      'data-p-to': 1
     };
 const stepsCount = Math.max(rows.length, 2);
 
@@ -194,7 +186,6 @@ const caption = (label: string, movements: number) =>
         )}
       </div>
     </div>
-    {tieOnMain && nextBelt && <div class="tc__next" data-belt={nextBelt} aria-hidden="true"></div>}
   </div>
 
   {automation && (
@@ -204,7 +195,6 @@ const caption = (label: string, movements: number) =>
       data-tul-scene
       data-p-from="0"
       data-p-to="1"
-      data-next-belt={nextBelt}
       aria-labelledby="auto-title"
     >
       <div class="tc__stage auto">
@@ -223,7 +213,6 @@ const caption = (label: string, movements: number) =>
           ))}
         </ul>
       </div>
-      {tieOnAuto && nextBelt && <div class="tc__next" data-belt={nextBelt} aria-hidden="true"></div>}
     </aside>
   )}
 
@@ -284,13 +273,10 @@ const caption = (label: string, movements: number) =>
       class="tc__scene tc__scene--pin tc__outro"
       style="--n:1"
       data-tul-scene
-      data-next-belt={nextBelt}
-      data-next-grade-belt="negro"
     >
       <div class="tc__stage tc__stage--closing">
         <p class="tc__closing grade-type">{stage.closing}</p>
       </div>
-      {nextBelt && <div class="tc__next" data-belt={nextBelt} aria-hidden="true"></div>}
     </div>
   )}
 </section>
@@ -414,7 +400,7 @@ const caption = (label: string, movements: number) =>
   }
 
   .tc__slash line {
-    stroke: currentColor;
+    stroke: var(--belt-line);
     stroke-width: 2;
     stroke-dasharray: 1;
     stroke-dashoffset: 0;
@@ -492,8 +478,9 @@ const caption = (label: string, movements: number) =>
     height: 1.75rem;
     border: var(--line-strong) solid currentColor;
     border-radius: 50%;
-    background-color: color-mix(in srgb, var(--ink) calc(var(--on) * 100%), transparent);
-    color: color-mix(in srgb, var(--field) calc(var(--on) * 100%), var(--ink-soft));
+    border-color: color-mix(in srgb, var(--belt-line) calc(var(--on) * 100%), var(--ink-soft));
+    background-color: color-mix(in srgb, var(--belt-line) calc(var(--on) * 100%), transparent);
+    color: color-mix(in srgb, #ffffff calc(var(--on) * 100%), var(--ink-soft));
     font-family: var(--font-display);
     font-size: 0.75rem;
     font-weight: 700;
@@ -758,7 +745,7 @@ const caption = (label: string, movements: number) =>
     position: absolute;
     inset: 0.9rem auto 0.9rem 0.875rem;
     width: var(--line-strong);
-    background-color: var(--ink-soft);
+    background-color: var(--belt-line);
   }
 
   .auto__step {
@@ -779,17 +766,12 @@ const caption = (label: string, movements: number) =>
     height: 1.75rem;
     border: var(--line-strong) solid currentColor;
     border-radius: 50%;
-    background-color: color-mix(in srgb, var(--ink) calc(var(--on) * 100%), var(--field));
-    color: color-mix(in srgb, var(--field) calc(var(--on) * 100%), var(--ink-soft));
+    border-color: color-mix(in srgb, var(--belt-line) calc(var(--on) * 100%), var(--ink-soft));
+    background-color: color-mix(in srgb, var(--belt-line) calc(var(--on) * 100%), var(--field));
+    color: color-mix(in srgb, #ffffff calc(var(--on) * 100%), var(--ink-soft));
     font-family: var(--font-display);
     font-size: 0.75rem;
     font-weight: 700;
-  }
-
-  /* Tie-in: the next belt's field rises as a solid plane over the last 12% of the scene
-     (clip-path scrubbed by --p). It exists only when the engine scrubs; otherwise a hard edge. */
-  .tc__next {
-    display: none;
   }
 
   /* Pinned stage: only when JS runs and motion is allowed. The whole stage stays put; scrolling
@@ -879,16 +861,6 @@ const caption = (label: string, movements: number) =>
       animation: tc-slash 500ms var(--ease-out) 358ms both;
     }
 
-    :global(html.js) .tc__next {
-      --rise: clamp(0, calc((var(--p, 0) - 0.88) / 0.12), 1);
-      display: block;
-      position: absolute;
-      inset: auto 0 0 0;
-      z-index: 4;
-      height: 100svh;
-      clip-path: inset(calc((1 - var(--rise)) * 100%) 0 0 0);
-      pointer-events: none;
-    }
   }
 
   @media (min-width: 62rem) {

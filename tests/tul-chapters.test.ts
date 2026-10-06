@@ -42,7 +42,7 @@ describe('chapter structure', () => {
     expect(chapter.match(/<ol[\s>]/g)?.length).toBe(1);
   });
 
-  test('the chapter is a belt-drenched, scrubbed scene', () => {
+  test('the chapter carries its belt as an accent and is a scrubbed scene', () => {
     expect(chapter).toContain('data-belt={beltKey}');
     expect(chapter).toContain("'data-tul-scene'");
     expect(chapter).toContain("'data-p-from'");
@@ -63,9 +63,14 @@ describe('chapter structure', () => {
     expect(chapter).toMatch(/prefers-reduced-motion: no-preference\)\s*\{[\s\S]*html\.js\) \.tc__scene--pin \.tc__stage\s*\{\s*position: sticky/);
   });
 
-  test('the next belt plane is hidden unless the engine scrubs', () => {
-    expect(chapter).toContain('clip-path: inset(calc((1 - var(--rise)) * 100%) 0 0 0)');
-    expect(chapter).toMatch(/\.tc__next\s*\{\s*display: none;/);
+  test('there is no next-belt colour plane', () => {
+    expect(chapter).not.toContain('tc__next');
+    expect(chapter).not.toContain('data-next-belt');
+  });
+
+  test('the title-cut rule and the active row marker use the belt line colour', () => {
+    expect(chapter).toMatch(/\.tc__slash line\s*\{\s*stroke: var\(--belt-line\)/);
+    expect(chapter).toContain('var(--belt-line) calc(var(--on) * 100%)');
   });
 });
 
@@ -148,8 +153,10 @@ describe('authorship and engine guards', () => {
     expect(engine).not.toContain('requestAnimationFrame');
   });
 
-  test('the engine supports the next-belt early flip and the passage form labels', () => {
-    expect(engine).toContain('data-next-belt');
+  test('the engine tracks the active belt without a field flip and keeps the passage form labels', () => {
+    expect(engine).toContain('activeBelt');
     expect(engine).toContain('data-form-label');
+    expect(engine).not.toContain('TIE_AT');
+    expect(engine).not.toContain('dataset.nextBelt');
   });
 });

@@ -51,7 +51,7 @@ const education = educationContent[lang];
 const certs = certifications(lang);
 ---
 
-<section class="qcv" data-belt="blanco" data-grade-belt="negro" aria-labelledby="qcv-name">
+<section class="qcv" data-belt="negro" aria-labelledby="qcv-name">
   <header class="qcv__head">
     <h1 id="qcv-name" class="qcv__name grade-type">{t('header.name')}</h1>
     <p class="qcv__role">{t('header.role')}</p>
@@ -100,7 +100,7 @@ const certs = certifications(lang);
           <svg class="qcv__sw" viewBox="0 0 28 12" width="28" height="12" role="img" aria-labelledby={`sw-${p.id}`}>
             <title id={`sw-${p.id}`}>{BELTS[p.beltKey].beltName[lang]}</title>
             <rect x="0.5" y="0.5" width="27" height="11" fill="none" stroke="currentColor"></rect>
-            <rect data-belt={p.beltKey} x="1.5" y="1.5" width="25" height="9" fill="var(--field)"></rect>
+            <rect data-belt={p.beltKey} x="1.5" y="1.5" width="25" height="9" fill="var(--belt-fill)"></rect>
           </svg>
           <time class="qcv__date num">{p.dates}</time>
           <span class="qcv__what">{p.role}</span>

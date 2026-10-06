@@ -8,15 +8,11 @@
 //                      turning into the path).
 //   data-draw-start    optional: --draw starts moving once the scene progress passes this value.
 //   --draw             consumed by FloorDiagram: stroke-dashoffset, stops and arrows.
-//   main section[data-belt]  the chapter that sits at mid-viewport sets html[data-belt] and
-//                      the header grade indicator ([data-grade-gup], [data-grade-form]).
-//   data-next-belt     optional on a scene: once its tie-in plane has risen (--p past TIE_AT) the
-//                      header flips to that belt early, so the bar never shows the old field on the
-//                      new one. The plane itself is CSS-only (clip-path driven by --p).
-//   data-grade-belt    optional on a chapter section: the header indicator text (gup, form) comes from
-//                      this belt while html[data-belt] still follows the field. Used by the white-field
-//                      close (principles, sheet, Kyong-ye), which the visitor reaches as 1st dan.
-//   data-next-grade-belt  optional on a scene with data-next-belt: the grade shown once the tie-in flips.
+//   main section[data-belt]  the section at mid-viewport sets html[data-active-belt] and the header
+//                      grade indicator ([data-grade-gup], [data-grade-form]). The page background never
+//                      changes: the belt only drives the header swatch (a short clip-path wipe from the
+//                      previous belt) and accent colours. Sections after the black belt (principles, sheet,
+//                      close) carry data-belt="negro" as their accent, so the header keeps showing 1st dan.
 //   data-form-label    optional on a sub-scene (black belt passages): the header's form text shows
 //                      this label while the sub-scene sits at mid-viewport.
 // With reduced motion nothing is scrubbed: --p and --draw are 1, everything is drawn.
@@ -34,9 +30,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 type Grades = Record<string, Grade>;
 
-/** Scene progress at which the next belt's plane has fully risen (see TulChapter's tie-in). */
-const TIE_AT = 0.985;
-
 const indicator = document.querySelector<HTMLElement>('[data-grade-indicator]');
 const gupEl = document.querySelector<HTMLElement>('[data-grade-gup]');
 const formEl = document.querySelector<HTMLElement>('[data-grade-form]');
@@ -48,14 +41,31 @@ try {
   grades = {};
 }
 
-/** Belt whose grade the indicator currently shows (can differ from the field belt). */
+const swatchPrev = document.querySelector<SVGElement>('[data-swatch-prev]');
+const swatchFill = document.querySelector<SVGElement>('[data-swatch-fill]');
+
+/** Belt whose grade the indicator currently shows. */
 let shownGrade = '';
 
-function setBelt(belt: string, gradeBelt: string = belt): void {
-  if (root.dataset.belt !== belt) root.dataset.belt = belt;
-  if (shownGrade === gradeBelt) return;
-  shownGrade = gradeBelt;
-  const grade = grades[gradeBelt];
+/** Line hand-off: the new belt's fill wipes over the previous one (instant with reduced motion). */
+function wipeSwatch(from: string): void {
+  if (reduced || !swatchFill || !swatchPrev || !swatchFill.animate) return;
+  swatchPrev.style.setProperty('--swatch-prev', from);
+  swatchFill.animate(
+    [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0 0 0)' }],
+    { duration: 450, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }
+  );
+}
+
+function setBelt(belt: string): void {
+  if (shownGrade === belt) return;
+  const header = swatchFill?.closest<HTMLElement>('.tul-header');
+  const from = header ? getComputedStyle(header).getPropertyValue('--belt-fill').trim() : '';
+  const first = shownGrade === '';
+  shownGrade = belt;
+  root.dataset.activeBelt = belt;
+  if (!first && from) wipeSwatch(from);
+  const grade = grades[belt];
   if (grade && gupEl) gupEl.textContent = grade.gup;
   if (grade && formEl) formEl.textContent = grade.form;
 }
@@ -104,28 +114,6 @@ function initScenes(): void {
       },
       onUpdate: () => write(el, state.p, from, to)
     });
-
-    // Early flip, driven by raw scroll (not the smoothed scrub) so fast jumps cannot race.
-    const nextBelt = el.dataset.nextBelt;
-    const ownSection = el.closest<HTMLElement>('[data-belt]');
-    const ownBelt = ownSection?.dataset.belt;
-    const ownGrade = ownSection?.dataset.gradeBelt ?? ownBelt;
-    const nextGrade = el.dataset.nextGradeBelt ?? nextBelt;
-    if (nextBelt && ownBelt) {
-      gsap.to({}, {
-        scrollTrigger: {
-          trigger: el,
-          start: 'top top',
-          end: 'bottom bottom',
-          onUpdate: (self) => {
-            if (self.progress <= 0 || self.progress >= 1) return;
-            if (self.progress >= TIE_AT) setBelt(nextBelt, nextGrade);
-            else setBelt(ownBelt, ownGrade);
-          },
-          onLeave: () => setBelt(nextBelt, nextGrade)
-        }
-      });
-    }
   }
 }
 
@@ -140,7 +128,7 @@ function initChapters(): void {
         if (!entry.isIntersecting) continue;
         const target = entry.target as HTMLElement;
         const belt = target.dataset.belt ?? 'blanco';
-        setBelt(belt, target.dataset.gradeBelt ?? belt);
+        setBelt(belt);
       }
     },
     { rootMargin: '-50% 0px -50% 0px', threshold: 0 }
@@ -158,7 +146,7 @@ function initChapters(): void {
       // Exits first, so moving from one passage to the next never ends on the fallback.
       for (const entry of entries) {
         if (entry.isIntersecting) continue;
-        const fallback = grades[shownGrade || (root.dataset.belt ?? '')]?.form;
+        const fallback = grades[shownGrade]?.form;
         if (fallback) formEl.textContent = fallback;
       }
       for (const entry of entries) {

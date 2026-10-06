@@ -49,7 +49,9 @@ const legend = [
       data-grades={JSON.stringify(grades)}
     >
       <svg class="tul-grade__swatch" viewBox="0 0 28 12" width="28" height="12" aria-hidden="true">
-        <rect x="0.75" y="0.75" width="26.5" height="10.5" fill="var(--field)" stroke="var(--ink)" stroke-width="1.5"></rect>
+        <rect class="tul-grade__prev" x="0.75" y="0.75" width="26.5" height="10.5" data-swatch-prev></rect>
+        <rect class="tul-grade__fill" x="0.75" y="0.75" width="26.5" height="10.5" data-swatch-fill></rect>
+        <rect x="0.75" y="0.75" width="26.5" height="10.5" fill="none" stroke="var(--ink)" stroke-width="1.5"></rect>
         <path d="M14 0.75V11.25" stroke="var(--ink)" stroke-width="1.5" fill="none"></path>
       </svg>
       <span class="visually-hidden">{t('tul.grade.label')}:</span>
@@ -152,6 +154,7 @@ const legend = [
 
 <style>
   .tul-header {
+    --belt-fill: #ffffff;
     position: fixed;
     inset: 0 0 auto 0;
     z-index: 50;
@@ -207,6 +210,16 @@ const legend = [
 
   .tul-grade__swatch {
     flex: none;
+  }
+
+  /* The swatch follows the active chapter (html[data-active-belt]); the page field never changes.
+     A change wipes the new belt over the previous one (see tul.ts). */
+  .tul-grade__prev {
+    fill: var(--swatch-prev, var(--belt-fill));
+  }
+
+  .tul-grade__fill {
+    fill: var(--belt-fill);
   }
 
   .tul-grade__gup {

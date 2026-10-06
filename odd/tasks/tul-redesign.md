@@ -70,6 +70,13 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - [x] T5 Principles, technical sheet (stack, certifications, education, languages) and the Kyong-ye close, where the line returns to the origin.
 - [x] T6 `/cv` route (es/en/pt) plus a mobile "CV in 30 s" button and the PDF download.
 - [x] T7 Retire the old world: `src/components/ink/*`, `src/components/lab/*` and `/lab`, `Belt3D`, `proceduralBelt.ts`, the `three` and Lenis dependencies, and old tokens and tests.
+- [ ] T9a Always-white field. Add `--belt-fill` / `--belt-line` tokens; remove the drench, the tie plane, the early flip, the header field swap and `data-grade-belt`. Move the accent to strokes, stops, rows, the title cut, the header and `/cv`. Add a line hand-off transition. Update the tests. (User 2026-10-06: no full-screen belt colours.)
+- [ ] T9b `BeltMark.astro`: a drawn tied belt (SVG, ink outline plus belt fill, contour draw-in) in chapter heads, the header, the legend and `/cv`. It is also the 3D poster.
+- [ ] T9c Perspective floor in `FloorDiagram` (CSS 3D plane, upright HTML stop markers, scroll camera). Mobile gets a lighter tilt; reduced motion gets a static mild tilt.
+- [ ] T9d WebGL belt (desktop >=1024 only, lazy, procedural belt from `feat/ink-redesign:src/scripts/proceduralBelt.ts`):
+  - Moment A: the white belt lands on the hero floor.
+  - Moment B: the belt is tied red to black at 1st dan.
+  - Re-add `three`. Delete the unused 5.4 MB GLBs.
 - [ ] T8 Finish: `impeccable detect`, then the finish reviewer at desktop 1440 and mobile 390, one fix round, and the documenter rewriting `DESIGN.md` and `.impeccable/design.json`.
 
 ## Acceptance criteria

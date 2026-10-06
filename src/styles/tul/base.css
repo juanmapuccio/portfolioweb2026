@@ -104,9 +104,10 @@ main > section[data-belt] {
 
 /* Browser surfaces */
 
+/* Ink on a light tint of the active belt line; never a coloured field. */
 ::selection {
-  background: var(--ink);
-  color: var(--field);
+  background: color-mix(in srgb, var(--belt-line) 22%, #ffffff);
+  color: var(--ink);
 }
 
 :focus-visible {

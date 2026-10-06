@@ -39,11 +39,11 @@ describe('anchors', () => {
     expect(read('src/components/tul/HeroJoonbi.astro')).toContain('href="#contacto"');
   });
 
-  test('the three sections stay on the white field with the 1st dan grade', () => {
+  test('the three sections carry the negro belt as accent (1st dan in the header) on the white field', () => {
     for (const f of COMPONENTS) {
       const src = read(f);
-      expect(src).toContain('data-belt="blanco"');
-      expect(src).toContain('data-grade-belt="negro"');
+      expect(src).toContain('data-belt="negro"');
+      expect(src).not.toContain('data-grade-belt');
     }
   });
 });
@@ -114,9 +114,9 @@ describe('copy and glyph rules', () => {
     }
   });
 
-  test('the engine supports the grade override', () => {
+  test('the engine has no grade override workaround', () => {
     const engine = read('src/scripts/tul.ts');
-    expect(engine).toContain('gradeBelt');
-    expect(engine).toContain('nextGradeBelt');
+    expect(engine).not.toContain('gradeBelt');
+    expect(engine).not.toContain('nextGradeBelt');
   });
 });
