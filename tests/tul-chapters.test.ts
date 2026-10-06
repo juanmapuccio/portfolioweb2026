@@ -85,10 +85,10 @@ describe('milestone rows match the tul stops', () => {
     }
   });
 
-  test('the black belt renders three forms mapped to nodofit, satori and donpizza', () => {
+  test('the black belt renders three forms mapped to satori, nodofit and donpizza', () => {
     const forms = TUL_CHAPTERS.negro.forms;
     expect(forms.map((f) => f.id)).toEqual(['kwang-gae', 'po-eun', 'ge-baek']);
-    expect(forms.map((f) => f.stops[0].ref.id)).toEqual(['nodofit', 'satori', 'donpizza']);
+    expect(forms.map((f) => f.stops[0].ref.id)).toEqual(['satori', 'nodofit', 'donpizza']);
     expect(chapter).toContain('chapter.forms.flatMap');
     expect(chapter).toContain('data-form-label={p.form.name}');
   });

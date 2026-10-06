@@ -167,7 +167,7 @@ export const TUL_CHAPTERS: Record<BeltKey, TulChapter> = {
         movements: 39,
         shape: 'to-long-bottom',
         path: TO,
-        stops: spread([project('nodofit')], 39)
+        stops: spread([project('satori')], 39)
       },
       {
         id: 'po-eun',
@@ -176,7 +176,7 @@ export const TUL_CHAPTERS: Record<BeltKey, TulChapter> = {
         movements: 36,
         shape: 'single-line',
         path: LINE,
-        stops: spread([project('satori')], 36)
+        stops: spread([project('nodofit')], 36)
       },
       {
         id: 'ge-baek',

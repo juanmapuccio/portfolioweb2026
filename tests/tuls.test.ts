@@ -39,8 +39,8 @@ describe('tul chapters', () => {
     const black = TUL_CHAPTERS.negro;
     expect(black.forms.map((f) => f.id)).toEqual(['kwang-gae', 'po-eun', 'ge-baek']);
     expect(black.forms.map((f) => f.stops.map((s) => s.ref))).toEqual([
-      [{ kind: 'project', id: 'nodofit' }],
       [{ kind: 'project', id: 'satori' }],
+      [{ kind: 'project', id: 'nodofit' }],
       [{ kind: 'project', id: 'donpizza' }]
     ]);
     expect(black.frame).toEqual({ kind: 'position', id: 'nodosur' });
@@ -85,6 +85,14 @@ describe('tul chapters', () => {
     for (const name of await readdir(dir)) {
       const text = await readFile(new URL(name, dir), 'utf8');
       expect(text).not.toMatch(/Stoky|Inmotuls|Credituls|Abogac/i);
+    }
+  });
+
+  test('no data file claims absolute results such as zero hours', async () => {
+    const dir = new URL('../src/data/', import.meta.url);
+    for (const name of await readdir(dir)) {
+      const text = await readFile(new URL(name, dir), 'utf8');
+      expect(text).not.toMatch(/a cero|to zero|a zero/i);
     }
   });
 });

@@ -277,9 +277,9 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         years: 'Jun 2025 — Presente',
         title: 'Producción',
         kicker: 'Madurez',
-        line: 'Hoy diseño, despliego y sostengo sistemas que usan personas reales: NodoFit, Satori Dojo y Don Pizza.',
+        line: 'Hoy diseño, despliego y sostengo sistemas que usan personas reales: Satori Dojo, NodoFit y Don Pizza.',
         closing: 'En Taekwon-Do, el cinturón negro no es la meta: es el primer grado de quien se toma el camino en serio. Llego con oficio, y con ganas de seguir aprendiendo en equipo.',
-        lede: 'Fundé NodoSur, la marca y software factory bajo la que diseño, despliego y mantengo sistemas propios: NodoFit, gestión administrativa y contable integrando webservices de ARCA para gimnasios y dojos de artes marciales, y el trabajo que hago para clientes como Satori Dojo, Don Pizza y Seiton Motors.',
+        lede: 'Fundé NodoSur, la marca y software factory bajo la que diseño, despliego y mantengo sistemas propios: NodoFit, un sistema integral con gestión administrativa y contable integrando webservices de ARCA para gimnasios, entrenadores, dojos y clubes con reservas de canchas, y el trabajo que hago para clientes como Satori Dojo, Don Pizza y Seiton Motors.',
         positions: [
           {
             id: 'nodosur',
@@ -287,7 +287,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             role: 'Fundador y Desarrollador',
             org: 'NodoSur',
             teaser: 'Software factory propia: soluciones a medida, cloud Linux autoadministrado con Docker y CI/CD.',
-            description: 'Software factory de soluciones a medida, servidores cloud autoadministrados en Linux con Docker y flujo CI/CD con GitHub Actions. Plataformas vivas: NodoFit (SaaS), Satori Dojo y Don Pizza. Consultoría IT y gestión de base de datos para Seiton Motors. Disponibilidad full-time real para sumarme a un equipo.',
+            description: 'Software factory de soluciones a medida, servidores cloud autoadministrados en Linux con Docker y flujo CI/CD con GitHub Actions. Plataformas vivas: Satori Dojo, NodoFit (SaaS) y Don Pizza. Consultoría IT y gestión de base de datos para Seiton Motors. Disponibilidad full-time real para sumarme a un equipo.',
             transferableCompetency: 'Arquitectura de software en producción, capacidad de entregar y sostener sistemas confiables, liderazgo y disciplina ética.'
           }
         ]
@@ -459,9 +459,9 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         years: 'Jun 2025 — Present',
         title: 'Production',
         kicker: 'Maturity',
-        line: 'Today I design, deploy and maintain systems real people use: NodoFit, Satori Dojo and Don Pizza.',
+        line: 'Today I design, deploy and maintain systems real people use: Satori Dojo, NodoFit and Don Pizza.',
         closing: "In Taekwon-Do, the black belt isn't the finish line: it's the first rank of those who take the path seriously. I bring craft, and the will to keep learning on a team.",
-        lede: 'Founded NodoSur, the brand and software factory under which I design, deploy, and maintain custom systems: NodoFit, administrative and accounting management with ARCA fiscal APIs, and client solutions for Satori Dojo, Don Pizza, and Seiton Motors.',
+        lede: 'Founded NodoSur, the brand and software factory under which I design, deploy, and maintain custom systems: NodoFit, an integral system with administrative and accounting management using ARCA fiscal APIs for gyms, trainers, dojos, and clubs with court bookings, and client solutions for Satori Dojo, Don Pizza, and Seiton Motors.',
         positions: [
           {
             id: 'nodosur',
@@ -469,7 +469,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             role: 'Founder and Developer',
             org: 'NodoSur',
             teaser: 'Bespoke software factory: self-managed Linux cloud, Docker, and CI/CD pipelines.',
-            description: 'Bespoke software factory with self-managed cloud servers on Linux, Docker containers, and GitHub Actions CI/CD. Production systems: NodoFit (SaaS), Satori Dojo, and Don Pizza. IT consulting and database management for Seiton Motors. Real full-time availability to join a team.',
+            description: 'Bespoke software factory with self-managed cloud servers on Linux, Docker containers, and GitHub Actions CI/CD. Production systems: Satori Dojo, NodoFit (SaaS), and Don Pizza. IT consulting and database management for Seiton Motors. Real full-time availability to join a team.',
             transferableCompetency: 'Production software architecture, ability to deliver and sustain reliable systems, leadership, and ethical discipline.'
           }
         ]
@@ -641,9 +641,9 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
         years: 'Jun 2025 — Presente',
         title: 'Produção',
         kicker: 'Maturidade',
-        line: 'Hoje projeto, implanto e sustento sistemas usados por pessoas reais: NodoFit, Satori Dojo e Don Pizza.',
+        line: 'Hoje projeto, implanto e sustento sistemas usados por pessoas reais: Satori Dojo, NodoFit e Don Pizza.',
         closing: 'No Taekwon-Do, a faixa preta não é a linha de chegada: é o primeiro grau de quem leva o caminho a sério. Chego com ofício, e com vontade de seguir aprendendo em equipe.',
-        lede: 'Fundei a NodoSur, a marca e software factory sob a qual projeto, implanto e mantenho sistemas próprios: NodoFit, gestão administrativa e contábil integrando webservices da ARCA, e o trabalho que faço para clientes como Satori Dojo, Don Pizza e Seiton Motors.',
+        lede: 'Fundei a NodoSur, a marca e software factory sob a qual projeto, implanto e mantenho sistemas próprios: NodoFit, um sistema integral com gestão administrativa e contábil integrando webservices da ARCA para academias, treinadores, dojos e clubes com reservas de quadras, e o trabalho que faço para clientes como Satori Dojo, Don Pizza e Seiton Motors.',
         positions: [
           {
             id: 'nodosur',
@@ -651,7 +651,7 @@ export const martialExperienceData: Record<Lang, MartialExperienceContent> = {
             role: 'Fundador e Desenvolvedor',
             org: 'NodoSur',
             teaser: 'Software factory própria: cloud Linux autoadministrado, Docker e pipelines CI/CD.',
-            description: 'Software factory com servidores Linux próprios, Docker e pipelines CI/CD com GitHub Actions. Sistemas em produção: NodoFit (SaaS), Satori Dojo e Don Pizza. Consultoria de TI e gestão de banco de dados para a Seiton Motors. Disponibilidade full-time real para me somar a uma equipe.',
+            description: 'Software factory com servidores Linux próprios, Docker e pipelines CI/CD com GitHub Actions. Sistemas em produção: Satori Dojo, NodoFit (SaaS) e Don Pizza. Consultoria de TI e gestão de banco de dados para a Seiton Motors. Disponibilidade full-time real para me somar a uma equipe.',
             transferableCompetency: 'Arquitetura de software em produção, capacidade de entregar e sustentar sistemas confiáveis, liderança e ética.'
           }
         ]
