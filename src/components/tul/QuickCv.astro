@@ -1,0 +1,592 @@
+---
+import { useTranslations, type Lang } from '../../i18n/ui';
+import { BELTS, martialExperienceData } from '../../data/martialExperience';
+import { TUL_CHAPTERS } from '../../data/tuls';
+import { projectsContent } from '../../data/projects';
+import { contactData } from '../../data/contact';
+import { educationContent } from '../../data/education';
+import { CV_PDF_HREF, certifications, stackRows } from '../../data/cvSheet';
+
+/**
+ * The fast scan: a flat, printed-CV-like spec sheet built from the same data modules as the
+ * immersive page. Ruled rows, fixed columns, tabular numerals, no scroll scenes.
+ *
+ * Experience is an `<ol reversed>` (newest first), not a table: each entry reads as one sentence
+ * in any reader, the list keeps its order semantics, and it reflows on a phone without turning
+ * table elements into blocks (which drops table semantics in some browsers).
+ */
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'es' } = Astro.props;
+const t = useTranslations(lang);
+const localePaths: Record<Lang, string> = { es: '/', en: '/en/', pt: '/pt/' };
+
+const contact = contactData[lang];
+const email = contact.channels.find((c) => c.id === 'email') ?? contact.channels[0];
+const bareUrl = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+const channels = contact.channels.map((c) => ({
+  ...c,
+  external: c.url.startsWith('https:'),
+  // The printed URL is only added when the visible label does not already say it.
+  plain: bareUrl(c.url) === c.label
+}));
+
+// Newest first: belts from black down to white, positions reversed inside each belt.
+const rows = [...martialExperienceData[lang].stages].reverse().flatMap((stage) =>
+  [...stage.positions].reverse().map((p, i) => ({ ...p, beltKey: stage.beltKey, groupStart: i === 0 }))
+);
+
+// Production systems, in the order of the black-belt passages in tuls.ts.
+const projectIds = TUL_CHAPTERS.negro.forms.flatMap((f) =>
+  f.stops.flatMap((s) => (s.ref.kind === 'project' ? [s.ref.id] : []))
+);
+const projects = projectsContent[lang];
+const systems = projectIds.map((id) => projects.find((p) => p.id === id)).filter((p) => p !== undefined);
+const frame = projects.find((p) => p.id === TUL_CHAPTERS.negro.frame?.id);
+
+const education = educationContent[lang];
+const certs = certifications(lang);
+---
+
+<section class="qcv" data-belt="blanco" data-grade-belt="negro" aria-labelledby="qcv-name">
+  <header class="qcv__head">
+    <h1 id="qcv-name" class="qcv__name grade-type">{t('header.name')}</h1>
+    <p class="qcv__role">{t('header.role')}</p>
+    <p class="qcv__hook">{t('hero.tagline')}</p>
+    <p class="qcv__avail">{t('tul.hero.availability')}</p>
+    <div class="qcv__actions">
+      <a class="qcv__btn" href={CV_PDF_HREF} download>
+        <span>{t('tul.cv.pdf')}</span>
+        <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+          <path d="M10 3V13M5 8.5L10 13.5L15 8.5M4 17H16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"></path>
+        </svg>
+      </a>
+      <a class="qcv__btn" href={email.url}>
+        <span>{t('tul.close.cta')}</span>
+        <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+          <path d="M3 10H16M11 5L16 10L11 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"></path>
+        </svg>
+      </a>
+      <a class="qcv__tour" href={localePaths[lang]}>{t('tul.cv.tour')}</a>
+    </div>
+  </header>
+
+  <section id="contacto" class="qcv__block qcv__contact" aria-labelledby="qcv-contact">
+    <h2 id="qcv-contact" class="qcv__h2">{t('tul.cv.contact')}</h2>
+    <ul class="qcv__channels">
+      {channels.map((c) => (
+        <li>
+          <a
+            href={c.url}
+            class:list={['qcv__chan', { 'qcv__chan--plain': c.plain }]}
+            target={c.external ? '_blank' : undefined}
+            rel={c.external ? 'noopener' : undefined}
+            data-channel={c.id}
+          >
+            <span class="qcv__chan-name">{c.name}</span>
+            <span class="num">{c.label}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="qcv__block" aria-labelledby="qcv-exp">
+    <h2 id="qcv-exp" class="qcv__h2">{t('tul.cv.experience')}</h2>
+    <ol class="qcv__list" role="list" reversed>
+      {rows.map((p) => (
+        <li class="qcv__row" data-position={p.id} data-group-start={p.groupStart ? '' : undefined}>
+          <svg class="qcv__sw" viewBox="0 0 28 12" width="28" height="12" role="img" aria-labelledby={`sw-${p.id}`}>
+            <title id={`sw-${p.id}`}>{BELTS[p.beltKey].beltName[lang]}</title>
+            <rect x="0.5" y="0.5" width="27" height="11" fill="none" stroke="currentColor"></rect>
+            <rect data-belt={p.beltKey} x="1.5" y="1.5" width="25" height="9" fill="var(--field)"></rect>
+          </svg>
+          <time class="qcv__date num">{p.dates}</time>
+          <span class="qcv__what">{p.role}</span>
+          <span class="qcv__org">{p.org}</span>
+          <span class="qcv__teaser">{p.teaser}</span>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="qcv__block" aria-labelledby="qcv-prod">
+    <h2 id="qcv-prod" class="qcv__h2">{t('tul.cv.projects')}</h2>
+    <ul class="qcv__list">
+      {systems.map((p) => (
+        <li class="qcv__sys" data-project={p.id}>
+          <span class="qcv__sys-name">{p.name}</span>
+          <span class="qcv__sys-line">{p.category}</span>
+          <span class="qcv__sys-tech">{p.tech.join(' · ')}</span>
+          <a class="qcv__sys-link num" href={p.url} target="_blank" rel="noopener">{bareUrl(p.url)}</a>
+        </li>
+      ))}
+    </ul>
+    {frame && (
+      <p class="qcv__frame">
+        {t('tul.cv.projects.frame')}
+        <a href={frame.url} target="_blank" rel="noopener" class="qcv__frame-link num">{bareUrl(frame.url)}</a>
+      </p>
+    )}
+  </section>
+
+  <section class="qcv__block" aria-labelledby="qcv-stack">
+    <h2 id="qcv-stack" class="qcv__h2">{t('tul.sheet.stack')}</h2>
+    <dl class="qcv__dl">
+      {stackRows(lang).map((row) => (
+        <div class="qcv__dr" data-row={row.id}>
+          <dt>{row.label}</dt>
+          <dd>{row.value}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <section class="qcv__block" aria-labelledby="qcv-cred">
+    <h2 id="qcv-cred" class="qcv__h2">{t('tul.sheet.credentials')}</h2>
+    <dl class="qcv__dl">
+      <div class="qcv__dr" data-row="certifications">
+        <dt>{t('tul.sheet.certifications')}</dt>
+        <dd>
+          <ul class="qcv__pairs">
+            {certs.map((c) => (
+              <li><span>{c.name}</span><span class="num qcv__year">{c.year}</span></li>
+            ))}
+          </ul>
+        </dd>
+      </div>
+      <div class="qcv__dr" data-row="languages">
+        <dt>{t('tul.sheet.languages')}</dt>
+        <dd>{t('tul.sheet.lang.es')} · {t('tul.sheet.lang.en')}</dd>
+      </div>
+      <div class="qcv__dr" data-row="education">
+        <dt>{education.title}</dt>
+        <dd>
+          <ul class="qcv__pairs">
+            {education.entries.map((e) => (
+              <li>
+                <span>{e.title}, {e.institution}{e.status ? ` (${e.status})` : ''}</span>
+                <span class="num qcv__year">{e.dates}</span>
+              </li>
+            ))}
+          </ul>
+        </dd>
+      </div>
+      <div class="qcv__dr" data-row="credential">
+        <dt>{t('tul.sheet.credential')}</dt>
+        <dd>{education.teaching.title}, {education.teaching.org}. {education.teaching.note}</dd>
+      </div>
+    </dl>
+  </section>
+</section>
+
+<style>
+  /* The base scaffold gives chapters a full viewport; the CV sizes itself. */
+  .qcv {
+    --col-date: 10.5rem;
+    --col-org: 15rem;
+    display: grid;
+    gap: var(--space-xl);
+    align-content: start;
+    min-height: 0;
+    max-width: 78rem;
+    margin-inline: auto;
+    padding: calc(3rem + var(--space-l)) var(--gutter) var(--space-2xl);
+  }
+
+  .qcv__head {
+    display: grid;
+    gap: var(--space-xs);
+    justify-items: start;
+    padding-bottom: var(--space-m);
+    border-bottom: var(--line-strong) solid var(--ink);
+  }
+
+  .qcv__name {
+    --grade: 1;
+    font-size: var(--step-4);
+    letter-spacing: var(--track-display);
+    line-height: 0.98;
+  }
+
+  .qcv__role {
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-variation-settings: 'wght' 500, 'wdth' 88;
+  }
+
+  .qcv__hook {
+    max-width: 30ch;
+    font-size: var(--step-2);
+    line-height: 1.2;
+    font-weight: 500;
+  }
+
+  .qcv__avail {
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  .qcv__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs) var(--space-m);
+    margin-top: var(--space-2xs);
+  }
+
+  /* The solid ink block. */
+  .qcv__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    min-height: 3.25rem;
+    padding: 0 var(--space-m);
+    border: var(--line-strong) solid var(--ink);
+    background-color: var(--ink);
+    color: var(--field);
+    font-size: var(--step-0);
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
+  }
+
+  .qcv__btn:hover {
+    background-color: var(--field);
+    color: var(--ink);
+  }
+
+  .qcv__btn:active {
+    background-color: var(--ink-soft);
+    border-color: var(--ink-soft);
+    color: var(--field);
+  }
+
+  .qcv__btn svg {
+    flex: none;
+  }
+
+  .qcv__tour {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-weight: 700;
+  }
+
+  .qcv__block {
+    display: grid;
+    gap: var(--space-s);
+    align-content: start;
+  }
+
+  .qcv__h2 {
+    padding-bottom: var(--space-2xs);
+    border-bottom: var(--line-strong) solid var(--ink);
+    font-size: var(--step-2);
+    font-variation-settings: 'wght' 700, 'wdth' 92;
+    letter-spacing: -0.01em;
+  }
+
+  .qcv__channels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-l);
+  }
+
+  .qcv__chan {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--space-xs);
+    min-height: 2.75rem;
+    align-content: center;
+    font-size: var(--step--1);
+  }
+
+  .qcv__chan-name {
+    font-weight: 700;
+  }
+
+  /* Experience: fixed columns date | role | org, swatch leading, teaser underneath. */
+  .qcv__list {
+    display: grid;
+  }
+
+  .qcv__row {
+    display: grid;
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+    grid-template-areas:
+      'sw date'
+      'sw what'
+      'sw org'
+      'sw teaser';
+    column-gap: var(--space-xs);
+    padding-block: var(--space-xs);
+    border-top: var(--line) solid var(--ink-soft);
+  }
+
+  .qcv__row[data-group-start] {
+    border-top: var(--line-strong) solid var(--ink);
+  }
+
+  .qcv__list > .qcv__row:first-child {
+    border-top: 0;
+  }
+
+  .qcv__sw {
+    grid-area: sw;
+    align-self: start;
+    margin-top: 0.3em;
+    width: 1.75rem;
+    height: auto;
+    color: var(--ink);
+  }
+
+  .qcv__date {
+    grid-area: date;
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  .qcv__what {
+    grid-area: what;
+    font-family: var(--font-display);
+    font-size: var(--step-0);
+    font-variation-settings: 'wght' 700, 'wdth' 92;
+    line-height: 1.2;
+  }
+
+  .qcv__org {
+    grid-area: org;
+    font-size: var(--step-0);
+  }
+
+  .qcv__teaser {
+    grid-area: teaser;
+    margin-top: var(--space-3xs);
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+  }
+
+  /* Production systems */
+  .qcv__sys {
+    display: grid;
+    gap: var(--space-3xs);
+    padding-block: var(--space-xs);
+    border-top: var(--line) solid var(--ink-soft);
+  }
+
+  .qcv__list > .qcv__sys:first-child {
+    border-top: 0;
+  }
+
+  .qcv__sys-name {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-variation-settings: 'wght' 700, 'wdth' 92;
+  }
+
+  .qcv__sys-tech {
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+  }
+
+  .qcv__sys-link {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  .qcv__frame {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 var(--space-xs);
+    padding-top: var(--space-xs);
+    border-top: var(--line-strong) solid var(--ink);
+    font-size: var(--step--1);
+  }
+
+  .qcv__frame-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-weight: 600;
+  }
+
+  /* Stack and credentials */
+  .qcv__dl {
+    display: grid;
+    margin: 0;
+  }
+
+  .qcv__dr {
+    display: grid;
+    gap: var(--space-3xs);
+    padding-block: var(--space-xs);
+    border-top: var(--line) solid var(--ink-soft);
+  }
+
+  .qcv__dr:first-child {
+    border-top: 0;
+  }
+
+  .qcv__dr dt {
+    font-family: var(--font-display);
+    font-variation-settings: 'wght' 700, 'wdth' 90;
+  }
+
+  .qcv__dr dd {
+    margin: 0;
+    font-size: var(--step--1);
+    line-height: 1.5;
+  }
+
+  .qcv__pairs li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-s);
+    padding-block: var(--space-3xs);
+  }
+
+  .qcv__pairs li + li {
+    border-top: var(--line) dotted var(--ink-soft);
+  }
+
+  .qcv__year {
+    flex: none;
+    color: var(--ink-soft);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 48rem) {
+    .qcv__row {
+      grid-template-columns: 1.75rem var(--col-date) minmax(0, 1fr) var(--col-org);
+      grid-template-areas:
+        'sw date what org'
+        '. . teaser teaser';
+      column-gap: var(--space-s);
+    }
+
+    .qcv__sys {
+      grid-template-columns: 11rem minmax(0, 1fr) minmax(0, 1fr) auto;
+      column-gap: var(--space-m);
+      align-items: baseline;
+    }
+
+    .qcv__sys-name {
+      font-size: var(--step-0);
+    }
+
+    .qcv__dr {
+      grid-template-columns: 14rem minmax(0, 1fr);
+      column-gap: var(--space-m);
+    }
+  }
+
+  /* Print: A4, black on white, no chrome, links spelled out. */
+  @media print {
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    :global(html),
+    :global(body),
+    .qcv {
+      --field: #fff;
+      --ink: #000;
+      --ink-soft: #333;
+      background: #fff !important;
+      color: #000;
+    }
+
+    :global(body) {
+      font-size: 10pt;
+      line-height: 1.4;
+    }
+
+    :global(.tul-header),
+    :global(.skip-link),
+    .qcv__actions,
+    .qcv__sw {
+      display: none !important;
+    }
+
+    .qcv {
+      display: block;
+      max-width: none;
+      padding: 0;
+    }
+
+    .qcv__block {
+      margin-top: 6mm;
+      break-inside: auto;
+    }
+
+    .qcv__name {
+      font-size: 24pt;
+    }
+
+    .qcv__role {
+      font-size: 12pt;
+    }
+
+    .qcv__hook {
+      font-size: 11pt;
+    }
+
+    .qcv__head {
+      padding-bottom: 3mm;
+    }
+
+    .qcv__h2 {
+      font-size: 12pt;
+      break-after: avoid;
+    }
+
+    .qcv__row,
+    .qcv__sys,
+    .qcv__dr {
+      break-inside: avoid;
+      padding-block: 1.5mm;
+    }
+
+    .qcv__row {
+      grid-template-columns: 8.5rem minmax(0, 1fr) 12rem;
+      grid-template-areas:
+        'date what org'
+        '. teaser teaser';
+    }
+
+    .qcv__chan,
+    .qcv__sys-link,
+    .qcv__frame-link {
+      min-height: 0;
+    }
+
+    .qcv a {
+      text-decoration: none;
+    }
+
+    .qcv a[href^='https']:not(.qcv__chan--plain):not(.qcv__sys-link):not(.qcv__frame-link)::after {
+      content: ' ' attr(href);
+      font-weight: 400;
+      font-size: 8.5pt;
+      color: #333;
+    }
+  }
+</style>

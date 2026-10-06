@@ -13,15 +13,18 @@ interface Props {
   description: string;
   lang?: Lang;
   noindex?: boolean;
+  /** Path below the locale root: '' for the home, 'cv/' for the quick CV. */
+  path?: string;
 }
 
-const { title, description, lang = 'es', noindex = false } = Astro.props;
+const { title, description, lang = 'es', noindex = false, path = '' } = Astro.props;
 const t = useTranslations(lang);
 
 const siteUrl = (Astro.site ?? new URL('https://juanpuccio.vercel.app')).toString().replace(/\/$/, '');
 const localePaths: Record<Lang, string> = { es: '/', en: '/en/', pt: '/pt/' };
 const ogLocales: Record<Lang, string> = { es: 'es_AR', en: 'en_US', pt: 'pt_BR' };
-const canonicalUrl = siteUrl + localePaths[lang];
+const pageUrl = (code: Lang) => siteUrl + localePaths[code] + path;
+const canonicalUrl = pageUrl(lang);
 const ogImageUrl = siteUrl + '/og/og-juan-puccio.png';
 const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
 ---
@@ -60,9 +63,9 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
     <meta property="og:image:alt" content={ogImageAlt} />
     <link rel="canonical" href={canonicalUrl} />
     {Object.keys(localePaths).map((code) => (
-      <link rel="alternate" hreflang={code} href={siteUrl + localePaths[code as Lang]} />
+      <link rel="alternate" hreflang={code} href={pageUrl(code as Lang)} />
     ))}
-    <link rel="alternate" hreflang="x-default" href={siteUrl + localePaths.es} />
+    <link rel="alternate" hreflang="x-default" href={pageUrl('es')} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
@@ -71,7 +74,7 @@ const ogImageAlt = 'JMP Portfolio, Juan Manuel Puccio';
   </head>
   <body>
     <a class="skip-link" href="#main">{t('tul.skip')}</a>
-    <TulHeader lang={lang} />
+    <TulHeader lang={lang} path={path} />
     <slot />
     <script>
       import '../scripts/tul.ts';

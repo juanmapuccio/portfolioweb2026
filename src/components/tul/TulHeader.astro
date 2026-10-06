@@ -5,9 +5,12 @@ import { TUL_CHAPTERS, type BeltKey } from '../../data/tuls';
 
 interface Props {
   lang?: Lang;
+  /** Path below the locale root, so the language switch lands on the equivalent page. */
+  path?: string;
 }
 
-const { lang = 'es' } = Astro.props;
+const { lang = 'es', path = '' } = Astro.props;
+const isCv = path === 'cv/';
 const t = useTranslations(lang);
 
 const localePaths: Record<Lang, string> = { es: '/', en: '/en/', pt: '/pt/' };
@@ -36,24 +39,29 @@ const legend = [
 
 <header class="tul-header">
   <nav class="tul-header__bar" aria-label={t('tul.nav.label')}>
-    <p
+    <button
       class="tul-grade"
+      type="button"
+      popovertarget="tul-legend"
+      aria-haspopup="dialog"
       data-grade-indicator
       data-grades={JSON.stringify(grades)}
-      role="status"
-      aria-label={t('tul.grade.label')}
     >
       <svg class="tul-grade__swatch" viewBox="0 0 28 12" width="28" height="12" aria-hidden="true">
         <rect x="0.75" y="0.75" width="26.5" height="10.5" fill="var(--field)" stroke="var(--ink)" stroke-width="1.5"></rect>
         <path d="M14 0.75V11.25" stroke="var(--ink)" stroke-width="1.5" fill="none"></path>
       </svg>
-      <span class="tul-grade__gup num" data-grade-gup>{initial.gup}</span>
-      <span class="tul-grade__form" data-grade-form>{initial.form}</span>
-    </p>
+      <span class="visually-hidden">{t('tul.grade.label')}:</span>
+      <span class="tul-grade__live" role="status">
+        <span class="tul-grade__gup num" data-grade-gup>{initial.gup}</span>
+        <span class="tul-grade__form" data-grade-form>{initial.form}</span>
+      </span>
+      <span class="visually-hidden">. {t('tul.grade.legend')}</span>
+    </button>
 
     <div class="tul-header__tools">
       <button
-        class="tul-btn"
+        class="tul-btn tul-btn--legend"
         type="button"
         popovertarget="tul-legend"
         aria-haspopup="dialog"
@@ -66,7 +74,7 @@ const legend = [
           <li>
             <a
               class="tul-btn"
-              href={localePaths[code]}
+              href={localePaths[code] + path}
               hreflang={code}
               lang={code}
               aria-current={code === lang ? 'page' : undefined}
@@ -78,6 +86,9 @@ const legend = [
         ))}
       </ul>
 
+      {!isCv && (
+        <a class="tul-btn tul-btn--cv" href={localePaths[lang] + 'cv/'} aria-label={t('tul.cv.short')}>{t('tul.cv.nav')}</a>
+      )}
       <a class="tul-btn tul-btn--contact" href="#contacto">{t('tul.header.contact')}</a>
     </div>
   </nav>
@@ -162,10 +173,35 @@ const legend = [
     align-items: center;
     gap: var(--space-2xs);
     min-width: 0;
+    min-height: 2.75rem;
     margin: 0;
+    margin-left: calc(-1 * var(--space-2xs));
+    padding: 0 var(--space-2xs);
+    border: var(--line) solid transparent;
     font-size: var(--step--1);
     font-weight: 600;
     white-space: nowrap;
+    text-align: left;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out);
+  }
+
+  .tul-grade:hover {
+    border-color: var(--ink);
+  }
+
+  .tul-grade:active {
+    background-color: var(--ink);
+    color: var(--field);
+  }
+
+  .tul-grade__live {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    min-width: 0;
   }
 
   .tul-grade__swatch {
@@ -241,6 +277,13 @@ const legend = [
     color: var(--field);
   }
 
+  /* The grade indicator is the legend trigger; below 62rem it replaces the Leyenda button. */
+  @media (max-width: 61.999rem) {
+    .tul-btn--legend {
+      display: none;
+    }
+  }
+
   .tul-legend {
     position: fixed;
     inset: 3.5rem var(--gutter) auto auto;
@@ -307,12 +350,16 @@ const legend = [
   }
 
   @media (max-width: 30rem) {
-    .tul-btn--contact {
+    .tul-grade {
+      flex: none;
+    }
+
+    .tul-btn--contact,
+    .tul-btn--cv {
       padding: 0 var(--space-2xs);
     }
 
     /* Keep the grade readable at 390: swatch and form name give way to the tools. */
-    .tul-grade__swatch,
     .tul-grade__form {
       display: none;
     }

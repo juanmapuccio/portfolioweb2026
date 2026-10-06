@@ -1,6 +1,6 @@
 ---
 import { useTranslations, type Lang } from '../../i18n/ui';
-import { skillsData } from '../../data/skills';
+import { CV_PDF_HREF, certifications, stackRows } from '../../data/cvSheet';
 import { educationContent } from '../../data/education';
 
 /**
@@ -15,18 +15,9 @@ interface Props {
 const { lang = 'es' } = Astro.props;
 const t = useTranslations(lang);
 
-const CV_HREF = '/CV-Juan-Manuel-Puccio-2026-1.pdf';
-
-const categories = skillsData[lang].categories;
-const stackRows = categories
-  .filter((c) => c.id !== 'certifications')
-  .map((c) => ({ id: c.id, label: c.title, value: c.items.join(', ') }));
-
-// Certifications carry their year in parentheses; split it into its own numeric column.
-const certs = (categories.find((c) => c.id === 'certifications')?.items ?? [])
-  .map((item) => item.match(/^(.*?)\s*\((\d{4})\)$/))
-  .filter((m): m is RegExpMatchArray => m !== null)
-  .map((m) => ({ name: m[1], year: m[2] }));
+const CV_HREF = CV_PDF_HREF;
+const stackRowsList = stackRows(lang);
+const certs = certifications(lang);
 
 const education = educationContent[lang];
 ---
@@ -45,7 +36,7 @@ const education = educationContent[lang];
   <div class="ts__sheet">
     <h3 class="ts__group">{t('tul.sheet.stack')}</h3>
     <dl class="ts__rows">
-      {stackRows.map((row) => (
+      {stackRowsList.map((row) => (
         <div class="ts__row" data-row={row.id}>
           <dt>{row.label}</dt>
           <dd>{row.value}</dd>

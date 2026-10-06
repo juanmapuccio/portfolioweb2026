@@ -1,6 +1,7 @@
 ---
 import { Picture } from 'astro:assets';
 import FloorDiagram from './FloorDiagram.astro';
+import CvShortcut from './CvShortcut.astro';
 import portrait from '../../assets/fotojmPerfil.png';
 import { useTranslations, type Lang } from '../../i18n/ui';
 import { BELTS, martialExperienceData } from '../../data/martialExperience';
@@ -74,6 +75,7 @@ const CV_HREF = '/CV-Juan-Manuel-Puccio-2026-1.pdf';
         <p class="hero__avail">{t('tul.hero.availability')}</p>
         <p class="hero__cue">{t('tul.hero.cue')}</p>
       </div>
+      <CvShortcut lang={lang} />
     </div>
 
     <figure class="hero__figure">

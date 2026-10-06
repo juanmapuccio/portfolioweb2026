@@ -1,0 +1,13 @@
+---
+import QuickCv from '../components/tul/QuickCv.astro';
+import TulLayout from '../layouts/TulLayout.astro';
+import { useTranslations } from '../i18n/ui';
+
+const t = useTranslations('es');
+---
+
+<TulLayout lang="es" path="cv/" title={t('tul.cv.meta.title')} description={t('tul.cv.meta.description')}>
+  <main id="main">
+    <QuickCv lang="es" />
+  </main>
+</TulLayout>

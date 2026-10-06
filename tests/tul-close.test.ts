@@ -84,7 +84,7 @@ describe('technical sheet', () => {
 
   test('is a definition list with a heading and the CV download', () => {
     expect(sheet).toContain('<dl');
-    expect(sheet).toContain('/CV-Juan-Manuel-Puccio-2026-1.pdf');
+    expect(read('src/data/cvSheet.ts')).toContain('/CV-Juan-Manuel-Puccio-2026-1.pdf');
     expect(sheet).toContain('download');
   });
 
