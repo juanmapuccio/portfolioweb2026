@@ -89,6 +89,14 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - Whether to add the roles missing from the CV PDF (Grido, Al Natural, Providus, AS MED).
 
 ## Progress / evidence
+- 2026-10-06 T7c and T7d, commit `135e922`. Route: delegated; the parent verified deep entry.
+  - The user picked 2 of 4 candidates from the `/lab` shortlist: the horizontal cut for chapter titles (two halves plus a drawn underline) and the word-by-word reveal for the principles. They were ported without any ink look: only transform, opacity, clip-path and stroke-dashoffset, with no filters.
+  - The title keeps a single real `h2`; the split copies are `aria-hidden` and are removed after the animation.
+  - T7d: the negro beats and the rojo stage are now top-aligned. The 330 px gap on amarillo could not be reproduced at 1920x900.
+  - Parent check: loading the page already deep inside a chapter leaves every visible title and word at full opacity; only off-screen words stay dimmed until reached.
+  - Checks: `bun test` 119 pass, 0 fail; build OK.
+  - Rejected from `/lab`: the bar burst between chapters, hold-to-send CTA and the per-row mark. They stay available if wanted.
+  - Next: T8.
 - 2026-10-06 T7b (user feedback round), route delegated in two writers.
   - T7b-1 `4836b44`: chapter titles are now by professional area (Formación técnica, Ventas y atención al cliente, Administración pública, Reconversión profesional, Salud y logística, Software en producción). Career copy was neutralized: "sistemas arcaicos", "trinchera" and "la calle" removed, which also fixes a breach of the no-criticism-of-employers rule. Unused fields (`kicker`, `sectionBadge`, general title and subtitle) were removed. `tests/copy-tone.test.ts` guards the tone.
   - T7b-2: tul are shown by grade ("Tul 8º gup · Diagrama de piso · 21 movimientos", "Tul 1º dan · 2 de 3"). The header shows grade plus area title, or the product name in the black passages. No Korean tul names appear on any screen; they live only in `src/data/tuls.ts`. CV buttons say "Ver CV" and use a new external-document icon, with a hidden new-tab hint.
