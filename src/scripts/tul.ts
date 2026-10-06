@@ -133,26 +133,72 @@ function initScenes(): void {
   }
 }
 
-// [data-tul-scrub]  an element that only needs its own `--p` (0..1) while it travels up the viewport
-//                   (top at 90% to top at 25%). The 3D tie of the black belt reads it from the inline
-//                   style. Nothing else (`--draw`, `--q`) is written, so no row or label reacts.
-function initScrubs(): void {
-  // The 3D belt only exists from 1024 px up; below that the scrub would drive nothing.
-  if (!matchMedia('(min-width: 1024px)').matches) return;
-  for (const el of document.querySelectorAll<HTMLElement>('[data-tul-scrub]')) {
-    if (reduced) {
-      el.style.setProperty('--p', '1');
-      continue;
-    }
+// 3D belt beats (desktop only: three never loads below 1024 px or with reduced motion). The scene
+// (belt3d/scene.ts) reads these as inline custom properties and never touches layout:
+//   [data-belt-beat="travel"]  a chapter: `--bp` (0..1) from its top at the viewport top to its bottom at the
+//                              viewport bottom. The belt turns slowly in the reserved column with it.
+//   [data-belt-beat="land"]    the hero: besides `--p` / `--q` (initScenes) it gets `--e` (0..1) while it scrolls
+//                              away (bottom at the viewport bottom to bottom at the top): the belt leaves its floor
+//                              for the column.
+//   [data-belt-beat="passage"] a spacer: `--p` is written by initPassages.
+// Layout is measured here, on refresh and resize only, and published on <html> in px for the scene:
+//   --belt-vw/vh        the viewport (without the scrollbar),
+//   --belt-col-x/y/w/h  the reserved side column (a fixed probe sized by --belt-col, the same token the
+//                       chapter stages reserve as padding), and
+//   --belt-hero-x/y/s   the hero's floor box (data-belt-anchor="hero") as it sits while the hero is pinned.
+function initBeats(): void {
+  if (reduced || !matchMedia('(min-width: 1024px)').matches) return;
+
+  for (const el of document.querySelectorAll<HTMLElement>('[data-belt-beat="travel"]')) {
     const state = { p: 0 };
-    el.style.setProperty('--p', '0');
+    el.style.setProperty('--bp', '0');
     gsap.to(state, {
       p: 1,
       ease: 'none',
-      scrollTrigger: { trigger: el, start: 'top 90%', end: 'top 25%', scrub: 0.4 },
-      onUpdate: () => el.style.setProperty('--p', state.p.toFixed(4))
+      scrollTrigger: { trigger: el, start: 'top top', end: 'bottom bottom', scrub: 0.4 },
+      onUpdate: () => el.style.setProperty('--bp', state.p.toFixed(4))
     });
   }
+
+  const hero = document.querySelector<HTMLElement>('[data-belt-beat="land"]');
+  if (hero) {
+    const state = { e: 0 };
+    hero.style.setProperty('--e', '0');
+    gsap.to(state, {
+      e: 1,
+      ease: 'none',
+      scrollTrigger: { trigger: hero, start: 'bottom bottom', end: 'bottom top', scrub: 0.4 },
+      onUpdate: () => hero.style.setProperty('--e', state.e.toFixed(4))
+    });
+  }
+
+  const probe = document.createElement('div');
+  probe.className = 'belt-col-probe';
+  probe.setAttribute('aria-hidden', 'true');
+  document.body.append(probe);
+  const anchor = document.querySelector<HTMLElement>('[data-belt-anchor="hero"]');
+  const stage = document.querySelector<HTMLElement>('[data-belt-stage]');
+  const px = (n: number): string => n.toFixed(1);
+
+  const publish = (): void => {
+    root.style.setProperty('--belt-vw', px(root.clientWidth));
+    root.style.setProperty('--belt-vh', px(root.clientHeight));
+    const col = probe.getBoundingClientRect();
+    root.style.setProperty('--belt-col-x', px(col.left + col.width / 2));
+    root.style.setProperty('--belt-col-y', px(col.top + col.height / 2));
+    root.style.setProperty('--belt-col-w', px(col.width));
+    root.style.setProperty('--belt-col-h', px(col.height));
+    if (!anchor || !stage) return;
+    const box = anchor.getBoundingClientRect();
+    if (box.width === 0) return;
+    // The stage is sticky at top: 0; measure against its own top so the numbers hold at any scroll offset.
+    const top = box.top - stage.getBoundingClientRect().top;
+    root.style.setProperty('--belt-hero-x', px(box.left + box.width / 2));
+    root.style.setProperty('--belt-hero-y', px(top + box.height / 2));
+    root.style.setProperty('--belt-hero-s', px(box.width));
+  };
+  publish();
+  ScrollTrigger.addEventListener('refresh', publish);
 }
 
 // [data-tul-passage]  an in-flow spacer between two chapters. It writes its own `--p` (the CSS of the flood
@@ -310,7 +356,7 @@ function initEntrances(): void {
 }
 
 initScenes();
-initScrubs();
+initBeats();
 initPassages();
 initChapters();
 initEntrances();

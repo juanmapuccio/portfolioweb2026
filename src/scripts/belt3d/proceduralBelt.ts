@@ -47,11 +47,41 @@ export interface ProceduralBelt {
   group: Group;
   parts: BeltParts;
   materials: { cloth: MeshPhysicalMaterial; stitch: MeshPhysicalMaterial };
-  setColors: (cloth: string | Color, stitch?: string | Color) => void;
+  /**
+   * Cloth colour `from`. With `to` and `mix` the cloth turns into `to` through a noise mask that is fixed on
+   * the belt (the change spreads in blotches and stays put while the belt moves). Without `stitch`, the
+   * thread follows the cloth colour.
+   */
+  setColors: (from: string | Color, to?: string | Color, mix?: number, stitch?: string | Color) => void;
   /** Put every part back to its modelled transform (poses are computed from rest, never accumulated). */
   resetPose: () => void;
   dispose: () => void;
 }
+
+const MIX_GLSL = /* glsl */ `
+varying vec3 vBeltPos;
+uniform vec3 uColorB;
+uniform float uMix;
+float bHash( vec3 p ) {
+  p = fract( p * 0.3183099 + 0.1 );
+  p *= 17.0;
+  return fract( p.x * p.y * p.z * ( p.x + p.y + p.z ) );
+}
+float bNoise( vec3 x ) {
+  vec3 i = floor( x );
+  vec3 f = fract( x );
+  f = f * f * ( 3.0 - 2.0 * f );
+  return mix(
+    mix( mix( bHash( i ), bHash( i + vec3( 1.0, 0.0, 0.0 ) ), f.x ), mix( bHash( i + vec3( 0.0, 1.0, 0.0 ) ), bHash( i + vec3( 1.0, 1.0, 0.0 ) ), f.x ), f.y ),
+    mix( mix( bHash( i + vec3( 0.0, 0.0, 1.0 ) ), bHash( i + vec3( 1.0, 0.0, 1.0 ) ), f.x ), mix( bHash( i + vec3( 0.0, 1.0, 1.0 ) ), bHash( i + vec3( 1.0, 1.0, 1.0 ) ), f.x ), f.y ),
+    f.z );
+}
+float beltMask() {
+  float n = 0.6 * bNoise( vBeltPos * 34.0 ) + 0.4 * bNoise( vBeltPos * 96.0 );
+  float t = uMix * 1.24 - 0.12;
+  return smoothstep( n - 0.06, n + 0.06, t );
+}
+`;
 
 /** Ring radii, band width and thickness (metres). */
 export const BELT_DIMS = { A: 0.16, B: 0.11, W: 0.045, T: 0.0075 } as const;
@@ -121,6 +151,22 @@ export function createProceduralBelt(initial: { color?: string } = {}): Procedur
     sheenColor: new Color('#ffffff'),
     side: DoubleSide
   });
+
+  // Colour change by a noise mask: `uMix` 0..1 sweeps a threshold through 3D value noise of the object-space
+  // position, so cloth `uColorB` appears in blotches that are glued to the belt.
+  const uColorB = { value: new Color('#ffffff') };
+  const uMix = { value: 0 };
+  cloth.onBeforeCompile = (shader) => {
+    shader.uniforms.uColorB = uColorB;
+    shader.uniforms.uMix = uMix;
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vBeltPos;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvBeltPos = position;');
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>', `#include <common>\n${MIX_GLSL}`)
+      .replace('vec4 diffuseColor = vec4( diffuse, opacity );', 'vec4 diffuseColor = vec4( mix( diffuse, uColorB, beltMask() ), opacity );');
+  };
+  cloth.customProgramCacheKey = () => 'belt_cloth_mix';
 
   const stitch = new MeshPhysicalMaterial({
     name: 'belt_stitch',
@@ -388,10 +434,17 @@ export function createProceduralBelt(initial: { color?: string } = {}): Procedur
     return new Color().setHSL(hsl.h, hsl.s, hsl.l);
   };
 
-  const setColors = (c: string | Color, st?: string | Color): void => {
-    cloth.color.set(c);
-    if (st !== undefined) stitch.color.set(st);
-    else stitch.color.copy(tint(cloth.color));
+  const mixed = new Color();
+  const setColors = (from: string | Color, to?: string | Color, mix = 0, st?: string | Color): void => {
+    cloth.color.set(from);
+    uColorB.value.set(to ?? from);
+    uMix.value = to === undefined ? 0 : mix;
+    if (st !== undefined) {
+      stitch.color.set(st);
+      return;
+    }
+    mixed.copy(cloth.color).lerp(uColorB.value, uMix.value);
+    stitch.color.copy(tint(mixed));
   };
 
   const dispose = (): void => {

@@ -10,6 +10,14 @@ export const BELT_COLORS = {
   negro: '#111418'
 } as const;
 
+export type BeltKey = keyof typeof BELT_COLORS;
+
+export const BELT_KEYS = Object.keys(BELT_COLORS) as BeltKey[];
+
+export function isBeltKey(value: string | undefined): value is BeltKey {
+  return value !== undefined && value in BELT_COLORS;
+}
+
 /** Thread colour the black belt's stitches end on. */
 export const STITCH_GOLD = '#d4a72c';
 /** Natural thread tone of an undyed belt. */

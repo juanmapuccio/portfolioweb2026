@@ -11,8 +11,11 @@ import { KNOT_AT } from './beltDrawing';
  * (TitleInk.astro). The spacer is ~50svh on desktop and 40svh on mobile. It holds the detailed belt
  * drawing (BeltDrawing.astro), centred, which unties and ties again as the passage scrolls by:
  *   - mobile (< 1024px): always there, it is the thread of the journey (no 3D on mobile);
- *   - desktop: the poster of the 3D belt. It shows until the 3D scene reports html[data-belt3d="ready"]
- *     (T11d), and always when 3D never loads (no WebGL, reduced motion, save-data).
+ *   - desktop: the poster of the 3D belt. It shows until the 3D scene reports html[data-belt3d="ready"],
+ *     and always when 3D never loads (no WebGL, reduced motion, save-data). Once ready, the one fixed canvas
+ *     (src/scripts/belt3d) rides this spacer: the belt unties, changes colour and ties again inside it
+ *     (data-belt-beat="passage", data-from / data-belt = the two colours). The spacer is the only place
+ *     the belt leaves its side column, which is why it is empty.
  * The drawing's knot is at the centre of the box, which is why `--knot-fx` / `--knot-fy` below are
  * KNOT_AT (beltDrawing.ts): the flood starts from it.
  *
@@ -27,9 +30,10 @@ import { KNOT_AT } from './beltDrawing';
  *     flood progress `--f` (0 at p = 0.2, 1 at p = 0.5), so the black first spreads slowly from the knot
  *     and then takes the whole view. At p = 0.5 it covers everything, tul.ts flips html[data-field="dark"]
  *     under it and the layer is hidden; scrolling back reverses it.
- *   - The centre is the knot. T11d (3D) publishes `--knot-x` / `--knot-y` (viewport px) on html; without
- *     them the centre is the drawn belt knot of this spacer, placed at `--knot-fx` / `--knot-fy` (fractions
- *     of the spacer) and moving with the scroll, computed from `--p` alone.
+ *   - The centre is the knot. The 3D scene publishes `--knot-x` / `--knot-y` (viewport px) on html during
+ *     the tie beat of this passage; without them (mobile, no 3D) the centre is the drawn belt knot of this
+ *     spacer, placed at `--knot-fx` / `--knot-fy` (fractions of the spacer) and moving with the scroll,
+ *     computed from `--p` alone.
  *   - Only clip-path and opacity change with scroll. The ink edge is a static feTurbulence +
  *     feDisplacementMap filter (parameters never animate), desktop only; on mobile the edge is a clean circle.
  *   - No mix-blend-mode.
@@ -46,6 +50,7 @@ const floods = to === 'negro';
 <div
   class="ink"
   data-tul-passage
+  data-belt-beat="passage"
   data-belt={to}
   data-from={from}
   style={`--knot-fx:${KNOT_AT.fx};--knot-fy:${KNOT_AT.fy}`}

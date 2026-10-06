@@ -1,21 +1,33 @@
 // The 3D belt: the only module that imports three. It is loaded lazily by boot.ts.
 //
-// Architecture: ONE shared WebGLRenderer and ONE canvas, moved between the two in-flow containers
-// ([data-belt3d="hero"] and [data-belt3d="tie"]). Why shared: browsers cap live WebGL contexts and a
-// second context doubles GPU memory and the PMREM environment for a belt that is never on screen with
-// the other one. Moving a canvas between parents keeps its context, and only the container in view
-// is ever rendered. The renderer, belts and textures are disposed when no container is near the
-// viewport for a while, and rebuilt on return.
+// Architecture: ONE WebGLRenderer on ONE fixed canvas (position: fixed, pointer-events: none, above the field
+// and the black flood, below the header). The scene is mapped to the viewport, so the belt can be anywhere on
+// screen, but the canvas itself is only as big as the belt's reach (journey.ts `canvasSize`) and travels with
+// the belt (a transform): a full-screen canvas costs three to seven times the pixels, and MSAA on all of them,
+// for a belt that fills a tenth of it. The chapters reserve a side column for the belt, so it never lies over
+// text. The belt is the thread of the journey: it lands in the hero, travels each chapter in the reserved
+// column, unties, changes colour and ties again in every spacer, ties red to black at 1st dan (its knot is the
+// centre of the black flood) and rests on black until it fades out. The route of the belt is journey.ts (pure
+// numbers); this file draws it.
 //
-// Each container is in flow with its box reserved by CSS (aspect-ratio), so mounting never shifts
-// layout. Scroll progress comes from the engine (tul.ts), which writes `--q` / `--p` as inline custom
-// properties; they are read from `el.style` (no layout or style recalculation per frame).
+// Reads, never layout: tul.ts writes inline custom properties and this file only reads them from `el.style`:
+//   [data-belt-beat="land"]     --p, --q (portrait to path), --e (the hero scrolling away)
+//   [data-belt-beat="travel"]   --bp (0..1 across the chapter)
+//   [data-belt-beat="passage"]  --p (0..1 while the spacer crosses the viewport)
+//   <html>                      --belt-vw/vh (the viewport), --belt-col-x/y/w/h (the reserved column) and
+//                               --belt-hero-x/y/s (the hero floor box)
+// The active beat is the last one that has started, so no visibility observer is needed: the belt is on
+// screen exactly while a beat is in progress.
+// Writes: html[data-belt3d="ready"] after the first drawn frame (the posters step aside) and, during the
+// tie beat only, --knot-x / --knot-y (viewport px) on <html>.
 //
-// Frames: only gsap's ticker. A frame is drawn only for the container in view and only when its
-// inputs changed (plus a 30 fps idle sway while the hero belt rests).
+// Frames: only gsap's ticker. A frame is drawn only when its inputs changed (plus a 30 fps idle sway
+// while the hero belt rests). GL resources are disposed when no beat needs the belt for a while and
+// rebuilt on return.
 import { gsap } from 'gsap';
 import {
   ACESFilmicToneMapping,
+  Color,
   DirectionalLight,
   PerspectiveCamera,
   PMREMGenerator,
@@ -25,60 +37,101 @@ import {
   WebGLRenderer
 } from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { BELT_COLORS } from './colors';
+import { BELT_COLORS, STITCH_GOLD, isBeltKey, type BeltKey } from './colors';
 import { isBelt3dEligible } from './eligible';
-import { poseFloor, poseTie } from './poses';
+import { FOV, canvasSize, frameFor, pickBeat, type Beat, type Frame, type Metrics } from './journey';
+import { applyPose, blendPose } from './poses';
 import { createProceduralBelt, type ProceduralBelt } from './proceduralBelt';
 
-type MomentId = 'hero' | 'tie';
+interface BeatEl extends Beat {
+  el: HTMLElement;
+}
 
 interface View {
   scene: Scene;
   camera: PerspectiveCamera;
   belt: ProceduralBelt;
-  resize: (w: number, h: number) => void;
-  /** Returns true when a new frame must be drawn. `force` is set after a resize or a canvas move. */
-  update: (time: number, force: boolean) => boolean;
-}
-
-interface Moment {
-  id: MomentId;
-  el: HTMLElement;
-  /** Element whose inline style carries `--q` (hero) or `--p` (tie). */
-  source: HTMLElement;
-  w: number;
-  h: number;
-  near: boolean;
-  visible: boolean;
-  view?: View;
+  rimLights: DirectionalLight[];
 }
 
 const PIXEL_RATIO_CAP = 1.5;
-/** Dispose GL resources after no container has been near the viewport for this long. */
+/** Dispose GL resources after the belt has not been needed for this long. */
 const TEARDOWN_DELAY_MS = 4000;
 const IDLE_FRAME_MS = 1000 / 30;
+/** While there is no renderer, check this often whether one is needed. */
+const WATCH_MS = 100;
 const DEG = Math.PI / 180;
+/** Where the middle of the belt is in its own space: between the band and the end of the tails (metres). */
+const BELT_CENTRE_Y = -0.07;
+const KEY_PROGRESS: Record<Beat['kind'], string> = { land: '--p', travel: '--bp', passage: '--p' };
 
-const clamp01 = (n: number): number => Math.min(1, Math.max(0, n));
 const readNum = (el: HTMLElement, name: string, fallback: number): number => {
   const v = parseFloat(el.style.getPropertyValue(name));
   return Number.isFinite(v) ? v : fallback;
 };
 
-const moments: Moment[] = [];
+const root = document.documentElement;
+const beats: BeatEl[] = [];
+const progress: number[] = [];
+const metrics: Metrics = {
+  w: 0,
+  h: 0,
+  col: { x: 0, y: 0, w: 0, h: 0 },
+  hero: { x: 0, y: 0, s: 0 }
+};
+const colour = new Map<BeltKey, Color>();
+const goldColour = new Color(STITCH_GOLD);
+const knotWorld = new Vector3();
+const centreWorld = new Vector3();
+
 let started = false;
+let ticking = false;
+/** tul.ts has published the viewport and the reserved column. */
+let columnOk = false;
+let heroAnchor: HTMLElement | undefined;
 let renderer: WebGLRenderer | undefined;
 let canvas: HTMLCanvasElement | undefined;
+/** Side of the square canvas in CSS px (0 until it is sized). */
+let side = 0;
 let envTexture: Texture | undefined;
-let active: Moment | undefined;
+let view: View | undefined;
 let lost = false;
 let force = true;
+let ready = false;
+let knotPublished = false;
+let lastKey = '';
+let lastOpacity = -1;
+/** Last time a frame was drawn, or the last look at the beats while there is no renderer. */
+let lastTime = 0;
+let activeIdx = 0;
 let teardownTimer: ReturnType<typeof setTimeout> | undefined;
 
 // Hero drag: rotation about Y with an elastic return.
 const drag = { y: 0, pointerX: 0, base: 0, down: false };
 
-function lights(scene: Scene, env: Texture | undefined): void {
+const paletteOf = (key: BeltKey): Color => {
+  let c = colour.get(key);
+  if (!c) {
+    c = new Color(BELT_COLORS[key]);
+    colour.set(key, c);
+  }
+  return c;
+};
+
+function readMetrics(): void {
+  metrics.w = readNum(root, '--belt-vw', 0);
+  metrics.h = readNum(root, '--belt-vh', 0);
+  metrics.col.x = readNum(root, '--belt-col-x', 0);
+  metrics.col.y = readNum(root, '--belt-col-y', 0);
+  metrics.col.w = readNum(root, '--belt-col-w', 0);
+  metrics.col.h = readNum(root, '--belt-col-h', 0);
+  metrics.hero.x = readNum(root, '--belt-hero-x', 0);
+  metrics.hero.y = readNum(root, '--belt-hero-y', 0);
+  metrics.hero.s = readNum(root, '--belt-hero-s', 0);
+  columnOk = metrics.w > 0 && metrics.h > 0 && metrics.col.w > 0;
+}
+
+function lights(scene: Scene, env: Texture | undefined): DirectionalLight[] {
   scene.environment = env ?? null;
   scene.environmentIntensity = 0.4;
   const key = new DirectionalLight(0xffffff, 1.9);
@@ -87,138 +140,205 @@ function lights(scene: Scene, env: Texture | undefined): void {
   const fill = new DirectionalLight(0xdfe8ff, 0.2);
   fill.position.set(1, 0.4, 0.6);
   scene.add(fill);
+  // Rim lights from behind and from the sides: off on white, they outline the black belt on the black field.
+  const rimBack = new DirectionalLight(0xe4ecff, 0);
+  rimBack.position.set(-0.7, 0.8, -1.2);
+  scene.add(rimBack);
+  const rimSide = new DirectionalLight(0xfff1dd, 0);
+  rimSide.position.set(1.2, 0.5, -0.5);
+  scene.add(rimSide);
+  return [rimBack, rimSide];
 }
 
-/** Moment A: a white belt lands on the floor of the hero diagram. Mirrors the CSS camera in FloorDiagram. */
-function createHeroView(m: Moment): View {
+function createView(): View {
   const scene = new Scene();
-  const camera = new PerspectiveCamera(24, 1, 0.05, 10);
+  const camera = new PerspectiveCamera(FOV, 1, 0.05, 10);
   const belt = createProceduralBelt({ color: BELT_COLORS.blanco });
-  belt.setColors(BELT_COLORS.blanco, '#cfcabd');
   scene.add(belt.group);
-  lights(scene, envTexture);
-
-  // The camera looks slightly right of the belt, so it lies left of the "ready" label.
-  const target = new Vector3(0.07, -0.02, 0.08);
-  const DIST = 2.05;
-  let lastQ = -1;
-  let lastT = 0;
-
-  return {
-    scene,
-    camera,
-    belt,
-    resize(w, h) {
-      camera.aspect = w / Math.max(1, h);
-      camera.updateProjectionMatrix();
-    },
-    update(time, forced) {
-      const q = readNum(m.source, '--q', 0);
-      const reveal = clamp01((q - 0.3) / 0.7);
-      // The drop starts once the portrait is mostly gone, and lands as the line starts tracing.
-      const landed = clamp01((q - 0.6) / 0.38);
-      const resting = landed >= 1;
-      const swayDue = resting && (time - lastT) * 1000 >= IDLE_FRAME_MS;
-      if (!(forced || drag.down || q !== lastQ || swayDue || drag.y !== 0)) return false;
-      lastQ = q;
-      lastT = time;
-
-      belt.group.visible = landed > 0;
-      // Same numbers as the CSS floor: tilt 50 deg * reveal, yaw -8 deg * reveal (desktop).
-      const tv = 50 * reveal;
-      const elevation = (90 - tv) * DEG;
-      camera.position.set(0, target.y + DIST * Math.sin(elevation), target.z + DIST * Math.cos(elevation));
-      camera.lookAt(target);
-
-      const sway = resting ? Math.sin(time * 0.9) * 4 * DEG : 0;
-      const yaw = 8 * reveal * DEG + sway + drag.y;
-      // Screen-up in model space, so the drop starts above the frame for any tilt.
-      poseFloor(belt, landed, { y: Math.cos(elevation), z: -Math.sin(elevation) }, yaw);
-      return true;
-    }
-  };
+  const rimLights = lights(scene, envTexture);
+  return { scene, camera, belt, rimLights };
 }
 
-/** Moment B: the belt is tied, red to black, scrubbed by the chapter's progress. */
-function createTieView(m: Moment): View {
-  const scene = new Scene();
-  const camera = new PerspectiveCamera(22, 1, 0.05, 10);
-  const belt = createProceduralBelt({ color: BELT_COLORS.rojo });
-  scene.add(belt.group);
-  lights(scene, envTexture);
-
-  const target = new Vector3(0, -0.1, 0.05);
-  const DIST = 1.45;
-  const elevation = 12 * DEG;
-  camera.position.set(0, target.y + DIST * Math.sin(elevation), target.z + DIST * Math.cos(elevation));
-  camera.lookAt(target);
-  let lastP = -1;
-
-  return {
-    scene,
-    camera,
-    belt,
-    resize(w, h) {
-      camera.aspect = w / Math.max(1, h);
-      camera.updateProjectionMatrix();
-    },
-    update(_time, forced) {
-      const p = readNum(m.source, '--p', 0);
-      if (!forced && p === lastP) return false;
-      lastP = p;
-      poseTie(belt, p);
-      return true;
-    }
-  };
+function setReady(on: boolean): void {
+  if (on === ready) return;
+  ready = on;
+  if (on) root.dataset.belt3d = 'ready';
+  else delete root.dataset.belt3d;
 }
 
-function ensureView(m: Moment): View | undefined {
-  if (!renderer) return undefined;
-  if (!m.view) {
-    m.view = m.id === 'hero' ? createHeroView(m) : createTieView(m);
-    if (m.w > 0 && m.h > 0) m.view.resize(m.w, m.h);
+function clearKnot(): void {
+  if (!knotPublished) return;
+  knotPublished = false;
+  root.style.removeProperty('--knot-x');
+  root.style.removeProperty('--knot-y');
+}
+
+/** The tie beat: the knot's place on screen is the centre of the black flood. `left`/`top` place the canvas. */
+function publishKnot(v: View, f: Frame, left: number, top: number): void {
+  if (!f.tie) {
+    clearKnot();
+    return;
   }
-  return m.view;
+  v.belt.group.updateMatrixWorld(true);
+  knotWorld.setFromMatrixPosition(v.belt.parts.knot.matrixWorld).project(v.camera);
+  // With a unit: the flood uses them inside calc() next to lengths.
+  root.style.setProperty('--knot-x', `${(left + (knotWorld.x * 0.5 + 0.5) * side).toFixed(1)}px`);
+  root.style.setProperty('--knot-y', `${(top + (-knotWorld.y * 0.5 + 0.5) * side).toFixed(1)}px`);
+  knotPublished = true;
 }
 
-function setState(m: Moment, state: 'idle' | 'ready' | 'lost'): void {
-  if (m.el.dataset.state !== state) m.el.dataset.state = state;
+/** Poses the belt and aims the camera; returns where the canvas has to sit (its top-left, in viewport px). */
+function applyFrame(v: View, f: Frame): { left: number; top: number } {
+  const { belt, camera } = v;
+  if (f.poseB && f.blend > 0) blendPose(belt, f.pose, f.poseB, f.blend);
+  else applyPose(belt, f.pose);
+  belt.group.visible = true;
+
+  belt.setColors(paletteOf(f.from), paletteOf(f.to), f.mix);
+  if (f.gold > 0) belt.materials.stitch.color.lerp(goldColour, f.gold);
+
+  // On black the sheen would wash the cloth to grey; the rim lights outline it instead.
+  v.rimLights[0].intensity = 1.5 * f.rim;
+  v.rimLights[1].intensity = 1.0 * f.rim;
+  v.scene.environmentIntensity = 0.4 + 0.15 * f.rim;
+  belt.materials.cloth.sheen = 1 - 0.7 * f.rim;
+
+  // The camera orbits the target. `setViewOffset` slides the frustum so the target lands at (sx, sy) of the
+  // viewport; pixels per metre at the target are `ppm`. First over the whole viewport, to find where the belt
+  // is on screen, then over the small canvas that is moved onto it.
+  const c = f.cam;
+  const full = 2 * c.dist * Math.tan((FOV / 2) * DEG) * c.ppm;
+  camera.aspect = 1;
+  camera.position.set(c.target[0], c.target[1] + c.dist * Math.sin(c.elevation), c.target[2] + c.dist * Math.cos(c.elevation));
+  camera.lookAt(c.target[0], c.target[1], c.target[2]);
+  camera.setViewOffset(full, full, full / 2 - c.sx, full / 2 - c.sy, metrics.w, metrics.h);
+  camera.updateMatrixWorld();
+  belt.group.updateMatrixWorld(true);
+  centreWorld.set(0, BELT_CENTRE_Y, 0);
+  belt.group.localToWorld(centreWorld);
+  centreWorld.project(camera);
+  const left = Math.round((centreWorld.x * 0.5 + 0.5) * metrics.w - side / 2);
+  const top = Math.round((-centreWorld.y * 0.5 + 0.5) * metrics.h - side / 2);
+  camera.setViewOffset(full, full, full / 2 - c.sx + left, full / 2 - c.sy + top, side, side);
+  return { left, top };
 }
 
-function attachDrag(c: HTMLCanvasElement): void {
-  c.style.cursor = 'grab';
-  c.addEventListener('pointerdown', (e) => {
-    if (active?.id !== 'hero') return;
+function activeFrame(time: number): Frame | undefined {
+  if (!beats.length) return undefined;
+  for (let i = 0; i < beats.length; i++) progress[i] = readNum(beats[i].el, KEY_PROGRESS[beats[i].kind], 0);
+  const idx = pickBeat(progress);
+  activeIdx = idx;
+  const beat = beats[idx];
+  const hero = beats[0].kind === 'land' ? beats[0].el : beat.el;
+  const q = readNum(hero, '--q', 0);
+  const e = readNum(hero, '--e', 0);
+  // Idle sway while the hero belt rests, plus the drag.
+  const sway = beat.kind === 'land' && q >= 1 ? Math.sin(time * 0.9) * 4 * DEG : 0;
+  return frameFor(beat, progress[idx], q, e, metrics, sway + drag.y);
+}
+
+/** Does the belt need GL resources right now? Close to the hero's landing, or while a beat shows it. */
+function needed(f: Frame | undefined): boolean {
+  if (!f || !columnOk) return false;
+  if (f.opacity > 0) return true;
+  return activeIdx === 0 && readNum(beats[0].el, '--q', 0) > 0.02;
+}
+
+function setCanvasOpacity(o: number): void {
+  if (!canvas || o === lastOpacity) return;
+  lastOpacity = o;
+  canvas.style.opacity = o >= 1 ? '' : o.toFixed(3);
+}
+
+/** The canvas is a square sized from the viewport metrics; resize it only when they change. */
+function fitCanvas(): void {
+  if (!renderer || !canvas) return;
+  const next = canvasSize(metrics);
+  if (next === side) return;
+  side = next;
+  renderer.setSize(side, side, false);
+  canvas.style.width = `${side}px`;
+  canvas.style.height = `${side}px`;
+  force = true;
+}
+
+function drawIfChanged(f: Frame, time: number): void {
+  if (!renderer || !canvas || lost || !columnOk) return;
+  fitCanvas();
+  if (f.opacity <= 0) {
+    // Nothing to show: clear whatever the last frame left once, then stay idle.
+    if (lastKey !== 'empty') {
+      renderer.clear();
+      lastKey = 'empty';
+      clearKnot();
+    }
+    return;
+  }
+  if (!view) view = createView();
+
+  const key = `${metrics.w}x${metrics.h}|${activeIdx}|${progress[activeIdx]}|${f.pose.kind}|${f.blend.toFixed(4)}|${f.cam.sx.toFixed(1)}|${f.cam.sy.toFixed(1)}|${f.cam.ppm.toFixed(1)}|${f.cam.elevation.toFixed(4)}|${f.mix.toFixed(4)}|${f.opacity.toFixed(3)}|${
+    f.pose.kind === 'floor' ? f.pose.yaw.toFixed(4) + f.pose.landed.toFixed(4) : ''
+  }`;
+  const swayDue = f.resting && time - lastTime >= IDLE_FRAME_MS / 1000;
+  if (!(force || key !== lastKey || swayDue || drag.down)) return;
+  lastKey = key;
+  lastTime = time;
+  force = false;
+
+  const { left, top } = applyFrame(view, f);
+  canvas.style.transform = `translate3d(${left}px, ${top}px, 0)`;
+  setCanvasOpacity(f.opacity);
+  renderer.render(view.scene, view.camera);
+  publishKnot(view, f, left, top);
+  setReady(true);
+}
+
+function tick(time: number): void {
+  if (!renderer) {
+    // No GL yet (or any more): look at the beats only a few times a second.
+    if (time - lastTime < WATCH_MS / 1000) return;
+    lastTime = time;
+    readMetrics();
+    if (!lost && needed(activeFrame(time))) mountGl();
+    return;
+  }
+  if (lost) return;
+  readMetrics();
+  const f = activeFrame(time);
+  if (needed(f)) {
+    clearTimeout(teardownTimer);
+    teardownTimer = undefined;
+  } else if (teardownTimer === undefined) {
+    teardownTimer = setTimeout(() => {
+      teardownTimer = undefined;
+      if (!needed(activeFrame(performance.now() / 1000))) teardown();
+    }, TEARDOWN_DELAY_MS);
+  }
+  if (f) drawIfChanged(f, time);
+}
+
+function attachDrag(el: HTMLElement): void {
+  el.addEventListener('pointerdown', (e) => {
+    if (!renderer || activeIdx !== 0) return;
     gsap.killTweensOf(drag);
     drag.down = true;
     drag.pointerX = e.clientX;
     drag.base = drag.y;
-    c.setPointerCapture(e.pointerId);
-    c.style.cursor = 'grabbing';
+    el.setPointerCapture(e.pointerId);
+    el.style.cursor = 'grabbing';
   });
-  c.addEventListener('pointermove', (e) => {
+  el.addEventListener('pointermove', (e) => {
     if (!drag.down) return;
     drag.y = drag.base + (e.clientX - drag.pointerX) * 0.012;
   });
   const release = (): void => {
     if (!drag.down) return;
     drag.down = false;
-    c.style.cursor = 'grab';
+    el.style.cursor = '';
     gsap.to(drag, { y: 0, duration: 1.3, ease: 'elastic.out(1, 0.45)' });
   };
-  c.addEventListener('pointerup', release);
-  c.addEventListener('pointercancel', release);
-}
-
-function tick(time: number): void {
-  if (!renderer || !active || lost) return;
-  const view = ensureView(active);
-  if (!view) return;
-  const needs = view.update(time, force);
-  if (!needs) return;
-  force = false;
-  renderer.render(view.scene, view.camera);
-  setState(active, 'ready');
+  el.addEventListener('pointerup', release);
+  el.addEventListener('pointercancel', release);
 }
 
 function mountGl(): void {
@@ -244,38 +364,37 @@ function mountGl(): void {
   room.dispose();
   pmrem.dispose();
 
-  attachDrag(canvas);
   canvas.addEventListener('webglcontextlost', (e) => {
-    // Keep the browser from discarding the context for good, hide the canvas, fall back to the poster.
+    // Keep the browser from discarding the context for good, hide the canvas, let the posters return.
     e.preventDefault();
     lost = true;
     if (canvas) canvas.style.display = 'none';
-    for (const m of moments) setState(m, 'lost');
+    setReady(false);
+    clearKnot();
   });
   canvas.addEventListener('webglcontextrestored', () => {
     // Rebuild everything from scratch: simplest way to re-upload every buffer and texture.
     teardown();
     lost = false;
-    sync();
   });
 
-  gsap.ticker.add(tick);
+  document.body.append(canvas);
+  side = 0;
   force = true;
-  pickActive();
+  lastKey = '';
+  lastOpacity = -1;
 }
 
 function teardown(): void {
-  gsap.ticker.remove(tick);
+  clearTimeout(teardownTimer);
+  teardownTimer = undefined;
   gsap.killTweensOf(drag);
   drag.y = 0;
   drag.down = false;
-  for (const m of moments) {
-    if (m.view) {
-      m.view.belt.dispose();
-      m.view.scene.clear();
-      m.view = undefined;
-    }
-    setState(m, 'idle');
+  if (view) {
+    view.belt.dispose();
+    view.scene.clear();
+    view = undefined;
   }
   envTexture?.dispose();
   envTexture = undefined;
@@ -286,56 +405,35 @@ function teardown(): void {
   canvas?.remove();
   renderer = undefined;
   canvas = undefined;
-  active = undefined;
+  setReady(false);
+  clearKnot();
+  side = 0;
+  lastKey = '';
 }
 
-function pickActive(): void {
-  const next = moments.find((m) => m.visible);
-  if (next !== active) {
-    if (active) setState(active, 'idle');
-    active = next;
-  }
-  // The owner may have been chosen before the renderer existed: attach whenever the canvas is elsewhere.
-  if (active && canvas && renderer && canvas.parentElement !== active.el) {
-    active.el.append(canvas);
-    canvas.style.display = lost ? 'none' : '';
-    renderer.setSize(active.w, active.h, false);
-    const view = ensureView(active);
-    view?.resize(active.w, active.h);
-    force = true;
-  }
-}
-
-/** Decide whether GL resources should exist right now. */
+/** Start or stop the ticker with the gate (viewport width, reduced motion). */
 function sync(): void {
-  const eligible = isBelt3dEligible();
-  const wanted = eligible && !lost && moments.some((m) => m.near);
-
-  if (!eligible) {
-    clearTimeout(teardownTimer);
-    teardownTimer = undefined;
-    if (renderer) teardown();
+  if (isBelt3dEligible()) {
+    if (!ticking) {
+      gsap.ticker.add(tick);
+      ticking = true;
+    }
     return;
   }
-  if (wanted) {
-    clearTimeout(teardownTimer);
-    teardownTimer = undefined;
-    mountGl();
-    return;
+  if (ticking) {
+    gsap.ticker.remove(tick);
+    ticking = false;
   }
-  if (renderer && teardownTimer === undefined) {
-    teardownTimer = setTimeout(() => {
-      teardownTimer = undefined;
-      if (!moments.some((m) => m.near)) teardown();
-    }, TEARDOWN_DELAY_MS);
-  }
+  teardown();
 }
 
 function collect(): void {
-  for (const el of document.querySelectorAll<HTMLElement>('[data-belt3d]')) {
-    const id: MomentId = el.dataset.belt3d === 'tie' ? 'tie' : 'hero';
-    const source = id === 'hero' ? (el.closest<HTMLElement>('[data-tul-scene]') ?? el) : el;
-    moments.push({ id, el, source, w: 0, h: 0, near: false, visible: false });
+  for (const el of document.querySelectorAll<HTMLElement>('[data-belt-beat]')) {
+    const kind = el.dataset.beltBeat;
+    if (kind !== 'land' && kind !== 'travel' && kind !== 'passage') continue;
+    const belt = isBeltKey(el.dataset.belt) ? el.dataset.belt : 'blanco';
+    const from = isBeltKey(el.dataset.from) ? el.dataset.from : belt;
+    beats.push({ kind, belt, from, el });
   }
 }
 
@@ -344,52 +442,13 @@ export function mountBelt3d(): void {
   if (started) return;
   started = true;
   collect();
-  if (!moments.length) return;
+  if (!beats.length) return;
 
-  const byEl = new Map(moments.map((m) => [m.el, m]));
+  heroAnchor = document.querySelector<HTMLElement>('[data-belt-anchor="hero"]') ?? undefined;
+  if (heroAnchor) attachDrag(heroAnchor);
 
-  const resizeObserver = new ResizeObserver((entries) => {
-    for (const entry of entries) {
-      const m = byEl.get(entry.target as HTMLElement);
-      if (!m) continue;
-      m.w = Math.round(entry.contentRect.width);
-      m.h = Math.round(entry.contentRect.height);
-      m.view?.resize(m.w, m.h);
-      if (m === active && renderer) {
-        renderer.setSize(m.w, m.h, false);
-        force = true;
-      }
-    }
-  });
-  for (const m of moments) resizeObserver.observe(m.el);
-
-  // "Near" decides whether GL resources exist; "visible" decides which container owns the canvas.
-  const nearObserver = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        const m = byEl.get(entry.target as HTMLElement);
-        if (m) m.near = entry.isIntersecting;
-      }
-      sync();
-    },
-    { rootMargin: '150% 0px 150% 0px' }
-  );
-  const viewObserver = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        const m = byEl.get(entry.target as HTMLElement);
-        if (m) m.visible = entry.isIntersecting;
-      }
-      pickActive();
-    },
-    { rootMargin: '10% 0px 10% 0px' }
-  );
-  for (const m of moments) {
-    nearObserver.observe(m.el);
-    viewObserver.observe(m.el);
-  }
-
-  // Leaving the desktop / motion conditions tears everything down and the poster takes over.
+  // Leaving the desktop / motion conditions stops the ticker, tears everything down and the posters take over.
   matchMedia('(min-width: 1024px)').addEventListener('change', sync);
   matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', sync);
+  sync();
 }

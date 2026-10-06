@@ -1,8 +1,9 @@
-// Pure pose functions for the two moments. Every call starts from the modelled rest transform
+// Pure pose functions for the belt. Every call starts from the modelled rest transform
 // (`resetPose`), so a pose depends only on its inputs and scrubbing back and forth is exact.
-// No physics: part transforms and colours are interpolated.
-import { Color } from 'three';
-import { BELT_COLORS, STITCH_GOLD } from './colors';
+// No physics: part transforms are interpolated. Colours are not set here: the scene sets them from the
+// frame (journey.ts), so one pose serves every belt colour.
+import { Quaternion, Vector3, type Object3D } from 'three';
+import type { Pose } from './journey';
 import type { ProceduralBelt } from './proceduralBelt';
 
 const clamp01 = (n: number): number => Math.min(1, Math.max(0, n));
@@ -17,13 +18,8 @@ const easeOutBack = (t: number): number => {
   return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
 };
 
-const RED = new Color(BELT_COLORS.rojo);
-const BLACK = new Color(BELT_COLORS.negro);
-const GOLD = new Color(STITCH_GOLD);
-const tmp = new Color();
-
 /**
- * Moment A: a white belt falls from above the frame and lies on the floor.
+ * The hero beat: a white belt falls from above the frame and lies on the floor.
  * `landed` 0..1 is the drop (0 = above the frame, 1 = resting); `up` is the screen-up direction in
  * model space, so the fall always starts off the top edge whatever the camera tilt is.
  */
@@ -39,6 +35,7 @@ export function poseFloor(
 
   group.position.set(0, up.y * fall * 1.15, up.z * fall * 1.15);
   group.rotation.set(fall * 0.9, yaw, fall * -0.45, 'YXZ');
+  group.scale.setScalar(1);
 
   // The tails flop down flat in the last part of the drop.
   const flat = smooth(landed, 0.45, 0.95);
@@ -51,17 +48,13 @@ export function poseFloor(
 }
 
 /**
- * Moment B: a red, loosely open belt is tied and turns black.
- * k 0..1: colour (red to black), wraps settle, knot pops tight (scale, rotate, settle), flaps and
- * tails fall into place, stitches turn gold at the end.
+ * The knot geometry, k 0..1: loose and open at 0, tied at 1 (the rest pose). Wraps settle onto the band,
+ * the knot pops tight (scale, rotate, settle) and the flaps and tails fall into place.
+ * Used by the tie beat (red to black), by every untie and retie, and as the base of the hanging pose.
  */
 export function poseTie(belt: ProceduralBelt, k: number): void {
   belt.resetPose();
-  const { parts, materials } = belt;
-
-  tmp.copy(RED).lerp(BLACK, smooth(k, 0.12, 0.55));
-  belt.setColors(tmp);
-  materials.stitch.color.lerp(GOLD, smooth(k, 0.8, 1));
+  const { parts } = belt;
 
   // Wraps settle onto the band.
   const wr = smooth(k, 0.05, 0.5);
@@ -94,4 +87,51 @@ export function poseTie(belt: ProceduralBelt, k: number): void {
   parts.tailR.rotation.z += 0.7 * fall;
   parts.tailL.rotation.x += -0.45 * fall;
   parts.tailR.rotation.x += -0.35 * fall;
+}
+
+/**
+ * The belt standing, as it hangs in the column and rides the spacers: turned by `yaw` about its axis,
+ * knot tightness `k`, and the tails swung toward the route (to the left on screen) by `lean` 0..1.
+ */
+export function poseHang(belt: ProceduralBelt, spec: { yaw: number; k: number; lean: number }): void {
+  poseTie(belt, spec.k);
+  const { group, parts } = belt;
+  group.position.set(0, 0, 0);
+  group.scale.setScalar(1);
+  group.rotation.set(0, spec.yaw, 0, 'YXZ');
+  parts.tailL.rotation.z += -0.38 * spec.lean;
+  parts.tailR.rotation.z += -0.58 * spec.lean;
+}
+
+export function applyPose(belt: ProceduralBelt, pose: Pose): void {
+  if (pose.kind === 'floor') poseFloor(belt, pose.landed, pose.up, pose.yaw);
+  else poseHang(belt, pose);
+}
+
+interface Snap {
+  p: Vector3;
+  q: Quaternion;
+  s: Vector3;
+}
+
+const nodesOf = (belt: ProceduralBelt): Object3D[] => {
+  const { parts } = belt;
+  return [belt.group, parts.band, parts.wraps, parts.knot, parts.flapL, parts.flapR, parts.tailL, parts.tailR];
+};
+
+const snapshot = (nodes: Object3D[]): Snap[] =>
+  nodes.map((o) => ({ p: o.position.clone(), q: o.quaternion.clone(), s: o.scale.clone() }));
+
+/** Draws the belt between two poses (the hero floor to the hanging pose of the column): `t` 0 is `a`, 1 is `b`. */
+export function blendPose(belt: ProceduralBelt, a: Pose, b: Pose, t: number): void {
+  const nodes = nodesOf(belt);
+  applyPose(belt, a);
+  const sa = snapshot(nodes);
+  applyPose(belt, b);
+  const sb = snapshot(nodes);
+  nodes.forEach((o, i) => {
+    o.position.lerpVectors(sa[i].p, sb[i].p, t);
+    o.quaternion.slerpQuaternions(sa[i].q, sb[i].q, t);
+    o.scale.lerpVectors(sa[i].s, sb[i].s, t);
+  });
 }

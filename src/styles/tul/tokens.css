@@ -104,6 +104,8 @@
   --space-2xl: 6rem;
   --space-3xl: 10rem;
   --gutter: clamp(1rem, 0.5rem + 2.5vw, 2.5rem);
+  /* The right-hand column the chapters reserve for the 3D belt at 1024 px and up (TulChapter.astro). */
+  --belt-col: clamp(8.5rem, 15vw, 17rem);
 
   /* Fluid type scale (display tops out at 6rem) */
   --step--1: clamp(0.8125rem, 0.78rem + 0.15vw, 0.9rem);

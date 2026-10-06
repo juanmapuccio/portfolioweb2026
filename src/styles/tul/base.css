@@ -125,6 +125,34 @@ html:not(.js) main > section[data-belt='negro'] {
   }
 }
 
+/*
+ * The 3D belt (src/scripts/belt3d). One fixed canvas: above the field and the black flood (z-index 10 in
+ * InkPassage.astro) so the belt stays visible on both, below the header (50). It is only as big as the belt's
+ * reach (the scene sets its size) and moves onto the belt with a transform, so it covers a small part of the
+ * viewport. It never takes pointer events (the hero drags through its own box) and never lies over text: the
+ * chapters reserve the column it draws in. The probe has the exact box of that column and is only measured
+ * by tul.ts.
+ */
+.belt3d__canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 11;
+  display: block;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.belt-col-probe {
+  position: fixed;
+  top: 3rem;
+  right: var(--gutter);
+  bottom: 0;
+  width: var(--belt-col);
+  visibility: hidden;
+  pointer-events: none;
+}
+
 /* Browser surfaces */
 
 /* Ink on a light tint of the active belt line, over whichever field is showing; never a coloured field. */

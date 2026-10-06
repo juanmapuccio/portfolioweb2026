@@ -6,14 +6,14 @@ import { isBelt3dEligible } from './eligible';
 const IDLE_TIMEOUT_MS = 3000;
 
 export function bootBelt3d(): void {
-  if (!document.querySelector('[data-belt3d]')) return;
+  if (!document.querySelector('[data-belt-beat]')) return;
   if (!isBelt3dEligible()) return;
 
   const load = (): void => {
     import('./scene')
       .then((scene) => scene.mountBelt3d())
       .catch(() => {
-        // The poster (or the plain hero) stays; nothing else to do.
+        // The posters (the drawn belts) stay; nothing else to do.
       });
   };
 

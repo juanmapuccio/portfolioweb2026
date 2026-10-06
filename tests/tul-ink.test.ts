@@ -65,7 +65,7 @@ describe('ink passages between chapters', () => {
     expect(fn).toMatch(/if \(reduced\) return;/);
     expect(fn).toContain('scrollTrigger');
     expect(fn).not.toMatch(/requestAnimationFrame|lenis/i);
-    expect(engine).toMatch(/initScrubs\(\);\s*initPassages\(\);/);
+    expect(engine).toMatch(/initBeats\(\);\s*initPassages\(\);/);
   });
 });
 
