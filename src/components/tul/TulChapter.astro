@@ -1,0 +1,862 @@
+---
+import FloorDiagram from './FloorDiagram.astro';
+import { useTranslations, type Lang } from '../../i18n/ui';
+import { BELTS, martialExperienceData } from '../../data/martialExperience';
+import { automationsContent, projectsContent } from '../../data/projects';
+import { getTulChapter, type BeltKey } from '../../data/tuls';
+
+/**
+ * One belt chapter, told as the floor diagram of its tul.
+ *
+ * Each scene is tall (100svh plus 45svh per stop) and holds one pinned stage: chapter head,
+ * the compact milestone list and the diagram, all visible together. Scrolling only advances
+ * `--p` / `--draw` (written by the engine on the scene); each row lights up (CSS only) once
+ * the drawn line passes the row's `--t`. Without JS or with reduced motion nothing is pinned,
+ * `--draw` is unset or 1, so everything is visible, in natural flow, fully drawn.
+ *
+ * Red belt: a second pinned stage after the milestones, "friction to code".
+ * Black belt: an opening NodoSur frame, then one pinned sub-scene per tul/product.
+ */
+interface Props {
+  lang?: Lang;
+  beltKey: BeltKey;
+}
+
+const { lang = 'es', beltKey } = Astro.props;
+const t = useTranslations(lang);
+
+const BELT_ORDER: BeltKey[] = ['blanco', 'amarillo', 'verde', 'azul', 'rojo', 'negro'];
+/** The hero already draws this share of Saju Jirugi; the white chapter continues from it. */
+const HERO_DRAW_END = 0.25;
+
+const content = martialExperienceData[lang];
+const stage = content.stages.find((s) => s.beltKey === beltKey);
+const chapter = getTulChapter(beltKey);
+if (!stage || !chapter) throw new Error(`TulChapter: unknown belt "${beltKey}"`);
+
+const belt = BELTS[beltKey];
+const isBlack = beltKey === 'negro';
+const nextBelt = BELT_ORDER[BELT_ORDER.indexOf(beltKey) + 1] as BeltKey | undefined;
+const mainForm = chapter.forms[0];
+const projects = projectsContent[lang];
+
+const positionById = new Map(stage.positions.map((p) => [p.id, p]));
+
+interface Row {
+  id: string;
+  t: number;
+  move?: number;
+  position: (typeof stage.positions)[number];
+}
+
+// Milestone rows come from the tul stops. The black belt's only row is the NodoSur frame.
+const rows: Row[] = [];
+if (isBlack) {
+  if (chapter.frame?.kind === 'position') {
+    const position = positionById.get(chapter.frame.id);
+    if (position) rows.push({ id: position.id, t: 0, position });
+  }
+} else {
+  for (const stop of mainForm.stops) {
+    if (stop.ref.kind !== 'position') continue;
+    const position = positionById.get(stop.ref.id);
+    if (position) rows.push({ id: position.id, t: stop.t, move: stop.move, position });
+  }
+}
+
+const frameProject = isBlack ? projects.find((p) => p.id === 'nodosur') : undefined;
+
+const passages = isBlack
+  ? chapter.forms.flatMap((form) => {
+      const ref = form.stops[0]?.ref;
+      const project = ref ? projects.find((p) => p.id === ref.id) : undefined;
+      return ref && project ? [{ form, id: ref.id, project }] : [];
+    })
+  : [];
+
+const automation = beltKey === 'rojo' ? automationsContent[lang] : undefined;
+// The tie-in plane and the early belt flip live on the last scrubbed scene of the section.
+const tieOnMain = !isBlack && !automation && !!nextBelt;
+const tieOnAuto = !!automation && !!nextBelt;
+
+// The black belt's opening frame is plain flow; every other main scene is scrubbed and pinned.
+const mainScene: Record<string, string | number> = isBlack
+  ? {}
+  : {
+      'data-tul-scene': '',
+      'data-p-from': beltKey === 'blanco' ? HERO_DRAW_END : 0,
+      'data-p-to': 1,
+      ...(tieOnMain && nextBelt ? { 'data-next-belt': nextBelt } : {})
+    };
+const stepsCount = Math.max(rows.length, 2);
+
+const autoSteps = [
+  t('tul.auto.in'),
+  t('tul.auto.step1'),
+  t('tul.auto.step2'),
+  t('tul.auto.step3'),
+  t('tul.auto.out')
+];
+const AUTO_T = autoSteps.map((_, i) => Number(((i + 1) / (autoSteps.length + 1)).toFixed(3)));
+
+const caption = (name: string, movements: number) =>
+  `${name} · ${t('tul.chapter.diagram')} · ${movements} ${t('tul.chapter.movements')}`;
+---
+
+<section
+  id={beltKey}
+  class:list={['tc', { 'tc--black': isBlack }]}
+  data-belt={beltKey}
+  aria-labelledby={`${beltKey}-title`}
+>
+  <div class:list={['tc__scene', { 'tc__scene--pin': !isBlack }]} style={`--n:${stepsCount}`} {...mainScene}>
+    <div class="tc__stage">
+      <div class:list={['tc__side', { 'tc__side--map': !isBlack }]}>
+        {!isBlack ? (
+          <figure class="tc__map">
+            <div class="tc__fig tc__fig--full">
+              <FloorDiagram form={mainForm} labelled progress />
+            </div>
+            <div class="tc__fig tc__fig--mini">
+              <FloorDiagram form={mainForm} compact progress />
+            </div>
+            <figcaption class="tc__cap">{caption(mainForm.name, mainForm.movements)}</figcaption>
+          </figure>
+        ) : (
+          <nav class="tc__passages" aria-label={t('tul.chapter.passages')}>
+            <ul>
+              {passages.map((p) => (
+                <li>
+                  <a href={`#${p.id}`}>
+                    <span class="tc__passage-form">{p.form.name}</span>
+                    <span class="tc__passage-name">{p.project.name}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+      </div>
+
+      <div class="tc__copy">
+        <header class="tc__head">
+          <h2 id={`${beltKey}-title`} class="tc__title grade-type">{stage.title}</h2>
+          <p class="tc__meta">
+            <span class="num">{belt.gup}</span> · {belt.beltName[lang]} · <span class="num">{stage.years}</span>
+          </p>
+          <p class="tc__line">{stage.line}</p>
+        </header>
+
+        <ol class="tc__list" aria-labelledby={`${beltKey}-title`}>
+          {rows.map((row, i) => (
+            <li class="ms" id={row.id} data-stop={row.id} style={`--t:${row.t};--tn:${rows[i + 1]?.t ?? 9}`}>
+              <span class:list={['ms__mark', { 'ms__mark--none': !row.move }]} aria-hidden="true">{row.move ?? ''}</span>
+              <span class="ms__date num">{row.position.dates}</span>
+              <span class="ms__role" data-text={row.position.role}><span class="ms__role-text">{row.position.role}</span></span>
+              <span class="ms__org">{row.position.org}</span>
+              <div class="ms__extra">
+                <p class="ms__teaser">{row.position.teaser}</p>
+                <details class="ms__more">
+                  <summary>{t('tul.chapter.more')}</summary>
+                  <p>{row.position.description}</p>
+                  {row.position.transferableCompetency && (
+                    <p class="ms__comp">
+                      <strong>{content.competencyLabel}</strong> {row.position.transferableCompetency}
+                    </p>
+                  )}
+                </details>
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        {frameProject && (
+          <div class="tc__frame">
+            <ul class="tc__tech" aria-label={t('tul.project.stack')}>
+              {frameProject.tech.map((item) => <li>{item}</li>)}
+            </ul>
+            <a class="tc__visit" href={frameProject.url} target="_blank" rel="noopener">{frameProject.name} · {t('tul.project.visit')}</a>
+          </div>
+        )}
+      </div>
+    </div>
+    {tieOnMain && nextBelt && <div class="tc__next" data-belt={nextBelt} aria-hidden="true"></div>}
+  </div>
+
+  {automation && (
+    <aside
+      class="tc__scene tc__scene--pin"
+      style="--n:3"
+      data-tul-scene
+      data-p-from="0"
+      data-p-to="1"
+      data-next-belt={nextBelt}
+      aria-labelledby="auto-title"
+    >
+      <div class="tc__stage auto">
+        <div class="auto__copy">
+          <h3 id="auto-title" class="auto__title">{t('tul.auto.title')}</h3>
+          <p class="auto__name">{automation.bot1Title}</p>
+          <p class="auto__desc">{automation.bot1Desc}</p>
+          <p class="auto__metric">{automation.bot1Metric}</p>
+        </div>
+        <ul class="auto__flow">
+          {autoSteps.map((label, i) => (
+            <li class="auto__step" style={`--t:${AUTO_T[i]}`}>
+              <span class="auto__num num" aria-hidden="true">{i + 1}</span>
+              <span>{label}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      {tieOnAuto && nextBelt && <div class="tc__next" data-belt={nextBelt} aria-hidden="true"></div>}
+    </aside>
+  )}
+
+  {passages.map((p) => (
+    <article
+      id={p.id}
+      class="tc__scene tc__scene--pin tc__sub"
+      style="--n:3"
+      data-tul-scene
+      data-form-label={p.form.name}
+      data-form={p.form.id}
+      aria-labelledby={`${p.id}-title`}
+    >
+      <div class="tc__stage">
+        <div class="tc__side tc__side--map">
+          <figure class="tc__map">
+            <div class="tc__fig tc__fig--full">
+              <FloorDiagram form={p.form} labelled progress />
+            </div>
+            <div class="tc__fig tc__fig--mini">
+              <FloorDiagram form={p.form} compact progress />
+            </div>
+            <figcaption class="tc__cap">{caption(p.form.name, p.form.movements)}</figcaption>
+          </figure>
+        </div>
+
+        <div class="tc__copy tc__beats">
+          <div class="tc__beat" style="--t:0.05">
+            <h3 id={`${p.id}-title`} class="tc__project grade-type">{p.project.name}</h3>
+            <p class="tc__meta">{p.form.name} · {p.project.role}</p>
+            <p class="tc__text">{p.project.description}</p>
+          </div>
+          <div class="tc__beat" style="--t:0.35">
+            <dl class="tc__facts">
+              <dt>{t('tul.project.problem')}</dt>
+              <dd>{p.project.problem}</dd>
+              <dt>{t('tul.project.solution')}</dt>
+              <dd>{p.project.solution}</dd>
+              <dt>{t('tul.project.impact')}</dt>
+              <dd>{p.project.impact}</dd>
+            </dl>
+          </div>
+          <div class="tc__beat" style="--t:0.65">
+            <ul class="tc__tech" aria-label={t('tul.project.stack')}>
+              {p.project.tech.map((item) => <li>{item}</li>)}
+            </ul>
+            {p.project.url && (
+              <a class="tc__visit" href={p.project.url} target="_blank" rel="noopener">{p.project.name} · {t('tul.project.visit')}</a>
+            )}
+          </div>
+        </div>
+      </div>
+    </article>
+  ))}
+
+  {isBlack && stage.closing && (
+    <p class="tc__closing grade-type">{stage.closing}</p>
+  )}
+</section>
+
+<style>
+  .tc {
+    position: relative;
+    padding: 0;
+  }
+
+  .tc__scene {
+    position: relative;
+  }
+
+  /* Stage: head, list and diagram together. Static flow by default (no JS, reduced motion). */
+  .tc__stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 3rem var(--gutter) var(--space-l);
+  }
+
+  .tc__side {
+    grid-row: 1;
+    align-self: start;
+    background-color: var(--field);
+    padding-block: var(--space-xs);
+  }
+
+  .tc__side--map {
+    border-bottom: var(--line) solid var(--ink-soft);
+  }
+
+  .tc__copy {
+    grid-row: 2;
+    min-width: 0;
+  }
+
+  .tc__map {
+    --ready-o: clamp(0, calc((0.12 - var(--draw, 1)) * 24), 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3xs);
+    margin: 0;
+  }
+
+  .tc__fig--full {
+    display: none;
+  }
+
+  .tc__fig--mini {
+    display: flex;
+    justify-content: center;
+    height: calc(26svh - 1.6rem);
+    min-height: 7rem;
+  }
+
+  .tc__fig--mini :global(.fd) {
+    width: auto;
+    height: 100%;
+  }
+
+  .tc__cap {
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  /* Head */
+
+  .tc__head {
+    display: grid;
+    gap: var(--space-2xs);
+    padding-block: var(--space-s) var(--space-xs);
+  }
+
+  .tc__title {
+    font-size: var(--step-3);
+    letter-spacing: var(--track-display);
+    line-height: 0.98;
+    overflow-wrap: break-word;
+  }
+
+  .tc__meta {
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-size: var(--step--1);
+    font-variation-settings: 'wght' 560, 'wdth' 90;
+  }
+
+  .tc__line {
+    max-width: 34ch;
+    font-size: var(--step-0);
+    line-height: 1.25;
+    font-weight: 500;
+  }
+
+  /* Milestone rows: fixed columns, the same in every chapter. */
+
+  .ms {
+    --on: clamp(0, calc((var(--draw, 1) - var(--t, 0)) * 24), 1);
+    --cur: 1;
+    display: grid;
+    grid-template-columns: 1.75rem 5.5rem minmax(0, 1fr);
+    grid-template-areas:
+      'mark date role'
+      'mark date org'
+      '. extra extra';
+    align-items: start;
+    column-gap: var(--space-xs);
+    row-gap: var(--space-3xs);
+    padding-block: var(--space-xs);
+    border-bottom: var(--line) solid var(--ink-soft);
+    color: color-mix(in srgb, var(--ink) calc(var(--on) * 100%), var(--ink-soft));
+  }
+
+  .ms__mark {
+    grid-area: mark;
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: var(--line-strong) solid currentColor;
+    border-radius: 50%;
+    background-color: color-mix(in srgb, var(--ink) calc(var(--on) * 100%), transparent);
+    color: color-mix(in srgb, var(--field) calc(var(--on) * 100%), var(--ink-soft));
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums lining-nums;
+    line-height: 1;
+  }
+
+  .ms__mark--none {
+    visibility: hidden;
+  }
+
+  .ms__date {
+    grid-area: date;
+    font-size: var(--step--1);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .ms__role {
+    grid-area: role;
+    display: grid;
+    font-family: var(--font-display);
+    font-size: var(--step-0);
+    font-weight: calc(600 + 200 * var(--on));
+    line-height: 1.2;
+  }
+
+  .ms__role-text {
+    grid-area: 1 / 1;
+  }
+
+  /* Hidden bold twin: the role cell always has its heaviest width, so activation never reflows. */
+  .ms__role::after {
+    content: attr(data-text);
+    grid-area: 1 / 1;
+    visibility: hidden;
+    font-weight: 800;
+  }
+
+  .ms__org {
+    grid-area: org;
+    font-size: var(--step--1);
+    line-height: 1.3;
+  }
+
+  .ms__extra {
+    grid-area: extra;
+    min-width: 0;
+  }
+
+  .ms__teaser {
+    max-width: 52ch;
+    margin-top: var(--space-3xs);
+    font-size: var(--step--1);
+  }
+
+  .ms__more {
+    max-width: 60ch;
+    font-size: var(--step--1);
+  }
+
+  .ms__more summary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    min-height: 1.75rem;
+    font-weight: 700;
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--line);
+    text-underline-offset: 0.22em;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .ms__more summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .ms__more summary::after {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: var(--line-strong) solid currentColor;
+    border-bottom: var(--line-strong) solid currentColor;
+    transform: translateY(-0.12rem) rotate(45deg);
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .ms__more[open] summary::after {
+    transform: translateY(0.1rem) rotate(-135deg);
+  }
+
+  .ms__more p {
+    margin-top: var(--space-2xs);
+  }
+
+  .ms__comp strong {
+    font-weight: 700;
+  }
+
+  /* Black belt frame and project parts */
+
+  .tc--black .ms {
+    padding-block: var(--space-s);
+  }
+
+  .tc__frame {
+    display: grid;
+    gap: var(--space-s);
+    justify-items: start;
+    padding-top: var(--space-m);
+  }
+
+  .tc__tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-xs);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  .tc__tech li {
+    padding: var(--space-3xs) var(--space-2xs);
+    border: var(--line) solid var(--ink-soft);
+  }
+
+  .tc__visit {
+    font-weight: 700;
+  }
+
+  .tc__passages ul {
+    display: grid;
+  }
+
+  .tc__passages a {
+    display: grid;
+    grid-template-columns: minmax(0, 7.5rem) minmax(0, 1fr);
+    gap: var(--space-xs);
+    padding-block: var(--space-xs);
+    border-bottom: var(--line) solid var(--ink-soft);
+    text-decoration: none;
+  }
+
+  .tc__passage-form {
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-weight: 600;
+  }
+
+  .tc__passage-name {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 800;
+  }
+
+  .tc__sub {
+    border-top: var(--line) solid var(--ink-soft);
+  }
+
+  /* Beats of a passage: each lights up as the line reaches it. */
+  .tc__beat {
+    --on: clamp(0, calc((var(--draw, 1) - var(--t, 0)) * 24), 1);
+    display: grid;
+    gap: var(--space-2xs);
+    padding-block: var(--space-xs);
+    color: color-mix(in srgb, var(--ink) calc(var(--on) * 100%), var(--ink-soft));
+  }
+
+  .tc__project {
+    font-size: var(--step-3);
+    letter-spacing: var(--track-display);
+    line-height: 1;
+  }
+
+  .tc__text {
+    max-width: 56ch;
+    font-size: var(--step--1);
+  }
+
+  .tc__facts {
+    display: grid;
+    grid-template-columns: 4.75rem minmax(0, 1fr);
+    gap: var(--space-2xs) var(--space-xs);
+    margin: 0;
+    max-width: 60ch;
+    font-size: var(--step--1);
+    line-height: 1.4;
+  }
+
+  .tc__facts dt {
+    font-family: var(--font-display);
+    font-weight: 700;
+  }
+
+  .tc__facts dd {
+    margin: 0;
+  }
+
+  .tc__closing {
+    max-width: 22ch;
+    padding: var(--space-2xl) var(--gutter) var(--space-3xl);
+    font-size: var(--step-3);
+    letter-spacing: var(--track-display);
+    line-height: 1.08;
+  }
+
+  /* Friction to code: the process of one real automation as a notation line. */
+
+  .auto {
+    gap: var(--space-m);
+    align-content: start;
+  }
+
+  .auto__copy {
+    display: grid;
+    gap: var(--space-xs);
+    align-content: start;
+    max-width: 44rem;
+    padding-top: var(--space-m);
+  }
+
+  .auto__title {
+    font-size: var(--step-3);
+    font-variation-settings: 'wght' 700, 'wdth' 85;
+  }
+
+  .auto__name {
+    font-weight: 700;
+  }
+
+  .auto__desc {
+    max-width: 56ch;
+    font-size: var(--step--1);
+  }
+
+  .auto__metric {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-variation-settings: 'wght' 700, 'wdth' 85;
+  }
+
+  .auto__flow {
+    position: relative;
+    display: grid;
+    gap: var(--space-s);
+    align-content: start;
+    align-self: start;
+    margin-block: var(--space-xs);
+  }
+
+  /* The line of movement: one rule through the numbered stops. */
+  .auto__flow::before {
+    content: '';
+    position: absolute;
+    inset: 0.9rem auto 0.9rem 0.875rem;
+    width: var(--line-strong);
+    background-color: var(--ink-soft);
+  }
+
+  .auto__step {
+    --on: clamp(0, calc((var(--draw, 1) - var(--t, 0)) * 24), 1);
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-xs);
+    font-weight: 600;
+    color: color-mix(in srgb, var(--ink) calc(var(--on) * 100%), var(--ink-soft));
+  }
+
+  .auto__num {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: var(--line-strong) solid currentColor;
+    border-radius: 50%;
+    background-color: color-mix(in srgb, var(--ink) calc(var(--on) * 100%), var(--field));
+    color: color-mix(in srgb, var(--field) calc(var(--on) * 100%), var(--ink-soft));
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  /* Tie-in: the next belt's field rises as a solid plane over the last 12% of the scene
+     (clip-path scrubbed by --p). It exists only when the engine scrubs; otherwise a hard edge. */
+  .tc__next {
+    display: none;
+  }
+
+  /* Pinned stage: only when JS runs and motion is allowed. The whole stage stays put; scrolling
+     only advances --p / --draw. Scene height = 100svh plus 45svh per stop. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .tc__scene--pin {
+      height: calc(100svh + var(--n, 2) * 45svh);
+    }
+
+    :global(html.js) .tc__scene--pin .tc__stage {
+      position: sticky;
+      top: 3rem;
+      grid-template-rows: auto minmax(0, 1fr);
+      height: calc(100svh - 3rem);
+      padding-block: 0 var(--space-xs);
+      overflow: hidden;
+    }
+
+    :global(html.js) .tc__scene--pin .tc__copy {
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+
+    :global(html.js) .tc__scene--pin .tc__line {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    :global(html.js) .ms__teaser {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Mobile: only the active row shows its teaser and detail. */
+    :global(html.js) .ms {
+      --cur: calc(var(--on) * (1 - clamp(0, calc((var(--draw, 1) - var(--tn, 9)) * 24), 1)));
+    }
+
+    :global(html.js) .tc--black .ms {
+      --cur: 1;
+    }
+
+    :global(html.js) .ms__extra {
+      max-height: calc(var(--cur) * 8rem);
+      opacity: var(--cur);
+      overflow: hidden;
+    }
+
+    :global(html.js) .tc--black .ms__extra {
+      max-height: none;
+    }
+
+    :global(html.js) .tc__next {
+      --rise: clamp(0, calc((var(--p, 0) - 0.88) / 0.12), 1);
+      display: block;
+      position: absolute;
+      inset: auto 0 0 0;
+      z-index: 4;
+      height: 100svh;
+      clip-path: inset(calc((1 - var(--rise)) * 100%) 0 0 0);
+      pointer-events: none;
+    }
+  }
+
+  @media (min-width: 62rem) {
+    .tc__stage {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+      column-gap: var(--space-xl);
+    }
+
+    .tc__copy {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .tc__side {
+      grid-column: 2;
+      grid-row: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-block: var(--space-m);
+      background-color: transparent;
+    }
+
+    .tc__side--map {
+      border-bottom: 0;
+    }
+
+    .tc__passages {
+      width: 100%;
+    }
+
+    .tc__fig--full {
+      display: block;
+      width: min(100%, calc(100svh - 11rem));
+    }
+
+    .tc__fig--mini {
+      display: none;
+    }
+
+    .tc__cap {
+      font-size: var(--step-0);
+    }
+
+    .tc--black .tc__side:not(.tc__side--map) {
+      align-self: start;
+      padding-top: var(--space-2xl);
+    }
+
+    .tc__title {
+      font-size: var(--step-4);
+    }
+
+    .tc__head {
+      padding-block: var(--space-l) var(--space-m);
+    }
+
+    .ms {
+      grid-template-columns: 1.75rem 9.75rem minmax(0, 1fr) minmax(0, 9.5rem);
+      grid-template-areas:
+        'mark date role org'
+        '. extra extra extra';
+    }
+
+    .ms__role {
+      font-size: var(--step-1);
+    }
+
+    .tc__facts {
+      grid-template-columns: 6rem minmax(0, 1fr);
+    }
+
+    .tc__project {
+      font-size: var(--step-4);
+    }
+
+    .tc__text,
+    .tc__facts {
+      font-size: var(--step-0);
+    }
+
+    .auto {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+      column-gap: var(--space-xl);
+    }
+
+    .auto__flow,
+    .auto__copy {
+      align-self: center;
+    }
+
+    .tc__beats {
+      align-content: center;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      :global(html.js) .tc__scene--pin .tc__stage {
+        grid-template-rows: minmax(0, 1fr);
+      }
+
+      :global(html.js) .tc__scene--pin .tc__side {
+        padding-block: var(--space-s);
+      }
+
+      /* Desktop: every teaser stays visible, clamped to two lines. */
+      :global(html.js) .ms__extra {
+        max-height: none;
+        opacity: 1;
+      }
+    }
+  }
+</style>

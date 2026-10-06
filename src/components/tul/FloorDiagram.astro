@@ -98,6 +98,9 @@ const stops = form.stops.map((stop) => {
   return { x: fmt(p.x), y: fmt(p.y), t: stop.t, move: stop.move };
 });
 
+// Arrowheads inside a stop disc (r 4.6) would collide with its number: skip them.
+const arrowsShown = arrows.filter((a) => !stops.some((s) => Math.hypot(a.x - s.x, a.y - s.y) < 7.6));
+
 // Ready point (Joon-bi): footprint pair facing the first segment.
 const first = segMeta[0];
 const readyAngle =
@@ -138,7 +141,7 @@ const tickLen = (v: number) => (v % 50 === 0 ? 4 : 2);
   <path class="fd-ghost" d={d}></path>
   <path class="fd-line" d={d} pathLength="1"></path>
 
-  {arrows.map((a) => (
+  {arrowsShown.map((a) => (
     <path
       class="fd-arrow"
       d="M-2.4 -2L1 0L-2.4 2"
