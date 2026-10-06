@@ -20,6 +20,8 @@ import vertical from '../../assets/brush/vertical.svg?raw';
  * clip-path and stroke-dashoffset. The SVG filters are static (rough edges); on mobile they are off.
  *
  * Without JS or with reduced motion the passage is a static ~8rem brush divider and covers nothing.
+ * The passage box stays in flow (60svh, 40svh on mobile); its ink layer is a fixed viewport overlay that
+ * is invisible (opacity 0) at both ends of the crossing.
  */
 interface Props {
   from: BeltKey;
@@ -77,25 +79,20 @@ if (!piece) throw new Error(`InkPassage: no piece for the jump to "${to}"`);
       --k: min(calc(var(--p, 0) * 2), calc((1 - var(--p, 0)) * 2));
       height: 60svh;
       color: var(--belt-fill);
-      /* The art may be wider than the box while it moves; it never adds a horizontal scrollbar. */
-      overflow-x: clip;
     }
 
     :global(html.js) .ink__rule {
       display: none;
     }
 
-    /* The art is a full-viewport layer centred on the passage, above the chapters, below the header. */
+    /* The art is a viewport-sized layer above the chapters and below the header. It is only visible
+       while the passage crosses the viewport (--k above 0), so it never lingers over a chapter. */
     :global(html.js) .ink__art {
-      position: absolute;
-      left: 0;
-      top: 50%;
+      position: fixed;
+      inset: 0;
       z-index: 10;
       display: block;
-      width: 100%;
-      height: 100svh;
-      translate: 0 -50%;
-      will-change: transform, opacity;
+      opacity: clamp(0, calc(var(--k) * 30), 1);
     }
 
     /* Drop: falls, bursts into a splash that fills the view, then recedes. */

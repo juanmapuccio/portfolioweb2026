@@ -108,6 +108,8 @@ const stops = form.stops.map((stop) => {
   return { x: fmt(p.x), y: fmt(p.y), t: stop.t, move: stop.move };
 });
 const numbered = labelled && !compact;
+// Brush texture of the route: a static bristle mask (unique id per instance, hidden figures keep theirs).
+const brushId = `fd-brush-${form.id}-${compact ? 'c' : 'f'}${hasPortrait ? 'p' : ''}`;
 
 // Arrowheads inside a stop disc (r 4.6) would collide with its number: skip them.
 const arrowsShown = arrows.filter((a) => !stops.some((s) => Math.hypot(a.x - s.x, a.y - s.y) < 7.6));
@@ -141,6 +143,16 @@ const tickLen = (v: number) => (v % 50 === 0 ? 4 : 2);
   data-diagram-progress={progress ? '' : undefined}
   data-form={form.id}
 >
+  <defs>
+    <pattern id={`${brushId}-p`} width="3" height="2.4" patternUnits="userSpaceOnUse" patternTransform="rotate(16)">
+      <rect width="3" height="2.4" fill="#fff"></rect>
+      <rect width="3" height="0.3" fill="#000" fill-opacity="0.6"></rect>
+      <rect x="0.4" y="1.3" width="1.6" height="0.22" fill="#000" fill-opacity="0.7"></rect>
+    </pattern>
+    <mask id={brushId} maskUnits="userSpaceOnUse" x="-8" y="-8" width="116" height="122">
+      <rect x="-8" y="-8" width="116" height="122" fill={`url(#${brushId}-p)`}></rect>
+    </mask>
+  </defs>
   <rect class="fd-frame" x="0" y="0" width="100" height="100" pathLength="1"></rect>
   {ticks.map((v) => (
     <path
@@ -154,7 +166,7 @@ const tickLen = (v: number) => (v % 50 === 0 ? 4 : 2);
   )}
 
   <path class="fd-ghost" d={d}></path>
-  <path class="fd-line" d={d} pathLength="1"></path>
+  <path class="fd-line" d={d} pathLength="1" mask={`url(#${brushId})`}></path>
 
   {arrowsShown.map((a) => (
     <path

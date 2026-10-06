@@ -32,7 +32,8 @@ describe('ink kit', () => {
     expect(passage).toContain('data-tul-passage');
     for (const piece of ['drop', 'dry', 'drip', 'enso', 'vertical']) expect(passage).toContain(`name: '${piece}'`);
     expect(passage).not.toMatch(/<p\b|<h[1-6]\b|<span\b/);
-    expect(styleOf(passage)).not.toMatch(/position:\s*(fixed|sticky)/);
+    // The passage box is in flow; only its ink layer is a viewport overlay.
+    expect(styleOf(passage)).not.toMatch(/\.ink \{[^}]*position:\s*(fixed|sticky|absolute)/);
   });
 });
 
@@ -51,6 +52,8 @@ describe('ink passage fallback and motion', () => {
     expect(motion).toMatch(/html\.js\) \.ink \{[^}]*height: 60svh/);
     expect(motion).toMatch(/html\.js\) \.ink__art \{[^}]*display: block/);
     expect(motion).toMatch(/html\.js\) \.ink__rule \{\s*display: none/);
+    // The ink layer is invisible at both ends of the crossing (k = 0), so it never lingers over a chapter.
+    expect(motion).toMatch(/html\.js\) \.ink__art \{[^}]*opacity: clamp\(0, calc\(var\(--k\) \* 30\), 1\)/);
   });
 
   test('mobile is 40svh and drops the displacement filters', () => {
@@ -63,8 +66,8 @@ describe('ink passage fallback and motion', () => {
     expect(motion).not.toMatch(/filter:|box-shadow|gradient|transition|animation/);
     const props = [...motion.matchAll(/^\s+([a-z-]+):/gm)].map((m) => m[1]);
     const allowed = new Set([
-      '--k', '--s', '--d', 'height', 'color', 'overflow-x', 'display', 'position', 'left', 'top', 'z-index',
-      'width', 'translate', 'will-change', 'transform', 'transform-box', 'transform-origin', 'opacity',
+      '--k', '--s', '--d', 'height', 'color', 'display', 'position', 'inset', 'z-index',
+      'transform', 'transform-box', 'transform-origin', 'opacity',
       'clip-path', 'stroke-dasharray', 'stroke-dashoffset'
     ]);
     for (const prop of props) expect(allowed.has(prop)).toBe(true);
@@ -93,5 +96,30 @@ describe('ink passages between chapters', () => {
     expect(fn).toContain('scrollTrigger');
     expect(fn).not.toMatch(/requestAnimationFrame|lenis/i);
     expect(engine).toMatch(/initScrubs\(\);\s*initPassages\(\);/);
+  });
+});
+
+describe('brush detail on white', () => {
+  const chapter = read('src/components/tul/TulChapter.astro');
+  const mark = read('src/components/tul/BeltMark.astro');
+  const diagram = read('src/components/tul/FloorDiagram.astro');
+
+  test('title cut is a dry brush stroke: the drawn line sits under a static bristle mask', () => {
+    expect(chapter).toMatch(/<mask id=\{`\$\{beltKey\}-bristle`\}/);
+    expect(chapter).toMatch(/<line [^>]*mask=\{`url\(#\$\{beltKey\}-bristle\)`\}/);
+    expect(chapter).toMatch(/\.tc__slash line \{\s*stroke: var\(--belt-line\);\s*stroke-width: 6;/);
+    expect(chapter).not.toMatch(/\.tc__slash[^{]*\{[^}]*filter:/);
+  });
+
+  test('chapter seal gets an ink ensō behind the belt, drawn with the same entrance and hidden from the header mark', () => {
+    expect(mark).toMatch(/animate && !mini && <path class="bm__e"/);
+    expect(mark.indexOf('bm__e"')).toBeLessThan(mark.indexOf('class="bm__part"'));
+    expect(mark).toMatch(/\.bm__e \{[^}]*stroke: var\(--ink\)/);
+  });
+
+  test('route stroke is brush-textured by a static mask and keeps the --draw logic', () => {
+    expect(diagram).toMatch(/<path class="fd-line" d=\{d\} pathLength="1" mask=/);
+    expect(diagram).toMatch(/<pattern id=/);
+    expect(diagram).toMatch(/stroke-dashoffset: calc\(1 - var\(--draw, 1\)\)/);
   });
 });

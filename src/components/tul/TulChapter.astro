@@ -145,7 +145,18 @@ const caption = (label: string, movements: number) =>
               <span class="tc__half tc__half--b tc__title grade-type">{stage.title}</span>
             </div>
             <svg class="tc__slash" aria-hidden="true" focusable="false">
-              <line x1="0" y1="1" x2="100%" y2="1" pathLength="1"></line>
+              <defs>
+                <mask id={`${beltKey}-bristle`} maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="6">
+                  <rect x="0" y="0" width="100%" height="1.3" fill="#fff"></rect>
+                  <rect x="0" y="1.3" width="72%" height="0.8" fill="#fff"></rect>
+                  <rect x="0" y="2.1" width="100%" height="1.1" fill="#fff"></rect>
+                  <rect x="14%" y="3.2" width="58%" height="0.7" fill="#fff"></rect>
+                  <rect x="0" y="3.9" width="100%" height="1" fill="#fff"></rect>
+                  <rect x="0" y="4.9" width="41%" height="0.7" fill="#fff"></rect>
+                  <rect x="58%" y="4.9" width="30%" height="0.5" fill="#fff"></rect>
+                </mask>
+              </defs>
+              <line x1="0" y1="3" x2="100%" y2="3" pathLength="1" mask={`url(#${beltKey}-bristle)`}></line>
             </svg>
           </div>
           <div class="tc__id">
@@ -372,7 +383,7 @@ const caption = (label: string, movements: number) =>
   }
 
   /* Horizontal cut: the title enters as two clipped halves (aria-hidden copies laid over the real
-     h2) and a belt-ink rule draws under it. Default and reduced motion: the plain visible h2 and a
+     h2) and a dry brush stroke (a static bristle mask over the drawn line) draws under it. Default and reduced motion: the plain visible h2 and a
      static rule; the halves do not exist. */
   .tc__titlewrap {
     position: relative;
@@ -404,13 +415,13 @@ const caption = (label: string, movements: number) =>
     position: absolute;
     inset: auto 0 0 0;
     width: 100%;
-    height: var(--line-strong);
+    height: 6px;
     overflow: visible;
   }
 
   .tc__slash line {
     stroke: var(--belt-line);
-    stroke-width: 2;
+    stroke-width: 6;
     stroke-dasharray: 1;
     stroke-dashoffset: 0;
   }

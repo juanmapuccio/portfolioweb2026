@@ -43,6 +43,7 @@ const [w, h] = mini ? [28, 22] : [120, 88];
   focusable="false"
 >
   {title && <title>{title}</title>}
+  {animate && !mini && <path class="bm__e" pathLength="1" d="M82 5.9A44 44 0 1 0 98.1 22"></path>}
   {mini ? (
     <>
       <g class="bm__part">
@@ -115,6 +116,17 @@ const [w, h] = mini ? [28, 22] : [120, 88];
     stroke-dashoffset: 0;
   }
 
+  /* Ink ensō behind the chapter seal: one open ring, drawn first. */
+  .bm__e {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    opacity: 0.2;
+  }
+
   .bm__k {
     fill: none;
     stroke: var(--belt-key, transparent);
@@ -150,8 +162,16 @@ const [w, h] = mini ? [28, 22] : [120, 88];
       stroke-dashoffset: 1;
     }
 
+    :global(html.js) .bm[data-belt-mark]:not(.is-in) .bm__e {
+      stroke-dashoffset: 1;
+    }
+
     :global(html.js) .bm[data-belt-mark]:not(.is-in) :is(.bm__f, .bm__s, .bm__k) {
       opacity: 0;
+    }
+
+    :global(html.js) .bm[data-belt-mark].is-in .bm__e {
+      animation: bm-draw 900ms var(--ease-out) both;
     }
 
     :global(html.js) .bm[data-belt-mark].is-in .bm__o {
