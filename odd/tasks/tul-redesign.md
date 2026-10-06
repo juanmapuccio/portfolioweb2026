@@ -36,6 +36,7 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - Slices (one PR each):
   - S1 = T0 and T1: `181152a`, `8796b6b`, `64f902d`.
   - S3 = T3: `739b965`, about 850 lines. It is the hero, the FloorDiagram primitive and the engine as one coherent unit.
+  - S4 = T3b and T4: `97d7fee`, `d2d6d68`, about 1,300 lines. TulChapter is one data-driven component for all six belts, so it stays one slice.
   - S2 = T2: `3eddaac`. About 740 authored lines, which is over budget. It is one coherent foundation (tokens, layout, header, i18n, test), so it stays as a single slice.
 
 ## Tasks
@@ -59,7 +60,7 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
   - The parent fixed the ghost route crossing the face: it is now hidden while the portrait is legible.
   - Checks: `astro check` 0 errors; build OK; `bun test` 139 pass, 3 skip, 13 fail (baseline).
   - Visual: rest, mid and late at 1440 and 390, plus reduced motion.
-- [ ] T4 Chapters 1 to 6, with a reusable FloorDiagram. One commit per chapter or per pair.
+- [x] T4 Chapters 1 to 6, with a reusable FloorDiagram. One commit per chapter or per pair.
 - [ ] T5 Principles, technical sheet (stack, certifications, education, languages) and the Kyong-ye close, where the line returns to the origin.
 - [ ] T6 `/cv` route (es/en/pt) plus a mobile "CV in 30 s" button and the PDF download.
 - [ ] T7 Retire the old world: `src/components/ink/*`, `src/components/lab/*` and `/lab`, `Belt3D`, `proceduralBelt.ts`, the `three` and Lenis dependencies, and old tokens and tests.
@@ -98,6 +99,17 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
   - Checks: `astro check` 0 errors; build OK; `bun test` 134 pass, 3 skip, 13 fail (baseline).
   - Visual: 2 rounds at 1440x900 and 390x844 (the limit reached). Round 1 fixes: role line, ghost route, overlapping arrows, desktop composition, ready label. The "10°" in the screenshot is the Archivo glyph for U+00BA, so the source was already correct; a test now guards it.
   - Deferred to the T8 review: the "Listo" label touches the ghost line, and there is idle space in the middle of the left column on desktop.
+- 2026-10-05 T4 commit `d2d6d68`. Route: delegated (writer trigger).
+  - TulChapter: a pinned stage holding head, compact `<ol>` and diagram; rows activate as `--draw` passes their `t`; the h2 type grows with grade.
+  - Rojo: friction-to-code notation from `automationsContent`.
+  - Negro: NodoSur frame plus Kwang-Gae/NodoFit, Po-Eun/Satori and Ge-Baek/Don Pizza sub-scenes.
+  - Next-belt tie plane is driven by clip-path over the last 12% of `--p`.
+  - Checks: `astro check` 0 errors; build OK; `bun test` 157 pass, 3 skip, 13 fail (baseline).
+  - Visual, 2 rounds. Round 1 fix: the whole stage is pinned instead of 58svh row spacing, which removed the blank screens and lost context. Final captures (amarillo, NodoFit, rojo, azul in reduced motion) all show content together with 0 overflow.
+  - Deferred to T8:
+    - Arrowheads read like text chevrons.
+    - Spare space under the negro and rojo desktop stages.
+    - On mobile the rojo friction stage scrolls with no pin between scenes.
 - Engine API for T4 (T3b adds `data-q-end` and `data-draw-start`; the hero pin is 220svh):
   - `[data-tul-scene]` gets `--p` and `--draw` (top top to bottom bottom, scrub 0.4), with `data-p-from` and `data-p-to`.
   - The hero exposes `data-draw-end=0.25`.
@@ -106,4 +118,4 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - 2026-10-05 T0: `3de8f84` on `feat/ink-redesign`. Branch `feat/tul-redesign` created. Doc and mirror written.
 
 ## Next step
-T4: chapters 1 to 6 with FloorDiagram.
+T5: principles, technical sheet (stack, certifications, education, languages) and the Kyong-ye close.
