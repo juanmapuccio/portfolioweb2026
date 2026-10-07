@@ -14,7 +14,7 @@ The user asked for an immersive site of his trajectory and CV, redesigned from s
 - Build path: code-led, with no generated comps.
 
 ## Scope
-In: tasks T0 to T12 and T8 below.
+In: tasks T0 to T13 and T8 below.
 Out: push, PR and merge, which are user decisions. Changes to the CV PDF are also out.
 
 ## Constraints
@@ -91,6 +91,11 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - [x] T12c 3D tatami in the same renderer, scene and fixed canvas, now full-viewport: instanced mats, route tube drawn by `--draw`, posts with number sprites, camera on the CSS floor curve, mouse parallax, hover tooltip, click opens the panel. `a1522dd`.
 - [x] T12d "Ver en 3D" / "Ver en 2D" on a phone (es, en, pt): the scene chunk loads on a tap only. `b42e9a1`.
 - [x] T12e Direction contract (`.impeccable/surfaces/src-pages-index-astro.md`) and this document. Commit: the one that adds this line (`docs(tul): ...`, see git log).
+- [x] T13a One dry-brush underline for every chapter title (user 2026-10-07; plan `codegraph-engram-context7-gentle-ai-snoopy-squid.md`, sections 2 and 4): the six per-belt variants are replaced by one shape, coloured by `--belt-line`; MorphSVG, spatter dots, ensō, drip and vertical removed; MorphSVG unregistered. `93cdbad`.
+- [ ] T13b `TatamiIso.astro` (isometric SVG generated at build from `data-tatami`) plus `tatamiIso.ts` (pure projection, geometry tests), `FloorDiagram.astro` reduced to a container (no CSS 3D plane, no `--tv`), fallback hidden as soon as `html[data-belt3d="ready"]` (no opacity threshold); `HeroJoonbi`, `TulChapter`, `KyongYe` and the floor tests adjusted.
+- [ ] T13c Sticky zones coherent with the 3D: persistent tatami between scenes, rojo automation block as a tatami beat (low camera), black outro that moves the belt (or loses its pin), Kyong-ye as a `return` beat, mobile: only the figure is sticky and the text scrolls normally, `--bp` written on a phone with "Ver en 3D". Files: `journey.ts`, `scene.ts`, `tatami.ts`, `tul.ts`, `TulChapter.astro`, `KyongYe.astro`.
+- [x] T13d `.hintrc` at the repo root so webhint `compat-api/css` ignores `text-size-adjust`, `scrollbar-color`, `scrollbar-width` and `text-wrap` (the Edge Tools hints on `base.css`). `d15c782`.
+- [ ] T13e Direction contract (`.impeccable/surfaces/src-pages-index-astro.md`) and this document for T13b and T13c.
 - [ ] T8 Finish: `impeccable detect`, then the finish reviewer at desktop 1440 and mobile 390, one fix round, and the documenter rewriting `DESIGN.md` and `.impeccable/design.json`.
 
 ## Acceptance criteria
@@ -110,6 +115,19 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - Whether to add the roles missing from the CV PDF (Grido, Al Natural, Providus, AS MED).
 
 ## Progress / evidence
+- 2026-10-07 T13a and T13d (user: one underline for all titles, tatami without a 2D drawing, coherent sticky zones, Edge Tools hints; plan `codegraph-engram-context7-gentle-ai-snoopy-squid.md`, sections 2 and 4). Route: delegated, one `sonnet` writer for T13a and T13d (writer trigger: T13a touches 6 files, 4 non-trivial; T13d is one config file, done in the same run because it is independent). TDD: off. Runner: `bunx astro check`, `bun test`, `bun run build`. T13b, T13c and T13e are pending and get their own writers in order.
+  - T13a `93cdbad`:
+    - `TitleInk.astro` is one `<svg class="ti" data-ink="dry">` with the four streaks of the old `dry` variant (widths 8, 6, 4, 2.5, all paths run left to right). No props, no per-belt branch: `TulChapter` mounts `<TitleInk />` once for all six belts. The colour is `currentColor` from `.ti { color: var(--belt-line) }`, so blanco is `#41546b`, amarillo `#8a6700`, verde `#1d6a44`, azul `#1d4a99`, rojo `#b3312a` and negro `#c8c1b6` (the dark-field line).
+    - `titleInk.ts`: SplitText title reveal unchanged; DrawSVG draws the four streaks from 0% to 100% (0.7 s, 0.09 s stagger, starts at 0.2 s). The dots, the morph and the `gsap.set(dots)` are gone, so the `GSAP target  not found` warning noted in T11a and T12c is fixed (0 such messages at 1440, 390, reduced motion and no JS). `clearProps` on the strokes is guarded by `strokes.length`.
+    - `tul.ts` no longer imports or registers MorphSVG: `gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin)`. `rg MorphSVG` over `src` finds nothing (a test asserts it).
+    - Tests: `tul-ink.test.ts` rewritten on purpose (one svg, no variant, no `beltKey`; streaks variable width and left to right inside the 600 view box; DrawSVG hooks only; colour only through `--belt-line` with no hard-coded colour; six distinct colours; contrast of each belt line at least 3:1 on its field, white `--field` for blanco to rojo and `--field-dark` for negro, computed from `tokens.css`; MorphSVG absent from `src`). `tul-motion.test.ts` follows the new markup. `tul-chapters.test.ts` needed no change.
+  - T13d `d15c782`: `.hintrc` at the repo root, `{"extends": ["development"], "hints": {"compat-api/css": ["default", {"ignore": [...]}]}}`. Format taken from the webhint docs (`https://webhint.io/docs/user-guide/hints/hint-compat-api/css/`: `ignore` is a list of CSS features, example `"compat-api/css": ["error", {"ignore": [...]}]`; `https://webhint.io/docs/user-guide/extensions/vscode-webhint/`: the extension uses `@hint/configuration-development` by default and a local `.hintrc` gives more control; `https://webhint.io/docs/user-guide/concepts/configurations/`: `@hint/` configurations are extended by short name). Two findings from running the real CLI (`hint` 7.1.13, local connector, on a copy of `base.css`):
+    - The property name alone does not cover the value form: with only the four names, `scrollbar-width: thin`, `text-wrap: balance` and `text-wrap: pretty` were still reported. The list therefore also holds `scrollbar-width: thin`, `scrollbar-width: none`, `text-wrap: balance`, `text-wrap: pretty` and `text-wrap: wrap` (the values the CSS uses).
+    - `ignore` replaces the hint's default list, so the defaults (`-moz-appearance: none`, `-webkit-appearance: none`, `appearance: none`, `cursor`, `zoom: 1`) are repeated. Severity is `default`, the same the development configuration gives, so nothing else changes.
+    - Result: `base.css` went from the 6 reported features to 0; a control file with `backdrop-filter` is still reported, so the hint stays on. `base.css` is untouched.
+  - Checks: `bunx astro check` 0 errors (the 6 hints are the pre-existing ones, none in the touched files); `bun test` 284 pass, 0 fail (was 281; `tul-ink` grew by three tests); `bun run build` 6 pages; `rg "[가-힯]"` over `src/components`, `src/scripts`, `src/pages`, `src/styles` finds nothing.
+  - Playwright (built `dist` served by the already running `astro preview` on 4322; 4321 untouched): at 1440 and 390 all six chapter titles captured. One distinct underline shape, six distinct computed stroke colours (the ones above), every title `is-done`, `html[data-field]` dark only for negro. Console: no `GSAP target not found`; the only 4 messages at 1440 are Chromium `GPU stall due to ReadPixels` driver notices from the software WebGL. Reduced motion and no JS at 1440: all six strokes visible, `stroke-dasharray: none`, `stroke-dashoffset: 0`, opacity 1, title opacity 1.
+  - Not verified: a real mid-draw frame of the left-to-right sweep (the one capture at 550 ms came after the entrance had finished); the direction rests on the path geometry, asserted by a test, and on DrawSVG's start-to-end drawing. The webhint run was made with the CLI, not inside the VS Code extension, so the editor diagnostics need a reload to confirm.
 - 2026-10-07 T12b to T12e (user: interactive 3D tatami; plan `codegraph-engram-context7-gentle-ai-snoopy-squid.md`, sections 2 and 3). Route: delegated, one `sonnet` writer for the four tasks (writer trigger: 2+ non-trivial files per task; the parent read the plan and the T12a API first). TDD: off. Runner: `bunx astro check`, `bun test`, `bun run build`.
   - T12b `ae5cc77`: sweep segments band 240 to 100, wraps 70/48 to 36/26, flaps 36 to 20, tails 80 to 40; 4 profile points per puff (was 9); 4-sided thread (was 6). 168,516 to 43,820 triangles, counted from the real geometry in `tests/tul-beltbudget.test.ts` (document stub, no GL). Puffs and threads are sub-millimetre, so the look holds (captures compared by eye).
   - T12c `a1522dd`. Design:
@@ -240,4 +258,6 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - 2026-10-05 T0: `3de8f84` on `feat/ink-redesign`. Branch `feat/tul-redesign` created. Doc and mirror written.
 
 ## Next step
+T13b: `TatamiIso` and the reduced `FloorDiagram`, then T13c (sticky zones), T13e (contract and this document), then T8.
+
 T8: finish review (impeccable detect, finish reviewer at 1440 and 390, one fix round, documenter rewrites DESIGN.md). Before deploy, the user decides whether the CV PDF gets tracked (see Open decisions).
