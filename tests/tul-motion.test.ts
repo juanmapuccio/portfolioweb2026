@@ -11,11 +11,10 @@ const styleOf = (src: string) => src.slice(src.indexOf('<style>'));
 const block = (css: string, needle: string): string[] =>
   [...css.matchAll(/[^{}]+\{[^{}]*\}/g)].map((m) => m[0]).filter((b) => b.includes(needle));
 
-describe('chapter title ink', () => {
-  test('one real h2 per chapter; the underline is a decorative svg', () => {
+describe('chapter title reveal', () => {
+  test('one real h2 per chapter and no underline mark', () => {
     expect(chapter.match(/<h2\b/g)?.length).toBe(1);
-    expect(chapter).toContain('<TitleInk />');
-    expect(read('src/components/tul/TitleInk.astro')).toMatch(/class="ti"[^>]*aria-hidden="true"/);
+    expect(chapter).not.toMatch(/TitleInk|class="ti"|data-ink-stroke/);
     expect(chapter).not.toMatch(/tc__split|tc__half/);
   });
 

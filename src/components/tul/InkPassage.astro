@@ -7,8 +7,7 @@ import { KNOT_AT } from './beltDrawing';
  * The spacer between two belt chapters. In flow, decorative, aria-hidden, no text.
  *
  * It paints nothing across the screen, except at one place: the passage that arrives at 1st dan
- * (`to === 'negro'`) carries the black flood. The sumi-e ink lives only under the chapter titles
- * (TitleInk.astro). The spacer is ~50svh on desktop and 40svh on mobile. It holds the detailed belt
+ * (`to === 'negro'`) carries the black flood. There is no ink under the chapter titles. The spacer is ~50svh on desktop and 40svh on mobile. It holds the detailed belt
  * drawing (BeltDrawing.astro), centred, which unties and ties again as the passage scrolls by:
  *   - mobile (< 1024px): always there, it is the thread of the journey (no 3D on mobile);
  *   - desktop: the poster of the 3D belt. It shows until the 3D scene reports html[data-belt3d="ready"],

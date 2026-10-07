@@ -28,7 +28,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 import { bootBelt3d } from './belt3d/boot';
-import { playTitleInk } from './titleInk';
+import { playTitleReveal } from './titleReveal';
 import { buildBeltTimeline } from './beltDrawing';
 import { initExperiencePanel } from './experiencePanel';
 
@@ -37,7 +37,7 @@ type Grade = { gup: string; form: string };
 const root = document.documentElement;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// GSAP's formerly paid plugins ship free in the `gsap` package: SplitText and DrawSVG for the title ink.
+// GSAP's formerly paid plugins ship free in the `gsap` package: SplitText for the title reveal and DrawSVG for the belt drawing.
 gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin);
 
 type Grades = Record<string, Grade>;
@@ -375,8 +375,8 @@ function endIntro(): void {
 // Entrances, once per element. Without motion, or without IntersectionObserver, nothing is
 // hidden: the CSS "from" states exist only under html.js with motion allowed, and the plain
 // state (visible title, full-opacity words) is what is left when this does not run.
-//   [data-split-title]  chapter title ink (titleInk.ts): `.is-in` once the entrance has been built and starts
-//                       (letters rise out of a SplitText mask while the TitleInk brush draws), `.is-done` when
+//   [data-split-title]  chapter title reveal (titleReveal.ts): `.is-in` once the entrance has been built and starts
+//                       (letters rise out of a SplitText mask), `.is-done` when
 //                       it has finished and the real h2 is back.
 //   [data-words]        build-time word spans (`--i`): `.is-in` lets them settle, staggered by CSS.
 //   [data-rise]         a block that rises with opacity: `.is-in`.
@@ -401,7 +401,7 @@ function initEntrances(): void {
         if (!entry.isIntersecting) continue;
         const el = entry.target as HTMLElement;
         titleObserver.unobserve(el);
-        if (!playTitleInk(el, () => el.classList.add('is-done'))) finish(el);
+        if (!playTitleReveal(el, () => el.classList.add('is-done'))) finish(el);
       }
     },
     { threshold: 0.4 }

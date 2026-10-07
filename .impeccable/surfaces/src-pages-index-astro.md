@@ -35,7 +35,7 @@ Mode: Experience. Scope: the full landing page, plus the `/cv` quick-scan route.
 - The CSS perspective floor becomes a 3D tatami on desktop (T12c), and on a phone only when the person taps "Ver en 3D" (T12d). The CSS floor stays the fallback everywhere else.
 
 **Revised 2026-10-07 (user, one underline, isometric tatami, sticky zones):** this supersedes the CSS perspective floor, the six title marks and the "CSS floor is the fallback" lines above.
-- One underline for every title (T13a): a dry brush stroke in the chapter's `--belt-line`. No drop, drip, ensō or vertical stroke, no MorphSVG.
+- No underline under titles (T14, owner decision): the single dry-brush underline of T13a is removed. The title is the real h2 whose letters rise out of a SplitText mask; no mark, no DrawSVG on titles.
 - The floor has no CSS 3D plane any more (T13b). The fallback is a build-time isometric SVG (`TatamiIso`) projected from the same route and stops as the 3D tatami.
 - Sticky rule (T13c): while a section is pinned, scrolling moves the 3D; when it is not pinned the 3D does not switch off halfway.
 
@@ -52,7 +52,7 @@ Mode: Experience. Scope: the full landing page, plus the `/cv` quick-scan route.
   - the belt itself, drawn in 3D on desktop and as a detailed drawing on mobile.
   - Strokes use an accessible `--belt-line` (yellow becomes ochre; on black it is a warm light grey).
 - Sumi-e ink only under the chapter titles:
-  - Every title carries the same single mark: one dry-brush underline (four streaks of variable width, drawn left to right) in the chapter's `--belt-line`. SplitText reveals the letters from a mask while DrawSVG draws the streaks. There is no per-belt variant.
+  - Titles carry no mark: SplitText reveals the letters from a mask and that is all. DrawSVG stays only for the belt drawing of the spacers.
   - No ink crosses the screen. The spacers between chapters are empty, in flow and carry no text.
   - Brush detail on the white field: the chapter seal has an ink ensō behind the belt (a seal detail, not a title mark), and the route line of the floor diagram has bristle texture.
   - With reduced motion or without JS the marks are finished and static, and the spacers are a plain 12rem gap.

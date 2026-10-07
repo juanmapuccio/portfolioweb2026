@@ -68,8 +68,7 @@ describe('chapter structure', () => {
     expect(chapter).not.toContain('data-next-belt');
   });
 
-  test('the title ink and the active row marker use the belt line colour', () => {
-    expect(read('src/components/tul/TitleInk.astro')).toMatch(/color: var\(--belt-line\)/);
+  test('the active row marker uses the belt line colour', () => {
     expect(chapter).toContain('var(--belt-line) calc(var(--on) * 100%)');
   });
 });
