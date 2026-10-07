@@ -26,6 +26,8 @@ interface Props {
   progress?: boolean;
   /** Mobile minimap: fewer mats, no arrowheads, no numbers. */
   compact?: boolean;
+  /** Give the 3D scene this route even though the posts carry no numbers (the Kyong-ye return). */
+  tatami?: boolean;
   /** Short "ready" label drawn on a flag beside the footprints (passed in by the caller). */
   readyLabel?: string;
   /** Tooltip text of a position stop in the 3D tatami, keyed by position id. */
@@ -33,13 +35,13 @@ interface Props {
   class?: string;
 }
 
-const { form, labelled = false, progress = false, compact = false, readyLabel, stopLabels = {}, class: className } = Astro.props;
+const { form, labelled = false, progress = false, compact = false, tatami: forScene = false, readyLabel, stopLabels = {}, class: className } = Astro.props;
 const hasPortrait = Astro.slots.has('portrait');
 
 const numbered = labelled && !compact;
 const stops = diagramStops(form);
 // The same route and posts for the 3D tatami (units 0..100, like the SVG).
-const tatami = numbered
+const tatami = numbered || (forScene && !compact)
   ? JSON.stringify({
       p: diagramPoints(form).map(([x, y]) => [fmt(x), fmt(y)]),
       s: form.stops.map((stop, i) => ({

@@ -146,14 +146,21 @@ function initScenes(): void {
 //   --belt-col-x/y/w/h  the reserved side column (a fixed probe sized by --belt-col, the same token the
 //                       chapter stages reserve as padding),
 //   --belt-hero-x/y/s   the hero's floor box (data-belt-anchor="hero") as it sits while the hero is pinned, and
-//   --belt-tat-x/y/s    the diagram box of a chapter map (the first `.tc__fig--full .fd`) as it sits while its stage
-//                       is pinned: where the tatami lies. Unset below the width that shows that figure.
+// Each scene that holds a 3D diagram (a [data-tatami] figure, desktop and motion only) also gets, as inline
+// custom properties on the scene itself:
+//   --tat-x/y/s/h/t     the figure's box (centre, width, height) as it sits while the stage is pinned, and the stage's sticky
+//                       offset: where the tatami lies. Written on refresh and resize.
+//   --en / --ex         the exact scroll progress of the stage entering (its top at the viewport bottom to the top)
+//                       and leaving (its bottom at the viewport bottom to the top), not smoothed: the tatami
+//                       travels with its stage through both, so it is on screen from entry to exit.
 // The hero floor box only exists on a phone once the tap mode is on; the scene says so with `tul:belt3d-tap`.
+// On a phone `--bp` is written only while the tap mode is on (the hero belt hands over to the chapters with it).
 function initBeats(): void {
   const wide = !reduced && matchMedia('(min-width: 1024px)').matches;
 
+  const travel = document.querySelectorAll<HTMLElement>('[data-belt-beat="travel"]');
   if (wide) {
-    for (const el of document.querySelectorAll<HTMLElement>('[data-belt-beat="travel"]')) {
+    for (const el of travel) {
       const state = { p: 0 };
       el.style.setProperty('--bp', '0');
       gsap.to(state, {
@@ -163,6 +170,24 @@ function initBeats(): void {
         onUpdate: () => el.style.setProperty('--bp', state.p.toFixed(4))
       });
     }
+  } else {
+    // Phone: the scene needs to know which chapter is on screen while the hero's "Ver en 3D" is on, so the hero
+    // belt does not hang over the first chapter. Nothing is written otherwise.
+    const tapOn = (): boolean => root.dataset.belt3dTap === 'on';
+    const triggers = [...travel].map((el) =>
+      ScrollTrigger.create({
+        trigger: el,
+        start: 'top top',
+        end: 'bottom bottom',
+        onUpdate: (self) => {
+          if (tapOn()) el.style.setProperty('--bp', self.progress.toFixed(4));
+        }
+      })
+    );
+    window.addEventListener('tul:belt3d-tap', () => {
+      if (!tapOn()) return;
+      triggers.forEach((st, i) => [...travel][i].style.setProperty('--bp', st.progress.toFixed(4)));
+    });
   }
 
   const hero = document.querySelector<HTMLElement>('[data-belt-beat="land"]');
@@ -183,7 +208,17 @@ function initBeats(): void {
   document.body.append(probe);
   const anchor = document.querySelector<HTMLElement>('[data-belt-anchor="hero"]');
   const stage = document.querySelector<HTMLElement>('[data-belt-stage]');
-  const mapFig = document.querySelector<HTMLElement>('.tc__fig--full .fd');
+  // Every scene with a 3D diagram: the figure box and the stage it sticks in.
+  const stages = wide
+    ? [...document.querySelectorAll<HTMLElement>('[data-tul-scene]')]
+        .filter((scene) => !scene.closest('[data-belt-beat="land"]'))
+        .flatMap((scene) => {
+          // The figure box; the automation beat measures its own, taller wrapper (`data-tatami-box`).
+          const fig = scene.querySelector<HTMLElement>('[data-tatami-box], .fd[data-tatami]');
+          const stage = scene.querySelector<HTMLElement>('.tc__stage, .ky__stage');
+          return fig && stage ? [{ scene, fig, stage }] : [];
+        })
+    : [];
   const px = (n: number): string => n.toFixed(1);
 
   const publish = (): void => {
@@ -204,19 +239,29 @@ function initBeats(): void {
         root.style.setProperty('--belt-hero-s', px(box.width));
       }
     }
-    const mapStage = mapFig?.closest<HTMLElement>('.tc__stage');
-    if (mapFig && mapStage) {
-      const box = mapFig.getBoundingClientRect();
-      if (box.width > 0) {
-        // A chapter stage sticks at `top` (3rem): add it to the offset inside the stage.
-        const stuck = parseFloat(getComputedStyle(mapStage).top) || 0;
-        const top = box.top - mapStage.getBoundingClientRect().top + stuck;
-        root.style.setProperty('--belt-tat-x', px(box.left + box.width / 2));
-        root.style.setProperty('--belt-tat-y', px(top + box.height / 2));
-        root.style.setProperty('--belt-tat-s', px(box.width));
-      }
+    for (const { scene, fig, stage } of stages) {
+      const box = fig.getBoundingClientRect();
+      if (box.width <= 0) continue;
+      // A stage sticks at `top` (3rem): add it to the offset inside the stage.
+      const stuck = parseFloat(getComputedStyle(stage).top) || 0;
+      const top = box.top - stage.getBoundingClientRect().top + stuck;
+      scene.style.setProperty('--tat-x', px(box.left + box.width / 2));
+      scene.style.setProperty('--tat-y', px(top + box.height / 2));
+      scene.style.setProperty('--tat-s', px(box.width));
+      scene.style.setProperty('--tat-h', px(box.height));
+      scene.style.setProperty('--tat-t', px(stuck));
     }
   };
+  // Exact (unsmoothed) entry and exit progress: the stage moves with the scroll, so the tatami must too.
+  for (const { scene } of stages) {
+    const write = (name: string) => (self: ScrollTrigger) => scene.style.setProperty(name, self.progress.toFixed(4));
+    scene.style.setProperty('--en', '0');
+    scene.style.setProperty('--ex', '0');
+    const enter = write('--en');
+    const leave = write('--ex');
+    ScrollTrigger.create({ trigger: scene, start: 'top bottom', end: 'top top', onUpdate: enter, onRefresh: enter });
+    ScrollTrigger.create({ trigger: scene, start: 'bottom bottom', end: 'bottom top', onUpdate: leave, onRefresh: leave });
+  }
   publish();
   ScrollTrigger.addEventListener('refresh', publish);
   window.addEventListener('tul:belt3d-tap', publish);

@@ -16,8 +16,15 @@ import { getTulChapter, type BeltKey } from '../../data/tuls';
  * the drawn line passes the row's `--t`. Without JS or with reduced motion nothing is pinned,
  * `--draw` is unset or 1, so everything is visible, in natural flow, fully drawn.
  *
- * Red belt: a second pinned stage after the milestones, "friction to code".
- * Black belt: an opening NodoSur frame, then one pinned sub-scene per tul/product.
+ * Red belt: a second pinned stage after the milestones, "friction to code". On desktop it is a tatami beat: the
+ * floor of the red route sits under the steps and the 3D camera drops to floor level and travels the route
+ * (`data-tatami-low`); the isometric floor is its fallback.
+ * Black belt: an opening NodoSur frame, then one pinned sub-scene per tul/product, then the closing outro (its
+ * pinned line moves the resting belt: it rises, turns slowly and fades, `data-belt-outro`).
+ *
+ * Pins (JS, motion, 62rem and up): the stage sticks. Below that width nothing is pinned: only the figure (the
+ * isometric floor) sticks, about 45svh, while the copy scrolls normally under it (no inner scroller), and the
+ * scene's `--p` still draws the route and lights the rows.
  */
 interface Props {
   lang?: Lang;
@@ -208,6 +215,7 @@ const caption = (label: string, movements: number) =>
       class="tc__scene tc__scene--pin"
       style="--n:3"
       data-tul-scene
+      data-tatami-low
       data-p-from="0"
       data-p-to="1"
       aria-labelledby="auto-title"
@@ -219,14 +227,19 @@ const caption = (label: string, movements: number) =>
           <p class="auto__desc">{automation.bot1Desc}</p>
           <p class="auto__metric">{automation.bot1Metric}</p>
         </div>
-        <ul class="auto__flow">
-          {autoSteps.map((label, i) => (
-            <li class="auto__step" style={`--t:${AUTO_T[i]}`}>
-              <span class="auto__num num" aria-hidden="true">{i + 1}</span>
-              <span>{label}</span>
-            </li>
-          ))}
-        </ul>
+        <div class="auto__side">
+          <ul class="auto__flow">
+            {autoSteps.map((label, i) => (
+              <li class="auto__step" style={`--t:${AUTO_T[i]}`}>
+                <span class="auto__num num" aria-hidden="true">{i + 1}</span>
+                <span>{label}</span>
+              </li>
+            ))}
+          </ul>
+          <div class="auto__map" data-tatami-box aria-hidden="true">
+            <FloorDiagram form={mainForm} labelled progress stopLabels={stopLabels} />
+          </div>
+        </div>
       </div>
     </aside>
   )}
@@ -288,6 +301,7 @@ const caption = (label: string, movements: number) =>
       class="tc__scene tc__scene--pin tc__outro"
       style="--n:1"
       data-tul-scene
+      data-belt-outro
     >
       <div class="tc__stage tc__stage--closing">
         <p class="tc__closing grade-type">{stage.closing}</p>
@@ -733,6 +747,20 @@ const caption = (label: string, movements: number) =>
     font-variation-settings: 'wght' 700, 'wdth' 85;
   }
 
+  .auto__side {
+    display: grid;
+    gap: var(--space-m);
+    align-content: start;
+    align-self: start;
+    min-width: 0;
+  }
+
+  /* Desktop with the 3D scene only: the red floor under the steps (its fallback is the isometric SVG). */
+  .auto__map {
+    display: none;
+    aspect-ratio: 5 / 4;
+  }
+
   .auto__flow {
     position: relative;
     display: grid;
@@ -777,9 +805,9 @@ const caption = (label: string, movements: number) =>
     font-weight: 700;
   }
 
-  /* Pinned stage: only when JS runs and motion is allowed. The whole stage stays put; scrolling
-     only advances --p / --draw. Scene height = 100svh plus 45svh per stop. */
-  @media (prefers-reduced-motion: no-preference) {
+  /* Pinned stage: only when JS runs and motion is allowed, from 62rem. The whole stage stays put;
+     scrolling only advances --p / --draw. Scene height = 100svh plus 45svh per stop. */
+  @media (min-width: 62rem) and (prefers-reduced-motion: no-preference) {
     :global(html.js) .tc__scene--pin {
       height: calc(100svh + var(--n, 2) * 45svh);
     }
@@ -797,7 +825,37 @@ const caption = (label: string, movements: number) =>
       overflow-y: auto;
       scrollbar-width: none;
     }
+  }
 
+  /* Phone and narrow tablet: nothing is pinned and no block scrolls inside the page. Only the figure sticks (about
+     45svh at most, under the header) while the copy flows with the normal scroll; the scene's --p, which spans the
+     whole scene, still draws the route and lights the rows. */
+  @media (max-width: 61.99rem) and (prefers-reduced-motion: no-preference) {
+    :global(html.js) .tc__scene--pin .tc__stage {
+      display: block;
+    }
+
+    :global(html.js) .tc__scene--pin .tc__side--map {
+      position: sticky;
+      top: 3rem;
+      z-index: 2;
+      max-height: 45svh;
+      overflow: hidden;
+    }
+
+    :global(html.js) .tc__scene--pin .tc__fig--mini {
+      width: 100%;
+      height: auto;
+      min-height: 0;
+    }
+
+    :global(html.js) .tc__scene--pin .tc__fig--mini :global(.fd) {
+      width: min(100%, calc((45svh - 5rem) * 1.55));
+      height: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
     /* Title ink: hidden until the engine marks it in view (html.js is set before first paint). */
     :global(html.js) .tc__titlewrap:not(.is-in) .tc__title {
       opacity: 0;
@@ -923,6 +981,14 @@ const caption = (label: string, movements: number) =>
       :global(html.js) .tc__scene--pin .tc__side {
         padding-block: var(--space-s);
       }
+    }
+  }
+
+  /* The 3D scene's own floor under the steps of the automation beat (see the file header). */
+  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+    :global(html.js) .auto__map {
+      display: block;
+      width: 100%;
     }
   }
 

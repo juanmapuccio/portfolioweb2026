@@ -174,7 +174,7 @@ describe('scene: one fixed full-viewport canvas, one renderer', () => {
       expect(code).not.toContain('getBoundingClientRect');
       expect(code).not.toContain('getComputedStyle');
     }
-    for (const name of ['--p', '--bp', '--q', '--e', '--draw', '--belt-vw', '--belt-vh', '--belt-col-x', '--belt-col-y', '--belt-col-w', '--belt-hero-x', '--belt-hero-s', '--belt-tat-x', '--belt-tat-s']) {
+    for (const name of ['--p', '--bp', '--q', '--e', '--draw', '--belt-vw', '--belt-vh', '--belt-col-x', '--belt-col-y', '--belt-col-w', '--belt-hero-x', '--belt-hero-s', '--en', '--ex', '--tat-x', '--tat-s', '--tat-h', '--tat-t']) {
       expect(scene).toContain(`'${name}'`);
     }
   });
@@ -259,11 +259,11 @@ describe('the engine drives the beats', () => {
 
   test('layout is measured here, on refresh only, and published in px on <html>', () => {
     expect(fn).toContain('ScrollTrigger.addEventListener(\'refresh\', publish)');
-    for (const name of ['--belt-vw', '--belt-vh', '--belt-col-x', '--belt-col-y', '--belt-col-w', '--belt-col-h', '--belt-hero-x', '--belt-hero-y', '--belt-hero-s', '--belt-tat-x', '--belt-tat-y', '--belt-tat-s']) {
+    for (const name of ['--belt-vw', '--belt-vh', '--belt-col-x', '--belt-col-y', '--belt-col-w', '--belt-col-h', '--belt-hero-x', '--belt-hero-y', '--belt-hero-s', '--tat-x', '--tat-y', '--tat-s', '--tat-h', '--tat-t', '--en', '--ex']) {
       expect(fn).toContain(`'${name}'`);
     }
-    // The probe, the hero box and stage, and the chapter map box and stage: the only layout reads of the scene,
-    // all inside publish(). It measures again when the phone turns the 3D view on.
+    // The probe, the hero box and stage, and the box and stage of each scene's figure: the only layout reads of the
+    // scene, all inside publish(). It measures again when the phone turns the 3D view on.
     expect(engine.match(/getBoundingClientRect/g)?.length).toBe(5);
     expect(fn).toContain("window.addEventListener('tul:belt3d-tap', publish)");
     expect(fn).not.toContain('requestAnimationFrame');
@@ -304,8 +304,8 @@ describe('colour mix', () => {
 
 // The journey itself, as numbers.
 const sizes: Metrics[] = [
-  { w: 1440, h: 900, col: { x: 1292, y: 474, w: 216, h: 852 }, hero: { x: 1080, y: 470, s: 364 }, tat: { x: 1100, y: 480, s: 560 } },
-  { w: 1024, h: 768, col: { x: 913, y: 408, w: 154, h: 720 }, hero: { x: 790, y: 400, s: 250 }, tat: { x: 760, y: 410, s: 380 } }
+  { w: 1440, h: 900, col: { x: 1292, y: 474, w: 216, h: 852 }, hero: { x: 1080, y: 470, s: 364 } },
+  { w: 1024, h: 768, col: { x: 913, y: 408, w: 154, h: 720 }, hero: { x: 790, y: 400, s: 250 } }
 ];
 const BELTS = ['blanco', 'amarillo', 'verde', 'azul', 'rojo', 'negro'] as const;
 const close = (a: number, b: number, eps = 1e-6) => expect(Math.abs(a - b)).toBeLessThan(eps);

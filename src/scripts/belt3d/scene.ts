@@ -44,6 +44,7 @@ import {
 } from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { BELT_COLORS, BELT_LINES, FIELD_DARK, FIELD_LIGHT, STITCH_GOLD, isBeltKey, type BeltKey } from './colors';
+import { routeOf, type Route } from '../../data/tulRoute';
 import { isBelt3dEligible } from './eligible';
 import {
   FLOOR_W,
@@ -51,8 +52,12 @@ import {
   PARALLAX_DEG,
   frameFor,
   pickBeat,
+  stageOffset,
+  stageScore,
+  tapBeltFrame,
   tatamiChapterFrame,
   tatamiHeroFrame,
+  tatamiLowFrame,
   type Beat,
   type Cam,
   type Frame,
@@ -67,16 +72,19 @@ import { openExperience } from '../experiencePanel';
 
 interface BeatEl extends Beat {
   el: HTMLElement;
+  /** The chapter's closing scene (`[data-belt-outro]`), whose progress moves the resting belt. */
+  outro?: HTMLElement;
 }
 
 /** A diagram that can be drawn as a tatami: the full FloorDiagram of the hero, a chapter or a black passage. */
 interface TatamiEntry {
   key: string;
-  /** The scene that scrubs this diagram (`--p`, `--draw`). */
+  /** The scene that scrubs this diagram (`--p`, `--draw`, and `--en` / `--ex` / `--tat-*` from tul.ts). */
   scene: HTMLElement;
-  /** The belt beat element it belongs to (the hero, or the chapter section). */
-  beat: HTMLElement;
   hero: boolean;
+  /** The low camera of the red automation beat (`data-tatami-low`): it follows `route`. */
+  low: boolean;
+  route: Route;
   belt: BeltKey;
   data: TatamiData;
 }
@@ -88,6 +96,8 @@ interface TatamiView {
   draw: number;
   /** Show every post whatever `draw` is (the on-demand phone view has no scroll-drawn route). */
   all: boolean;
+  /** The hero scene while it is still leaving: its floor was drawn in 3D, so its SVG must not pop up as it goes. */
+  keep?: HTMLElement;
 }
 
 interface View {
@@ -126,8 +136,7 @@ const metrics: Metrics = {
   w: 0,
   h: 0,
   col: { x: 0, y: 0, w: 0, h: 0 },
-  hero: { x: 0, y: 0, s: 0 },
-  tat: { x: 0, y: 0, s: 0 }
+  hero: { x: 0, y: 0, s: 0 }
 };
 const colour = new Map<BeltKey, Color>();
 const goldColour = new Color(STITCH_GOLD);
@@ -162,7 +171,7 @@ let activeIdx = 0;
 let teardownTimer: ReturnType<typeof setTimeout> | undefined;
 /** The tatami drawn by the last frame; the pointer handlers read it. */
 let lastView: TatamiView | undefined;
-let live: HTMLElement | undefined;
+let live: HTMLElement[] = [];
 let hoverIdx = -1;
 let pointerBound = false;
 let touchStart: { x: number; y: number } | undefined;
@@ -191,9 +200,6 @@ function readMetrics(): void {
   metrics.hero.x = readNum(root, '--belt-hero-x', 0);
   metrics.hero.y = readNum(root, '--belt-hero-y', 0);
   metrics.hero.s = readNum(root, '--belt-hero-s', 0);
-  metrics.tat.x = readNum(root, '--belt-tat-x', 0);
-  metrics.tat.y = readNum(root, '--belt-tat-y', 0);
-  metrics.tat.s = readNum(root, '--belt-tat-s', 0);
   // The phone view only needs the hero floor; the desktop journey needs the reserved column.
   columnOk = metrics.w > 0 && metrics.h > 0 && (tap ? metrics.hero.s > 0 : metrics.col.w > 0);
 }
@@ -241,11 +247,12 @@ function setReady(on: boolean): void {
 }
 
 /** The scene whose tatami is on screen hides its isometric floor (FloorDiagram) and shows it again when it leaves. */
-function setLive(el: HTMLElement | undefined): void {
-  if (el === live) return;
-  live?.removeAttribute('data-tatami-live');
-  live = el;
-  live?.setAttribute('data-tatami-live', '');
+function setLive(el: HTMLElement | undefined, also?: HTMLElement): void {
+  const next = [el, also].filter((e): e is HTMLElement => !!e);
+  if (next.length === live.length && next.every((e, i) => e === live[i])) return;
+  for (const e of live) e.removeAttribute('data-tatami-live');
+  live = next;
+  for (const e of live) e.setAttribute('data-tatami-live', '');
 }
 
 function clearKnot(): void {
@@ -325,33 +332,56 @@ function activeFrame(time: number): Frame | undefined {
   const e = readNum(hero, '--e', 0);
   // Idle sway while the hero belt rests, plus the drag.
   const sway = beat.kind === 'land' && q >= 1 ? Math.sin(time * 0.9) * 4 * DEG : 0;
-  return frameFor(beat, progress[idx], q, e, metrics, sway + drag.y);
+  // On demand the belt stays on its floor and leaves with it; it never flies to a column the phone does not have.
+  if (tap) return tapBeltFrame(e, metrics, sway + drag.y);
+  const outro = beat.kind === 'travel' && beat.outro ? readNum(beat.outro, '--p', 0) : undefined;
+  return frameFor(beat, progress[idx], q, e, metrics, sway + drag.y, outro);
 }
 
-/** The diagram on screen: the hero's, or the last scene of the active chapter that has started. */
+/**
+ * The diagram on screen. The tatami does not depend on the belt's beat: every stage with a diagram owns it from
+ * the moment it starts to enter until it has left, at its place on screen (tul.ts writes the exact entry and exit
+ * progress, `--en` / `--ex`, and the box of the figure, `--tat-*`, on the scene). Where two stages are on screen
+ * (the hero and the first chapter, adjacent scenes) the one most in place draws; they hand over when both are half
+ * away. The hero's floor is the first candidate (it rides up with `--e`).
+ */
 function tatamiView(): TatamiView | undefined {
   if (!tatamis.length || !beats.length) return undefined;
-  const beat = beats[activeIdx];
-  if (beat.kind === 'land') {
-    const entry = tatamis.find((t) => t.hero);
-    if (!entry) return undefined;
-    const q = tap ? 1 : readNum(beat.el, '--q', 0);
-    const e = readNum(beat.el, '--e', 0);
-    return { entry, frame: tatamiHeroFrame(q, e, metrics), draw: readNum(entry.scene, '--draw', 0), all: tap };
+  const heroBeat = beats[0].kind === 'land' ? beats[0] : undefined;
+  const heroEntry = tatamis.find((t) => t.hero);
+  let best: TatamiView | undefined;
+  let bestScore = 0;
+  if (heroBeat && heroEntry) {
+    const q = tap ? 1 : readNum(heroBeat.el, '--q', 0);
+    const e = readNum(heroBeat.el, '--e', 0);
+    best = { entry: heroEntry, frame: tatamiHeroFrame(q, e, metrics), draw: readNum(heroEntry.scene, '--draw', 0), all: tap };
+    bestScore = 1 - Math.min(1, Math.max(0, e));
   }
-  if (tap || beat.kind !== 'travel' || metrics.tat.s <= 0) return undefined;
-  let entry: TatamiEntry | undefined;
-  let p = 0;
+  // The phone view is the hero only.
+  if (tap) return best;
   for (const t of tatamis) {
-    if (t.beat !== beat.el) continue;
-    const tp = readNum(t.scene, '--p', 0);
-    if (tp > 0) {
-      entry = t;
-      p = tp;
-    }
+    if (t.hero) continue;
+    const en = readNum(t.scene, '--en', 0);
+    const ex = readNum(t.scene, '--ex', 0);
+    const score = stageScore(en, ex);
+    if (score <= 0 || score < bestScore) continue;
+    const box = {
+      x: readNum(t.scene, '--tat-x', 0),
+      y: readNum(t.scene, '--tat-y', 0),
+      s: readNum(t.scene, '--tat-s', 0),
+      h: readNum(t.scene, '--tat-h', 0)
+    };
+    if (box.s <= 0) continue;
+    const off = stageOffset(en, ex, metrics.h, readNum(t.scene, '--tat-t', 0));
+    const p = readNum(t.scene, '--p', 0);
+    const frame = t.low ? tatamiLowFrame(p, box.h > 0 ? box : { x: box.x, y: box.y, s: box.s }, t.route, off) : tatamiChapterFrame(p, box, off);
+    best = { entry: t, frame, draw: readNum(t.scene, '--draw', 1), all: false };
+    bestScore = score;
   }
-  if (!entry) return undefined;
-  return { entry, frame: tatamiChapterFrame(p, metrics.tat), draw: readNum(entry.scene, '--draw', 1), all: false };
+  if (best && heroEntry && heroBeat && best.entry !== heroEntry && readNum(heroBeat.el, '--e', 0) < 1 && readNum(heroBeat.el, '--q', 0) > 0.3) {
+    best.keep = heroEntry.scene;
+  }
+  return best;
 }
 
 /** Does anything need GL resources right now? Close to the hero's landing, or while a beat shows something. */
@@ -406,7 +436,10 @@ function pickAt(x: number, y: number): number {
   const tv = lastView;
   if (!view || !tv || lost || tv.frame.opacity < TATAMI_ACTIVE || root.classList.contains('xp-lock')) return hoverTo(-1);
   const c = tv.frame.cam;
-  if (Math.hypot(x - c.sx, y - c.sy) > c.ppm * FLOOR_W * 0.75) return hoverTo(-1);
+  const clip = tv.frame.clip;
+  if (clip ? x < clip.x || x > clip.x + clip.w || y < clip.y || y > clip.y + clip.h : Math.hypot(x - c.sx, y - c.sy) > c.ppm * FLOOR_W * 0.75) {
+    return hoverTo(-1);
+  }
   return hoverTo(view.tatami.pick(x, y, metrics.w, metrics.h, view.tcam));
 }
 
@@ -511,7 +544,7 @@ function drawIfChanged(f: Frame | undefined, tv: TatamiView | undefined, time: n
       : '';
   const tKey =
     tatOn && tv
-      ? `${tv.entry.key}|${tv.frame.opacity.toFixed(3)}|${tv.frame.cam.sy.toFixed(1)}|${tv.frame.cam.ppm.toFixed(1)}|${tv.frame.cam.elevation.toFixed(4)}|${tv.frame.yaw.toFixed(4)}|${tv.draw.toFixed(4)}|${par.x.toFixed(4)}|${par.y.toFixed(4)}|${hoverIdx}|${tv.frame.cam.sx.toFixed(1)}`
+      ? `${tv.entry.key}|${tv.frame.opacity.toFixed(3)}|${tv.frame.cam.sy.toFixed(1)}|${tv.frame.cam.ppm.toFixed(1)}|${tv.frame.cam.elevation.toFixed(4)}|${tv.frame.yaw.toFixed(4)}|${tv.draw.toFixed(4)}|${par.x.toFixed(4)}|${par.y.toFixed(4)}|${hoverIdx}|${tv.frame.cam.sx.toFixed(1)}|${tv.frame.cam.target[0].toFixed(3)}|${tv.frame.cam.target[2].toFixed(3)}`
       : '';
   const key = `${metrics.w}x${metrics.h}|${bKey}|${tKey}`;
   const swayDue = beltOn && !!f && f.resting && time - lastTime >= IDLE_FRAME_MS / 1000;
@@ -523,10 +556,17 @@ function drawIfChanged(f: Frame | undefined, tv: TatamiView | undefined, time: n
   renderer.clear();
   if (tatOn && tv) {
     applyTatami(view, tv);
+    // The low camera of the automation beat only draws inside its figure box (y is from the bottom in GL).
+    const clip = tv.frame.clip;
+    if (clip) {
+      renderer.setScissorTest(true);
+      renderer.setScissor(clip.x, metrics.h - (clip.y + clip.h), clip.w, clip.h);
+    }
     renderer.render(view.scene, view.tcam);
+    if (clip) renderer.setScissorTest(false);
     lastView = tv;
     // Live as soon as it is drawn, at any opacity: its isometric SVG is gone from that moment (never both).
-    setLive(tv.entry.scene);
+    setLive(tv.entry.scene, tv.keep);
     placeTip(view);
   } else {
     lastView = undefined;
@@ -710,7 +750,8 @@ function collect(): void {
     if (kind !== 'land' && kind !== 'travel' && kind !== 'passage') continue;
     const belt = isBeltKey(el.dataset.belt) ? el.dataset.belt : 'blanco';
     const from = isBeltKey(el.dataset.from) ? el.dataset.from : belt;
-    beats.push({ kind, belt, from, el });
+    const outro = kind === 'travel' ? (el.querySelector<HTMLElement>('[data-belt-outro]') ?? undefined) : undefined;
+    beats.push({ kind, belt, from, el, outro });
   }
 }
 
@@ -719,11 +760,14 @@ function isTatamiData(v: unknown): v is TatamiData {
   return !!d && Array.isArray(d.p) && d.p.length > 1 && Array.isArray(d.s);
 }
 
-/** Every full FloorDiagram carries its route and stops as data-tatami (build time), so the scene fetches nothing. */
+/**
+ * Every full FloorDiagram carries its route and stops as data-tatami (build time), so the scene fetches nothing.
+ * The diagram belongs to the `[data-tul-scene]` that scrubs it; the belt colour is the nearest `[data-belt]`.
+ */
 function collectTatami(): void {
   for (const el of document.querySelectorAll<HTMLElement>('[data-tatami]')) {
     const scene = el.closest<HTMLElement>('[data-tul-scene]');
-    const beat = el.closest<HTMLElement>('[data-belt-beat]');
+    const beat = el.closest<HTMLElement>('[data-belt]');
     if (!scene || !beat) continue;
     let data: unknown;
     try {
@@ -733,7 +777,16 @@ function collectTatami(): void {
     }
     if (!isTatamiData(data)) continue;
     const belt = isBeltKey(beat.dataset.belt) ? beat.dataset.belt : 'blanco';
-    tatamis.push({ key: String(tatamis.length), scene, beat, hero: beat.dataset.beltBeat === 'land', belt, data });
+    const hero = !!el.closest('[data-belt-beat="land"]');
+    tatamis.push({
+      key: String(tatamis.length),
+      scene,
+      hero,
+      low: scene.hasAttribute('data-tatami-low'),
+      route: routeOf(data.p),
+      belt,
+      data
+    });
   }
 }
 

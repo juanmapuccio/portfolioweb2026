@@ -16,6 +16,7 @@
 //
 // Continuity: every beat ends in the pose the next one starts with (travel p = 1 equals passage p = 0,
 // passage p = 1 equals travel p = 0), so switching beats never jumps.
+import { pointAt, type Route } from '../../data/tulRoute';
 import type { BeltKey } from './colors';
 
 const DEG = Math.PI / 180;
@@ -53,8 +54,6 @@ export interface Metrics {
   col: { x: number; y: number; w: number; h: number };
   /** The hero's floor box while the hero is pinned (centre and side). */
   hero: { x: number; y: number; s: number };
-  /** The diagram box of a pinned chapter map (centre and width), where the tatami lies. */
-  tat: { x: number; y: number; s: number };
 }
 
 /** Camera: where the target is on screen, pixels per metre there, and the orbit. */
@@ -181,11 +180,14 @@ export function heroFrame(q: number, e: number, m: Metrics, yawExtra: number): F
   return frame;
 }
 
-/** Inside a chapter: the belt in its column. On black (`rest`) it carries the rim light and fades out near the end. */
-export function travelFrame(belt: BeltKey, p: number, m: Metrics): Frame {
+/**
+ * Inside a chapter: the belt in its column. On black (`rest`) it carries the rim light and fades out near the end,
+ * unless the chapter has an outro (`fade` false): then `outroFrame` moves and fades it.
+ */
+export function travelFrame(belt: BeltKey, p: number, m: Metrics, fade = true): Frame {
   const black = belt === 'negro';
   return {
-    opacity: black ? 1 - smooth(p, 0.9, 0.98) : 1,
+    opacity: black && fade ? 1 - smooth(p, 0.9, 0.98) : 1,
     cam: travelCam(m),
     pose: { kind: 'hang', yaw: travelYaw(p), k: 1, lean: 1 },
     blend: 0,
@@ -197,6 +199,22 @@ export function travelFrame(belt: BeltKey, p: number, m: Metrics): Frame {
     tie: false,
     resting: false
   };
+}
+
+/** Share of the viewport height the belt rises over the black outro. */
+const OUTRO_RISE = 0.22;
+/** Extra slow turn of the belt over the black outro, radians. */
+const OUTRO_TURN = 0.9;
+
+/**
+ * The black outro (its pinned closing line, `p` 0..1): the resting belt rises in its column, turns slowly and
+ * fades out. It starts from the pose the travel beat leaves it in (p = 0 changes nothing), so nothing jumps.
+ */
+export function outroFrame(f: Frame, p: number, m: Metrics): Frame {
+  const k = clamp01(p);
+  if (k === 0) return f;
+  const pose: Pose = f.pose.kind === 'hang' ? { ...f.pose, yaw: f.pose.yaw + k * OUTRO_TURN } : f.pose;
+  return { ...f, pose, cam: { ...f.cam, sy: f.cam.sy - k * OUTRO_RISE * m.h }, opacity: f.opacity * (1 - smooth(k, 0.45, 1)) };
 }
 
 /** Where the belt is between two chapters. `to === 'negro'` is the tie beat. */
@@ -235,10 +253,11 @@ export function passageFrame(from: BeltKey, to: BeltKey, p: number, m: Metrics):
   };
 }
 
-/** The frame for the active beat. `q`/`e` are the hero's, `p` is the beat's own progress. */
-export function frameFor(beat: Beat, p: number, q: number, e: number, m: Metrics, yawExtra: number): Frame {
+/** The frame for the active beat. `q`/`e` are the hero's, `p` is the beat's own progress, `outro` the progress of a chapter's outro. */
+export function frameFor(beat: Beat, p: number, q: number, e: number, m: Metrics, yawExtra: number, outro?: number): Frame {
   if (beat.kind === 'land') return heroFrame(q, e, m, yawExtra);
-  if (beat.kind === 'travel') return travelFrame(beat.belt, p, m);
+  // A chapter with an outro (the black one) lets the outro move and fade the belt.
+  if (beat.kind === 'travel') return outro === undefined ? travelFrame(beat.belt, p, m) : outroFrame(travelFrame(beat.belt, p, m, false), outro, m);
   return passageFrame(beat.from, beat.belt, p, m);
 }
 
@@ -261,6 +280,8 @@ export interface TatamiFrame {
   cam: Cam;
   /** Yaw of the floor about Y (radians): 8 degrees. */
   yaw: number;
+  /** Draw only inside this screen rectangle (px): the low camera of the automation beat. */
+  clip?: { x: number; y: number; w: number; h: number };
 }
 
 /** Pixels per metre of the tatami, from the width of the diagram box. */
@@ -271,16 +292,17 @@ export const diagramPpm = (boxWidth: number): number => (boxWidth * 100) / (VIEW
  * The elevation above the horizon is 90 degrees minus the tilt. The floor is also scaled by `fit` (the near edge of
  * a tilted plane grows with perspective, 1 - 0.0048 * tilt) and lifted by 0.14% of the box width per degree of
  * tilt, so it stays inside its box and off the caption under it.
- * Visible only while the scene is pinned (p inside 0..1); the quick ramps at both ends hide the hand-over.
+ * It does not fade: the scene is drawn from the moment its stage enters until the stage has left, at `off` px from
+ * the pinned place (see `stageOffset`), so it travels with its stage and the route stays drawn at both ends.
  */
-export function tatamiChapterFrame(p: number, box: { x: number; y: number; s: number }): TatamiFrame {
+export function tatamiChapterFrame(p: number, box: { x: number; y: number; s: number }, off = 0): TatamiFrame {
   const k = clamp01(p);
   const tilt = 58 - 14 * k;
   return {
-    opacity: smooth(p, 0, 0.04) * (1 - smooth(p, 0.96, 1)),
+    opacity: 1,
     cam: {
       sx: box.x,
-      sy: box.y - 0.0014 * box.s * tilt,
+      sy: box.y - 0.0014 * box.s * tilt + off,
       ppm: diagramPpm(box.s) * (0.96 + 0.08 * k) * (1 - 0.0048 * tilt),
       elevation: (90 - tilt) * DEG,
       dist: HERO_DIST,
@@ -299,4 +321,71 @@ export function tatamiHeroFrame(q: number, e: number, m: Metrics): TatamiFrame {
   const cam = heroFrame(q, 0, m, 0).cam;
   cam.sy -= smooth(e, 0, 1) * m.h;
   return { opacity: smooth(q, 0.3, 0.7) * (1 - smooth(e, 0.7, 1)), cam, yaw: 8 * DEG * reveal };
+}
+
+/**
+ * The on-demand phone view: the hero belt rests on the hero floor and, like the floor, rides up with the hero stage
+ * while it scrolls away (`e`), instead of flying to a column the phone does not have.
+ */
+export function tapBeltFrame(e: number, m: Metrics, yawExtra = 0): Frame {
+  const f = heroFrame(1, 0, m, yawExtra);
+  f.cam.sy -= smooth(e, 0, 1) * m.h;
+  f.opacity = 1 - smooth(e, 0.7, 1);
+  return f;
+}
+
+// ---- Sticky coherence: a tatami for every stage, from entry to exit ------------------------------------------
+
+/** Metres of one diagram unit on the floor. */
+const UNIT = 0.01 * FLOOR_W;
+
+/**
+ * Where a pinned stage is on screen, as px from its pinned place, from the two exact (unsmoothed) scroll progresses
+ * tul.ts writes on a scene: `en` (0 when the scene's top is at the viewport bottom, 1 when it is at the top) and `ex`
+ * (0 when its bottom is at the viewport bottom, 1 when it is at the top). `top` is the stage's sticky offset (3rem).
+ * Positive while the stage rises into place, negative while it leaves.
+ */
+export function stageOffset(en: number, ex: number, vh: number, top: number): number {
+  return Math.max(0, (1 - clamp01(en)) * vh - top) - clamp01(ex) * vh;
+}
+
+/**
+ * Which stage owns the one tatami: the one most in place. Zero when the scene is not on screen yet (`en` 0) or has
+ * left (`ex` 1). Adjacent scenes hand over where both are half away, so the swap is never in plain view.
+ */
+export const stageScore = (en: number, ex: number): number => clamp01(en) * (1 - clamp01(ex));
+
+/** Zoom of the low camera over the chapter view, and its elevation above the floor. */
+const LOW_ZOOM = 2.3;
+const LOW_EL = 17 * DEG;
+const LOW_DIST = 1.15;
+/** The low camera swings from -LOW_SWING to +LOW_SWING degrees over the beat. */
+const LOW_SWING = 16;
+
+/**
+ * The red belt's automation beat: the camera drops almost to the floor and travels the route as `p` runs, so the
+ * stops go by like a process. The picture is cut to the box of the figure (`clip`), so the near floor never runs
+ * under the text. The floor turns slowly; the camera target is the route point turned with it.
+ */
+export function tatamiLowFrame(p: number, box: { x: number; y: number; s: number; h?: number }, route: Route, off = 0): TatamiFrame {
+  const k = clamp01(p);
+  const yaw = (-LOW_SWING + 2 * LOW_SWING * k) * DEG;
+  const pt = pointAt(route, k);
+  const x = (pt[0] - 50) * UNIT;
+  const z = (pt[1] - 50) * UNIT;
+  const target: [number, number, number] = [x * Math.cos(yaw) + z * Math.sin(yaw), FLOOR_TOP, -x * Math.sin(yaw) + z * Math.cos(yaw)];
+  const h = box.h ?? (box.s * 122) / 189;
+  return {
+    opacity: 1,
+    yaw,
+    clip: { x: box.x - box.s / 2, y: box.y + off - h / 2, w: box.s, h },
+    cam: {
+      sx: box.x,
+      sy: box.y + off + 0.1 * h,
+      ppm: diagramPpm(box.s) * LOW_ZOOM,
+      elevation: LOW_EL,
+      dist: LOW_DIST,
+      target
+    }
+  };
 }

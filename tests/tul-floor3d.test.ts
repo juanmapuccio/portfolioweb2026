@@ -22,7 +22,8 @@ describe('floor: a container for the 3D tatami with an isometric SVG fallback', 
     expect(markup(diagram)).toContain('<TatamiIso');
     expect(diagram).toContain('data-tatami={tatami}');
     expect(diagram).toContain('const numbered = labelled && !compact;');
-    expect(diagram).toMatch(/const tatami = numbered\s*\?\s*JSON\.stringify\(/);
+    // The Kyong-ye return has no numbers on its posts but is drawn by the 3D scene too (the tatami prop).
+    expect(diagram).toMatch(/const tatami = numbered \|\| \(forScene && !compact\)\s*\?\s*JSON\.stringify\(/);
     expect(diagram).toContain('name="portrait"');
     expect(diagram).toContain("Astro.slots.has('overlay')");
   });
@@ -33,7 +34,7 @@ describe('floor: a container for the 3D tatami with an isometric SVG fallback', 
     );
     const scene = read('src/scripts/belt3d/scene.ts');
     // No opacity threshold decides it: the scene marks the drawn diagram live as soon as it is drawn.
-    expect(scene).toContain('setLive(tv.entry.scene);');
+    expect(scene).toContain('setLive(tv.entry.scene, tv.keep);');
     expect(scene).not.toMatch(/setLive\(tv\.frame\.opacity/);
   });
 

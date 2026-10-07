@@ -1,12 +1,20 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { BELT_LINES } from '../src/scripts/belt3d/colors';
+import { routeOf } from '../src/data/tulRoute';
 import {
   FLOOR_W,
   diagramPpm,
+  frameFor,
   heroFrame,
+  outroFrame,
+  stageOffset,
+  stageScore,
+  tapBeltFrame,
   tatamiChapterFrame,
   tatamiHeroFrame,
+  tatamiLowFrame,
+  travelFrame,
   type Metrics
 } from '../src/scripts/belt3d/journey';
 
@@ -25,9 +33,10 @@ const m: Metrics = {
   w: 1440,
   h: 900,
   col: { x: 1292, y: 474, w: 216, h: 852 },
-  hero: { x: 1080, y: 470, s: 364 },
-  tat: { x: 1100, y: 480, s: 560 }
+  hero: { x: 1080, y: 470, s: 364 }
 };
+/** The box of a chapter figure, as tul.ts publishes it on its scene (centre and width, px). */
+const box = { x: 1100, y: 480, s: 560 };
 const DEG = Math.PI / 180;
 const close = (a: number, b: number, eps: number) => expect(Math.abs(a - b)).toBeLessThan(eps);
 
@@ -154,29 +163,29 @@ describe('tatami: the pointer', () => {
 
 describe('tatami: the camera follows the CSS floor curve', () => {
   test('a chapter map tilts 58 to 44 degrees with a dolly of 0.96 to 1.04 over the scene progress', () => {
-    const a = tatamiChapterFrame(0.02, m.tat);
-    const b = tatamiChapterFrame(0.5, m.tat);
-    const c = tatamiChapterFrame(0.98, m.tat);
+    const a = tatamiChapterFrame(0.02, box);
+    const b = tatamiChapterFrame(0.5, box);
+    const c = tatamiChapterFrame(0.98, box);
     // Elevation above the horizon = 90 degrees minus the CSS tilt.
     close(a.cam.elevation / DEG, 90 - (58 - 14 * 0.02), 10 ** -4);
     close(b.cam.elevation / DEG, 90 - 51, 10 ** -4);
     close(c.cam.elevation / DEG, 90 - (58 - 14 * 0.98), 10 ** -4);
     expect(c.cam.elevation).toBeGreaterThan(a.cam.elevation);
     // Dolly times the fit of the CSS plane (1 - 0.0048 * tilt).
-    close(a.cam.ppm, diagramPpm(m.tat.s) * (0.96 + 0.08 * 0.02) * (1 - 0.0048 * (58 - 14 * 0.02)), 10 ** -6);
+    close(a.cam.ppm, diagramPpm(box.s) * (0.96 + 0.08 * 0.02) * (1 - 0.0048 * (58 - 14 * 0.02)), 10 ** -6);
     expect(c.cam.ppm).toBeGreaterThan(a.cam.ppm);
     // Where the map sits on screen: its box, lifted like the CSS plane (0.14% of the width per degree).
-    expect(b.cam.sx).toBe(m.tat.x);
-    close(b.cam.sy, m.tat.y - 0.0014 * m.tat.s * 51, 10 ** -6);
+    expect(b.cam.sx).toBe(box.x);
+    close(b.cam.sy, box.y - 0.0014 * box.s * 51, 10 ** -6);
     // The camera is the only 3D left on the page: the diagram declares no tilt of its own.
     expect(css(diagram)).not.toMatch(/--tv|--cam|rotateX/);
   });
 
-  test('it is drawn only while its scene is pinned: gone at both ends', () => {
-    expect(tatamiChapterFrame(0, m.tat).opacity).toBe(0);
-    expect(tatamiChapterFrame(0.5, m.tat).opacity).toBe(1);
-    expect(tatamiChapterFrame(1, m.tat).opacity).toBe(0);
-    close(tatamiChapterFrame(0.5, m.tat).yaw, 8 * DEG, 10 ** -8);
+  test('it does not fade at the ends of the pin: the route is already drawn at both, and the stage offset moves it', () => {
+    for (const p of [0, 0.5, 1]) expect(tatamiChapterFrame(p, box).opacity).toBe(1);
+    close(tatamiChapterFrame(0.5, box).yaw, 8 * DEG, 10 ** -8);
+    // The same frame, shifted by the stage's offset from its pinned place.
+    close(tatamiChapterFrame(0.5, box, 120).cam.sy - tatamiChapterFrame(0.5, box).cam.sy, 120, 10 ** -9);
   });
 
   test('the hero tatami shares the camera of the hero belt, so the belt rests on it, and rides up with the stage', () => {
@@ -200,7 +209,117 @@ describe('the isometric floor steps aside only where the tatami is drawn', () =>
     expect(css(diagram)).toMatch(
       /html\[data-belt3d='ready'\] \[data-tatami-live\]\) \.fd:not\(\.fd--compact\) :global\(\.tatami-iso\) \{\s*visibility: hidden;/
     );
-    expect(scene).toContain("live?.removeAttribute('data-tatami-live')");
+    expect(scene).toContain("e.removeAttribute('data-tatami-live')");
     expect(scene).toContain("root.dataset.belt3d = 'ready'");
+  });
+});
+
+describe('sticky coherence: a tatami for every stage, from entry to exit', () => {
+  const engine = read('src/scripts/tul.ts');
+  const ky = read('src/components/tul/KyongYe.astro');
+
+  test('the stage offset follows the scroll: from the viewport bottom into place, then up and out', () => {
+    expect(stageOffset(0, 0, 900, 48)).toBe(900 - 48);
+    expect(stageOffset(0.5, 0, 900, 48)).toBe(450 - 48);
+    // In place (the sticky offset reached) and while pinned.
+    expect(stageOffset(1, 0, 900, 48)).toBe(0);
+    expect(stageOffset(0.99, 0, 900, 48)).toBe(0);
+    expect(stageOffset(1, 0.5, 900, 48)).toBe(-450);
+    expect(stageOffset(1, 1, 900, 48)).toBe(-900);
+  });
+
+  test('the stage most in place owns the tatami; adjacent stages hand over when both are half away', () => {
+    expect(stageScore(0, 0)).toBe(0);
+    expect(stageScore(1, 1)).toBe(0);
+    expect(stageScore(1, 0)).toBe(1);
+    // The leaving stage (ex) and the next one entering (en = ex): equal at the half.
+    expect(stageScore(1, 0.4)).toBeGreaterThan(stageScore(0.4, 0));
+    expect(stageScore(1, 0.6)).toBeLessThan(stageScore(0.6, 0));
+    close(stageScore(1, 0.5), stageScore(0.5, 0), 10 ** -12);
+  });
+
+  const route = routeOf([[10, 50], [50, 50], [50, 10], [90, 10]]);
+
+  test('the low camera sits near the floor, travels the route and cuts the picture to its box', () => {
+    const a = tatamiLowFrame(0, box, route);
+    const b = tatamiLowFrame(1, box, route);
+    expect(a.cam.elevation / DEG).toBeLessThan(25);
+    expect(a.opacity).toBe(1);
+    expect(a.cam.target).not.toEqual(b.cam.target);
+    expect(a.yaw).toBeLessThan(b.yaw);
+    expect(a.clip?.w).toBe(box.s);
+    close((a.clip?.x ?? 0) + (a.clip?.w ?? 0) / 2, box.x, 10 ** -9);
+    close((a.clip?.y ?? 0) + (a.clip?.h ?? 0) / 2, box.y, 10 ** -9);
+    // Close up: more pixels per metre than the chapter view.
+    expect(a.cam.ppm).toBeGreaterThan(tatamiChapterFrame(0.5, box).cam.ppm);
+    close((tatamiLowFrame(0.5, box, route, -200).clip?.y ?? 0) - (tatamiLowFrame(0.5, box, route).clip?.y ?? 0), -200, 10 ** -9);
+  });
+
+  test('the black outro rises, turns and fades the resting belt, and starts from the pose travel leaves it in', () => {
+    const rest = travelFrame('negro', 0.85, m, false);
+    expect(outroFrame(rest, 0, m)).toBe(rest);
+    const end = outroFrame(rest, 1, m);
+    expect(end.cam.sy).toBeLessThan(rest.cam.sy);
+    expect(end.opacity).toBe(0);
+    expect(end.pose.kind === 'hang' && rest.pose.kind === 'hang' ? end.pose.yaw > rest.pose.yaw : false).toBe(true);
+    // Without the outro the belt fades at the end of the chapter; with it, only the outro fades it.
+    const beat = { kind: 'travel', belt: 'negro', from: 'negro' } as const;
+    expect(frameFor(beat, 0.95, 0, 0, m, 0).opacity).toBeLessThan(1);
+    expect(frameFor(beat, 0.95, 0, 0, m, 0, 0).opacity).toBe(1);
+    expect(frameFor(beat, 0.95, 0, 0, m, 0, 1).opacity).toBe(0);
+  });
+
+  test('on a phone the hero belt rests on its floor and rides up with it instead of flying to a column', () => {
+    const rest = tapBeltFrame(0, m);
+    const hero = heroFrame(1, 0, m, 0);
+    expect(rest.pose).toEqual(hero.pose);
+    expect(rest.cam).toEqual(hero.cam);
+    const away = tapBeltFrame(1, m);
+    close(away.cam.sy, hero.cam.sy - m.h, 10 ** -6);
+    expect(away.opacity).toBe(0);
+    expect(away.blend).toBe(0);
+  });
+
+  test('the scene picks the stage by score, not by the belt beat; it clips the low camera with a scissor', () => {
+    expect(scene).toContain('stageScore(en, ex)');
+    expect(scene).toContain('stageOffset(en, ex, metrics.h');
+    expect(scene).toContain("readNum(t.scene, '--en', 0)");
+    expect(scene).toContain('renderer.setScissorTest(true)');
+    expect(scene).toContain('renderer.setScissorTest(false)');
+    expect(scene).not.toMatch(/beat\.kind !== 'travel'/);
+  });
+
+  test('tul.ts writes the exact entry and exit progress and the figure box on each scene, on desktop with motion', () => {
+    expect(engine).toMatch(/ScrollTrigger\.create\(\{ trigger: scene, start: 'top bottom', end: 'top top'/);
+    expect(engine).toMatch(/ScrollTrigger\.create\(\{ trigger: scene, start: 'bottom bottom', end: 'bottom top'/);
+    expect(engine).toContain("scene.style.setProperty('--tat-s'");
+    expect(engine).toContain('const stages = wide');
+  });
+
+  test('on a phone --bp is written only while "Ver en 3D" is on, so the hero belt hands over to the chapters', () => {
+    expect(engine).toContain("root.dataset.belt3dTap === 'on'");
+    expect(engine).toMatch(/if \(tapOn\(\)\) el\.style\.setProperty\('--bp'/);
+    expect(engine).toContain("window.addEventListener('tul:belt3d-tap', () => {");
+  });
+
+  test('the red automation block is a tatami beat with a low camera; the black outro and Kyong-ye are wired', () => {
+    expect(chapter).toContain('data-tatami-low');
+    expect(chapter).toMatch(/<div class="auto__map" data-tatami-box aria-hidden="true">\s*<FloorDiagram form=\{mainForm\} labelled progress/);
+    expect(chapter).toContain('data-belt-outro');
+    expect(scene).toContain("el.querySelector<HTMLElement>('[data-belt-outro]')");
+    expect(scene).toContain("low: scene.hasAttribute('data-tatami-low')");
+    expect(ky).toContain('<FloorDiagram form={RETURN_FORM} progress tatami');
+  });
+
+  test('below 62rem nothing is pinned and nothing scrolls inside: only the figure sticks, the copy flows', () => {
+    const style = css(chapter).split(String.fromCharCode(13)).join('');
+    const pinned = style.match(/@media \(min-width: 62rem\) and \(prefers-reduced-motion: no-preference\) \{[\s\S]*?\n  \}\n/)?.[0] ?? '';
+    expect(pinned).toContain('overflow-y: auto');
+    expect(pinned).toContain('position: sticky');
+    const phone = style.match(/@media \(max-width: 61\.99rem\) and \(prefers-reduced-motion: no-preference\) \{[\s\S]*?\n  \}\n/)?.[0] ?? '';
+    expect(phone).toMatch(/\.tc__scene--pin \.tc__side--map \{\s*position: sticky;\s*top: 3rem;[\s\S]*max-height: 45svh/);
+    expect(phone).toMatch(/\.tc__scene--pin \.tc__stage \{\s*display: block;/);
+    expect(phone).not.toContain('overflow-y');
+    expect(phone).not.toMatch(/height: calc\(100svh/);
   });
 });
