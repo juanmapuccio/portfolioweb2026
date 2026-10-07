@@ -211,7 +211,7 @@ describe('title ink', () => {
 
 describe('brush detail on white', () => {
   const mark = read('src/components/tul/BeltMark.astro');
-  const diagram = read('src/components/tul/FloorDiagram.astro');
+  const diagram = read('src/components/tul/TatamiIso.astro');
 
   test('chapter seal gets an ink ensō behind the belt, drawn with the same entrance and hidden from the header mark', () => {
     expect(mark).toMatch(/animate && !mini && <path class="bm__e"/);
@@ -220,7 +220,7 @@ describe('brush detail on white', () => {
   });
 
   test('route stroke is brush-textured by a static mask and keeps the --draw logic', () => {
-    expect(diagram).toMatch(/<path class="fd-line" d=\{d\} pathLength="1" mask=/);
+    expect(diagram).toMatch(/<path class="tiso-line" d=\{model\.route\} pathLength="1" mask=/);
     expect(diagram).toMatch(/<pattern id=/);
     expect(diagram).toMatch(/stroke-dashoffset: calc\(1 - var\(--draw, 1\)\)/);
   });

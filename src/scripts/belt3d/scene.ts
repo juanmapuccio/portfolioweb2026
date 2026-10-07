@@ -3,8 +3,8 @@
 //
 // Architecture: ONE WebGLRenderer on ONE fixed full-viewport canvas (position: fixed, pointer-events: none,
 // above the field and the black flood, below the header). Two things are drawn in ONE Scene, each by its own
-// camera on its own layer, one after the other: the tatami (tatami.ts: the 3D version of the CSS floor of
-// FloorDiagram, camera = the CSS floor curve) and, on top, the belt (journey.ts: the thread of the journey).
+// camera on its own layer, one after the other: the tatami (tatami.ts: the 3D version of the floor of
+// FloorDiagram, whose isometric SVG is the fallback) and, on top, the belt (journey.ts: the thread of the journey).
 // The belt lands on the hero tatami (same camera) and travels each chapter in the reserved column, where it
 // unties, changes colour and ties again in every spacer; it ties red to black at 1st dan (its knot is the
 // centre of the black flood) and rests on black until it fades out. The route of the belt is journey.ts (pure
@@ -20,7 +20,7 @@
 // The active beat is the last one that has started, so no visibility observer is needed: the belt is on
 // screen exactly while a beat is in progress.
 // Writes: html[data-belt3d="ready"] after the first drawn frame (the posters step aside), [data-tatami-live]
-// on the scene whose tatami is drawn (its CSS floor steps aside) and, during the tie beat only,
+// on the scene whose tatami is drawn (its isometric SVG steps aside) and, during the tie beat only,
 // --knot-x / --knot-y (viewport px) on <html>.
 //
 // Pointer: the canvas never takes events. A pointer move over the tatami casts ONE ray (hover: the post lights up
@@ -93,7 +93,7 @@ interface TatamiView {
 interface View {
   scene: Scene;
   camera: PerspectiveCamera;
-  /** Camera of the tatami: the CSS floor curve. */
+  /** Camera of the tatami. */
   tcam: PerspectiveCamera;
   belt: ProceduralBelt;
   tatami: Tatami;
@@ -240,7 +240,7 @@ function setReady(on: boolean): void {
   else delete root.dataset.belt3d;
 }
 
-/** The scene whose tatami is on screen hides its CSS floor (FloorDiagram) and shows it again when it leaves. */
+/** The scene whose tatami is on screen hides its isometric floor (FloorDiagram) and shows it again when it leaves. */
 function setLive(el: HTMLElement | undefined): void {
   if (el === live) return;
   live?.removeAttribute('data-tatami-live');
@@ -525,7 +525,8 @@ function drawIfChanged(f: Frame | undefined, tv: TatamiView | undefined, time: n
     applyTatami(view, tv);
     renderer.render(view.scene, view.tcam);
     lastView = tv;
-    setLive(tv.frame.opacity >= TATAMI_ACTIVE ? tv.entry.scene : undefined);
+    // Live as soon as it is drawn, at any opacity: its isometric SVG is gone from that moment (never both).
+    setLive(tv.entry.scene);
     placeTip(view);
   } else {
     lastView = undefined;
@@ -758,7 +759,7 @@ export function mountBelt3d(): void {
 
 /**
  * The phone's "Ver en 3D" button (boot.ts): the hero tatami and belt on demand. On: mounts the scene if it is not
- * mounted yet; off: tears everything down again (the CSS floor and the portrait come back).
+ * mounted yet; off: tears everything down again (the isometric floor and the portrait come back).
  */
 export function setTapMode(on: boolean): void {
   if (on) mountBelt3d();

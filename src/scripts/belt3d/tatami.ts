@@ -1,11 +1,11 @@
-// The tatami: the CSS floor of FloorDiagram, drawn in 3D inside the one scene of scene.ts (T12c).
+// The tatami: the floor of FloorDiagram, drawn in 3D inside the one scene of scene.ts (T12c).
 // It imports three, so it is part of the lazy scene chunk and nothing else imports it.
 //
 // What it draws, for the diagram whose scene is active:
 //   - the floor: ten tatami mats in ONE InstancedMesh (a seam between them, a subtle canvas-2D rush weave),
 //   - the route of the tul: a thin tube in the belt's line colour, drawn by `--draw` (a draw range),
 //   - one post per milestone at the diagram coordinates FloorDiagram uses, with a numbered disc sprite.
-// Everything lives on layer 1: scene.ts renders it with its own camera (the CSS floor curve) and then the belt
+// Everything lives on layer 1: scene.ts renders it with its own camera (journey.ts) and then the belt
 // on top with the belt camera, in the same scene, the same renderer and the same canvas.
 //
 // Coordinates: a diagram point (x, y) in 0..100 units lies at world ((x - 50), (y - 50)) * 0.01 * FLOOR_W metres
@@ -75,7 +75,7 @@ const ROUTE_RADIAL = 5;
 const POST_H = 0.1;
 const DISC = 0.066;
 const DISC_HOVER = 0.084;
-/** Share of the post (opacity) the CSS floor reveals per unit of `--draw` past the stop: the same 24 as FloorDiagram. */
+/** Opacity a post gains per unit of `--draw` past its stop: the same 24 as the isometric SVG (TatamiIso). */
 const REVEAL_RATE = 24;
 
 const clamp01 = (n: number): number => Math.min(1, Math.max(0, n));

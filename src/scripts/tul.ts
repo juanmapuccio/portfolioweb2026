@@ -7,7 +7,7 @@
 //   data-q-end         optional: --q (0..1) runs over scene progress 0..q-end (the hero's portrait
 //                      turning into the path).
 //   data-draw-start    optional: --draw starts moving once the scene progress passes this value.
-//   --draw             consumed by FloorDiagram: stroke-dashoffset, stops and arrows.
+//   --draw             consumed by TatamiIso (the floor of FloorDiagram): stroke-dashoffset, stops and arrows.
 //   main section[data-belt]  the section at mid-viewport sets html[data-active-belt] and the header
 //                      grade indicator ([data-grade-gup], [data-grade-form]). The belt never changes the
 //                      page background: the field is white up to the red belt and flips to black once, at 1st

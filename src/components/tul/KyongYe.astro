@@ -191,17 +191,18 @@ const isExternal = (url: string) => url.startsWith('https:');
   }
 
   .ky__fig {
+    --ky-h: min(46svh, 22rem);
     display: flex;
+    align-items: center;
     justify-content: center;
     width: 100%;
-    height: min(46svh, 22rem);
+    height: var(--ky-h);
     min-height: 9rem;
   }
 
+  /* The box follows the isometric floor (189 x 122): as wide as the figure's height allows, never wider than the column. */
   .ky__fig :global(.fd) {
-    width: auto;
-    height: 100%;
-    max-width: 100%;
+    width: min(100%, calc(var(--ky-h) * 1.55));
   }
 
   .ky__cap {
@@ -341,7 +342,7 @@ const isExternal = (url: string) => url.startsWith('https:');
     }
 
     .ky__fig {
-      height: min(calc(100svh - 14rem), 38rem);
+      --ky-h: min(calc(100svh - 14rem), 38rem);
     }
 
     .ky__chan {
@@ -359,8 +360,8 @@ const isExternal = (url: string) => url.startsWith('https:');
 
     @media (prefers-reduced-motion: no-preference) {
       :global(html.js) .ky__fig {
+        --ky-h: min(calc(100svh - 12rem), 38rem);
         flex: none;
-        height: min(calc(100svh - 12rem), 38rem);
       }
     }
   }

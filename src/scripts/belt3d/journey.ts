@@ -27,7 +27,7 @@ export const RING_W = 0.34;
 export const COL_FILL = 0.9;
 /** Height of the in-flow spacer as a fraction of the viewport (`--ink-h: 50svh` in InkPassage.astro). */
 export const SPACER_VH = 0.5;
-/** Hero camera distance in metres (mirrors the CSS floor of FloorDiagram). */
+/** Hero camera distance in metres (the belt rests on the hero tatami, which shares this camera). */
 const HERO_DIST = 2.05;
 const HERO_TARGET: [number, number, number] = [0.07, -0.02, 0.08];
 const TRAVEL_DIST = 1.7;
@@ -154,7 +154,7 @@ export function heroFrame(q: number, e: number, m: Metrics, yawExtra: number): F
   const pose: Pose = {
     kind: 'floor',
     landed,
-    // Same numbers as the CSS floor: yaw -8 degrees * reveal.
+    // Same yaw as the tatami: 8 degrees * reveal.
     yaw: 8 * DEG * reveal + yawExtra,
     // Screen-up in model space, so the drop starts off the top edge whatever the tilt is.
     up: { y: Math.cos(elevation), z: -Math.sin(elevation) }
@@ -242,24 +242,24 @@ export function frameFor(beat: Beat, p: number, q: number, e: number, m: Metrics
   return passageFrame(beat.from, beat.belt, p, m);
 }
 
-// ---- The tatami: the CSS floor of FloorDiagram, drawn in 3D --------------------------------------------------
+// ---- The tatami: the floor of FloorDiagram, drawn in 3D ---------------------------------------------------------
 
 /** Metres that 100 diagram units span on the tatami floor (the hero belt's size against its floor box). */
 export const FLOOR_W = 1.07;
 /** Height of the tatami surface; the belt rests on it. */
 export const FLOOR_TOP = -0.03;
-/** The CSS floor is 116 units wide (viewBox -8..108): the box width in px maps to that. */
+/** The diagram box maps to 116 units across (the 0..100 frame plus a margin): the box width in px is that. */
 const VIEW_UNITS = 116;
 /** Parallax of the mouse on the camera, in degrees at the edge of the viewport. */
 export const PARALLAX_DEG = 3;
-/** The diagram point at the centre of the CSS plane (viewBox centre), as an offset from the floor origin (metres). */
+/** The diagram point the camera looks at: just below the centre of the frame, as an offset from the floor origin (metres). */
 const CHAPTER_TARGET: [number, number, number] = [0, FLOOR_TOP, 0.03 * FLOOR_W];
 
 export interface TatamiFrame {
   /** 0 = not drawn. */
   opacity: number;
   cam: Cam;
-  /** Yaw of the floor about Y (radians): the CSS plane's -8 degrees. */
+  /** Yaw of the floor about Y (radians): 8 degrees. */
   yaw: number;
 }
 
@@ -267,11 +267,10 @@ export interface TatamiFrame {
 export const diagramPpm = (boxWidth: number): number => (boxWidth * 100) / (VIEW_UNITS * FLOOR_W);
 
 /**
- * A pinned chapter map. The camera is the CSS floor curve of FloorDiagram: tilt 58 to 44 degrees and a dolly
- * of 0.96 to 1.04 over the scene progress `p`. The elevation above the horizon is 90 degrees minus the tilt.
- * Like the CSS plane, the floor is also scaled by `fit` (the near edge of a tilted plane grows with perspective,
- * 1 - 0.0048 * tilt) and lifted by 0.14% of the box width per degree of tilt, so it stays inside its box and off
- * the caption under it.
+ * A pinned chapter map. The camera tilts 58 to 44 degrees and dollies 0.96 to 1.04 over the scene progress `p`.
+ * The elevation above the horizon is 90 degrees minus the tilt. The floor is also scaled by `fit` (the near edge of
+ * a tilted plane grows with perspective, 1 - 0.0048 * tilt) and lifted by 0.14% of the box width per degree of
+ * tilt, so it stays inside its box and off the caption under it.
  * Visible only while the scene is pinned (p inside 0..1); the quick ramps at both ends hide the hand-over.
  */
 export function tatamiChapterFrame(p: number, box: { x: number; y: number; s: number }): TatamiFrame {

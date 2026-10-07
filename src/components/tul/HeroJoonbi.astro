@@ -287,7 +287,8 @@ const stopLabels = Object.fromEntries(
   /* On-demand 3D on a phone (T12d). The button shows below 1024 px with JS (boot.ts binds it). While it is on,
      html[data-belt3d-tap='on']: the floor box becomes the anchor the scene measures (same box as on desktop,
      but it never takes touches, so the page keeps scrolling), the portrait steps aside and the tatami takes the
-     figure. "Ver en 2D" removes the attribute and everything returns. */
+     figure (the scene marks the hero live and its isometric floor steps aside). "Ver en 2D" removes the attribute
+     and everything returns. */
   .hero__3d {
     display: none;
   }

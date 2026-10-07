@@ -6,6 +6,8 @@ import { BELTS } from '../src/data/martialExperience';
 const read = (p: string) => readFileSync(p, 'utf8');
 const hero = read('src/components/tul/HeroJoonbi.astro');
 const diagram = read('src/components/tul/FloorDiagram.astro');
+// The route, ghost line and stops are drawn by the isometric SVG the diagram mounts.
+const iso = read('src/components/tul/TatamiIso.astro');
 const engine = read('src/scripts/tul.ts');
 const layout = read('src/layouts/TulLayout.astro');
 
@@ -42,12 +44,13 @@ describe('tul hero', () => {
 
 describe('FloorDiagram', () => {
   test('draws the line of movement with pathLength="1"', () => {
-    expect(diagram).toContain('pathLength="1"');
+    expect(iso).toContain('pathLength="1"');
   });
 
   test('is decorative and fully drawn without --draw', () => {
+    expect(iso).toContain('aria-hidden="true"');
     expect(diagram).toContain('aria-hidden="true"');
-    expect(diagram).toContain('var(--draw, 1)');
+    expect(iso).toContain('var(--draw, 1)');
   });
 });
 
@@ -99,10 +102,12 @@ describe('grade labels and diagram contract', () => {
   test('FloorDiagram takes the ready label as a prop and imports no i18n', () => {
     expect(diagram).toContain('readyLabel');
     expect(diagram).not.toMatch(/i18n/);
+    expect(iso).toContain('readyLabel');
+    expect(iso).not.toMatch(/i18n/);
   });
 
-  test('FloorDiagram draws a ghost of the full route', () => {
-    expect(diagram).toContain('fd-ghost');
+  test('the floor draws a ghost of the full route', () => {
+    expect(iso).toContain('tiso-ghost');
   });
 });
 

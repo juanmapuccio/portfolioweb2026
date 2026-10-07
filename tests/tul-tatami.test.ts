@@ -168,9 +168,8 @@ describe('tatami: the camera follows the CSS floor curve', () => {
     // Where the map sits on screen: its box, lifted like the CSS plane (0.14% of the width per degree).
     expect(b.cam.sx).toBe(m.tat.x);
     close(b.cam.sy, m.tat.y - 0.0014 * m.tat.s * 51, 10 ** -6);
-    // The CSS floor curve is the one FloorDiagram declares.
-    expect(css(diagram)).toMatch(/--tv:\s*calc\(58 - 14 \* var\(--p, 1\)\)/);
-    expect(css(diagram)).toMatch(/--cam:\s*calc\(0\.96 \+ 0\.08 \* var\(--p, 1\)\)/);
+    // The camera is the only 3D left on the page: the diagram declares no tilt of its own.
+    expect(css(diagram)).not.toMatch(/--tv|--cam|rotateX/);
   });
 
   test('it is drawn only while its scene is pinned: gone at both ends', () => {
@@ -196,10 +195,10 @@ describe('tatami: the camera follows the CSS floor curve', () => {
   });
 });
 
-describe('the CSS floor steps aside only where the tatami is drawn', () => {
+describe('the isometric floor steps aside only where the tatami is drawn', () => {
   test('hidden for the scene the scene marks live, while 3D is ready; kept otherwise', () => {
     expect(css(diagram)).toMatch(
-      /html\[data-belt3d='ready'\] \[data-tatami-live\]\) \.fd:not\(\.fd--compact\) \.fd__stage \{\s*visibility: hidden;/
+      /html\[data-belt3d='ready'\] \[data-tatami-live\]\) \.fd:not\(\.fd--compact\) :global\(\.tatami-iso\) \{\s*visibility: hidden;/
     );
     expect(scene).toContain("live?.removeAttribute('data-tatami-live')");
     expect(scene).toContain("root.dataset.belt3d = 'ready'");

@@ -1,33 +1,32 @@
 ---
 import type { TulForm } from '../../data/tuls';
+import TatamiIso from './TatamiIso.astro';
+import { diagramPoints, diagramStops, fmt } from './tatamiIso';
 
 /**
- * Floor diagram of one tul, drawn as technical-manual notation.
+ * The floor of one tul: a container that holds the route for the 3D scene and the isometric SVG fallback.
  *
- * - One <path> carries the line of movement (pathLength="1"), so a `--draw`
- *   custom property (0..1) on any ancestor drives stroke-dashoffset in CSS.
- *   Without `--draw` the line is fully drawn (no-JS and reduced-motion default).
- * - Stops, numbers and arrowheads fade in once `--draw` passes their `--t`.
- * - The diagram is a floor seen in perspective (CSS 3D, no WebGL): the SVG (frame, ticks, ghost route,
- *   line, footprints, on-floor dots) lies in a `preserve-3d` plane tilted by `--tilt`; stop numbers and
- *   the ready label are HTML posts inside that plane, counter-rotated so they stand up and stay legible.
- *   The camera (`--tv`, `--cam`) follows the scene `--p` in CSS only.
- * - The full diagram (labelled, not compact) also carries its route and stops as `data-tatami` (build-time JSON, diagram
- *   units 0..100): on desktop, and on a phone on demand, the 3D scene (belt3d/tatami.ts) draws the same floor
- *   as a tatami and hides this CSS plane while it is on screen (`[data-tatami-live]`). Without WebGL it stays.
+ * - The full diagram (labelled, not compact) carries its route and stops as `data-tatami` (build-time JSON, diagram
+ *   units 0..100). On desktop, and on a phone on demand, the 3D scene (belt3d/tatami.ts) draws that floor as a
+ *   tatami and the isometric SVG steps aside (see the rules at the end). Everywhere else the SVG is the floor:
+ *   TatamiIso.astro projects the same route and stops in isometric at build time.
+ * - `--draw` (0..1) on any ancestor draws the route and shows the stops (see TatamiIso); without it everything is
+ *   fully drawn (no JS and reduced motion).
+ * - Optional `portrait` slot: the hero's photo, a flat plate inside a measuring frame (ticks every 10 units). The
+ *   plate and the frame give way as the floor appears (`--q`).
  * - Optional `overlay` slot: an in-flow-box overlay inside the diagram box (the hero's 3D belt container).
- * - Decorative only: the SVG and the markers are aria-hidden, the real content lives in HTML.
+ * - Decorative only: the SVGs are aria-hidden, the real content lives in HTML.
  * - Geometry is design layer, never the technical execution of the form.
  */
 interface Props {
   form: TulForm;
-  /** Show the movement number inside each stop. */
+  /** Show the movement number on each post. */
   labelled?: boolean;
   /** Mark the diagram as scroll-driven (engine hook, `data-diagram-progress`). */
   progress?: boolean;
-  /** Mobile minimap: no frame ticks, no arrowheads, no numbers. */
+  /** Mobile minimap: fewer mats, no arrowheads, no numbers. */
   compact?: boolean;
-  /** Short "ready" label drawn next to the footprints (passed in by the caller). */
+  /** Short "ready" label drawn on a flag beside the footprints (passed in by the caller). */
   readyLabel?: string;
   /** Tooltip text of a position stop in the 3D tatami, keyed by position id. */
   stopLabels?: Record<string, string>;
@@ -37,86 +36,12 @@ interface Props {
 const { form, labelled = false, progress = false, compact = false, readyLabel, stopLabels = {}, class: className } = Astro.props;
 const hasPortrait = Astro.slots.has('portrait');
 
-const SCALE = 100;
-const pts = form.path.map(([x, y]) => [x * SCALE, y * SCALE] as const);
-
-const fmt = (n: number) => Number(n.toFixed(2));
-
-// Cumulative polyline lengths, computed at build time.
-const segs = pts.slice(1).map((p, i) => {
-  const a = pts[i];
-  const len = Math.hypot(p[0] - a[0], p[1] - a[1]);
-  return { a, b: p, len };
-});
-const total = segs.reduce((sum, s) => sum + s.len, 0);
-
-let acc = 0;
-const segMeta = segs.map((s) => {
-  const start = acc;
-  acc += s.len;
-  return { ...s, start };
-});
-
-function pointAt(t: number) {
-  const target = Math.min(1, Math.max(0, t)) * total;
-  const seg = segMeta.find((s) => target <= s.start + s.len) ?? segMeta[segMeta.length - 1];
-  const k = seg.len === 0 ? 0 : (target - seg.start) / seg.len;
-  return { x: seg.a[0] + (seg.b[0] - seg.a[0]) * k, y: seg.a[1] + (seg.b[1] - seg.a[1]) * k };
-}
-
-const d = pts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${fmt(x)} ${fmt(y)}`).join(' ');
-
-// Direction arrowheads: one per segment, offset to the travel-right side so
-// segments walked back over the same line keep separate arrows.
-// Segments that retrace the same line also get distinct positions along it (30% and 70%
-// of the line), so out-and-back pairs never stack their glyphs.
-const overlaps = (i: number, j: number) => {
-  const A = segMeta[i];
-  const B = segMeta[j];
-  const sameX = A.a[0] === A.b[0] && B.a[0] === B.b[0] && A.a[0] === B.a[0];
-  const sameY = A.a[1] === A.b[1] && B.a[1] === B.b[1] && A.a[1] === B.a[1];
-  if (!sameX && !sameY) return false;
-  const k: 0 | 1 = sameX ? 1 : 0;
-  const lo = Math.max(Math.min(A.a[k], A.b[k]), Math.min(B.a[k], B.b[k]));
-  const hi = Math.min(Math.max(A.a[k], A.b[k]), Math.max(B.a[k], B.b[k]));
-  return hi - lo > 1;
-};
-
-const arrows = compact
-  ? []
-  : segMeta
-      .map((s, i) => {
-        if (s.len < 12) return null;
-        const others = segMeta.map((_, j) => j).filter((j) => j !== i && overlaps(i, j));
-        const rank = others.filter((j) => j < i).length;
-        const along = others.length === 0 ? 0.5 : rank === 0 ? 0.3 : 0.7;
-        // `along` is measured from the lower-coordinate end of the line, not the travel start.
-        const forward = s.b[0] > s.a[0] || (s.b[0] === s.a[0] && s.b[1] > s.a[1]);
-        const f = forward ? along : 1 - along;
-        const ux = (s.b[0] - s.a[0]) / s.len;
-        const uy = (s.b[1] - s.a[1]) / s.len;
-        return {
-          x: fmt(s.a[0] + (s.b[0] - s.a[0]) * f - uy * 3.4),
-          y: fmt(s.a[1] + (s.b[1] - s.a[1]) * f + ux * 3.4),
-          angle: fmt((Math.atan2(uy, ux) * 180) / Math.PI),
-          t: fmt((s.start + s.len * f) / total)
-        };
-      })
-      .filter((a): a is NonNullable<typeof a> => a !== null);
-
-// Position of a diagram point inside the viewBox "-8 -8 116 122", as a percentage of the plane.
-const pctX = (x: number) => `${fmt(((x + 8) / 116) * 100)}%`;
-const pctY = (y: number) => `${fmt(((y + 8) / 122) * 100)}%`;
-
-const stops = form.stops.map((stop) => {
-  const p = pointAt(stop.t);
-  return { x: fmt(p.x), y: fmt(p.y), t: stop.t, move: stop.move };
-});
 const numbered = labelled && !compact;
+const stops = diagramStops(form);
 // The same route and posts for the 3D tatami (units 0..100, like the SVG).
 const tatami = numbered
   ? JSON.stringify({
-      p: pts.map(([x, y]) => [fmt(x), fmt(y)]),
+      p: diagramPoints(form).map(([x, y]) => [fmt(x), fmt(y)]),
       s: form.stops.map((stop, i) => ({
         n: stop.move,
         x: stops[i].x,
@@ -127,142 +52,61 @@ const tatami = numbered
       }))
     })
   : undefined;
-// Brush texture of the route: a static bristle mask (unique id per instance, hidden figures keep theirs).
-const brushId = `fd-brush-${form.id}-${compact ? 'c' : 'f'}${hasPortrait ? 'p' : ''}`;
+const uid = `${form.id}-${compact ? 'c' : 'f'}${hasPortrait ? 'p' : ''}`;
 
-// Arrowheads inside a stop disc (r 4.6) would collide with its number: skip them.
-const arrowsShown = arrows.filter((a) => !stops.some((s) => Math.hypot(a.x - s.x, a.y - s.y) < 7.6));
-
-// Ready point (Joon-bi): footprint pair facing the first segment.
-const first = segMeta[0];
-const readyAngle =
-  (Math.atan2(first.b[1] - first.a[1], first.b[0] - first.a[0]) * 180) / Math.PI + 90;
-const ready = { x: fmt(pts[0][0]), y: fmt(pts[0][1]), angle: fmt(readyAngle) };
-// The ready label stands beside the footprints (offset in screen axes, not in the footprint frame).
-const readyLabelAt = { x: fmt(ready.x + 8.5), y: fmt(ready.y + 7) };
-
-// Measuring frame: ticks every 10 units, longer at 0, 50 and 100.
-const ticks = compact ? [] : Array.from({ length: 11 }, (_, i) => i * 10);
+// Measuring frame of the hero portrait: ticks every 10 units, longer at 0, 50 and 100.
+const ticks = Array.from({ length: 11 }, (_, i) => i * 10);
 const tickLen = (v: number) => (v % 50 === 0 ? 4 : 2);
 ---
 
 <div class:list={['fd', { 'fd--compact': compact, 'fd--portrait': hasPortrait }, className]} data-tatami={tatami}>
 {hasPortrait && (
-  <div class="fd__plate">
-    <slot name="portrait" />
-  </div>
+  <>
+    <div class="fd__plate">
+      <slot name="portrait" />
+    </div>
+    <svg class="fd__frame" viewBox="-8 -8 116 122" aria-hidden="true" focusable="false">
+      <rect class="fd-frame" x="0" y="0" width="100" height="100" pathLength="1"></rect>
+      {ticks.map((v) => (
+        <path
+          class="fd-tick"
+          pathLength="1"
+          d={`M${v} 0V${-tickLen(v)} M${v} 100V${100 + tickLen(v)} M0 ${v}H${-tickLen(v)} M100 ${v}H${100 + tickLen(v)}`}
+        ></path>
+      ))}
+      <path class="fd-dim" pathLength="1" d="M0 109H100 M0 106V112 M100 106V112 M3.4 106.8L0 109L3.4 111.2 M96.6 106.8L100 109L96.6 111.2"></path>
+    </svg>
+  </>
 )}
-<div class="fd__stage" aria-hidden="true">
-<div class="fd__plane">
-<svg
-  class:list={['floor-diagram', { 'floor-diagram--compact': compact }]}
-  viewBox="-8 -8 116 122"
-  aria-hidden="true"
-  focusable="false"
-  data-diagram-progress={progress ? '' : undefined}
-  data-form={form.id}
->
-  <defs>
-    <pattern id={`${brushId}-p`} width="3" height="2.4" patternUnits="userSpaceOnUse" patternTransform="rotate(16)">
-      <rect width="3" height="2.4" fill="#fff"></rect>
-      <rect width="3" height="0.3" fill="#000" fill-opacity="0.6"></rect>
-      <rect x="0.4" y="1.3" width="1.6" height="0.22" fill="#000" fill-opacity="0.7"></rect>
-    </pattern>
-    <mask id={brushId} maskUnits="userSpaceOnUse" x="-8" y="-8" width="116" height="122">
-      <rect x="-8" y="-8" width="116" height="122" fill={`url(#${brushId}-p)`}></rect>
-    </mask>
-  </defs>
-  <rect class="fd-frame" x="0" y="0" width="100" height="100" pathLength="1"></rect>
-  {ticks.map((v) => (
-    <path
-      class="fd-tick"
-      pathLength="1"
-      d={`M${v} 0V${-tickLen(v)} M${v} 100V${100 + tickLen(v)} M0 ${v}H${-tickLen(v)} M100 ${v}H${100 + tickLen(v)}`}
-    ></path>
-  ))}
-  {!compact && (
-    <path class="fd-dim" pathLength="1" d="M0 109H100 M0 106V112 M100 106V112 M3.4 106.8L0 109L3.4 111.2 M96.6 106.8L100 109L96.6 111.2"></path>
-  )}
-
-  <path class="fd-ghost" d={d}></path>
-  <path class="fd-line" d={d} pathLength="1" mask={`url(#${brushId})`}></path>
-
-  {arrowsShown.map((a) => (
-    <path
-      class="fd-arrow"
-      d="M-2.4 -2L1 0L-2.4 2"
-      transform={`translate(${a.x} ${a.y}) rotate(${a.angle})`}
-      style={`--t:${a.t}`}
-    ></path>
-  ))}
-
-  {stops.map((s) => (
-    <g class="fd-stop" style={`--t:${s.t}`} transform={`translate(${s.x} ${s.y})`}>
-      <rect class="fd-stop__dot" x="-2.2" y="-2.2" width="4.4" height="4.4"></rect>
-    </g>
-  ))}
-
-  <g class="fd-ready" transform={`translate(${ready.x} ${ready.y}) rotate(${ready.angle})`}>
-    <path class="fd-foot" d="M-5.9 -4.5H-2.9V1.5L-3.5 4.5H-5.3L-5.9 1.5Z"></path>
-    <path class="fd-foot" d="M2.9 -4.5H5.9V1.5L5.3 4.5H3.5L2.9 1.5Z"></path>
-  </g>
-</svg>
-
-{stops.map((s) => (
-  <div class="fd-mk" style={`left:${pctX(s.x)};top:${pctY(s.y)};--t:${s.t}`}>
-    <span class="fd-mk__stem"></span>
-    <span class:list={['fd-mk__disc', { 'fd-mk__disc--solid': !numbered }]}>{numbered ? s.move : ''}</span>
-  </div>
-))}
-
-{numbered && readyLabel && (
-  <div class="fd-mk fd-mk--ready" style={`left:${pctX(readyLabelAt.x)};top:${pctY(readyLabelAt.y)}`}>
-    <span class="fd-mk__stem"></span>
-    <span class="fd-mk__flag">{readyLabel}</span>
-  </div>
-)}
-</div>
-</div>
+<TatamiIso
+  form={form}
+  compact={compact}
+  labelled={numbered}
+  progress={progress}
+  readyLabel={numbered ? readyLabel : undefined}
+  portrait={hasPortrait}
+  uid={uid}
+/>
 {Astro.slots.has('overlay') && <slot name="overlay" />}
 </div>
 
 <style>
-  /* Wrapper. Without a portrait the box is wider than tall: the tilted floor is shorter than the flat
-     one, so the reserved box (aspect-ratio, no layout shift) follows it. With a portrait (hero) the
-     box is the flat frame and the floor starts flat. `container-type` gives the 3D sizes their unit. */
+  /* Wrapper. The box is reserved by its aspect ratio (no layout shift). Without a portrait it is the projected
+     floor (TatamiIso's view box); with a portrait (hero) it is the flat measuring frame. `container-type` gives
+     the hero belt box its unit. The 3D scene measures this box (tul.ts): its centre and width. */
   .fd {
-    /* Camera. `--tv` is the tilt in degrees as a plain number, so the scene can derive it with calc().
-       Default = static mild tilt (no JS, reduced motion). */
-    --tv: 30;
-    --yv: -4;
-    --cam: 1;
-    --tilt: calc(var(--tv) * 1deg);
-    --yaw: calc(var(--yv) * 1deg);
-    /* Width compensation: the near edge of a tilted plane grows with perspective. */
-    --fit: calc(1 - 0.0048 * var(--tv));
-    /* Upright markers. */
-    --stem: 8cqw;
-    --disc: 10cqw;
     position: relative;
     width: 100%;
-    aspect-ratio: 116 / 102;
+    aspect-ratio: 189 / 122;
     container-type: inline-size;
     color: var(--belt-line);
   }
 
   .fd--portrait {
     aspect-ratio: 116 / 122;
-    /* The portrait is a flat plate: the floor stays flat while it is on screen. */
-    --tv: 0;
-    --yv: 0;
   }
 
-  .fd--compact {
-    --stem: 5cqw;
-    --disc: 5.2cqw;
-  }
-
-  /* Frame rect (0..100) inside the viewBox "-8 -8 116 122". The plate is never tilted. */
+  /* Frame rect (0..100) inside the viewBox "-8 -8 116 122". */
   .fd__plate {
     position: absolute;
     left: 6.897%;
@@ -272,158 +116,30 @@ const tickLen = (v: number) => (v % 50 === 0 ? 4 : 2);
     overflow: hidden;
   }
 
-  /* Stage: holds the perspective. The plane inside tilts; nothing here clips (overflow would flatten). */
-  .fd__stage {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    perspective: 1100px;
-    perspective: 180cqw;
-    perspective-origin: 50% 38%;
-    pointer-events: none;
-  }
-
-  .fd__plane {
-    position: relative;
-    flex: none;
-    width: 100%;
-    aspect-ratio: 116 / 122;
-    transform-style: preserve-3d;
-    transform-origin: 50% 50%;
-    transform: translateY(calc(-0.14cqw * var(--tv))) scale(calc(var(--fit) * var(--cam))) rotateX(var(--tilt)) rotateZ(var(--yaw));
-  }
-
-  .floor-diagram {
-    --fd-stroke: 0.7;
+  /* The flat frame gives way to the floor with the portrait (--q 0.3 to 1; the plate fades in HeroJoonbi). */
+  .fd__frame {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     overflow: visible;
-    /* The line of movement, stops and footprints take the active belt's line colour. */
-    color: var(--belt-line);
     fill: none;
-    stroke: currentColor;
-    stroke-width: var(--fd-stroke);
-    stroke-linecap: butt;
-    stroke-linejoin: miter;
+    pointer-events: none;
+    opacity: clamp(0, calc(1 - (var(--q, 0) - 0.3) * 1.6), 1);
   }
 
-  /* Upright markers: HTML posts at the stop's x/y, counter-rotated against the plane so they stand
-     on the floor. The stem is a 1px line in the belt colour; the disc carries the number. */
-  .fd-mk {
-    position: absolute;
-    width: 0;
-    height: 0;
-    transform-origin: 0 0;
-    transform: translateZ(1px) rotateZ(calc(-1 * var(--yaw))) rotateX(calc(-1 * var(--tilt)));
-    backface-visibility: hidden;
-    opacity: clamp(0, calc((var(--draw, 1) - var(--t, 0)) * 24), 1);
+  .fd-frame,
+  .fd-tick,
+  .fd-dim {
+    stroke: var(--ink-soft);
+    stroke-width: 0.4;
   }
 
-  .fd-mk--ready {
-    opacity: var(--ready-o, 1);
-  }
-
-  .fd-mk__stem {
-    position: absolute;
-    left: -0.5px;
-    bottom: 0;
-    width: 1px;
-    height: var(--stem);
-    background-color: currentColor;
-  }
-
-  .fd-mk__disc {
-    position: absolute;
-    left: 0;
-    bottom: var(--stem);
-    display: grid;
-    place-items: center;
-    width: var(--disc);
-    height: var(--disc);
-    transform: translate(-50%, 50%);
-    border: 2px solid currentColor;
-    border-radius: 50%;
-    background-color: var(--field);
-    font-family: var(--font-display);
-    font-size: calc(var(--disc) * 0.54);
-    font-weight: 700;
-    font-variant-numeric: tabular-nums lining-nums;
-    line-height: 1;
-    backface-visibility: hidden;
-  }
-
-  .fd-mk__disc--solid {
-    background-color: currentColor;
-  }
-
-  .fd-mk__flag {
-    position: absolute;
-    left: 0;
-    bottom: var(--stem);
-    padding-left: 1.2cqw;
-    color: var(--ink-soft);
-    font-family: var(--font-display);
-    font-size: 4cqw;
-    font-weight: 600;
-    line-height: 1;
-    white-space: nowrap;
-    backface-visibility: hidden;
-  }
-
-  /* Camera. Static states first (no JS, reduced motion): a mild fixed tilt, everything drawn. */
-
-  /* Motion allowed with JS: lighter fixed tilt on mobile and for the minimap. */
-  @media (prefers-reduced-motion: no-preference) {
-    :global(html.js) .fd {
-      --tv: 34;
-      --yv: -4;
-    }
-
-    /* Floor reveal: the hero floor tilts only after the portrait has started to fade (--q 0.3 to 1). */
-    :global(html.js) .fd--portrait {
-      --reveal: clamp(0, calc((var(--q, 0) - 0.3) * 1.4286), 1);
-      --tv: calc(34 * var(--reveal));
-      --yv: calc(-4 * var(--reveal));
-    }
-  }
-
-  /* Desktop with JS: standing viewpoint, and the camera moves with the scene (--p, written by the engine). */
-  @media (min-width: 62rem) and (prefers-reduced-motion: no-preference) {
-    :global(html.js) .fd:not(.fd--compact) {
-      --tv: 52;
-      --yv: -8;
-    }
-
-    :global(html.js [data-tul-scene]) .fd:not(.fd--compact):not(.fd--portrait) {
-      --tv: calc(58 - 14 * var(--p, 1));
-      --cam: calc(0.96 + 0.08 * var(--p, 1));
-    }
-
-    :global(html.js) .fd.fd--portrait:not(.fd--compact) {
-      --tv: calc(50 * var(--reveal));
-      --yv: calc(-8 * var(--reveal));
-    }
-  }
-
-  /* The 3D tatami is drawn for this scene: its CSS floor (plane, route, posts) steps aside. The portrait plate
-     of the hero is not part of the stage and stays. */
-  :global(html[data-belt3d='ready'] [data-tatami-live]) .fd:not(.fd--compact) .fd__stage {
+  /* The 3D tatami is drawn for this scene: its isometric floor steps aside as soon as the scene marks it live
+     ([data-tatami-live], desktop and the phone's "Ver en 3D"), whatever the tatami's opacity is, so the two are
+     never drawn together. The portrait plate of the hero is not part of the SVG and stays. */
+  :global(html[data-belt3d='ready'] [data-tatami-live]) .fd:not(.fd--compact) :global(.tatami-iso) {
     visibility: hidden;
-  }
-
-  /* No 3D support: flat floor, markers stay in place on their stop. */
-  @supports not (transform-style: preserve-3d) {
-    .fd {
-      --tv: 0 !important;
-      --yv: 0 !important;
-      --cam: 1 !important;
-      --stem: 0px !important;
-      aspect-ratio: 116 / 122 !important;
-    }
   }
 
   /* Intro: the measuring frame draws itself in. The class is removed once the intro ends. */
@@ -441,48 +157,5 @@ const tickLen = (v: number) => (v % 50 === 0 ? 4 : 2);
     to {
       stroke-dashoffset: 0;
     }
-  }
-
-  .floor-diagram--compact {
-    --fd-stroke: 1.1;
-  }
-
-  .fd-frame,
-  .fd-tick,
-  .fd-dim {
-    stroke: var(--ink-soft);
-    stroke-width: 0.4;
-  }
-
-  .fd-ghost {
-    stroke: var(--ink-soft);
-    stroke-width: 0.5;
-    stroke-dasharray: 1.4 1.6;
-    opacity: var(--ghost-o, 0.85);
-  }
-
-  .fd-line {
-    stroke-width: calc(var(--fd-stroke) * 1.25);
-    stroke-dasharray: 1 2;
-    stroke-dashoffset: calc(1 - var(--draw, 1));
-  }
-
-  .fd-ready {
-    opacity: var(--ready-o, 1);
-  }
-
-  .fd-arrow,
-  .fd-stop {
-    opacity: clamp(0, calc((var(--draw, 1) - var(--t, 0)) * 24), 1);
-  }
-
-  .fd-stop__dot {
-    fill: currentColor;
-    stroke: none;
-  }
-
-  .fd-foot {
-    fill: var(--field);
-    stroke-width: calc(var(--fd-stroke) * 1.25);
   }
 </style>
