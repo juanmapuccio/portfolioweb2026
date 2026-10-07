@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 
 const read = (p: string) => readFileSync(p, 'utf8');
 const passage = read('src/components/tul/InkPassage.astro');
@@ -7,21 +7,63 @@ const titleInk = read('src/components/tul/TitleInk.astro');
 const titleScript = read('src/scripts/titleInk.ts');
 const engine = read('src/scripts/tul.ts');
 const chapter = read('src/components/tul/TulChapter.astro');
+const tokens = read('src/styles/tul/tokens.css');
 const styleOf = (src: string) => src.slice(src.indexOf('<style>'));
 
 const HANGUL = /[ᄀ-ᇿ㄰-㆏가-힯]/;
 const BELTS = ['blanco', 'amarillo', 'verde', 'azul', 'rojo', 'negro'];
 
+function declarations(block: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const decl of block.matchAll(/--([\w-]+)\s*:\s*([^;]+);/g)) out[decl[1]] = decl[2].trim();
+  return out;
+}
+
+const rootTokens = (): Record<string, string> => declarations(tokens.match(/:root\s*\{([^}]*)\}/)![1]);
+
+/** `--belt-line` of one belt, with a `var(--other)` followed through the root block. */
+function beltLine(key: string): string {
+  const block = tokens.match(new RegExp(String.raw`\[data-belt="${key}"\]\s*\{([^}]*)\}`));
+  if (!block) throw new Error(`missing belt block for ${key}`);
+  const value = declarations(block[1])['belt-line'];
+  const ref = value.match(/^var\(--([\w-]+)\)$/);
+  return ref ? rootTokens()[ref[1]] : value;
+}
+
+function luminance(hex: string): number {
+  const m = hex.match(/^#([0-9a-f]{6})$/i);
+  if (!m) throw new Error(`token is not a 6-digit hex: ${hex}`);
+  const n = parseInt(m[1], 16);
+  const channel = (v: number): number => {
+    const c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * channel((n >> 16) & 255) + 0.7152 * channel((n >> 8) & 255) + 0.0722 * channel(n & 255);
+}
+
+function contrast(a: string, b: string): number {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
 describe('GSAP plugins', () => {
-  test('SplitText, DrawSVG and MorphSVG come from the installed gsap package and are registered once', () => {
-    for (const name of ['SplitText', 'DrawSVGPlugin', 'MorphSVGPlugin']) {
+  test('SplitText and DrawSVG come from the installed gsap package and are registered once', () => {
+    for (const name of ['SplitText', 'DrawSVGPlugin']) {
       expect(engine).toContain(`import { ${name} } from 'gsap/${name}';`);
     }
-    expect(engine).toMatch(/gsap\.registerPlugin\(ScrollTrigger, SplitText, DrawSVGPlugin, MorphSVGPlugin\);/);
+    expect(engine).toMatch(/gsap\.registerPlugin\(ScrollTrigger, SplitText, DrawSVGPlugin\);/);
     expect(engine.match(/registerPlugin\(/g)?.length).toBe(1);
     // gsap 3.13+ ships these free; nothing else (no private registry, no CDN) is involved.
     const pkg = JSON.parse(read('package.json')) as { dependencies: Record<string, string> };
     expect(pkg.dependencies.gsap).toMatch(/^\^3\.(1[3-9]|[2-9]\d)/);
+  });
+
+  test('MorphSVG is not imported, registered or used anywhere in src (no morphing underline is left)', () => {
+    const files = (readdirSync('src', { recursive: true }) as string[])
+      .map((f) => f.replaceAll('\\', '/'))
+      .filter((f) => /\.(ts|astro|js|mjs)$/.test(f));
+    expect(files.length).toBeGreaterThan(20);
+    for (const f of files) expect(read(`src/${f}`)).not.toMatch(/MorphSVG|morphSVG/);
   });
 });
 
@@ -70,33 +112,77 @@ describe('ink passages between chapters', () => {
 });
 
 describe('title ink', () => {
-  test('one mark per belt, decorative, with its own piece', () => {
-    expect(titleInk).toMatch(/aria-hidden="true"/g);
-    for (const kind of ['dry', 'drop', 'brush', 'drip', 'enso', 'vertical']) {
-      expect(titleInk).toMatch(new RegExp(`data-ink=(\\{[^}]*'${kind}'|"${kind}")`));
+  /** The four bristle streaks of the brush: path data and stroke width, as authored in TitleInk.astro. */
+  const streaks = [...titleInk.matchAll(/\{ d: '([^']+)', w: ([\d.]+) \}/g)].map((m) => ({ d: m[1], w: Number(m[2]) }));
+
+  test('one decorative dry-brush shape for every belt: no variant, no per-belt branch', () => {
+    // A single svg, with no props and no condition on the belt: the chapter template mounts it six times.
+    expect(titleInk.match(/<svg\b/g)?.length).toBe(1);
+    expect(titleInk).toMatch(/<svg class="ti" data-ink="dry" viewBox="0 0 600 48" aria-hidden="true"/);
+    expect(titleInk).not.toMatch(/interface Props|Astro\.props|beltKey/);
+    for (const gone of ['drop', 'brush', 'drip', 'enso', 'vertical']) {
+      expect(titleInk).not.toContain(`data-ink="${gone}"`);
+      expect(titleInk).not.toContain(`ti--${gone}`);
     }
-    for (const belt of ['blanco', 'verde', 'amarillo', 'azul', 'rojo']) expect(titleInk).toContain(`'${belt}'`);
+    expect(titleInk).not.toMatch(/data-ink-morph|data-ink-dot|SPLAT|SPATTER|DRIPS|<circle\b|ti__f|ti--h\b/);
     expect(titleInk).not.toMatch(/<text\b|<title\b|<p\b|<h[1-6]\b/);
   });
 
-  test('the strokes are drawn by DrawSVG hooks and the splat morphs from a thin shape', () => {
-    expect(titleInk).toContain('data-ink-stroke');
-    expect(titleInk).toContain('data-ink-morph');
-    expect(titleInk).toMatch(/data-from=\{SPLAT_THIN\}/);
-    expect(titleInk).toContain('data-ink-dot');
-    expect(titleScript).toMatch(/drawSVG: '0%'/);
-    expect(titleScript).toMatch(/morphSVG:/);
+  test('the brush is variable width with bristle streaks that all run left to right', () => {
+    expect(streaks.length).toBeGreaterThanOrEqual(4);
+    const widths = streaks.map((s) => s.w);
+    expect(new Set(widths).size).toBe(widths.length);
+    expect(widths).toEqual([...widths].sort((a, b) => b - a));
+    for (const s of streaks) {
+      const xs = [...s.d.matchAll(/(-?[\d.]+) (-?[\d.]+)/g)].map((m) => Number(m[1]));
+      expect(xs.length).toBeGreaterThan(2);
+      expect(xs[xs.length - 1]).toBeGreaterThan(xs[0]);
+      // Stays inside the 600 wide view box, so the mark never leaves the title column.
+      for (const x of xs) {
+        expect(x).toBeGreaterThanOrEqual(0);
+        expect(x).toBeLessThanOrEqual(600);
+      }
+    }
   });
 
-  test('the colour is the belt line and no filter or gradient paints the mark', () => {
+  test('DrawSVG lays the streaks down; nothing morphs and no dot or splat is animated', () => {
+    expect(titleInk).toContain('data-ink-stroke');
+    expect(titleScript).toMatch(/drawSVG: '0%'/);
+    expect(titleScript).toMatch(/drawSVG: '100%'/);
+    expect(titleScript).not.toMatch(/morphSVG|data-ink-morph|data-ink-dot|dots|scale:/);
+    // gsap.set is only called with the streaks (never with an empty target list, which warns "target not found").
+    for (const call of titleScript.matchAll(/gsap\.set\(([^,]+),/g)) expect(call[1]).toBe('strokes');
+    expect(titleScript).toMatch(/if \(strokes\.length\) gsap\.set\(strokes/);
+  });
+
+  test('the colour is the belt line of the chapter; the mark carries no colour of its own', () => {
     expect(titleInk).toMatch(/\.ti \{[^}]*color: var\(--belt-line\)/);
+    expect(titleInk).toMatch(/\.ti__s \{[^}]*stroke: currentColor/);
+    expect(titleInk).not.toMatch(/#[0-9a-f]{3,8}\b|rgb\(|hsl\(|(stroke|fill)="(?!none)/i);
     expect(styleOf(titleInk)).not.toMatch(/filter:|box-shadow|gradient|mix-blend-mode/);
     expect(titleInk).not.toMatch(/<filter\b|feTurbulence/);
   });
 
-  test('the chapter mounts it in the title wrap and the old bristle line is gone', () => {
+  test('the stroke is a different colour per belt and holds 3:1 on the field it sits on', () => {
+    const root = rootTokens();
+    const lines = BELTS.map((key) => beltLine(key));
+    // Six belts, six colours, all resolved from tokens.css.
+    expect(new Set(lines.map((l) => l.toLowerCase())).size).toBe(BELTS.length);
+    for (const [i, key] of BELTS.entries()) {
+      // White field for blanco to rojo; the black chapter always sits on the dark field.
+      const field = key === 'negro' ? root['field-dark'] : root.field;
+      expect(contrast(lines[i], field)).toBeGreaterThanOrEqual(3);
+    }
+    expect(beltLine('negro')).toBe(root['line-dark']);
+    // Once the flood has turned the page dark, every line resolves to the light one and still holds.
+    const dark = declarations(tokens.match(/\[data-field="dark"\]\s*\{([^}]*)\}/)![1]);
+    expect(contrast(root[dark['belt-line'].match(/var\(--([\w-]+)\)/)![1]], root['field-dark'])).toBeGreaterThanOrEqual(3);
+  });
+
+  test('the chapter mounts it once in the title wrap, for all six belts, and the old bristle line is gone', () => {
     expect(chapter).toContain("import TitleInk from './TitleInk.astro'");
-    expect(chapter).toContain('<TitleInk beltKey={beltKey} />');
+    expect(chapter.match(/<TitleInk\b/g)?.length).toBe(1);
+    expect(chapter).toContain('<TitleInk />');
     expect(chapter).not.toMatch(/tc__slash|bristle|tc__split|tc__half/);
     expect(chapter.match(/<h2\b/g)?.length).toBe(1);
   });

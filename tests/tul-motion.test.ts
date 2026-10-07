@@ -14,8 +14,8 @@ const block = (css: string, needle: string): string[] =>
 describe('chapter title ink', () => {
   test('one real h2 per chapter; the underline is a decorative svg', () => {
     expect(chapter.match(/<h2\b/g)?.length).toBe(1);
-    expect(chapter).toContain('<TitleInk beltKey={beltKey} />');
-    expect(read('src/components/tul/TitleInk.astro')).toMatch(/class="ti [^"]*"[^>]*aria-hidden="true"/);
+    expect(chapter).toContain('<TitleInk />');
+    expect(read('src/components/tul/TitleInk.astro')).toMatch(/class="ti"[^>]*aria-hidden="true"/);
     expect(chapter).not.toMatch(/tc__split|tc__half/);
   });
 

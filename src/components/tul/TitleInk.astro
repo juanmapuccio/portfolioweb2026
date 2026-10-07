@@ -1,103 +1,39 @@
 ---
-import type { BeltKey } from '../../data/tuls';
-
 /**
- * Sumi-e underline of a chapter title. Decorative (aria-hidden): the real h2 carries the meaning.
- * One piece per belt, drawn once when the title enters (src/scripts/titleInk.ts):
- *   blanco   dry stroke (four bristle streaks)
- *   amarillo drop burst (a thin line swells into the splat, spatter pops around it)
- *   verde    dry brush (three heavy streaks)
- *   azul     drip (a stroke with drips hanging from it)
- *   rojo     ensō hugging the first letter
- *   negro    one vertical stroke beside the title
+ * Dry-brush underline of a chapter title. Decorative (aria-hidden): the real h2 carries the meaning.
+ * One shape for every belt: a horizontal stroke of variable width with four bristle streaks, drawn left to
+ * right once when the title enters (src/scripts/titleInk.ts).
  *
- * The marks are authored paths, not filters: strokes are drawn with DrawSVG (`data-ink-stroke`), the
- * splat morphs with MorphSVG (`data-ink-morph`, `data-from` is the thin start shape) and the spatter
- * (`data-ink-dot`) scales in. Colour is `--belt-line` (3:1 on the field it sits on). Without JS or with
- * reduced motion the markup below is the finished mark.
+ * The only thing that changes between chapters is the colour. The mark paints with `currentColor`, which
+ * is `--belt-line` of the chapter it sits in (a stroke colour that holds 3:1 on its field; the black
+ * chapter resolves it to the light line on the dark field, see tokens.css). It is authored paths, not a
+ * filter, so DrawSVG can draw it (`data-ink-stroke`). Without JS or with reduced motion the markup below is
+ * the finished mark.
  */
-interface Props {
-  beltKey: BeltKey;
-}
-
-const { beltKey } = Astro.props;
-
-const STREAKS: Record<'blanco' | 'verde', { d: string; w: number }[]> = {
-  blanco: [
-    { d: 'M6 10 C120 6 300 12 470 8 S580 9 594 11', w: 8 },
-    { d: 'M18 21 C140 18 280 23 430 19', w: 6 },
-    { d: 'M62 31 C190 29 330 33 520 29', w: 4 },
-    { d: 'M120 40 C220 39 300 41 380 39', w: 2.5 }
-  ],
-  verde: [
-    { d: 'M4 12 C150 8 330 14 590 9', w: 13 },
-    { d: 'M30 27 C170 24 350 29 540 25', w: 9 },
-    { d: 'M72 39 C210 37 360 41 470 38', w: 5 }
-  ]
-};
-
-const DRIPS = [
-  { x: 60, y: 30, w: 6 },
-  { x: 150, y: 42, w: 5 },
-  { x: 250, y: 24, w: 7 },
-  { x: 350, y: 38, w: 4 },
-  { x: 440, y: 27, w: 6 },
-  { x: 530, y: 44, w: 4 }
-];
-
-const SPLAT =
-  'M170 18 C190 8 230 6 260 9 C285 3 330 4 350 10 C385 6 420 10 430 19 C418 28 392 27 372 31 C340 37 300 33 270 32 C240 36 200 32 190 27 C180 25 172 22 170 18Z';
-const SPLAT_THIN =
-  'M170 18 C190 18 230 18 260 18 C285 17.5 330 17.5 350 18 C385 18 420 18 430 18 C418 18.5 392 18.5 372 18.5 C340 19 300 18.5 270 18.5 C240 19 200 18.5 190 18.5 C180 18.5 172 18 170 18Z';
-const SPATTER = [
-  { cx: 120, cy: 18, r: 6 },
-  { cx: 90, cy: 27, r: 3 },
-  { cx: 480, cy: 14, r: 5 },
-  { cx: 524, cy: 25, r: 3 },
-  { cx: 150, cy: 36, r: 2.5 },
-  { cx: 455, cy: 37, r: 2.5 },
-  { cx: 566, cy: 17, r: 2 }
+const STREAKS: { d: string; w: number }[] = [
+  { d: 'M6 10 C120 6 300 12 470 8 S580 9 594 11', w: 8 },
+  { d: 'M18 21 C140 18 280 23 430 19', w: 6 },
+  { d: 'M62 31 C190 29 330 33 520 29', w: 4 },
+  { d: 'M120 40 C220 39 300 41 380 39', w: 2.5 }
 ];
 ---
 
-{beltKey === 'blanco' || beltKey === 'verde' ? (
-  <svg class="ti ti--h" data-ink={beltKey === 'blanco' ? 'dry' : 'brush'} viewBox="0 0 600 48" aria-hidden="true" focusable="false">
-    {STREAKS[beltKey].map((s) => (
-      <path class="ti__s" data-ink-stroke d={s.d} stroke-width={s.w}></path>
-    ))}
-  </svg>
-) : beltKey === 'amarillo' ? (
-  <svg class="ti ti--h" data-ink="drop" viewBox="0 0 600 48" aria-hidden="true" focusable="false">
-    <g transform="translate(0 -9)">
-      <path class="ti__f" data-ink-morph data-from={SPLAT_THIN} d={SPLAT}></path>
-      {SPATTER.map((s) => (
-        <circle class="ti__f" data-ink-dot cx={s.cx} cy={s.cy} r={s.r}></circle>
-      ))}
-    </g>
-  </svg>
-) : beltKey === 'azul' ? (
-  <svg class="ti ti--h" data-ink="drip" viewBox="0 0 600 48" aria-hidden="true" focusable="false">
-    <path class="ti__s" data-ink-stroke d="M6 8 C150 5 330 10 594 7" stroke-width="10"></path>
-    {DRIPS.map((d) => (
-      <path class="ti__s" data-ink-stroke d={`M${d.x} 10 V${d.y}`} stroke-width={d.w}></path>
-    ))}
-  </svg>
-) : beltKey === 'rojo' ? (
-  <svg class="ti ti--enso" data-ink="enso" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
-    <path class="ti__s" data-ink-stroke d="M66 11 A41 41 0 1 0 91 40" stroke-width="8"></path>
-    <path class="ti__s" data-ink-stroke d="M60 16 A35 35 0 1 0 86 40" stroke-width="3"></path>
-  </svg>
-) : (
-  <svg class="ti ti--vertical" data-ink="vertical" viewBox="0 0 24 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-    <path class="ti__s" data-ink-stroke d="M12 3 C15 30 9 62 13 97" stroke-width="8"></path>
-    <path class="ti__s" data-ink-stroke d="M6 10 C8 40 5 70 8 92" stroke-width="2"></path>
-  </svg>
-)}
+<svg class="ti" data-ink="dry" viewBox="0 0 600 48" aria-hidden="true" focusable="false">
+  {STREAKS.map((s) => (
+    <path class="ti__s" data-ink-stroke d={s.d} stroke-width={s.w}></path>
+  ))}
+</svg>
 
 <style>
+  /* Hangs under the title, on the left, never wider than a comfortable measure. */
   .ti {
     position: absolute;
+    left: 0;
+    bottom: -0.4rem;
     display: block;
+    width: min(100%, 28rem);
+    height: auto;
+    aspect-ratio: 600 / 48;
     overflow: visible;
     color: var(--belt-line);
     pointer-events: none;
@@ -107,35 +43,5 @@ const SPATTER = [
     fill: none;
     stroke: currentColor;
     stroke-linecap: round;
-  }
-
-  .ti__f {
-    fill: currentColor;
-  }
-
-  /* Horizontal marks hang under the title, on the left, never wider than a comfortable measure. */
-  .ti--h {
-    left: 0;
-    bottom: -0.4rem;
-    width: min(100%, 28rem);
-    height: auto;
-    aspect-ratio: 600 / 48;
-  }
-
-  /* Ensō: a ring around the first letter (sizes follow the title, set on .tc__titlewrap). */
-  .ti--enso {
-    left: calc(var(--tc-fs, 2rem) * -0.45);
-    top: calc(var(--tc-fs, 2rem) * -0.25);
-    width: calc(var(--tc-fs, 2rem) * 1.5);
-    height: calc(var(--tc-fs, 2rem) * 1.5);
-  }
-
-  /* Vertical stroke beside the title (stretched to the title block, so its y scale is free). */
-  .ti--vertical {
-    left: calc(var(--tc-fs, 2rem) * -0.42);
-    top: 0;
-    bottom: calc(var(--tc-fs, 2rem) * 0.3);
-    width: calc(var(--tc-fs, 2rem) * 0.2);
-    height: auto;
   }
 </style>

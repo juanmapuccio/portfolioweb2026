@@ -27,7 +27,6 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
-import { MorphSVGPlugin } from 'gsap/MorphSVGPlugin';
 import { bootBelt3d } from './belt3d/boot';
 import { playTitleInk } from './titleInk';
 import { buildBeltTimeline } from './beltDrawing';
@@ -38,9 +37,8 @@ type Grade = { gup: string; form: string };
 const root = document.documentElement;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// GSAP's formerly paid plugins ship free in the `gsap` package: SplitText and DrawSVG for the title ink,
-// MorphSVG for the drop splat.
-gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin, MorphSVGPlugin);
+// GSAP's formerly paid plugins ship free in the `gsap` package: SplitText and DrawSVG for the title ink.
+gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin);
 
 type Grades = Record<string, Grade>;
 
@@ -333,7 +331,7 @@ function endIntro(): void {
 // hidden: the CSS "from" states exist only under html.js with motion allowed, and the plain
 // state (visible title, full-opacity words) is what is left when this does not run.
 //   [data-split-title]  chapter title ink (titleInk.ts): `.is-in` once the entrance has been built and starts
-//                       (letters rise out of a SplitText mask while the TitleInk mark draws), `.is-done` when
+//                       (letters rise out of a SplitText mask while the TitleInk brush draws), `.is-done` when
 //                       it has finished and the real h2 is back.
 //   [data-words]        build-time word spans (`--i`): `.is-in` lets them settle, staggered by CSS.
 //   [data-rise]         a block that rises with opacity: `.is-in`.

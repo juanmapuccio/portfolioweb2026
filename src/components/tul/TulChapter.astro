@@ -145,7 +145,7 @@ const caption = (label: string, movements: number) =>
         <header class="tc__head">
           <div class="tc__titlewrap" data-split-title>
             <h2 id={`${beltKey}-title`} class="tc__title grade-type">{stage.title}</h2>
-            <TitleInk beltKey={beltKey} />
+            <TitleInk />
           </div>
           <div class="tc__id">
             <div class="tc__seal">
@@ -377,9 +377,10 @@ const caption = (label: string, movements: number) =>
     overflow-wrap: break-word;
   }
 
-  /* Title ink: a sumi-e mark per belt (TitleInk.astro) draws under, or beside, the real h2. With
-     motion the letters rise out of a mask while the brush draws (SplitText, DrawSVG, MorphSVG in
-     src/scripts/titleInk.ts). Default and reduced motion: the plain visible h2 and the finished mark. */
+  /* Title ink: one dry-brush stroke (TitleInk.astro), the same in every chapter and coloured by the
+     chapter's --belt-line, draws under the real h2. With motion the letters rise out of a mask while the
+     brush is drawn left to right (SplitText, DrawSVG in src/scripts/titleInk.ts). Default and reduced
+     motion: the plain visible h2 and the finished stroke. */
   .tc__titlewrap {
     --tc-fs: var(--step-3);
     position: relative;
