@@ -4,10 +4,8 @@ import { join } from 'node:path';
 import {
   COL_FILL,
   KNOT_UNTIL,
-  REACH,
   RING_W,
   SPACER_VH,
-  canvasSize,
   columnPpm,
   heroFrame,
   passageFrame,
@@ -45,7 +43,8 @@ describe('three stays out of the initial bundle', () => {
     const allowed = new Set([
       'src/scripts/belt3d/scene.ts',
       'src/scripts/belt3d/proceduralBelt.ts',
-      'src/scripts/belt3d/poses.ts'
+      'src/scripts/belt3d/poses.ts',
+      'src/scripts/belt3d/tatami.ts'
     ]);
     const offenders = sources
       .map((f) => f.replaceAll('\\', '/'))
@@ -103,7 +102,7 @@ describe('eligibility gate', () => {
   });
 });
 
-describe('scene: one fixed canvas that travels with the belt, one renderer', () => {
+describe('scene: one fixed full-viewport canvas, one renderer', () => {
   test('one renderer: transparent, antialiased, low power, pixel ratio capped, ACES', () => {
     expect(scene).toMatch(/alpha:\s*true/);
     expect(scene).toMatch(/antialias:\s*true/);
@@ -117,12 +116,14 @@ describe('scene: one fixed canvas that travels with the belt, one renderer', () 
     expect(scene.match(/createElement\('canvas'\)/g)?.length).toBe(1);
   });
 
-  test('the canvas is fixed: above the field and the flood, below the header, no pointer events, moved by a transform', () => {
+  test('the canvas is fixed over the whole viewport: above the field and the flood, below the header, no pointer events', () => {
     const rule = base.match(/\.belt3d__canvas \{([^}]*)\}/)?.[1] ?? '';
     expect(rule).toMatch(/position:\s*fixed/);
+    expect(rule).toMatch(/inset:\s*0/);
+    expect(rule).toMatch(/width:\s*100%/);
+    expect(rule).toMatch(/height:\s*100%/);
     expect(rule).toMatch(/pointer-events:\s*none/);
-    expect(rule).toMatch(/will-change:\s*transform/);
-    expect(scene).toContain('canvas.style.transform = `translate3d(');
+    expect(scene).not.toContain('canvas.style.transform');
     const z = Number(rule.match(/z-index:\s*(\d+)/)?.[1]);
     const floodZ = Number(css(passage).match(/z-index:\s*(\d+)/)?.[1]);
     const headerZ = Number(read('src/components/tul/TulHeader.astro').match(/\.tul-header \{[^}]*z-index:\s*(\d+)/)?.[1]);
@@ -138,7 +139,7 @@ describe('scene: one fixed canvas that travels with the belt, one renderer', () 
     expect(scene).toContain('webglcontextrestored');
     // The size comes from the metrics tul.ts publishes on refresh, so there is no observer to leak.
     expect(scene).toContain('function fitCanvas');
-    expect(scene).toContain('canvasSize(metrics)');
+    expect(scene).toContain('renderer.setSize(metrics.w, metrics.h, false)');
     expect(scene).not.toContain('ResizeObserver');
     expect(scene).toContain('renderer.dispose()');
     expect(scene).toContain('forceContextLoss()');
@@ -169,11 +170,11 @@ describe('scene: one fixed canvas that travels with the belt, one renderer', () 
 
   test('progress is read from inline custom properties, never from layout', () => {
     expect(scene).toContain('el.style.getPropertyValue');
-    for (const code of [scene, journey, poses]) {
+    for (const code of [scene, journey, poses, read('src/scripts/belt3d/tatami.ts')]) {
       expect(code).not.toContain('getBoundingClientRect');
       expect(code).not.toContain('getComputedStyle');
     }
-    for (const name of ['--p', '--bp', '--q', '--e', '--belt-vw', '--belt-vh', '--belt-col-x', '--belt-col-y', '--belt-col-w', '--belt-hero-x', '--belt-hero-s']) {
+    for (const name of ['--p', '--bp', '--q', '--e', '--draw', '--belt-vw', '--belt-vh', '--belt-col-x', '--belt-col-y', '--belt-col-w', '--belt-hero-x', '--belt-hero-s', '--belt-tat-x', '--belt-tat-s']) {
       expect(scene).toContain(`'${name}'`);
     }
   });
@@ -243,9 +244,9 @@ describe('the reserved column', () => {
 describe('the engine drives the beats', () => {
   const fn = engine.slice(engine.indexOf('function initBeats'), engine.indexOf('const FLOOD_FULL'));
 
-  test('travel gets --bp and the hero --e, scrubbed by ScrollTrigger, desktop and motion only', () => {
-    expect(fn).toMatch(/matchMedia\('\(min-width: 1024px\)'\)\.matches/);
-    expect(fn).toContain('if (reduced');
+  test('travel gets --bp on desktop with motion only; the hero --e on every viewport (the phone tatami rides it); all scrubbed by ScrollTrigger', () => {
+    expect(fn).toMatch(/const wide = !reduced && matchMedia\('\(min-width: 1024px\)'\)\.matches/);
+    expect(fn).toContain('if (wide)');
     expect(fn).toContain("[data-belt-beat=\"travel\"]");
     expect(fn).toContain("'--bp'");
     expect(fn).toContain("'--e'");
@@ -258,11 +259,13 @@ describe('the engine drives the beats', () => {
 
   test('layout is measured here, on refresh only, and published in px on <html>', () => {
     expect(fn).toContain('ScrollTrigger.addEventListener(\'refresh\', publish)');
-    for (const name of ['--belt-vw', '--belt-vh', '--belt-col-x', '--belt-col-y', '--belt-col-w', '--belt-col-h', '--belt-hero-x', '--belt-hero-y', '--belt-hero-s']) {
+    for (const name of ['--belt-vw', '--belt-vh', '--belt-col-x', '--belt-col-y', '--belt-col-w', '--belt-col-h', '--belt-hero-x', '--belt-hero-y', '--belt-hero-s', '--belt-tat-x', '--belt-tat-y', '--belt-tat-s']) {
       expect(fn).toContain(`'${name}'`);
     }
-    // The probe, the hero box and the hero stage: the only layout reads of the belt, all inside publish().
-    expect(engine.match(/getBoundingClientRect/g)?.length).toBe(3);
+    // The probe, the hero box and stage, and the chapter map box and stage: the only layout reads of the scene,
+    // all inside publish(). It measures again when the phone turns the 3D view on.
+    expect(engine.match(/getBoundingClientRect/g)?.length).toBe(5);
+    expect(fn).toContain("window.addEventListener('tul:belt3d-tap', publish)");
     expect(fn).not.toContain('requestAnimationFrame');
   });
 });
@@ -301,8 +304,8 @@ describe('colour mix', () => {
 
 // The journey itself, as numbers.
 const sizes: Metrics[] = [
-  { w: 1440, h: 900, col: { x: 1292, y: 474, w: 216, h: 852 }, hero: { x: 1080, y: 470, s: 364 } },
-  { w: 1024, h: 768, col: { x: 913, y: 408, w: 154, h: 720 }, hero: { x: 790, y: 400, s: 250 } }
+  { w: 1440, h: 900, col: { x: 1292, y: 474, w: 216, h: 852 }, hero: { x: 1080, y: 470, s: 364 }, tat: { x: 1100, y: 480, s: 560 } },
+  { w: 1024, h: 768, col: { x: 913, y: 408, w: 154, h: 720 }, hero: { x: 790, y: 400, s: 250 }, tat: { x: 760, y: 410, s: 380 } }
 ];
 const BELTS = ['blanco', 'amarillo', 'verde', 'azul', 'rojo', 'negro'] as const;
 const close = (a: number, b: number, eps = 1e-6) => expect(Math.abs(a - b)).toBeLessThan(eps);
@@ -354,17 +357,6 @@ describe('journey: continuity between beats', () => {
     expect(pickBeat([1, 1, 0.5, 0])).toBe(2);
     expect(pickBeat([1, 1, 1, 1])).toBe(3);
   });
-});
-
-describe('journey: the canvas is only as big as the belt', () => {
-  for (const m of sizes) {
-    test(`${m.w}x${m.h}: it holds the belt's reach at the largest scale and is a fraction of the viewport`, () => {
-      const side = canvasSize(m);
-      const largest = Math.max(columnPpm(m), 0.3 * Math.min(m.w, m.h) / RING_W);
-      expect(side).toBeGreaterThanOrEqual(Math.floor(2 * REACH * largest));
-      expect(side * side).toBeLessThan(0.5 * m.w * m.h);
-    });
-  }
 });
 
 describe('journey: where the belt is', () => {

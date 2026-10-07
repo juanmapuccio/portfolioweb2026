@@ -134,31 +134,37 @@ function initScenes(): void {
   }
 }
 
-// 3D belt beats (desktop only: three never loads below 1024 px or with reduced motion). The scene
-// (belt3d/scene.ts) reads these as inline custom properties and never touches layout:
+// 3D scene beats (the belt journey is desktop only: three never loads below 1024 px or with reduced motion,
+// except on a tap of the hero's "Ver en 3D", belt3d/boot.ts). The scene (belt3d/scene.ts) reads these as inline
+// custom properties and never touches layout:
 //   [data-belt-beat="travel"]  a chapter: `--bp` (0..1) from its top at the viewport top to its bottom at the
 //                              viewport bottom. The belt turns slowly in the reserved column with it.
 //   [data-belt-beat="land"]    the hero: besides `--p` / `--q` (initScenes) it gets `--e` (0..1) while it scrolls
 //                              away (bottom at the viewport bottom to bottom at the top): the belt leaves its floor
-//                              for the column.
+//                              for the column and the hero tatami rides up with the stage. Written on every viewport.
 //   [data-belt-beat="passage"] a spacer: `--p` is written by initPassages.
 // Layout is measured here, on refresh and resize only, and published on <html> in px for the scene:
 //   --belt-vw/vh        the viewport (without the scrollbar),
 //   --belt-col-x/y/w/h  the reserved side column (a fixed probe sized by --belt-col, the same token the
-//                       chapter stages reserve as padding), and
-//   --belt-hero-x/y/s   the hero's floor box (data-belt-anchor="hero") as it sits while the hero is pinned.
+//                       chapter stages reserve as padding),
+//   --belt-hero-x/y/s   the hero's floor box (data-belt-anchor="hero") as it sits while the hero is pinned, and
+//   --belt-tat-x/y/s    the diagram box of a chapter map (the first `.tc__fig--full .fd`) as it sits while its stage
+//                       is pinned: where the tatami lies. Unset below the width that shows that figure.
+// The hero floor box only exists on a phone once the tap mode is on; the scene says so with `tul:belt3d-tap`.
 function initBeats(): void {
-  if (reduced || !matchMedia('(min-width: 1024px)').matches) return;
+  const wide = !reduced && matchMedia('(min-width: 1024px)').matches;
 
-  for (const el of document.querySelectorAll<HTMLElement>('[data-belt-beat="travel"]')) {
-    const state = { p: 0 };
-    el.style.setProperty('--bp', '0');
-    gsap.to(state, {
-      p: 1,
-      ease: 'none',
-      scrollTrigger: { trigger: el, start: 'top top', end: 'bottom bottom', scrub: 0.4 },
-      onUpdate: () => el.style.setProperty('--bp', state.p.toFixed(4))
-    });
+  if (wide) {
+    for (const el of document.querySelectorAll<HTMLElement>('[data-belt-beat="travel"]')) {
+      const state = { p: 0 };
+      el.style.setProperty('--bp', '0');
+      gsap.to(state, {
+        p: 1,
+        ease: 'none',
+        scrollTrigger: { trigger: el, start: 'top top', end: 'bottom bottom', scrub: 0.4 },
+        onUpdate: () => el.style.setProperty('--bp', state.p.toFixed(4))
+      });
+    }
   }
 
   const hero = document.querySelector<HTMLElement>('[data-belt-beat="land"]');
@@ -179,6 +185,7 @@ function initBeats(): void {
   document.body.append(probe);
   const anchor = document.querySelector<HTMLElement>('[data-belt-anchor="hero"]');
   const stage = document.querySelector<HTMLElement>('[data-belt-stage]');
+  const mapFig = document.querySelector<HTMLElement>('.tc__fig--full .fd');
   const px = (n: number): string => n.toFixed(1);
 
   const publish = (): void => {
@@ -189,17 +196,32 @@ function initBeats(): void {
     root.style.setProperty('--belt-col-y', px(col.top + col.height / 2));
     root.style.setProperty('--belt-col-w', px(col.width));
     root.style.setProperty('--belt-col-h', px(col.height));
-    if (!anchor || !stage) return;
-    const box = anchor.getBoundingClientRect();
-    if (box.width === 0) return;
-    // The stage is sticky at top: 0; measure against its own top so the numbers hold at any scroll offset.
-    const top = box.top - stage.getBoundingClientRect().top;
-    root.style.setProperty('--belt-hero-x', px(box.left + box.width / 2));
-    root.style.setProperty('--belt-hero-y', px(top + box.height / 2));
-    root.style.setProperty('--belt-hero-s', px(box.width));
+    if (anchor && stage) {
+      const box = anchor.getBoundingClientRect();
+      if (box.width > 0) {
+        // The stage is sticky at top: 0; measure against its own top so the numbers hold at any scroll offset.
+        const top = box.top - stage.getBoundingClientRect().top;
+        root.style.setProperty('--belt-hero-x', px(box.left + box.width / 2));
+        root.style.setProperty('--belt-hero-y', px(top + box.height / 2));
+        root.style.setProperty('--belt-hero-s', px(box.width));
+      }
+    }
+    const mapStage = mapFig?.closest<HTMLElement>('.tc__stage');
+    if (mapFig && mapStage) {
+      const box = mapFig.getBoundingClientRect();
+      if (box.width > 0) {
+        // A chapter stage sticks at `top` (3rem): add it to the offset inside the stage.
+        const stuck = parseFloat(getComputedStyle(mapStage).top) || 0;
+        const top = box.top - mapStage.getBoundingClientRect().top + stuck;
+        root.style.setProperty('--belt-tat-x', px(box.left + box.width / 2));
+        root.style.setProperty('--belt-tat-y', px(top + box.height / 2));
+        root.style.setProperty('--belt-tat-s', px(box.width));
+      }
+    }
   };
   publish();
   ScrollTrigger.addEventListener('refresh', publish);
+  window.addEventListener('tul:belt3d-tap', publish);
 }
 
 // [data-tul-passage]  an in-flow spacer between two chapters. It writes its own `--p` (the CSS of the flood

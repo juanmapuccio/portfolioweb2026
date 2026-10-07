@@ -22,3 +22,17 @@ export function isBeltKey(value: string | undefined): value is BeltKey {
 export const STITCH_GOLD = '#d4a72c';
 /** Natural thread tone of an undyed belt. */
 export const STITCH_NEUTRAL = '#d2ccbe';
+
+/** Stroke colour of each belt, mirroring `--belt-line` in tokens.css (the tatami route and posts use it). */
+export const BELT_LINES: Record<BeltKey, string> = {
+  blanco: '#41546b',
+  amarillo: '#8a6700',
+  verde: '#1d6a44',
+  azul: '#1d4a99',
+  rojo: '#b3312a',
+  negro: '#c8c1b6'
+};
+
+/** The page field behind a belt: white, and black from 1st dan (`--field` / `--field-dark`). */
+export const FIELD_LIGHT = '#f3f8fd';
+export const FIELD_DARK = '#0a0d11';

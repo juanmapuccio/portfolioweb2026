@@ -63,6 +63,16 @@ describe('floor in perspective', () => {
     expect(css).not.toMatch(/gradient/);
   });
 
+  test('the CSS floor is the fallback: it steps aside only for the scene whose 3D tatami is drawn (T12c)', () => {
+    expect(css).toMatch(
+      /:global\(html\[data-belt3d='ready'\] \[data-tatami-live\]\) \.fd:not\(\.fd--compact\) \.fd__stage \{\s*visibility: hidden;/
+    );
+    // The full diagram hands the 3D scene its route and stops as build-time JSON; the compact minimap does not.
+    expect(diagram).toContain('const numbered = labelled && !compact;');
+    expect(diagram).toContain('data-tatami={tatami}');
+    expect(diagram).toMatch(/const tatami = numbered\s*\?\s*JSON\.stringify\(/);
+  });
+
   test('the engine adds no per-frame loop or smooth-scroll library for the camera', () => {
     expect(engine).not.toContain('requestAnimationFrame');
     expect(engine).not.toContain('new Lenis');

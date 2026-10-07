@@ -64,6 +64,9 @@ if (isBlack) {
   }
 }
 
+// Tooltip text of each stop in the 3D tatami: role and organisation of a position.
+const stopLabels = Object.fromEntries(rows.map((row) => [row.id, `${row.position.role} · ${row.position.org}`]));
+
 const frameProject = isBlack ? projects.find((p) => p.id === 'nodosur') : undefined;
 
 const passages = isBlack
@@ -115,7 +118,7 @@ const caption = (label: string, movements: number) =>
         {!isBlack ? (
           <figure class="tc__map">
             <div class="tc__fig tc__fig--full">
-              <FloorDiagram form={mainForm} labelled progress />
+              <FloorDiagram form={mainForm} labelled progress stopLabels={stopLabels} />
             </div>
             <div class="tc__fig tc__fig--mini">
               <FloorDiagram form={mainForm} compact progress />
@@ -242,7 +245,7 @@ const caption = (label: string, movements: number) =>
         <div class="tc__side tc__side--map">
           <figure class="tc__map">
             <div class="tc__fig tc__fig--full">
-              <FloorDiagram form={p.form} labelled progress />
+              <FloorDiagram form={p.form} labelled progress stopLabels={{ [p.id]: p.project.name }} />
             </div>
             <div class="tc__fig tc__fig--mini">
               <FloorDiagram form={p.form} compact progress />

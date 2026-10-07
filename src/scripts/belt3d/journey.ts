@@ -1,7 +1,7 @@
 // The journey of the 3D belt as pure numbers: no three, no DOM. The scene (scene.ts) reads the beat
 // progress that tul.ts writes as inline custom properties, asks this module for a `Frame` and draws it.
 //
-// One fixed full-viewport canvas carries the belt through the whole page. Where it is on screen comes
+// One fixed full-viewport canvas (T12b) carries the belt and the tatami through the whole page. Where it is on screen comes
 // from tables below and from a few metrics tul.ts publishes (never from layout reads in the scene):
 //   land      the hero: the white belt falls onto the floor diagram (reads the hero's `--q`), rests there
 //             and, once the hero scrolls away (`--e`), travels to the reserved column.
@@ -27,8 +27,6 @@ export const RING_W = 0.34;
 export const COL_FILL = 0.9;
 /** Height of the in-flow spacer as a fraction of the viewport (`--ink-h: 50svh` in InkPassage.astro). */
 export const SPACER_VH = 0.5;
-/** The belt never reaches further than this from its centre, loose tails and the perspective included (metres). */
-export const REACH = 0.4;
 /** Hero camera distance in metres (mirrors the CSS floor of FloorDiagram). */
 const HERO_DIST = 2.05;
 const HERO_TARGET: [number, number, number] = [0.07, -0.02, 0.08];
@@ -55,6 +53,8 @@ export interface Metrics {
   col: { x: number; y: number; w: number; h: number };
   /** The hero's floor box while the hero is pinned (centre and side). */
   hero: { x: number; y: number; s: number };
+  /** The diagram box of a pinned chapter map (centre and width), where the tatami lies. */
+  tat: { x: number; y: number; s: number };
 }
 
 /** Camera: where the target is on screen, pixels per metre there, and the orbit. */
@@ -118,15 +118,6 @@ function centrePpm(m: Metrics): number {
 
 function heroPpm(m: Metrics): number {
   return m.hero.s / (2 * HERO_DIST * Math.tan((FOV / 2) * DEG));
-}
-
-/**
- * Side of the square canvas, in CSS px. The canvas is fixed and travels with the belt (the scene moves it
- * with a transform), so it only has to hold the belt's reach around its centre at the largest scale of the
- * journey, not the whole viewport: a fraction of the pixels (and of the antialiasing cost) of a full-screen layer.
- */
-export function canvasSize(m: Metrics): number {
-  return Math.ceil(2 * REACH * Math.max(columnPpm(m), centrePpm(m), heroPpm(m)));
 }
 
 export function travelCam(m: Metrics): Cam {
@@ -249,4 +240,64 @@ export function frameFor(beat: Beat, p: number, q: number, e: number, m: Metrics
   if (beat.kind === 'land') return heroFrame(q, e, m, yawExtra);
   if (beat.kind === 'travel') return travelFrame(beat.belt, p, m);
   return passageFrame(beat.from, beat.belt, p, m);
+}
+
+// ---- The tatami: the CSS floor of FloorDiagram, drawn in 3D --------------------------------------------------
+
+/** Metres that 100 diagram units span on the tatami floor (the hero belt's size against its floor box). */
+export const FLOOR_W = 1.07;
+/** Height of the tatami surface; the belt rests on it. */
+export const FLOOR_TOP = -0.03;
+/** The CSS floor is 116 units wide (viewBox -8..108): the box width in px maps to that. */
+const VIEW_UNITS = 116;
+/** Parallax of the mouse on the camera, in degrees at the edge of the viewport. */
+export const PARALLAX_DEG = 3;
+/** The diagram point at the centre of the CSS plane (viewBox centre), as an offset from the floor origin (metres). */
+const CHAPTER_TARGET: [number, number, number] = [0, FLOOR_TOP, 0.03 * FLOOR_W];
+
+export interface TatamiFrame {
+  /** 0 = not drawn. */
+  opacity: number;
+  cam: Cam;
+  /** Yaw of the floor about Y (radians): the CSS plane's -8 degrees. */
+  yaw: number;
+}
+
+/** Pixels per metre of the tatami, from the width of the diagram box. */
+export const diagramPpm = (boxWidth: number): number => (boxWidth * 100) / (VIEW_UNITS * FLOOR_W);
+
+/**
+ * A pinned chapter map. The camera is the CSS floor curve of FloorDiagram: tilt 58 to 44 degrees and a dolly
+ * of 0.96 to 1.04 over the scene progress `p`. The elevation above the horizon is 90 degrees minus the tilt.
+ * Like the CSS plane, the floor is also scaled by `fit` (the near edge of a tilted plane grows with perspective,
+ * 1 - 0.0048 * tilt) and lifted by 0.14% of the box width per degree of tilt, so it stays inside its box and off
+ * the caption under it.
+ * Visible only while the scene is pinned (p inside 0..1); the quick ramps at both ends hide the hand-over.
+ */
+export function tatamiChapterFrame(p: number, box: { x: number; y: number; s: number }): TatamiFrame {
+  const k = clamp01(p);
+  const tilt = 58 - 14 * k;
+  return {
+    opacity: smooth(p, 0, 0.04) * (1 - smooth(p, 0.96, 1)),
+    cam: {
+      sx: box.x,
+      sy: box.y - 0.0014 * box.s * tilt,
+      ppm: diagramPpm(box.s) * (0.96 + 0.08 * k) * (1 - 0.0048 * tilt),
+      elevation: (90 - tilt) * DEG,
+      dist: HERO_DIST,
+      target: CHAPTER_TARGET
+    },
+    yaw: 8 * DEG
+  };
+}
+
+/**
+ * The hero floor. Same camera as the hero belt (so the belt rests on it), tilting in with the portrait
+ * (`q`) and riding up with the hero stage while it scrolls away (`e`, one viewport height).
+ */
+export function tatamiHeroFrame(q: number, e: number, m: Metrics): TatamiFrame {
+  const reveal = clamp01((q - 0.3) / 0.7);
+  const cam = heroFrame(q, 0, m, 0).cam;
+  cam.sy -= smooth(e, 0, 1) * m.h;
+  return { opacity: smooth(q, 0.3, 0.7) * (1 - smooth(e, 0.7, 1)), cam, yaw: 8 * DEG * reveal };
 }

@@ -35,6 +35,11 @@ const nameWords = t('header.name').split(' ');
 const nameLines = [nameWords.slice(0, -1).join(' '), nameWords[nameWords.length - 1]];
 
 const CV_HREF = CV_PDF_HREF;
+
+// Tooltip text of the hero floor's stops in the 3D tatami.
+const stopLabels = Object.fromEntries(
+  (stage?.positions ?? []).map((position) => [position.id, `${position.role} · ${position.org}`])
+);
 ---
 
 <section
@@ -80,7 +85,7 @@ const CV_HREF = CV_PDF_HREF;
     </div>
 
     <figure class="hero__figure">
-      <FloorDiagram form={form} labelled progress readyLabel={t('tul.hero.readyShort')}>
+      <FloorDiagram form={form} labelled progress readyLabel={t('tul.hero.readyShort')} stopLabels={stopLabels}>
         <div slot="portrait" class="hero__plate">
           <div class="hero__media">
             <Picture

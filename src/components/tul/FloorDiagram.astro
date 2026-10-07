@@ -12,6 +12,9 @@ import type { TulForm } from '../../data/tuls';
  *   line, footprints, on-floor dots) lies in a `preserve-3d` plane tilted by `--tilt`; stop numbers and
  *   the ready label are HTML posts inside that plane, counter-rotated so they stand up and stay legible.
  *   The camera (`--tv`, `--cam`) follows the scene `--p` in CSS only.
+ * - The full diagram (labelled, not compact) also carries its route and stops as `data-tatami` (build-time JSON, diagram
+ *   units 0..100): on desktop, and on a phone on demand, the 3D scene (belt3d/tatami.ts) draws the same floor
+ *   as a tatami and hides this CSS plane while it is on screen (`[data-tatami-live]`). Without WebGL it stays.
  * - Optional `overlay` slot: an in-flow-box overlay inside the diagram box (the hero's 3D belt container).
  * - Decorative only: the SVG and the markers are aria-hidden, the real content lives in HTML.
  * - Geometry is design layer, never the technical execution of the form.
@@ -26,10 +29,12 @@ interface Props {
   compact?: boolean;
   /** Short "ready" label drawn next to the footprints (passed in by the caller). */
   readyLabel?: string;
+  /** Tooltip text of a position stop in the 3D tatami, keyed by position id. */
+  stopLabels?: Record<string, string>;
   class?: string;
 }
 
-const { form, labelled = false, progress = false, compact = false, readyLabel, class: className } = Astro.props;
+const { form, labelled = false, progress = false, compact = false, readyLabel, stopLabels = {}, class: className } = Astro.props;
 const hasPortrait = Astro.slots.has('portrait');
 
 const SCALE = 100;
@@ -108,6 +113,20 @@ const stops = form.stops.map((stop) => {
   return { x: fmt(p.x), y: fmt(p.y), t: stop.t, move: stop.move };
 });
 const numbered = labelled && !compact;
+// The same route and posts for the 3D tatami (units 0..100, like the SVG).
+const tatami = numbered
+  ? JSON.stringify({
+      p: pts.map(([x, y]) => [fmt(x), fmt(y)]),
+      s: form.stops.map((stop, i) => ({
+        n: stop.move,
+        x: stops[i].x,
+        y: stops[i].y,
+        t: stop.t,
+        ...(stop.ref.kind === 'position' ? { id: stop.ref.id } : {}),
+        ...(stopLabels[stop.ref.id] ? { l: stopLabels[stop.ref.id] } : {})
+      }))
+    })
+  : undefined;
 // Brush texture of the route: a static bristle mask (unique id per instance, hidden figures keep theirs).
 const brushId = `fd-brush-${form.id}-${compact ? 'c' : 'f'}${hasPortrait ? 'p' : ''}`;
 
@@ -127,7 +146,7 @@ const ticks = compact ? [] : Array.from({ length: 11 }, (_, i) => i * 10);
 const tickLen = (v: number) => (v % 50 === 0 ? 4 : 2);
 ---
 
-<div class:list={['fd', { 'fd--compact': compact, 'fd--portrait': hasPortrait }, className]}>
+<div class:list={['fd', { 'fd--compact': compact, 'fd--portrait': hasPortrait }, className]} data-tatami={tatami}>
 {hasPortrait && (
   <div class="fd__plate">
     <slot name="portrait" />
@@ -388,6 +407,12 @@ const tickLen = (v: number) => (v % 50 === 0 ? 4 : 2);
       --tv: calc(50 * var(--reveal));
       --yv: calc(-8 * var(--reveal));
     }
+  }
+
+  /* The 3D tatami is drawn for this scene: its CSS floor (plane, route, posts) steps aside. The portrait plate
+     of the hero is not part of the stage and stays. */
+  :global(html[data-belt3d='ready'] [data-tatami-live]) .fd:not(.fd--compact) .fd__stage {
+    visibility: hidden;
   }
 
   /* No 3D support: flat floor, markers stay in place on their stop. */

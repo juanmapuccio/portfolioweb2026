@@ -126,21 +126,51 @@ html:not(.js) main > section[data-belt='negro'] {
 }
 
 /*
- * The 3D belt (src/scripts/belt3d). One fixed canvas: above the field and the black flood (z-index 10 in
- * InkPassage.astro) so the belt stays visible on both, below the header (50). It is only as big as the belt's
- * reach (the scene sets its size) and moves onto the belt with a transform, so it covers a small part of the
- * viewport. It never takes pointer events (the hero drags through its own box) and never lies over text: the
- * chapters reserve the column it draws in. The probe has the exact box of that column and is only measured
- * by tul.ts.
+ * The 3D scene (src/scripts/belt3d): the tatami and the belt. One fixed canvas over the whole viewport: above
+ * the field and the black flood (z-index 10 in InkPassage.astro) so the belt stays visible on both, below the
+ * header (50). It never takes pointer events: the scene listens on the window and only reacts over the tatami
+ * (hover, click and tap on a post), and the hero drags through its own box. It never lies over text: the
+ * chapters reserve the column the belt draws in and the tatami lies in the empty map column. The probe has the
+ * exact box of the belt column and is only measured by tul.ts.
  */
 .belt3d__canvas {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   z-index: 11;
   display: block;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
-  will-change: transform;
+}
+
+/* Tooltip of a tatami post (belt3d/tatamiTip.ts): a pointer helper, aria-hidden; the rows in the HTML are the
+   accessible path. Placed by a transform from the post's projected position. */
+.tatami-tip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 12;
+  max-width: min(22rem, calc(100vw - 1.5rem));
+  padding: var(--space-3xs) var(--space-2xs);
+  border: var(--line) solid var(--belt-line);
+  background-color: var(--field);
+  color: var(--ink);
+  font-size: var(--step--1);
+  font-weight: 600;
+  line-height: 1.25;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.tatami-tip.is-on {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tatami-tip {
+    transition: none;
+  }
 }
 
 .belt-col-probe {
