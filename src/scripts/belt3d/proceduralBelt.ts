@@ -83,6 +83,19 @@ float beltMask() {
 }
 `;
 
+/**
+ * Triangle budget of the whole belt (T12b). The first version swept ~200k triangles, which was the whole
+ * frame cost in software GL; the puffs are 0.4 mm deep and the threads 0.4 mm thick, so the extra rings and
+ * profile points were invisible. Counted from the real geometry by `beltTriangleCount` (tests assert it).
+ */
+export const BELT_TRIANGLE_BUDGET = 60000;
+
+/** Segments along each swept part. */
+const SEGMENTS = { band: 100, wrap1: 36, wrap2: 26, flap: 20, tail: 40 } as const;
+/** Profile points per quilted puff, and sides of a thread's cross-section. */
+const PUFF_STEPS = 4;
+const THREAD_SIDES = 4;
+
 /** Ring radii, band width and thickness (metres). */
 export const BELT_DIMS = { A: 0.16, B: 0.11, W: 0.045, T: 0.0075 } as const;
 
@@ -93,6 +106,16 @@ interface Frame {
 }
 
 const V = (x: number, y: number, z: number): Vector3 => new Vector3(x, y, z);
+
+/** Triangles in every mesh of a belt (indexed geometry). */
+export function beltTriangleCount(belt: ProceduralBelt): number {
+  let n = 0;
+  belt.group.traverse((o) => {
+    const geo = (o as Mesh).geometry as BufferGeometry | undefined;
+    if (geo) n += (geo.index ? geo.index.count : geo.getAttribute('position').count) / 3;
+  });
+  return n;
+}
 
 export function createProceduralBelt(initial: { color?: string } = {}): ProceduralBelt {
   const { A, B, W, T } = BELT_DIMS;
@@ -261,7 +284,7 @@ export function createProceduralBelt(initial: { color?: string } = {}): Procedur
   function puffProfile(Wd: number, Tt: number, puffs: number, amp: number): number[][] {
     const out: number[][] = [];
     const inn: number[][] = [];
-    const per = 9;
+    const per = PUFF_STEPS;
     const n = puffs * per;
     for (let i = 0; i <= n; i++) {
       const y = -Wd / 2 + (Wd * i) / n;
@@ -280,8 +303,8 @@ export function createProceduralBelt(initial: { color?: string } = {}): Procedur
       const y = -Wd / 2 + (Wd * k) / puffs;
       for (const s of [1, -1]) {
         const p: number[][] = [];
-        for (let a = 0; a < 6; a++) {
-          const t = (a * Math.PI) / 3;
+        for (let a = 0; a < THREAD_SIDES; a++) {
+          const t = (a * 2 * Math.PI) / THREAD_SIDES;
           p.push([s * (Tt / 2 - 0.0001) + r * Math.cos(t), y + r * Math.sin(t)]);
         }
         ps.push(p);
@@ -331,10 +354,10 @@ export function createProceduralBelt(initial: { color?: string } = {}): Procedur
 
   // 1. Waist band and the front wrap layers
   const band = part('band');
-  layer('band_loop', ellFull(A, B, 240), true, band);
+  layer('band_loop', ellFull(A, B, SEGMENTS.band), true, band);
   const wraps = part('wraps');
-  layer('wrap_layer_1', ellArc(A + T, B + T, Math.PI / 2 - 0.62, Math.PI / 2 + 0.62, 70), false, wraps);
-  layer('wrap_layer_2', ellArc(A + 2 * T, B + 2 * T, Math.PI / 2 - 0.34, Math.PI / 2 + 0.34, 48), false, wraps);
+  layer('wrap_layer_1', ellArc(A + T, B + T, Math.PI / 2 - 0.62, Math.PI / 2 + 0.62, SEGMENTS.wrap1), false, wraps);
+  layer('wrap_layer_2', ellArc(A + 2 * T, B + 2 * T, Math.PI / 2 - 0.34, Math.PI / 2 + 0.34, SEGMENTS.wrap2), false, wraps);
 
   // 2. Front knot (its group origin is the centre of the plate, so scale and rotation pivot there)
   const zs = B + 0.008;
@@ -383,7 +406,7 @@ export function createProceduralBelt(initial: { color?: string } = {}): Procedur
     const g = part(`flap_${nm}`);
     g.position.set(s * 0.022, 0, zs + 0.004);
     const P = (t: number): Vector3 => V(s * 0.062 * t, -0.004 * t - 0.02 * t * t, -0.012 * t);
-    layer(`knot_flap_${nm}`, pathFrames(P, 36, s, s * 0.25), false, g, 0.04, T);
+    layer(`knot_flap_${nm}`, pathFrames(P, SEGMENTS.flap, s, s * 0.25), false, g, 0.04, T);
     flaps[nm] = g;
   });
 
@@ -394,7 +417,7 @@ export function createProceduralBelt(initial: { color?: string } = {}): Procedur
     const g = part(name);
     g.position.set(x, -0.022, z);
     g.rotation.set(-0.03, 0, rz);
-    layer(name, pathFrames(P, 80, ph, tw), false, g);
+    layer(name, pathFrames(P, SEGMENTS.tail, ph, tw), false, g);
     return g;
   }
   const tailL = tail('tail_left', 0.25, -0.014, zs + 0.006, -0.1, 0.6, 0.35);
