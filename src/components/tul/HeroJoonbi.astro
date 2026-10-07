@@ -109,6 +109,19 @@ const stopLabels = Object.fromEntries(
         <span class="num">{readyLabel}</span>
         <span class="visually-hidden">{t('tul.hero.ready')}. {t('tul.hero.diagramNote')}</span>
       </figcaption>
+      <button
+        type="button"
+        class="hero__3d"
+        data-belt3d-toggle
+        data-on={t('tul.hero.view3d')}
+        data-off={t('tul.hero.view2d')}
+        aria-pressed="false"
+      >
+        <svg class="hero__3d-icon" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false">
+          <path d="M10 2L17 6V14L10 18L3 14V6Z M3 6L10 10L17 6 M10 10V18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="miter"></path>
+        </svg>
+        <span data-belt3d-label>{t('tul.hero.view3d')}</span>
+      </button>
     </figure>
   </div>
 </section>
@@ -268,6 +281,56 @@ const stopLabels = Object.fromEntries(
       pointer-events: auto;
       touch-action: pan-y;
       cursor: grab;
+    }
+  }
+
+  /* On-demand 3D on a phone (T12d). The button shows below 1024 px with JS (boot.ts binds it). While it is on,
+     html[data-belt3d-tap='on']: the floor box becomes the anchor the scene measures (same box as on desktop,
+     but it never takes touches, so the page keeps scrolling), the portrait steps aside and the tatami takes the
+     figure. "Ver en 2D" removes the attribute and everything returns. */
+  .hero__3d {
+    display: none;
+  }
+
+  :global(html.js) .hero__3d:not([hidden]) {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: var(--space-2xs);
+    min-height: 2.75rem;
+    padding: 0 var(--space-xs);
+    border: var(--line) solid var(--ink-soft);
+    background-color: transparent;
+    color: var(--ink);
+    font: inherit;
+    font-size: var(--step--1);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .hero__3d[aria-pressed='true'] {
+    border-color: var(--ink);
+  }
+
+  :global(html[data-belt3d-tap='on']) .hero__belt {
+    position: absolute;
+    left: 50%;
+    top: 47.5%;
+    z-index: 2;
+    display: block;
+    width: 70cqw;
+    aspect-ratio: 1;
+    transform: translate(-50%, -52%);
+    pointer-events: none;
+  }
+
+  :global(html[data-belt3d-tap='on']) .hero__plate {
+    visibility: hidden;
+  }
+
+  @media (min-width: 64rem) {
+    :global(html.js) .hero__3d:not([hidden]) {
+      display: none;
     }
   }
 

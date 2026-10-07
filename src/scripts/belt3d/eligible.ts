@@ -19,10 +19,22 @@ function hasWebGL(): boolean {
   }
 }
 
+function saveData(): boolean {
+  const connection = (navigator as Navigator & { connection?: NetworkInformation }).connection;
+  return connection?.saveData === true;
+}
+
 export function isBelt3dEligible(): boolean {
   if (!matchMedia('(min-width: 1024px)').matches) return false;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
-  const connection = (navigator as Navigator & { connection?: NetworkInformation }).connection;
-  if (connection?.saveData === true) return false;
+  if (saveData()) return false;
   return hasWebGL();
+}
+
+/**
+ * The phone's "Ver en 3D" button: the person asked for it, so neither the viewport width nor reduced motion
+ * gate it (the on-demand view has no scroll-driven motion); data saving and a missing WebGL still do.
+ */
+export function isBelt3dTapAllowed(): boolean {
+  return !saveData() && hasWebGL();
 }
