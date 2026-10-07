@@ -175,7 +175,13 @@ const items = content.stages.flatMap((stage) =>
     color: var(--field);
   }
 
-  .xp__close:focus-visible,
+  /* The button already has a border: a ring 3px away would read as a second, doubled border. Flush, it thickens
+     the one border instead. */
+  .xp__close:focus-visible {
+    outline: var(--line-strong) solid currentColor;
+    outline-offset: 0;
+  }
+
   .xp__sheet:focus-visible {
     outline: var(--line-strong) solid currentColor;
     outline-offset: 3px;

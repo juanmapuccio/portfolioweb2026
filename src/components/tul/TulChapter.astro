@@ -634,17 +634,24 @@ const caption = (label: string, movements: number) =>
 
   .tc__passages a {
     display: grid;
-    grid-template-columns: minmax(0, 7.5rem) minmax(0, 1fr);
+    grid-template-columns: 9.5rem minmax(0, 1fr);
     gap: var(--space-xs);
     padding-block: var(--space-xs);
     border-bottom: var(--line) solid var(--ink-soft);
     text-decoration: none;
   }
 
+  /* One line: wide enough for "Tul 1º dan · 1 de 3", so a lone "3" never wraps under it. */
   .tc__passage-form {
     color: var(--ink-soft);
     font-family: var(--font-display);
     font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* The list of passages sits above the title on a phone: room between them. */
+  .tc--black .tc__side:not(.tc__side--map) {
+    padding-bottom: var(--space-m);
   }
 
   .tc__passage-name {

@@ -158,19 +158,21 @@ const quoteWords = quote ? split(quote) : [];
     font-size: var(--step-2);
     font-variation-settings: 'wght' 600, 'wdth' 90;
     line-height: 1.2;
+    word-spacing: 0.08em;
   }
 
   /* Word by word: only with JS and motion allowed. Default: every word fully visible. */
   @media (prefers-reduced-motion: no-preference) {
+    /* A word waits a little lower, not bigger: a scaled word grows into the gap and the line reads as one string. */
     :global(html.js) .pr .w {
       display: inline-block;
       opacity: 0.12;
-      transform: scale(1.06);
+      transform: translateY(0.2em);
     }
 
     :global(html.js) .pr [data-words].is-in .w {
       opacity: 1;
-      transform: scale(1);
+      transform: translateY(0);
       transition:
         opacity 400ms var(--ease-out) calc(var(--i, 0) * 70ms),
         transform 400ms var(--ease-out) calc(var(--i, 0) * 70ms);
