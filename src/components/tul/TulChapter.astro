@@ -155,6 +155,7 @@ const caption = (label: string, movements: number) =>
               <p class="tc__line">{stage.line}</p>
             </div>
           </div>
+          <p class="tc__lede">{stage.lede}</p>
         </header>
 
         <ol class="tc__list" aria-labelledby={`${beltKey}-title`}>
@@ -165,16 +166,23 @@ const caption = (label: string, movements: number) =>
               <span class="ms__role" data-text={row.position.role}><span class="ms__role-text">{row.position.role}</span></span>
               <span class="ms__org">{row.position.org}</span>
               <div class="ms__extra">
-                <p class="ms__teaser">{row.position.teaser}</p>
                 <details class="ms__more">
                   <summary>{t('tul.chapter.more')}</summary>
-                  <p>{row.position.description}</p>
+                  <p class="ms__teaser">{row.position.teaser}</p>
+                  {row.position.description !== row.position.teaser && <p>{row.position.description}</p>}
                   {row.position.transferableCompetency && (
                     <p class="ms__comp">
                       <strong>{content.competencyLabel}</strong> {row.position.transferableCompetency}
                     </p>
                   )}
                 </details>
+                <button
+                  type="button"
+                  class="ms__open"
+                  data-exp-open={row.id}
+                  aria-haspopup="dialog"
+                  aria-label={`${t('tul.chapter.more')}: ${row.position.role}`}
+                >{t('tul.chapter.more')}</button>
               </div>
             </li>
           ))}
@@ -414,6 +422,13 @@ const caption = (label: string, movements: number) =>
     font-weight: 500;
   }
 
+  .tc__lede {
+    max-width: 60ch;
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+    line-height: 1.45;
+  }
+
   /* Milestone rows: fixed columns, the same in every chapter. */
 
   .ms {
@@ -494,10 +509,31 @@ const caption = (label: string, movements: number) =>
     min-width: 0;
   }
 
-  .ms__teaser {
-    max-width: 52ch;
-    margin-top: var(--space-3xs);
+  /* Detail trigger. With JS the panel (ExperiencePanel.astro) opens; without JS the <details> is the fallback. */
+  .ms__open {
+    display: none;
+    position: relative;
+    align-items: center;
+    min-height: 1.75rem;
     font-size: var(--step--1);
+    font-weight: 700;
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--line);
+    text-underline-offset: 0.22em;
+  }
+
+  .ms__open::after {
+    content: '';
+    position: absolute;
+    inset: -0.5rem -0.75rem;
+  }
+
+  :global(html.js) .ms__open {
+    display: inline-flex;
+  }
+
+  :global(html.js) .ms__more {
+    display: none;
   }
 
   .ms__more {
@@ -758,39 +794,6 @@ const caption = (label: string, movements: number) =>
       scrollbar-width: none;
     }
 
-    :global(html.js) .tc__scene--pin .tc__line {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    :global(html.js) .ms__teaser {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    /* Mobile: only the active row shows its teaser and detail. */
-    :global(html.js) .ms {
-      --cur: calc(var(--on) * (1 - clamp(0, calc((var(--draw, 1) - var(--tn, 9)) * 24), 1)));
-    }
-
-    :global(html.js) .tc--black .ms {
-      --cur: 1;
-    }
-
-    :global(html.js) .ms__extra {
-      max-height: calc(var(--cur) * 8rem);
-      opacity: var(--cur);
-      overflow: hidden;
-    }
-
-    :global(html.js) .tc--black .ms__extra {
-      max-height: none;
-    }
-
     /* Title ink: hidden until the engine marks it in view (html.js is set before first paint). */
     :global(html.js) .tc__titlewrap:not(.is-in) .tc__title {
       opacity: 0;
@@ -915,12 +918,6 @@ const caption = (label: string, movements: number) =>
 
       :global(html.js) .tc__scene--pin .tc__side {
         padding-block: var(--space-s);
-      }
-
-      /* Desktop: every teaser stays visible, clamped to two lines. */
-      :global(html.js) .ms__extra {
-        max-height: none;
-        opacity: 1;
       }
     }
   }

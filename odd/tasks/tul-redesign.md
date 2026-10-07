@@ -86,6 +86,7 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - [x] T11c `BeltDrawing.astro`: detailed tied belt (pespunte, weave, knot folds, frayed cut tails, gold on 1st dan) mounted in every spacer; it unties and ties with DrawSVG scrubbed by `--p`, and the band wipes to the next belt colour. Mobile always, desktop poster until `html[data-belt3d="ready"]`. Commit: the one that adds this line (`feat(tul): ...`, see git log).
 - [x] T11d Persistent 3D canvas (desktop): beats (land, travel, untie and retie, tie, rest), noise-mask colour mix, `--knot-x` / `--knot-y` as the flood centre, reserved side column, posters replaced. `ff71ca3`.
 - [x] T11e Direction contract (`.impeccable/surfaces/src-pages-index-astro.md`) and this document. Commit: the one that adds this line (`docs(tul): ...`, see git log).
+- [x] T12a Chapter summary plus the experience panel (user 2026-10-07: only the stage summary per belt, detail per position on demand). Commit: this commit (`feat(tul): ...`, see git log).
 - [ ] T8 Finish: `impeccable detect`, then the finish reviewer at desktop 1440 and mobile 390, one fix round, and the documenter rewriting `DESIGN.md` and `.impeccable/design.json`.
 
 ## Acceptance criteria
@@ -105,6 +106,14 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - Whether to add the roles missing from the CV PDF (Grido, Al Natural, Providus, AS MED).
 
 ## Progress / evidence
+- 2026-10-07 T12a (plan `codegraph-engram-context7-gentle-ai-snoopy-squid.md`, section 1). Route: delegated, one `sonnet` writer (writer trigger: 2+ non-trivial files: chapter, panel, script, i18n, pages, tests). TDD: off. Runner: `bunx astro check`, `bun test`, `bun run build`.
+  - Chapters show `stage.lede` and `stage.line` plus a compact row list (dates, role, org) with a "Ver detalle" button per position. Row ids, `data-stop`, `--t` and the pinned stage are unchanged. The closing stays in the black outro scene (it already has its own pinned stage), so it is not repeated in the head.
+  - `ExperiencePanel.astro`: one `<dialog>` per page plus one inert `<template data-exp-template="<id>">` per position (no fetch). Right slide-over of 32rem from 40rem up, bottom sheet below. Only page tokens; `data-dark` re-points them for the negro positions, so it reads on black. Black product passages (Satori, NodoFit, Don Pizza) are untouched.
+  - `src/scripts/experiencePanel.ts`: `showModal()` focus trap, focus returns to the trigger, Esc, backdrop and Close button, `#exp-<id>` opens on load, `pushState` on open and Back closes, `html.xp-lock` plus `scrollbar-gutter: stable` for a lock with no layout jump, 280 ms CSS transform and opacity (none under reduced motion).
+  - API for T12c: `openExperience(id, opener?)` and `closeExperience()` exported, or `window.dispatchEvent(new CustomEvent('tul:open-experience', { detail: { id } }))`.
+  - No JS: each row is a `<details>` (teaser, description, competency); the dialog stays closed. With JS the `<details>` is hidden and the button shows.
+  - i18n: only `tul.panel.close` (es, en, pt).
+  - Checks: `bunx astro check` 0 errors; `bun test` 260 pass, 0 fail (new `tests/tul-panel.test.ts`); `bun run build` 6 pages. Playwright at 1440 and 390: open, Esc closes and focus returns to the button, Back closes, backdrop click closes, `#exp-nodosur` opens on load (dark), panel on black reads, scrollY unchanged across open and close, no-JS details visible and dialog hidden.
 - 2026-10-06 T11d and T11e (user: 3D belt as the thread of the journey on desktop; plan `codegraph-engram-context7-gentle-ai-snoopy-squid.md`). Route: delegated, one `sonnet` writer for both (writer trigger: 2+ non-trivial files; the parent read the plan and the T11a-c hooks first). TDD: off. Runner: `bunx astro check`, `bun test`, `bun run build`.
   - T11d `ff71ca3`. Design:
     - `journey.ts` (no three, no DOM) is the route as pure numbers. The scene reads inline custom properties and draws it. The active beat is the last one whose progress has started, so no visibility observer is needed.

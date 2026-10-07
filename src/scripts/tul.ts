@@ -31,6 +31,7 @@ import { MorphSVGPlugin } from 'gsap/MorphSVGPlugin';
 import { bootBelt3d } from './belt3d/boot';
 import { playTitleInk } from './titleInk';
 import { buildBeltTimeline } from './beltDrawing';
+import { initExperiencePanel } from './experiencePanel';
 
 type Grade = { gup: string; form: string };
 
@@ -361,5 +362,6 @@ initPassages();
 initChapters();
 initEntrances();
 endIntro();
+initExperiencePanel();
 // Desktop only, after load and idle: the 3D belt (three never loads otherwise).
 bootBelt3d();
