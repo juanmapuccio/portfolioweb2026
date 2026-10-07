@@ -30,6 +30,10 @@ Mode: Experience. Scope: the full landing page, plus the `/cv` quick-scan route.
 - Sumi-e ink survives only as a mark under each chapter title. It never covers the screen.
 - The 3D belt is the thread of the journey on desktop (T11d). The detailed drawn belt (T11c) plays that role on mobile and is the poster whenever 3D is off.
 
+**Revised 2026-10-07 (user, tatami and detail panel):**
+- The trajectory shows only the summary of each belt stage (T12a). The detail of each position opens on demand in a panel (T12a) and, on desktop, from a post of the 3D tatami (T12c).
+- The CSS perspective floor becomes a 3D tatami on desktop (T12c), and on a phone only when the person taps "Ver en 3D" (T12d). The CSS floor stays the fallback everywhere else.
+
 ## Direction contract
 
 **THESIS.** The career is a form performed on a floor plan. Each stage is a tul and each movement a milestone. It refuses the vertical card timeline and the dark terminal developer portfolio.
@@ -59,8 +63,17 @@ Mode: Experience. Scope: the full landing page, plus the `/cv` quick-scan route.
 - Depth through perspective, not decoration:
   - the floor diagram is a tilted plane, and its numbered stops stand up as posts;
   - the 3D belt is a real procedural object lit like cloth, never a glow or a shadow.
+- The tatami (T12c, desktop; phone on demand, T12d) is the 3D version of that floor, drawn in the same scene and the same fixed canvas as the belt:
+  - Floor: ten tatami mats in one instanced mesh, with seams and a faint canvas-drawn rush weave. Pale straw on the white field, charcoal on the black one. No image, no shadow, no glow.
+  - Route and posts: the tul's line is a thin tube in `--belt-line`, drawn by `--draw`. Each milestone is a post with its number in a disc, at the same coordinates as the CSS floor.
+  - Camera: it follows the CSS floor curve (tilt 58 to 44 degrees, dolly 0.96 to 1.04, scaled by the scene progress) and the mouse moves it by 3 degrees at most, eased. With reduced motion there is no parallax.
+  - Pointer: hovering a post lights it and shows a small label with the role; clicking it (or tapping it on a phone) opens the detail panel of that position. The HTML rows and their "Ver detalle" buttons stay the accessible path; the tatami is `aria-hidden`.
+  - The belt lands on the hero tatami and then travels the chapters in its column as before; its poses do not change.
+  - While a scene's tatami is drawn, its CSS floor is hidden (`[data-tatami-live]`). Without WebGL, with reduced motion or below 1024 px the CSS floor is what you see.
+- Detail panel (T12a): one dialog per page, a 32rem slide-over from the right (a bottom sheet on a phone), with a link of its own (`#exp-<id>`), the page scroll locked without a jump, and no motion under reduced motion.
+- On a phone, "Ver en 3D" in the hero (es, en, pt) loads the same scene chunk on a tap, after checking WebGL and data saving. It shows the hero tatami with the belt resting on it and every post, no mouse parallax; "Ver en 2D" tears it down and the CSS floor and the portrait come back. Three never loads on a phone by default, nor with reduced motion unless the person taps.
 - Variable type whose weight and width grow with grade.
-- No shadows, cards, glow or gradients. Brush edges come from static SVG masks and filters; only transform, opacity, clip-path and stroke-dashoffset animate (the 3D canvas moves by transform and fades by opacity).
+- No shadows, cards, glow or gradients. Brush edges come from static SVG masks and filters; only transform, opacity, clip-path and stroke-dashoffset animate (the 3D canvas covers the viewport, never takes pointer events and fades by opacity).
 
 **STORY.** Within seconds the visitor knows who Juan is: "Audito procesos de empresas y los resuelvo con código". They walk six forms of rising complexity and reach 1st dan with real production systems. The line then returns to its origin, which is contact.
 
@@ -68,7 +81,7 @@ Mode: Experience. Scope: the full landing page, plus the `/cv` quick-scan route.
 - Top-left: a large name, then the one-line hook.
 - Primary CTA "Contactame" and secondary "Ver CV" (opens the Drive file), visible without scrolling.
 - Right on desktop, below on mobile: the portrait plate inside the measuring frame, labelled `10º gup · 2011`.
-- On scroll, the portrait gives way to the floor tilting into perspective. On desktop the white 3D belt falls and lands at the Joon-bi ready point (it can be dragged to turn), and the line starts tracing.
+- On scroll, the portrait gives way to the floor tilting into perspective. On desktop that floor is the 3D tatami and the white 3D belt falls and lands on it at the Joon-bi ready point (it can be dragged to turn), and the line starts tracing.
 - A persistent grade indicator in one corner.
 
 **FORM.** "Tul diagram", position 1 on the grounded list (the pick card, chosen by the user). Seed key `050d9965`.
