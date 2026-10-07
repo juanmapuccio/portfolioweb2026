@@ -97,6 +97,7 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
 - [x] T13d `.hintrc` at the repo root so webhint `compat-api/css` ignores `text-size-adjust`, `scrollbar-color`, `scrollbar-width` and `text-wrap` (the Edge Tools hints on `base.css`). `d15c782`.
 - [x] T13e Direction contract (`.impeccable/surfaces/src-pages-index-astro.md`: isometric tatami fallback, single underline, sticky rule) and this document for T13b, T13c and T13f. Commit: the one that adds this line (`docs(tul): ...`, see git log).
 - [x] T13f Visual audit of the whole page at 1440 and 390 and its fixes (findings below). `0bd5115`.
+- [x] T14 Remove the title underline (owner decision 2026-10-07): `TitleInk.astro` and its markup, CSS and DrawSVG tween are gone; `titleInk.ts` became `titleReveal.ts` (SplitText letter rise only, `playTitleReveal`); the room reserved under `.tc__titlewrap` is replaced by a slightly larger `.tc__head` gap. `b4f2c09`.
 - [ ] T8 Finish: `impeccable detect`, then the finish reviewer at desktop 1440 and mobile 390, one fix round, and the documenter rewriting `DESIGN.md` and `.impeccable/design.json`.
 
 ## Acceptance criteria
@@ -286,6 +287,12 @@ Out: push, PR and merge, which are user decisions. Changes to the CV PDF are als
   - Each `main section[data-belt]` sets `html[data-belt]` and the grade indicator.
 - Running authored lines (before T2): about 500, past the budget, so the chain strategy is pending (ask-on-risk).
 - 2026-10-05 T0: `3de8f84` on `feat/ink-redesign`. Branch `feat/tul-redesign` created. Doc and mirror written.
+
+- 2026-10-07 T14 (user: remove the brush underline, keep the rest). Route: delegated, one writer (writer trigger: 2+ non-trivial files plus tests and the contract). TDD: off. Runner: `bunx astro check`, `bun test`, `bun run build`.
+  - DrawSVG stays registered: `beltDrawing.ts` still tweens `drawSVG` for the spacer belt. MorphSVG was already gone.
+  - Tests rewritten on purpose: `tul-ink.test.ts` (title block now asserts no TitleInk, no `.ti`, no `data-ink-stroke`, no reserved padding, belt-line contrast kept for the active row marker), `tul-motion.test.ts`, `tul-chapters.test.ts`.
+  - Checks: astro check 0 errors; bun test 344 pass, 0 fail; build 6 pages; `rg` for TitleInk, data-ink-stroke and `.ti__` in `src` finds nothing.
+  - Visual (Playwright, 1440 and 390, blanco, rojo, negro; reduced motion at 1440): no svg in the title wrap, title opacity 1, no underline. Round 1 showed the descender of the title almost touching the seal at 1440 (8 px); fix: `.tc__head` gap `--space-2xs` to `--space-xs` (12 px), confirmed in a second capture.
 
 ## Next step
 T8.
