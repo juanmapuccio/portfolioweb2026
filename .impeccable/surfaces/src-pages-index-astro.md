@@ -34,6 +34,11 @@ Mode: Experience. Scope: the full landing page, plus the `/cv` quick-scan route.
 - The trajectory shows only the summary of each belt stage (T12a). The detail of each position opens on demand in a panel (T12a) and, on desktop, from a post of the 3D tatami (T12c).
 - The CSS perspective floor becomes a 3D tatami on desktop (T12c), and on a phone only when the person taps "Ver en 3D" (T12d). The CSS floor stays the fallback everywhere else.
 
+**Revised 2026-10-07 (user, one underline, isometric tatami, sticky zones):** this supersedes the CSS perspective floor, the six title marks and the "CSS floor is the fallback" lines above.
+- One underline for every title (T13a): a dry brush stroke in the chapter's `--belt-line`. No drop, drip, ensō or vertical stroke, no MorphSVG.
+- The floor has no CSS 3D plane any more (T13b). The fallback is a build-time isometric SVG (`TatamiIso`) projected from the same route and stops as the 3D tatami.
+- Sticky rule (T13c): while a section is pinned, scrolling moves the 3D; when it is not pinned the 3D does not switch off halfway.
+
 ## Direction contract
 
 **THESIS.** The career is a form performed on a floor plan. Each stage is a tul and each movement a milestone. It refuses the vertical card timeline and the dark terminal developer portfolio.
@@ -47,9 +52,9 @@ Mode: Experience. Scope: the full landing page, plus the `/cv` quick-scan route.
   - the belt itself, drawn in 3D on desktop and as a detailed drawing on mobile.
   - Strokes use an accessible `--belt-line` (yellow becomes ochre; on black it is a warm light grey).
 - Sumi-e ink only under the chapter titles:
-  - Each title carries one brush mark of its own (a drop, a dry sweep, a drip, an ensō or a vertical stroke) in `--belt-line`. SplitText, DrawSVG and MorphSVG draw it as the letters rise out of a mask.
+  - Every title carries the same single mark: one dry-brush underline (four streaks of variable width, drawn left to right) in the chapter's `--belt-line`. SplitText reveals the letters from a mask while DrawSVG draws the streaks. There is no per-belt variant.
   - No ink crosses the screen. The spacers between chapters are empty, in flow and carry no text.
-  - Brush detail on the white field: the chapter seal has an ink ensō behind the belt, and the route line of the floor diagram has bristle texture.
+  - Brush detail on the white field: the chapter seal has an ink ensō behind the belt (a seal detail, not a title mark), and the route line of the floor diagram has bristle texture.
   - With reduced motion or without JS the marks are finished and static, and the spacers are a plain 12rem gap.
   - No paper grain: it would be decoration.
 - The belt is the thread of the journey:
@@ -60,18 +65,24 @@ Mode: Experience. Scope: the full landing page, plus the `/cv` quick-scan route.
     - At 1st dan it ties red to black with gold stitches. Its knot is the centre of the black flood.
     - On black it takes a rim light so it reads, and it fades out before the close.
   - Mobile and no-3D: the detailed drawn belt (stitching, weave, knot folds, frayed tails, gold embroidery at 1st dan) unties and ties in every spacer, scrubbed by scroll. With reduced motion it is complete and static.
-- Depth through perspective, not decoration:
-  - the floor diagram is a tilted plane, and its numbered stops stand up as posts;
+- Depth through projection, not decoration:
+  - the floor diagram is an isometric tatami drawn as an SVG at build time (`TatamiIso`, geometry in `tatamiIso.ts`): mats with a top face and two side faces for the thickness, seams, the route on the top face and the stops as prisms with the number on the front face. Every face is one flat tone mixed from `--field` and `--ink`, so it works on white and on black. No gradient, no shadow, no rotated text;
   - the 3D belt is a real procedural object lit like cloth, never a glow or a shadow.
 - The tatami (T12c, desktop; phone on demand, T12d) is the 3D version of that floor, drawn in the same scene and the same fixed canvas as the belt:
   - Floor: ten tatami mats in one instanced mesh, with seams and a faint canvas-drawn rush weave. Pale straw on the white field, charcoal on the black one. No image, no shadow, no glow.
-  - Route and posts: the tul's line is a thin tube in `--belt-line`, drawn by `--draw`. Each milestone is a post with its number in a disc, at the same coordinates as the CSS floor.
-  - Camera: it follows the CSS floor curve (tilt 58 to 44 degrees, dolly 0.96 to 1.04, scaled by the scene progress) and the mouse moves it by 3 degrees at most, eased. With reduced motion there is no parallax.
+  - Route and posts: the tul's line is a thin tube in `--belt-line`, drawn by `--draw`. Each milestone is a post with its number in a disc, at the same coordinates as the isometric floor.
+  - Camera: it tilts 58 to 44 degrees with a dolly of 0.96 to 1.04 over the scene progress, and the mouse moves it by 3 degrees at most, eased. With reduced motion there is no parallax.
   - Pointer: hovering a post lights it and shows a small label with the role; clicking it (or tapping it on a phone) opens the detail panel of that position. The HTML rows and their "Ver detalle" buttons stay the accessible path; the tatami is `aria-hidden`.
   - The belt lands on the hero tatami and then travels the chapters in its column as before; its poses do not change.
-  - While a scene's tatami is drawn, its CSS floor is hidden (`[data-tatami-live]`). Without WebGL, with reduced motion or below 1024 px the CSS floor is what you see.
+  - While a scene's tatami is drawn, its isometric SVG is hidden (`[data-tatami-live]`, with no opacity threshold, so the two are never drawn together). Without WebGL, with reduced motion, without JS or below 1024 px the isometric SVG is the floor, complete and static.
+- Sticky coherence (T13c):
+  - Desktop: the tatami belongs to the stage that is on screen, from its entry to its exit, and travels with that stage (exact scroll progress, no fade), with the route already drawn at both ends. The belt keeps its column.
+  - Red belt: the automation block is a tatami beat. The camera drops to floor level and travels the red route, cut to the figure box under the steps.
+  - Black outro: its pinned closing line moves the resting belt (it rises, turns slowly and fades). It keeps its pin because it now has something to scrub.
+  - Kyong-ye: the return loop is drawn in 3D on the dark tatami while the section is pinned.
+  - Below 62rem nothing is pinned and no block scrolls inside the page. Only the isometric figure sticks (45svh at most, under the header) while the copy flows with the normal scroll; the scene's `--p` still draws the route and lights the rows. With "Ver en 3D" on a phone the hero belt rides up with its floor and hands over to the chapters instead of hanging over the first one.
 - Detail panel (T12a): one dialog per page, a 32rem slide-over from the right (a bottom sheet on a phone), with a link of its own (`#exp-<id>`), the page scroll locked without a jump, and no motion under reduced motion.
-- On a phone, "Ver en 3D" in the hero (es, en, pt) loads the same scene chunk on a tap, after checking WebGL and data saving. It shows the hero tatami with the belt resting on it and every post, no mouse parallax; "Ver en 2D" tears it down and the CSS floor and the portrait come back. Three never loads on a phone by default, nor with reduced motion unless the person taps.
+- On a phone, "Ver en 3D" in the hero (es, en, pt) loads the same scene chunk on a tap, after checking WebGL and data saving. It shows the hero tatami with the belt resting on it and every post, no mouse parallax; "Ver en 2D" tears it down and the isometric floor and the portrait come back. Three never loads on a phone by default, nor with reduced motion unless the person taps.
 - Variable type whose weight and width grow with grade.
 - No shadows, cards, glow or gradients. Brush edges come from static SVG masks and filters; only transform, opacity, clip-path and stroke-dashoffset animate (the 3D canvas covers the viewport, never takes pointer events and fades by opacity).
 
@@ -81,7 +92,7 @@ Mode: Experience. Scope: the full landing page, plus the `/cv` quick-scan route.
 - Top-left: a large name, then the one-line hook.
 - Primary CTA "Contactame" and secondary "Ver CV" (opens the Drive file), visible without scrolling.
 - Right on desktop, below on mobile: the portrait plate inside the measuring frame, labelled `10º gup · 2011`.
-- On scroll, the portrait gives way to the floor tilting into perspective. On desktop that floor is the 3D tatami and the white 3D belt falls and lands on it at the Joon-bi ready point (it can be dragged to turn), and the line starts tracing.
+- On scroll, the portrait gives way to the isometric floor. On desktop that floor is the 3D tatami and the white 3D belt falls and lands on it at the Joon-bi ready point (it can be dragged to turn), and the line starts tracing.
 - A persistent grade indicator in one corner.
 
 **FORM.** "Tul diagram", position 1 on the grounded list (the pick card, chosen by the user). Seed key `050d9965`.
