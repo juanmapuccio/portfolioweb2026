@@ -435,7 +435,7 @@ const caption = (label: string, movements: number) =>
   }
 
   .tc__lede {
-    max-width: 60ch;
+    max-width: 50ch;
     color: var(--ink-soft);
     font-size: var(--step--1);
     line-height: 1.45;
@@ -455,8 +455,8 @@ const caption = (label: string, movements: number) =>
     align-items: start;
     column-gap: var(--space-xs);
     row-gap: var(--space-3xs);
-    padding-block: var(--space-xs);
-    border-bottom: var(--line) solid var(--ink-soft);
+    padding-block: var(--space-s) var(--space-xs);
+    border-bottom: var(--line) solid color-mix(in srgb, var(--ink-soft) 40%, transparent);
     color: color-mix(in srgb, var(--ink) calc(var(--on) * 100%), var(--ink-soft));
   }
 
@@ -532,6 +532,17 @@ const caption = (label: string, movements: number) =>
     text-decoration-line: underline;
     text-decoration-thickness: var(--line);
     text-underline-offset: 0.22em;
+    cursor: pointer;
+    transition: opacity var(--dur-fast) var(--ease-out);
+  }
+
+  .ms__open:hover {
+    opacity: 0.75;
+  }
+
+  .ms__open:focus-visible {
+    outline: var(--line-strong) solid var(--belt-line);
+    outline-offset: 3px;
   }
 
   .ms__open::after {
@@ -630,9 +641,19 @@ const caption = (label: string, movements: number) =>
     display: grid;
     grid-template-columns: 9.5rem minmax(0, 1fr);
     gap: var(--space-xs);
-    padding-block: var(--space-xs);
-    border-bottom: var(--line) solid var(--ink-soft);
+    padding: var(--space-xs) var(--space-2xs);
+    border-bottom: var(--line) solid color-mix(in srgb, var(--ink-soft) 40%, transparent);
     text-decoration: none;
+    transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+
+  .tc__passages a:hover {
+    background-color: color-mix(in srgb, var(--ink) 4%, transparent);
+  }
+
+  .tc__passages a:focus-visible {
+    outline: var(--line-strong) solid var(--belt-line);
+    outline-offset: 2px;
   }
 
   /* One line: wide enough for "Tul 1º dan · 1 de 3", so a lone "3" never wraps under it. */
@@ -894,7 +915,7 @@ const caption = (label: string, movements: number) =>
 
     .tc__fig--full {
       display: block;
-      width: min(100%, calc(100svh - 11rem));
+      width: min(100%, calc(100svh - 9rem));
     }
 
     .tc__fig--mini {

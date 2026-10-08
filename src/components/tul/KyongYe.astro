@@ -147,38 +147,53 @@ const isExternal = (url: string) => url.startsWith('https:');
     font-weight: 600;
   }
 
-  /* The solid ink block of the hero CTA. */
+  /* The solid ink block of the hero CTA with intelligent micro-interactions. */
   .ky__cta {
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-s);
-    min-height: 3.25rem;
-    margin-top: var(--space-2xs);
-    padding: 0 var(--space-m);
+    min-height: 3.5rem;
+    margin-top: var(--space-xs);
+    padding: 0 var(--space-l);
     border: var(--line-strong) solid var(--ink);
     background-color: var(--ink);
     color: var(--field);
     font-size: var(--step-0);
     font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 0.01em;
     text-decoration: none;
+    box-shadow: 0 4px 14px -2px rgba(11, 26, 43, 0.15);
     transition:
       background-color var(--dur-fast) var(--ease-out),
-      color var(--dur-fast) var(--ease-out);
+      color var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out);
   }
 
   .ky__cta:hover {
     background-color: var(--field);
     color: var(--ink);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -3px rgba(11, 26, 43, 0.22);
+  }
+
+  .ky__cta:hover svg {
+    transform: translateX(4px);
   }
 
   .ky__cta:active {
     background-color: var(--ink-soft);
     color: var(--field);
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px -2px rgba(11, 26, 43, 0.15);
   }
 
   .ky__cta svg {
     flex: none;
+    transition: transform var(--dur-fast) var(--ease-out);
   }
 
   .ky__map {
@@ -225,13 +240,17 @@ const isExternal = (url: string) => url.startsWith('https:');
   /* Content below the scene: channels and colophon. */
   .ky__after {
     display: grid;
-    gap: var(--space-xl);
-    padding: var(--space-l) var(--gutter) var(--space-l);
+    gap: var(--space-2xl);
+    padding: var(--space-xl) var(--gutter) var(--space-2xl);
+    width: 100%;
+    max-width: 76rem;
+    margin-inline: auto;
   }
 
   .ky__channels {
     display: grid;
-    max-width: 62rem;
+    width: 100%;
+    margin-inline: auto;
     border-bottom: var(--line) solid var(--ink-soft);
   }
 
@@ -241,22 +260,33 @@ const isExternal = (url: string) => url.startsWith('https:');
     grid-template-areas:
       'icon name'
       'icon value';
-    column-gap: var(--space-xs);
+    column-gap: var(--space-s);
     row-gap: 0;
     align-items: center;
-    min-height: 3.5rem;
+    min-height: 4rem;
+    padding-inline: var(--space-xs);
     padding-block: var(--space-xs);
     border-top: var(--line) solid var(--ink-soft);
     text-decoration: none;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      padding-inline var(--dur-fast) var(--ease-out);
   }
 
   .ky__chan:hover {
     background-color: var(--ink);
     color: var(--field);
+    padding-inline: var(--space-s);
   }
 
   .ky__icon {
     grid-area: icon;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .ky__chan:hover .ky__icon {
+    transform: scale(1.1);
   }
 
   .ky__chan-name {
@@ -264,6 +294,7 @@ const isExternal = (url: string) => url.startsWith('https:');
     font-family: var(--font-display);
     font-size: var(--step-1);
     font-variation-settings: 'wght' 700, 'wdth' 90;
+    letter-spacing: -0.01em;
   }
 
   .ky__chan-value {
@@ -271,24 +302,28 @@ const isExternal = (url: string) => url.startsWith('https:');
     min-width: 0;
     overflow-wrap: anywhere;
     font-size: var(--step--1);
+    opacity: 0.85;
   }
 
   .ky__colophon {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-xs) var(--space-l);
-    padding-top: var(--space-s);
+    justify-content: space-between;
+    gap: var(--space-m) var(--space-l);
+    padding-top: var(--space-m);
     border-top: var(--line-strong) solid var(--ink);
     font-size: var(--step--1);
   }
 
   .ky__credit {
-    flex: 1 1 18rem;
+    flex: 1 1 20rem;
+    line-height: 1.5;
   }
 
   .ky__langs {
     display: flex;
+    align-items: center;
     gap: var(--space-xs);
   }
 
@@ -297,7 +332,13 @@ const isExternal = (url: string) => url.startsWith('https:');
     display: inline-flex;
     align-items: center;
     min-height: 2.75rem;
-    padding-inline: var(--space-3xs);
+    padding-inline: var(--space-2xs);
+    transition: opacity var(--dur-fast) var(--ease-out);
+  }
+
+  .ky__top:hover,
+  .ky__langs a:hover {
+    opacity: 0.7;
   }
 
   .ky__langs a[aria-current='page'] {

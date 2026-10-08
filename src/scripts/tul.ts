@@ -421,11 +421,101 @@ function initEntrances(): void {
   for (const el of reveals) revealObserver.observe(el);
 }
 
+function initHeaderAutohide(): void {
+  const header = document.querySelector<HTMLElement>('.tul-header');
+  if (!header) return;
+
+  const hero = document.querySelector<HTMLElement>('[data-belt-beat="land"]');
+  let hideTimer: ReturnType<typeof setTimeout> | undefined;
+  let isHovered = false;
+
+  const clearTimer = (): void => {
+    if (hideTimer !== undefined) {
+      clearTimeout(hideTimer);
+      hideTimer = undefined;
+    }
+  };
+
+  const getHeroBottom = (): number => {
+    if (!hero) return window.innerHeight;
+    return hero.offsetTop + hero.offsetHeight;
+  };
+
+  const isPastHero = (): boolean => {
+    return window.scrollY >= getHeroBottom() - 100;
+  };
+
+  const showHeader = (autoHideAfterMs?: number): void => {
+    clearTimer();
+    header.classList.remove('is-hidden');
+    if (autoHideAfterMs && isPastHero() && !isHovered) {
+      hideTimer = setTimeout(() => {
+        if (isPastHero() && !isHovered) {
+          header.classList.add('is-hidden');
+        }
+      }, autoHideAfterMs);
+    }
+  };
+
+  const hideHeader = (): void => {
+    clearTimer();
+    if (isPastHero() && !isHovered) {
+      header.classList.add('is-hidden');
+    }
+  };
+
+  // Hover management: entering header or sensor strip keeps it visible
+  header.addEventListener('pointerenter', () => {
+    isHovered = true;
+    showHeader();
+  });
+
+  header.addEventListener('pointerleave', () => {
+    isHovered = false;
+    if (isPastHero()) {
+      // Autohide a few seconds after mouse leaves
+      showHeader(2200);
+    }
+  });
+
+  // Top region mouse trigger: moving pointer within top 40px summons header
+  window.addEventListener('pointermove', (e) => {
+    if (e.clientY <= 40 && isPastHero()) {
+      showHeader(3000);
+    }
+  }, { passive: true });
+
+  let lastY = window.scrollY;
+
+  window.addEventListener('scroll', () => {
+    const currentY = window.scrollY;
+    const diff = currentY - lastY;
+
+    if (!isPastHero()) {
+      // Still inside or near hero: header remains naturally visible
+      showHeader();
+    } else {
+      // Past hero: scrolling automatically hides header unless cursor is directly hovering it
+      if (!isHovered) {
+        if (diff > 5) {
+          hideHeader();
+        } else if (diff < -8) {
+          // Responsive flick/scroll up immediately reveals it on mobile/desktop, auto-hiding after 2.8s
+          showHeader(2800);
+        }
+      }
+    }
+
+    lastY = currentY;
+  }, { passive: true });
+}
+
 initScenes();
 initBeats();
 initPassages();
 initChapters();
 initEntrances();
+initHeaderAutohide();
 endIntro();
 initExperiencePanel();
 // Desktop only, after load and idle: the 3D belt (three never loads otherwise).

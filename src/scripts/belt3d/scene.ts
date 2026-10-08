@@ -364,6 +364,7 @@ function tatamiView(): TatamiView | undefined {
     const en = readNum(t.scene, '--en', 0);
     const ex = readNum(t.scene, '--ex', 0);
     const score = stageScore(en, ex);
+    // Handoff threshold: require the stage to be legitimately in place before replacing the previous one
     if (score <= 0 || score < bestScore) continue;
     const box = {
       x: readNum(t.scene, '--tat-x', 0),
@@ -802,7 +803,11 @@ export function mountBelt3d(): void {
   collectTatami();
 
   heroAnchor = document.querySelector<HTMLElement>('[data-belt-anchor="hero"]') ?? undefined;
-  if (heroAnchor) attachDrag(heroAnchor);
+  if (heroAnchor) {
+    attachDrag(heroAnchor);
+    // Micro-cue: gentle spring settle once ready so visitors discover the tactile drag affordance
+    gsap.fromTo(drag, { y: -0.06 }, { y: 0, duration: 1.6, delay: 0.8, ease: 'elastic.out(1, 0.45)' });
+  }
 
   // Leaving the desktop / motion conditions stops the ticker, tears everything down and the posters take over.
   matchMedia('(min-width: 1024px)').addEventListener('change', sync);
