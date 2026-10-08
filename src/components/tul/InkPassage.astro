@@ -1,0 +1,153 @@
+---
+import type { BeltKey } from '../../data/tuls';
+import BeltDrawing from './BeltDrawing.astro';
+import { KNOT_AT } from './beltDrawing';
+
+/**
+ * The spacer between two belt chapters. In flow, decorative, aria-hidden, no text.
+ *
+ * It paints nothing across the screen, except at one place: the passage that arrives at 1st dan
+ * (`to === 'negro'`) carries the black flood. There is no ink under the chapter titles. The spacer is ~50svh on desktop and 40svh on mobile. It holds the detailed belt
+ * drawing (BeltDrawing.astro), centred, which unties and ties again as the passage scrolls by:
+ *   - mobile (< 1024px): always there, it is the thread of the journey (no 3D on mobile);
+ *   - desktop: the poster of the 3D belt. It shows until the 3D scene reports html[data-belt3d="ready"],
+ *     and always when 3D never loads (no WebGL, reduced motion, save-data). Once ready, the one fixed canvas
+ *     (src/scripts/belt3d) rides this spacer: the belt unties, changes colour and ties again inside it
+ *     (data-belt-beat="passage", data-from / data-belt = the two colours). The spacer is the only place
+ *     the belt leaves its side column, which is why it is empty.
+ * The drawing's knot is at the centre of the box, which is why `--knot-fx` / `--knot-fy` below are
+ * KNOT_AT (beltDrawing.ts): the flood starts from it.
+ *
+ * The engine (tul.ts, [data-tul-passage]) writes `--p` (0..1) on the passage while it crosses the
+ * viewport (top at the bottom edge to bottom at the top edge). With reduced motion or without JS the
+ * passage stays a static 12rem gap, `--p` is never written and there is no flood: the black chapter and
+ * what follows are black by CSS (base.css).
+ *
+ * Flood (black passage only, html.js with motion):
+ *   - `.ink__flood` is a viewport layer above the chapters and below the header (z-index 10).
+ *   - Its fill is clipped by `clip-path: circle(r at x y)`. The radius grows with the square of the
+ *     flood progress `--f` (0 at p = 0.2, 1 at p = 0.5), so the black first spreads slowly from the knot
+ *     and then takes the whole view. At p = 0.5 it covers everything, tul.ts flips html[data-field="dark"]
+ *     under it and the layer is hidden; scrolling back reverses it.
+ *   - The centre is the knot. The 3D scene publishes `--knot-x` / `--knot-y` (viewport px) on html during
+ *     the tie beat of this passage; without them (mobile, no 3D) the centre is the drawn belt knot of this
+ *     spacer, placed at `--knot-fx` / `--knot-fy` (fractions of the spacer) and moving with the scroll,
+ *     computed from `--p` alone.
+ *   - Only clip-path and opacity change with scroll. The ink edge is a static feTurbulence +
+ *     feDisplacementMap filter (parameters never animate), desktop only; on mobile the edge is a clean circle.
+ *   - No mix-blend-mode.
+ */
+interface Props {
+  from: BeltKey;
+  to: BeltKey;
+}
+
+const { from, to } = Astro.props;
+const floods = to === 'negro';
+---
+
+<div
+  class="ink"
+  data-tul-passage
+  data-belt-beat="passage"
+  data-belt={to}
+  data-from={from}
+  style={`--knot-fx:${KNOT_AT.fx};--knot-fy:${KNOT_AT.fy}`}
+  aria-hidden="true"
+>
+  <div class="ink__drawing" data-ink-drawing>
+    <BeltDrawing from={from} to={to} />
+  </div>
+  {floods && (
+    <div class="ink__flood" data-ink-flood>
+      <div class="ink__fill"></div>
+    </div>
+  )}
+</div>
+{floods && (
+  <svg class="ink__defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <filter id="ink-edge" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.011 0.014" numOctaves="3" seed="4" result="noise"></feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="46" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
+    </filter>
+  </svg>
+)}
+
+<style>
+  .ink {
+    --ink-h: 12rem;
+    /* Where the drawn belt knot sits inside the spacer (fractions of its width and height); the inline
+       style of the element sets them from KNOT_AT, these are the safe defaults. */
+    --knot-fx: 0.5;
+    --knot-fy: 0.5;
+    position: relative;
+    height: var(--ink-h);
+    pointer-events: none;
+  }
+
+  .ink__drawing {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  /* Desktop: the 3D belt takes over once it is ready. Until then (or if it never loads) this is the poster. */
+  @media (min-width: 64rem) {
+    :global(html[data-belt3d='ready']) .ink__drawing {
+      display: none;
+    }
+  }
+
+  .ink__defs {
+    position: absolute;
+  }
+
+  .ink__flood {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .ink {
+      --ink-h: 50svh;
+    }
+
+    :global(html.js) .ink__flood {
+      /* 0 until p = 0.2, 1 at p = 0.5. */
+      --f: clamp(0, calc((var(--p, 0) - 0.2) / 0.3), 1);
+      /* Flood centre in viewport coordinates: the 3D knot when published, otherwise the drawn knot. */
+      --cx: var(--knot-x, calc(100vw * var(--knot-fx)));
+      --cy: var(
+        --knot-y,
+        calc(100svh + var(--ink-h) * var(--knot-fy) - var(--p, 0) * (100svh + var(--ink-h)))
+      );
+      position: fixed;
+      /* Bleed past the viewport so the displaced ink edge never shows the layer's own border. */
+      inset: -3rem;
+      z-index: 10;
+      display: block;
+      /* Fully there up to p = 0.5, gone right after: the dark field takes over underneath. */
+      opacity: clamp(0, calc((0.5 - var(--p, 0)) * 1000 + 1), 1);
+    }
+
+    :global(html.js) .ink__fill {
+      position: absolute;
+      inset: 0;
+      background-color: var(--field-dark);
+      clip-path: circle(calc(var(--f) * var(--f) * 150vmax) at calc(var(--cx) + 3rem) calc(var(--cy) + 3rem));
+    }
+  }
+
+  @media (max-width: 47.99rem) and (prefers-reduced-motion: no-preference) {
+    :global(html.js) .ink {
+      --ink-h: 40svh;
+    }
+  }
+
+  /* Ink edge: desktop only. The filter is static; the circle grows under it. */
+  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+    :global(html.js) .ink__flood {
+      filter: url('#ink-edge');
+    }
+  }
+</style>

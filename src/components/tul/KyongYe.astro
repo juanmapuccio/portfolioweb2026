@@ -1,0 +1,409 @@
+---
+import FloorDiagram from './FloorDiagram.astro';
+import { languages, useTranslations, type Lang } from '../../i18n/ui';
+import { contactData } from '../../data/contact';
+import { RETURN_FORM } from '../../data/tuls';
+
+/**
+ * The close, on the white field where the form began. In ITF a tul ends where it started and
+ * Kyong-ye is the bow: one closing line is drawn back to the Joon-bi footprints of the hero.
+ * The scene is pinned only when JS runs and motion is allowed; the contact content is always
+ * in the DOM and fully visible, the line is only the gesture.
+ */
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'es' } = Astro.props;
+const t = useTranslations(lang);
+
+const content = contactData[lang];
+const primary = content.channels.find((c) => c.id === 'email') ?? content.channels[0];
+const localePaths: Record<Lang, string> = { es: '/', en: '/en/', pt: '/pt/' };
+
+// One stroke weight for all channel icons (24 grid, square caps).
+const ICONS: Record<string, string> = {
+  whatsapp: 'M4 20L5.3 15.6A8.2 8.2 0 1 1 8.5 18.7Z M9 9.5C9 13 11 15 14.5 15',
+  email: 'M3 6H21V18H3Z M3 6L12 13L21 6',
+  linkedin: 'M3 3H21V21H3Z M8 10.5V17 M8 7V7.5 M12 17V10.5 M12 13.5A3 3 0 0 1 18 13.5V17',
+  github: 'M5 3H9V7H5Z M5 17H9V21H5Z M15 9H19V13H15Z M7 7V17 M7 11H15',
+  nodosur: 'M5 18L12 6L19 18Z M5 18H19'
+};
+const isExternal = (url: string) => url.startsWith('https:');
+---
+
+<section
+  id="contacto"
+  class="ky"
+  data-belt="negro"
+  data-form-label={t('tul.close.label')}
+  aria-labelledby="contacto-title"
+>
+  <div class="ky__scene" data-tul-scene style="--n:2">
+    <div class="ky__stage">
+      <div class="ky__copy">
+        <h2 id="contacto-title" class="ky__title grade-type">{content.title}</h2>
+        <p class="ky__pitch">{content.subtitle}</p>
+        <p class="ky__avail">{t('tul.hero.availability')}</p>
+        <a class="ky__cta" href={primary.url}>
+          <span>{t('tul.close.cta')}</span>
+          <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+            <path d="M3 10H16M11 5L16 10L11 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"></path>
+          </svg>
+        </a>
+      </div>
+
+      <figure class="ky__map">
+        <div class="ky__fig">
+          <FloorDiagram form={RETURN_FORM} progress tatami readyLabel={t('tul.close.ready')} />
+        </div>
+        <figcaption class="ky__cap">
+          <span class="ky__capname">{t('tul.close.label')} · {t('tul.close.ready')}</span>
+          <span class="ky__capnote">{t('tul.close.note')}</span>
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <div class="ky__after">
+    <nav aria-label={t('tul.close.channels')}>
+      <ul class="ky__channels">
+        {content.channels.map((c) => (
+          <li>
+            <a
+              class="ky__chan"
+              href={c.url}
+              target={isExternal(c.url) ? '_blank' : undefined}
+              rel={isExternal(c.url) ? 'noopener' : undefined}
+              data-channel={c.id}
+            >
+              <svg class="ky__icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+                <path d={ICONS[c.id] ?? ICONS.email}></path>
+              </svg>
+              <span class="ky__chan-name">{c.name}</span>
+              <span class="ky__chan-value num">{c.label}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <footer class="ky__colophon">
+      <p class="ky__credit">{t('contact.footer')}</p>
+      <ul class="ky__langs" aria-label={t('tul.lang.label')}>
+        {(Object.keys(languages) as Lang[]).map((code) => (
+          <li>
+            <a href={localePaths[code]} hreflang={code} lang={code} aria-current={code === lang ? 'page' : undefined}>
+              {code.toUpperCase()}
+            </a>
+          </li>
+        ))}
+      </ul>
+      <a class="ky__top" href="#main">{t('tul.close.back')}</a>
+    </footer>
+  </div>
+</section>
+
+<style>
+  /* The section keeps the layout's min-height off: the scene and the content set its height. */
+  .ky {
+    min-height: 0;
+    padding: 0;
+  }
+
+  .ky__scene {
+    position: relative;
+  }
+
+  /* Static state (no JS, reduced motion): natural flow, line fully drawn (--draw unset = 1). */
+  .ky__stage {
+    display: grid;
+    gap: var(--space-m);
+    padding: calc(3rem + var(--space-m)) var(--gutter) var(--space-l);
+  }
+
+  .ky__copy {
+    display: grid;
+    gap: var(--space-s);
+    align-content: start;
+    justify-items: start;
+    min-width: 0;
+  }
+
+  .ky__title {
+    --grade: 0.9;
+    font-size: var(--step-3);
+    letter-spacing: var(--track-display);
+  }
+
+  .ky__pitch {
+    max-width: 52ch;
+    font-size: var(--step-0);
+  }
+
+  .ky__avail {
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  /* The solid ink block of the hero CTA with intelligent micro-interactions. */
+  .ky__cta {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    min-height: 3.5rem;
+    margin-top: var(--space-xs);
+    padding: 0 var(--space-l);
+    border: var(--line-strong) solid var(--ink);
+    background-color: var(--ink);
+    color: var(--field);
+    font-size: var(--step-0);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    box-shadow: 0 4px 14px -2px rgba(11, 26, 43, 0.15);
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out);
+  }
+
+  .ky__cta:hover {
+    background-color: var(--field);
+    color: var(--ink);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -3px rgba(11, 26, 43, 0.22);
+  }
+
+  .ky__cta:hover svg {
+    transform: translateX(4px);
+  }
+
+  .ky__cta:active {
+    background-color: var(--ink-soft);
+    color: var(--field);
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px -2px rgba(11, 26, 43, 0.15);
+  }
+
+  .ky__cta svg {
+    flex: none;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .ky__map {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2xs);
+    margin: 0;
+    min-height: 0;
+  }
+
+  .ky__fig {
+    --ky-h: min(46svh, 22rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: var(--ky-h);
+    min-height: 9rem;
+  }
+
+  /* The box follows the isometric floor (189 x 122): as wide as the figure's height allows, never wider than the column. */
+  .ky__fig :global(.fd) {
+    width: min(100%, calc(var(--ky-h) * 1.55));
+  }
+
+  .ky__cap {
+    display: grid;
+    gap: var(--space-3xs);
+    justify-items: center;
+    max-width: 44ch;
+    text-align: center;
+    font-size: var(--step--1);
+  }
+
+  .ky__capname {
+    font-weight: 700;
+  }
+
+  .ky__capnote {
+    color: var(--ink-soft);
+  }
+
+  /* Content below the scene: channels and colophon. */
+  .ky__after {
+    display: grid;
+    gap: var(--space-2xl);
+    padding: var(--space-xl) var(--gutter) var(--space-2xl);
+    width: 100%;
+    max-width: 76rem;
+    margin-inline: auto;
+  }
+
+  .ky__channels {
+    display: grid;
+    width: 100%;
+    margin-inline: auto;
+    border-bottom: var(--line) solid var(--ink-soft);
+  }
+
+  .ky__chan {
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    grid-template-areas:
+      'icon name'
+      'icon value';
+    column-gap: var(--space-s);
+    row-gap: 0;
+    align-items: center;
+    min-height: 4rem;
+    padding-inline: var(--space-xs);
+    padding-block: var(--space-xs);
+    border-top: var(--line) solid var(--ink-soft);
+    text-decoration: none;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      padding-inline var(--dur-fast) var(--ease-out);
+  }
+
+  .ky__chan:hover {
+    background-color: var(--ink);
+    color: var(--field);
+    padding-inline: var(--space-s);
+  }
+
+  .ky__icon {
+    grid-area: icon;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .ky__chan:hover .ky__icon {
+    transform: scale(1.1);
+  }
+
+  .ky__chan-name {
+    grid-area: name;
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-variation-settings: 'wght' 700, 'wdth' 90;
+    letter-spacing: -0.01em;
+  }
+
+  .ky__chan-value {
+    grid-area: value;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: var(--step--1);
+    opacity: 0.85;
+  }
+
+  .ky__colophon {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-m) var(--space-l);
+    padding-top: var(--space-m);
+    border-top: var(--line-strong) solid var(--ink);
+    font-size: var(--step--1);
+  }
+
+  .ky__credit {
+    flex: 1 1 20rem;
+    line-height: 1.5;
+  }
+
+  .ky__langs {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .ky__langs a,
+  .ky__top {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding-inline: var(--space-2xs);
+    transition: opacity var(--dur-fast) var(--ease-out);
+  }
+
+  .ky__top:hover,
+  .ky__langs a:hover {
+    opacity: 0.7;
+  }
+
+  .ky__langs a[aria-current='page'] {
+    font-weight: 700;
+    text-decoration-thickness: var(--line-strong);
+  }
+
+  /* The footprints are the destination: they stay solid while the line closes the loop. */
+  .ky__map {
+    --ready-o: 1;
+  }
+
+  /* Pinned scene: only when JS runs and motion is allowed. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .ky__scene {
+      height: calc(100svh + var(--n, 2) * 45svh);
+    }
+
+    :global(html.js) .ky__stage {
+      position: sticky;
+      top: 3rem;
+      height: calc(100svh - 3rem);
+      padding-block: var(--space-m) var(--space-s);
+      overflow: hidden;
+    }
+
+    :global(html.js) .ky__fig {
+      flex: 1 1 0;
+      height: auto;
+    }
+  }
+
+  @media (min-width: 62rem) {
+    .ky__stage {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      column-gap: var(--space-xl);
+      align-items: center;
+    }
+
+    .ky__title {
+      font-size: var(--step-4);
+    }
+
+    .ky__fig {
+      --ky-h: min(calc(100svh - 14rem), 38rem);
+    }
+
+    .ky__chan {
+      grid-template-columns: 1.5rem 12rem minmax(0, 1fr);
+      grid-template-areas: 'icon name value';
+    }
+
+    .ky__chan-value {
+      font-size: var(--step-0);
+    }
+
+    .ky__after {
+      padding-block: var(--space-xl);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      :global(html.js) .ky__fig {
+        --ky-h: min(calc(100svh - 12rem), 38rem);
+        flex: none;
+      }
+    }
+  }
+</style>

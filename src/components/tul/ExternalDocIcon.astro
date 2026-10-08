@@ -1,0 +1,33 @@
+---
+/**
+ * "Opens a document elsewhere": a page with a cut corner and an arrow leaving it up and to
+ * the right. Used by every CV link, which opens the Drive file in a new tab. On hover the icon
+ * nudges toward the arrow's direction (transform only, off under reduced motion).
+ */
+---
+
+<svg class="ext-doc" viewBox="0 0 20 20" width="20" height="20" aria-hidden="true" focusable="false">
+  <path
+    d="M2 2H7L11 6V18H2Z M11 12L18 5 M14.5 4H18.5V8"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="square"></path>
+</svg>
+
+<style>
+  .ext-doc {
+    flex: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ext-doc {
+      transition: transform var(--dur-fast) var(--ease-out);
+    }
+
+    :global(a:hover) .ext-doc,
+    :global(a:focus-visible) .ext-doc {
+      transform: translate(2px, -2px);
+    }
+  }
+</style>

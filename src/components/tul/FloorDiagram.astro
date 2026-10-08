@@ -1,0 +1,163 @@
+---
+import type { TulForm } from '../../data/tuls';
+import TatamiIso from './TatamiIso.astro';
+import { diagramPoints, diagramStops, fmt } from './tatamiIso';
+
+/**
+ * The floor of one tul: a container that holds the route for the 3D scene and the isometric SVG fallback.
+ *
+ * - The full diagram (labelled, not compact) carries its route and stops as `data-tatami` (build-time JSON, diagram
+ *   units 0..100). On desktop, and on a phone on demand, the 3D scene (belt3d/tatami.ts) draws that floor as a
+ *   tatami and the isometric SVG steps aside (see the rules at the end). Everywhere else the SVG is the floor:
+ *   TatamiIso.astro projects the same route and stops in isometric at build time.
+ * - `--draw` (0..1) on any ancestor draws the route and shows the stops (see TatamiIso); without it everything is
+ *   fully drawn (no JS and reduced motion).
+ * - Optional `portrait` slot: the hero's photo, a flat plate inside a measuring frame (ticks every 10 units). The
+ *   plate and the frame give way as the floor appears (`--q`).
+ * - Optional `overlay` slot: an in-flow-box overlay inside the diagram box (the hero's 3D belt container).
+ * - Decorative only: the SVGs are aria-hidden, the real content lives in HTML.
+ * - Geometry is design layer, never the technical execution of the form.
+ */
+interface Props {
+  form: TulForm;
+  /** Show the movement number on each post. */
+  labelled?: boolean;
+  /** Mark the diagram as scroll-driven (engine hook, `data-diagram-progress`). */
+  progress?: boolean;
+  /** Mobile minimap: fewer mats, no arrowheads, no numbers. */
+  compact?: boolean;
+  /** Give the 3D scene this route even though the posts carry no numbers (the Kyong-ye return). */
+  tatami?: boolean;
+  /** Short "ready" label drawn on a flag beside the footprints (passed in by the caller). */
+  readyLabel?: string;
+  /** Tooltip text of a position stop in the 3D tatami, keyed by position id. */
+  stopLabels?: Record<string, string>;
+  class?: string;
+}
+
+const { form, labelled = false, progress = false, compact = false, tatami: forScene = false, readyLabel, stopLabels = {}, class: className } = Astro.props;
+const hasPortrait = Astro.slots.has('portrait');
+
+const numbered = labelled && !compact;
+const stops = diagramStops(form);
+// The same route and posts for the 3D tatami (units 0..100, like the SVG).
+const tatami = numbered || (forScene && !compact)
+  ? JSON.stringify({
+      p: diagramPoints(form).map(([x, y]) => [fmt(x), fmt(y)]),
+      s: form.stops.map((stop, i) => ({
+        n: stop.move,
+        x: stops[i].x,
+        y: stops[i].y,
+        t: stop.t,
+        ...(stop.ref.kind === 'position' ? { id: stop.ref.id } : {}),
+        ...(stopLabels[stop.ref.id] ? { l: stopLabels[stop.ref.id] } : {})
+      }))
+    })
+  : undefined;
+const uid = `${form.id}-${compact ? 'c' : 'f'}${hasPortrait ? 'p' : ''}`;
+
+// Measuring frame of the hero portrait: ticks every 10 units, longer at 0, 50 and 100.
+const ticks = Array.from({ length: 11 }, (_, i) => i * 10);
+const tickLen = (v: number) => (v % 50 === 0 ? 4 : 2);
+---
+
+<div class:list={['fd', { 'fd--compact': compact, 'fd--portrait': hasPortrait }, className]} data-tatami={tatami}>
+{hasPortrait && (
+  <>
+    <div class="fd__plate">
+      <slot name="portrait" />
+    </div>
+    <svg class="fd__frame" viewBox="-8 -8 116 122" aria-hidden="true" focusable="false">
+      <rect class="fd-frame" x="0" y="0" width="100" height="100" pathLength="1"></rect>
+      {ticks.map((v) => (
+        <path
+          class="fd-tick"
+          pathLength="1"
+          d={`M${v} 0V${-tickLen(v)} M${v} 100V${100 + tickLen(v)} M0 ${v}H${-tickLen(v)} M100 ${v}H${100 + tickLen(v)}`}
+        ></path>
+      ))}
+      <path class="fd-dim" pathLength="1" d="M0 109H100 M0 106V112 M100 106V112 M3.4 106.8L0 109L3.4 111.2 M96.6 106.8L100 109L96.6 111.2"></path>
+    </svg>
+  </>
+)}
+<TatamiIso
+  form={form}
+  compact={compact}
+  labelled={numbered}
+  progress={progress}
+  readyLabel={numbered ? readyLabel : undefined}
+  portrait={hasPortrait}
+  uid={uid}
+/>
+{Astro.slots.has('overlay') && <slot name="overlay" />}
+</div>
+
+<style>
+  /* Wrapper. The box is reserved by its aspect ratio (no layout shift). Without a portrait it is the projected
+     floor (TatamiIso's view box); with a portrait (hero) it is the flat measuring frame. `container-type` gives
+     the hero belt box its unit. The 3D scene measures this box (tul.ts): its centre and width. */
+  .fd {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 189 / 122;
+    container-type: inline-size;
+    color: var(--belt-line);
+  }
+
+  .fd--portrait {
+    aspect-ratio: 116 / 122;
+  }
+
+  /* Frame rect (0..100) inside the viewBox "-8 -8 116 122". */
+  .fd__plate {
+    position: absolute;
+    left: 6.897%;
+    top: 6.557%;
+    width: 86.207%;
+    height: 81.967%;
+    overflow: hidden;
+  }
+
+  /* The flat frame gives way to the floor with the portrait (--q 0.3 to 1; the plate fades in HeroJoonbi). */
+  .fd__frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    fill: none;
+    pointer-events: none;
+    opacity: clamp(0, calc(1 - (var(--q, 0) - 0.3) * 1.6), 1);
+  }
+
+  .fd-frame,
+  .fd-tick,
+  .fd-dim {
+    stroke: var(--ink-soft);
+    stroke-width: 0.4;
+  }
+
+  /* The 3D tatami is drawn for this scene: its isometric floor steps aside as soon as the scene marks it live
+     ([data-tatami-live], desktop and the phone's "Ver en 3D"), whatever the tatami's opacity is, so the two are
+     never drawn together. The portrait plate of the hero is not part of the SVG and stays. */
+  :global(html[data-belt3d='ready'] [data-tatami-live]) .fd:not(.fd--compact) :global(.tatami-iso) {
+    visibility: hidden;
+  }
+
+  /* Intro: the measuring frame draws itself in. The class is removed once the intro ends. */
+  :global(html.tul-intro) .fd-frame,
+  :global(html.tul-intro) .fd-tick,
+  :global(html.tul-intro) .fd-dim {
+    stroke-dasharray: 1 2;
+    animation: fd-draw 1.1s var(--ease-out) 0.35s both;
+  }
+
+  @keyframes fd-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+</style>

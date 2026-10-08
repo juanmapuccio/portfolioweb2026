@@ -22,8 +22,6 @@ describe('data/contact', () => {
         expect(data.title.length).toBeGreaterThan(0);
         expect(data.subtitle.length).toBeGreaterThan(0);
         expect(data.ctaButtonText.length).toBeGreaterThan(0);
-        expect(data.statusText.length).toBeGreaterThan(0);
-        expect(data.locationText.length).toBeGreaterThan(0);
       });
 
       it('has at least one contact channel with exactly one primary', () => {

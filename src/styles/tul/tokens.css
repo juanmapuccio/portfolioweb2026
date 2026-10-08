@@ -1,0 +1,189 @@
+/*
+ * Tul diagram tokens.
+ * The page is one white field with dark ink from the white belt to the red one. At 1st dan the field
+ * flips once to black (see [data-field="dark"] below); that is the only change of field. Belt colours
+ * never fill a surface: any element with data-belt="<key>" only exposes that belt as drawn details.
+ *   --belt-fill  the real belt colour, for fills that always carry an ink outline.
+ *   --belt-line  a stroke colour that holds 3:1 on the field (also safe for text where noted in tests).
+ *   --belt-key   inner keyline of the belt mark: transparent, light only on the black belt.
+ *   --grade      0..1 rank for the grade type.
+ * Values are hex so tests/tul-tokens.test.ts can parse and check contrast.
+ */
+
+:root {
+  --field: #f3f8fd;
+  --ink: #0b1a2b;
+  --ink-soft: #41546b;
+  /* Without a data-belt ancestor the accent is the blanco one. */
+  --belt-fill: #ffffff;
+  --belt-line: #41546b;
+  --belt-key: transparent;
+  --grade: 0;
+
+  /* The black field of 1st dan. [data-field="dark"] points the page tokens at these. */
+  --field-dark: #0a0d11;
+  --ink-dark: #f1eee8;
+  --ink-soft-dark: #aab0b8;
+  /* Warm light grey: strokes and the title ink on black (3:1 and up). */
+  --line-dark: #c8c1b6;
+}
+
+[data-belt="blanco"] {
+  --belt-fill: #ffffff;
+  --belt-line: #41546b;
+  --belt-key: transparent;
+  --grade: 0;
+}
+
+[data-belt="amarillo"] {
+  --belt-fill: #f4c62b;
+  --belt-line: #8a6700;
+  --belt-key: transparent;
+  --grade: 0.2;
+}
+
+[data-belt="verde"] {
+  --belt-fill: #1d6a44;
+  --belt-line: #1d6a44;
+  --belt-key: transparent;
+  --grade: 0.4;
+}
+
+[data-belt="azul"] {
+  --belt-fill: #1d4a99;
+  --belt-line: #1d4a99;
+  --belt-key: transparent;
+  --grade: 0.6;
+}
+
+[data-belt="rojo"] {
+  --belt-fill: #b3312a;
+  --belt-line: #b3312a;
+  --belt-key: transparent;
+  --grade: 0.8;
+}
+
+/* The black belt always sits on the black field (flood, or CSS fallback), so its line is the light one. */
+[data-belt="negro"] {
+  --belt-fill: #111418;
+  --belt-line: var(--line-dark);
+  --belt-key: #cfd6de;
+  --grade: 1;
+}
+
+/*
+ * Dark field. tul.ts sets html[data-field="dark"] once the black flood has covered the screen (the
+ * red to black passage at p >= 0.5) and removes it when scrolling back. Only the four page tokens
+ * invert; no belt tints anything. Text is >= 4.5:1, strokes >= 3:1 (tests/tul-tokens.test.ts).
+ * Without JS, or with reduced motion, nothing sets it: base.css gives the black chapter and what
+ * follows these same tokens directly.
+ */
+[data-field="dark"] {
+  --field: var(--field-dark);
+  --ink: var(--ink-dark);
+  --ink-soft: var(--ink-soft-dark);
+  --belt-line: var(--line-dark);
+  color-scheme: dark;
+}
+
+/* Scales */
+
+:root {
+  /* Typefaces */
+  --font-display: 'Archivo Variable', 'Archivo Fallback', system-ui, sans-serif;
+  --font-body: 'Atkinson Hyperlegible Next Variable', 'Atkinson Fallback', system-ui, sans-serif;
+
+  /* Spacing */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-s: 1rem;
+  --space-m: 1.5rem;
+  --space-l: 2.5rem;
+  --space-xl: 4rem;
+  --space-2xl: 6rem;
+  --space-3xl: 10rem;
+  --gutter: clamp(1rem, 0.5rem + 2.5vw, 2.5rem);
+  /* The right-hand column the chapters reserve for the 3D belt at 1024 px and up (TulChapter.astro). */
+  --belt-col: clamp(8.5rem, 15vw, 17rem);
+
+  /* Fluid type scale (display tops out at 6rem) */
+  --step--1: clamp(0.8125rem, 0.78rem + 0.15vw, 0.9rem);
+  --step-0: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --step-1: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
+  --step-2: clamp(1.5rem, 1.3rem + 1vw, 2.125rem);
+  --step-3: clamp(2rem, 1.6rem + 2vw, 3.25rem);
+  --step-4: clamp(2.75rem, 2rem + 3.75vw, 4.75rem);
+  --step-display: clamp(3.25rem, 2rem + 6vw, 6rem);
+  --track-display: -0.03em;
+  --measure: 68ch;
+
+  /* Diagram lines */
+  --line: 1px;
+  --line-strong: 2px;
+
+  /* Motion: one exponential ease-out */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 160ms;
+  --dur: 420ms;
+}
+
+/*
+ * Grade type: the name gets heavier and more condensed with rank.
+ * wght 400 -> 800, wdth 112 -> 75 as --grade goes 0 -> 1.
+ */
+.grade-type {
+  font-family: var(--font-display);
+  font-variation-settings:
+    'wght' calc(400 + 400 * var(--grade, 0)),
+    'wdth' calc(112 - 37 * var(--grade, 0));
+}
+
+/* Tabular numerals for dates and numbers */
+.num,
+time,
+[data-num] {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+}
+
+/* The fixed header sits outside every chapter: it takes the active belt from the root attribute. */
+html[data-active-belt='blanco'] .tul-header {
+  --belt-fill: #ffffff;
+  --belt-line: #41546b;
+  --belt-key: transparent;
+}
+
+html[data-active-belt='amarillo'] .tul-header {
+  --belt-fill: #f4c62b;
+  --belt-line: #8a6700;
+  --belt-key: transparent;
+}
+
+html[data-active-belt='verde'] .tul-header {
+  --belt-fill: #1d6a44;
+  --belt-line: #1d6a44;
+  --belt-key: transparent;
+}
+
+html[data-active-belt='azul'] .tul-header {
+  --belt-fill: #1d4a99;
+  --belt-line: #1d4a99;
+  --belt-key: transparent;
+}
+
+html[data-active-belt='rojo'] .tul-header {
+  --belt-fill: #b3312a;
+  --belt-line: #b3312a;
+  --belt-key: transparent;
+}
+
+/* At 1st dan the header is on black even when nothing flipped the root (reduced motion). */
+html[data-active-belt='negro'] .tul-header {
+  --belt-fill: #111418;
+  --belt-line: var(--line-dark);
+  --belt-key: #cfd6de;
+  --field: var(--field-dark);
+  --ink: var(--ink-dark);
+  --ink-soft: var(--ink-soft-dark);
+}

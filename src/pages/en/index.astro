@@ -1,5 +1,34 @@
 ---
-import HomePage from '../../components/HomePage.astro';
+import TulChapter from '../../components/tul/TulChapter.astro';
+import ExperiencePanel from '../../components/tul/ExperiencePanel.astro';
+import InkPassage from '../../components/tul/InkPassage.astro';
+import Principles from '../../components/tul/Principles.astro';
+import TechSheet from '../../components/tul/TechSheet.astro';
+import KyongYe from '../../components/tul/KyongYe.astro';
+import HeroJoonbi from '../../components/tul/HeroJoonbi.astro';
+import TulLayout from '../../layouts/TulLayout.astro';
+import { useTranslations } from '../../i18n/ui';
+
+const t = useTranslations('en');
 ---
 
-<HomePage lang="en" />
+<TulLayout lang="en" title={t('meta.title')} description={t('meta.description')}>
+  <main id="main">
+    <HeroJoonbi lang="en" />
+    <TulChapter lang="en" beltKey="blanco" />
+    <InkPassage from="blanco" to="amarillo" />
+    <TulChapter lang="en" beltKey="amarillo" />
+    <InkPassage from="amarillo" to="verde" />
+    <TulChapter lang="en" beltKey="verde" />
+    <InkPassage from="verde" to="azul" />
+    <TulChapter lang="en" beltKey="azul" />
+    <InkPassage from="azul" to="rojo" />
+    <TulChapter lang="en" beltKey="rojo" />
+    <InkPassage from="rojo" to="negro" />
+    <TulChapter lang="en" beltKey="negro" />
+    <Principles lang="en" />
+    <TechSheet lang="en" />
+    <KyongYe lang="en" />
+  </main>
+  <ExperiencePanel lang="en" />
+</TulLayout>

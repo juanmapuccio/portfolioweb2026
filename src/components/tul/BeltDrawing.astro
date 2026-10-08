@@ -1,0 +1,201 @@
+---
+import type { BeltKey } from '../../data/tuls';
+import {
+  BAND,
+  BAND_EDGES,
+  BAND_STITCHES,
+  CREASES,
+  FRAYS,
+  GOLD_BAR,
+  GOLD_STITCHES,
+  KNOT,
+  OUTLINES,
+  SHADES,
+  TAILS,
+  TAIL_STITCHES,
+  VIEW
+} from './beltDrawing';
+
+/**
+ * A detailed technical drawing of a tied belt, like a figure in a uniform manual. It is the mobile
+ * stand-in for the 3D belt and the poster when 3D is not available on desktop.
+ *
+ * Detail: a band with rows of stitching (pespunte) and a fine weave, a square knot with fold shade and
+ * creases, a strap across the knot, two tails with cut and frayed ends. The knot is at the exact centre
+ * of the drawing box (KNOT_AT in beltDrawing.ts), which is where the black flood starts on mobile.
+ *
+ * Colour: the fill is `--belt-fill` of the belt (the drawing carries two fills, `from` and `to`, each in
+ * its own data-belt group); lines are `--ink` and `--ink-soft`, so on the black field they turn light.
+ * The 1st dan belt (`to === 'negro'`) adds gold embroidery: a bar near the end of the tail and a stitch line.
+ *
+ * Motion (src/scripts/beltDrawing.ts, scrubbed by the passage's `--p`): the belt unties (the knot and tail
+ * outlines are erased by DrawSVG and their fills fade), the band's fill moves to the next belt colour as
+ * a wipe, and the belt ties again. Static state (no JS, reduced motion): the finished `to` belt, complete.
+ * The `from` layer is hidden by default and only the engine reveals it.
+ *
+ * Hooks for the engine: [data-belt-drawing], [data-bd-from], [data-bd-band-to], [data-bd-kt-from],
+ * [data-bd-kt-to], [data-bd-detail], [data-bd-draw], [data-bd-gold]. Gold is #c9a227 (also in the CSS below).
+ */
+interface Props {
+  from: BeltKey;
+  to: BeltKey;
+}
+
+const { from, to } = Astro.props;
+const id = `bd-${from}-${to}`;
+const dan = to === 'negro';
+---
+
+<svg
+  class="bd"
+  data-belt-drawing
+  viewBox={`0 0 ${VIEW.w} ${VIEW.h}`}
+  width={VIEW.w}
+  height={VIEW.h}
+  aria-hidden="true"
+  focusable="false"
+>
+  <defs>
+    <pattern id={`${id}-weave`} width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <path d="M0 2.5H5" class="bd__thread"></path>
+      <path d="M2.5 0V5" class="bd__thread bd__thread--weft"></path>
+    </pattern>
+    <g id={`${id}-band`}><path d={BAND}></path></g>
+    <g id={`${id}-kt`}>
+      {KNOT.map((d) => <path d={d}></path>)}
+      {TAILS.map((d) => <path d={d}></path>)}
+    </g>
+  </defs>
+
+  <!-- Fills. The `from` belt is only for the scrubbed state; `to` is the finished belt. -->
+  <g class="bd__layer bd__layer--from" data-belt={from} data-bd-from>
+    <use href={`#${id}-band`}></use>
+    <use href={`#${id}-kt`} data-bd-kt-from></use>
+  </g>
+  <g class="bd__layer" data-belt={to}>
+    <use href={`#${id}-band`} data-bd-band-to></use>
+    <use href={`#${id}-kt`} data-bd-kt-to></use>
+  </g>
+
+  <!-- Weave over every fill. -->
+  <g>
+    <use href={`#${id}-band`} fill={`url(#${id}-weave)`}></use>
+  </g>
+
+  <!-- Detail that belongs to the knot and the tails: it goes with them when the belt unties. -->
+  <g data-bd-detail>
+    <use href={`#${id}-kt`} fill={`url(#${id}-weave)`}></use>
+    {SHADES.map((d) => <path class="bd__shade" d={d}></path>)}
+    {CREASES.map((d) => <path class="bd__crease" d={d}></path>)}
+    {TAIL_STITCHES.map((d) => <path class="bd__stitch" d={d}></path>)}
+    {FRAYS.map((d) => <path class="bd__fray" d={d}></path>)}
+    <path class="bd__key" d="M208 103L240 96L272 103L271 156L240 163L209 156Z M240 96V163"></path>
+  </g>
+
+  <!-- The band keeps its stitching and its edges all the time. -->
+  <g>
+    {BAND_STITCHES.map((d) => <path class="bd__stitch" d={d}></path>)}
+    <path class="bd__line" d={BAND_EDGES}></path>
+  </g>
+
+  <!-- Outlines of the knot and tails: erased and drawn again by DrawSVG. -->
+  <g>
+    {OUTLINES.map((d) => <path class="bd__line" data-bd-draw d={d}></path>)}
+  </g>
+
+  {dan && (
+    <g data-bd-gold>
+      <path class="bd__gold" d={GOLD_BAR}></path>
+      {GOLD_STITCHES.map((d) => <path class="bd__goldstitch" d={d}></path>)}
+    </g>
+  )}
+</svg>
+
+<style>
+  /* Static (no JS, reduced motion): the spacer is 12rem tall, the drawing fits in it. */
+  .bd {
+    display: block;
+    width: min(22rem, calc(100% - 2 * var(--gutter)));
+    height: auto;
+    aspect-ratio: 480 / 260;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .bd {
+      width: min(30rem, calc(100% - 2 * var(--gutter)));
+    }
+  }
+
+  .bd__layer {
+    fill: var(--belt-fill);
+  }
+
+  /* Without the engine only the finished belt shows. */
+  .bd__layer--from {
+    opacity: 0;
+  }
+
+  .bd__thread {
+    stroke: var(--ink);
+    stroke-opacity: 0.2;
+    stroke-width: 0.7;
+  }
+
+  .bd__thread--weft {
+    stroke-opacity: 0.1;
+    stroke-width: 0.5;
+  }
+
+  .bd__shade {
+    fill: var(--ink);
+    fill-opacity: 0.17;
+  }
+
+  .bd__line {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+
+  .bd__crease {
+    fill: none;
+    stroke: var(--ink);
+    stroke-opacity: 0.55;
+    stroke-width: 1;
+    stroke-linecap: round;
+  }
+
+  /* Thread: a lighter tone of the belt's own colour, as on the real cloth. */
+  .bd__stitch {
+    fill: none;
+    stroke: color-mix(in srgb, var(--belt-fill) 45%, var(--field));
+    stroke-width: 1.3;
+  }
+
+  /* Light keyline on the knot, only visible on the black belt (token --belt-key, transparent elsewhere). */
+  .bd__key {
+    fill: none;
+    stroke: var(--belt-key, transparent);
+    stroke-width: 1;
+  }
+
+  .bd__fray {
+    fill: none;
+    stroke: var(--ink);
+    stroke-opacity: 0.8;
+    stroke-width: 0.9;
+    stroke-linecap: round;
+  }
+
+  .bd__gold {
+    fill: #c9a227;
+  }
+
+  .bd__goldstitch {
+    fill: none;
+    stroke: #c9a227;
+    stroke-width: 1.8;
+  }
+</style>

@@ -1,0 +1,1033 @@
+---
+import FloorDiagram from './FloorDiagram.astro';
+import BeltMark from './BeltMark.astro';
+import { useTranslations, type Lang } from '../../i18n/ui';
+import { BELTS, martialExperienceData } from '../../data/martialExperience';
+import { automationsContent, projectsContent } from '../../data/projects';
+import { getTulChapter, type BeltKey } from '../../data/tuls';
+
+/**
+ * One belt chapter, told as the floor diagram of its tul.
+ *
+ * Each scene is tall (100svh plus 45svh per stop) and holds one pinned stage: chapter head,
+ * the compact milestone list and the diagram, all visible together. Scrolling only advances
+ * `--p` / `--draw` (written by the engine on the scene); each row lights up (CSS only) once
+ * the drawn line passes the row's `--t`. Without JS or with reduced motion nothing is pinned,
+ * `--draw` is unset or 1, so everything is visible, in natural flow, fully drawn.
+ *
+ * Red belt: a second pinned stage after the milestones, "friction to code". On desktop it is a tatami beat: the
+ * floor of the red route sits under the steps and the 3D camera drops to floor level and travels the route
+ * (`data-tatami-low`); the isometric floor is its fallback.
+ * Black belt: an opening NodoSur frame, then one pinned sub-scene per tul/product, then the closing outro (its
+ * pinned line moves the resting belt: it rises, turns slowly and fades, `data-belt-outro`).
+ *
+ * Pins (JS, motion, 62rem and up): the stage sticks. Below that width nothing is pinned: only the figure (the
+ * isometric floor) sticks, about 45svh, while the copy scrolls normally under it (no inner scroller), and the
+ * scene's `--p` still draws the route and lights the rows.
+ */
+interface Props {
+  lang?: Lang;
+  beltKey: BeltKey;
+}
+
+const { lang = 'es', beltKey } = Astro.props;
+const t = useTranslations(lang);
+
+/** The hero already draws this share of the first tul; the white chapter continues from it. */
+const HERO_DRAW_END = 0.25;
+
+const content = martialExperienceData[lang];
+const stage = content.stages.find((s) => s.beltKey === beltKey);
+const chapter = getTulChapter(beltKey);
+if (!stage || !chapter) throw new Error(`TulChapter: unknown belt "${beltKey}"`);
+
+const belt = BELTS[beltKey];
+const isBlack = beltKey === 'negro';
+const mainForm = chapter.forms[0];
+const projects = projectsContent[lang];
+
+const positionById = new Map(stage.positions.map((p) => [p.id, p]));
+
+interface Row {
+  id: string;
+  t: number;
+  move?: number;
+  position: (typeof stage.positions)[number];
+}
+
+// Milestone rows come from the tul stops. The black belt's only row is the NodoSur frame.
+const rows: Row[] = [];
+if (isBlack) {
+  if (chapter.frame?.kind === 'position') {
+    const position = positionById.get(chapter.frame.id);
+    if (position) rows.push({ id: position.id, t: 0, position });
+  }
+} else {
+  for (const stop of mainForm.stops) {
+    if (stop.ref.kind !== 'position') continue;
+    const position = positionById.get(stop.ref.id);
+    if (position) rows.push({ id: position.id, t: stop.t, move: stop.move, position });
+  }
+}
+
+// Tooltip text of each stop in the 3D tatami: role and organisation of a position.
+const stopLabels = Object.fromEntries(rows.map((row) => [row.id, `${row.position.role} · ${row.position.org}`]));
+
+const frameProject = isBlack ? projects.find((p) => p.id === 'nodosur') : undefined;
+
+const passages = isBlack
+  ? chapter.forms.flatMap((form) => {
+      const ref = form.stops[0]?.ref;
+      const project = ref ? projects.find((p) => p.id === ref.id) : undefined;
+      return ref && project ? [{ form, id: ref.id, project }] : [];
+    })
+  : [];
+
+const automation = beltKey === 'rojo' ? automationsContent[lang] : undefined;
+// The black belt's opening frame is plain flow; every other main scene is scrubbed and pinned.
+const mainScene: Record<string, string | number> = isBlack
+  ? {}
+  : {
+      'data-tul-scene': '',
+      'data-p-from': beltKey === 'blanco' ? HERO_DRAW_END : 0,
+      'data-p-to': 1
+    };
+const stepsCount = Math.max(rows.length, 2);
+
+const autoSteps = [
+  t('tul.auto.in'),
+  t('tul.auto.step1'),
+  t('tul.auto.step2'),
+  t('tul.auto.step3'),
+  t('tul.auto.out')
+];
+const AUTO_T = autoSteps.map((_, i) => Number(((i + 1) / (autoSteps.length + 1)).toFixed(3)));
+
+const tulLabel = (grade: string) => t('tul.chapter.tulLabel').replace('{grade}', grade);
+// Black belt passages are all 1st dan: "Tul 1º dan" plus the position in the series.
+const passageLabel = (i: number) =>
+  `${tulLabel(belt.gup)} · ${t('tul.chapter.passageOf').replace('{n}', String(i + 1)).replace('{total}', String(passages.length))}`;
+const caption = (label: string, movements: number) =>
+  `${label} · ${t('tul.chapter.diagram')} · ${movements} ${t('tul.chapter.movements')}`;
+---
+
+<section
+  id={beltKey}
+  class:list={['tc', { 'tc--black': isBlack }]}
+  data-belt={beltKey}
+  data-belt-beat="travel"
+  aria-labelledby={`${beltKey}-title`}
+>
+  <div class:list={['tc__scene', { 'tc__scene--pin': !isBlack }]} style={`--n:${stepsCount}`} {...mainScene}>
+    <div class="tc__stage">
+      <div class:list={['tc__side', { 'tc__side--map': !isBlack }]}>
+        {!isBlack ? (
+          <figure class="tc__map">
+            <div class="tc__fig tc__fig--full">
+              <FloorDiagram form={mainForm} labelled progress stopLabels={stopLabels} />
+            </div>
+            <div class="tc__fig tc__fig--mini">
+              <FloorDiagram form={mainForm} compact progress />
+            </div>
+            <figcaption class="tc__cap">{caption(tulLabel(belt.gup), mainForm.movements)}</figcaption>
+          </figure>
+        ) : (
+          <nav class="tc__passages" aria-label={t('tul.chapter.passages')}>
+            <ul>
+              {passages.map((p, i) => (
+                <li>
+                  <a href={`#${p.id}`}>
+                    <span class="tc__passage-form">{passageLabel(i)}</span>
+                    <span class="tc__passage-name">{p.project.name}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+      </div>
+
+      <div class="tc__copy">
+        <header class="tc__head">
+          <div class="tc__titlewrap" data-split-title>
+            <h2 id={`${beltKey}-title`} class="tc__title grade-type">{stage.title}</h2>          </div>
+          <div class="tc__id">
+            <div class="tc__seal">
+              <BeltMark beltKey={beltKey} animate title={belt.beltName[lang]} />
+            </div>
+            <div class="tc__idtext">
+              <p class="tc__meta">
+                <span class="num">{belt.gup}</span> · {belt.beltName[lang]} · <span class="num">{stage.years}</span>
+              </p>
+              <p class="tc__line">{stage.line}</p>
+            </div>
+          </div>
+          <p class="tc__lede">{stage.lede}</p>
+        </header>
+
+        <ol class="tc__list" aria-labelledby={`${beltKey}-title`}>
+          {rows.map((row, i) => (
+            <li class="ms" id={row.id} data-stop={row.id} style={`--t:${row.t};--tn:${rows[i + 1]?.t ?? 9}`}>
+              <span class:list={['ms__mark', { 'ms__mark--none': !row.move }]} aria-hidden="true">{row.move ?? ''}</span>
+              <span class="ms__date num">{row.position.dates}</span>
+              <span class="ms__role" data-text={row.position.role}><span class="ms__role-text">{row.position.role}</span></span>
+              <span class="ms__org">{row.position.org}</span>
+              <div class="ms__extra">
+                <details class="ms__more">
+                  <summary>{t('tul.chapter.more')}</summary>
+                  <p class="ms__teaser">{row.position.teaser}</p>
+                  {row.position.description !== row.position.teaser && <p>{row.position.description}</p>}
+                  {row.position.transferableCompetency && (
+                    <p class="ms__comp">
+                      <strong>{content.competencyLabel}</strong> {row.position.transferableCompetency}
+                    </p>
+                  )}
+                </details>
+                <button
+                  type="button"
+                  class="ms__open"
+                  data-exp-open={row.id}
+                  aria-haspopup="dialog"
+                  aria-label={`${t('tul.chapter.more')}: ${row.position.role}`}
+                >{t('tul.chapter.more')}</button>
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        {frameProject && (
+          <div class="tc__frame">
+            <ul class="tc__tech" aria-label={t('tul.project.stack')}>
+              {frameProject.tech.map((item) => <li>{item}</li>)}
+            </ul>
+            <a class="tc__visit" href={frameProject.url} target="_blank" rel="noopener">{frameProject.name} · {t('tul.project.visit')}</a>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+
+  {automation && (
+    <aside
+      class="tc__scene tc__scene--pin"
+      style="--n:3"
+      data-tul-scene
+      data-tatami-low
+      data-p-from="0"
+      data-p-to="1"
+      aria-labelledby="auto-title"
+    >
+      <div class="tc__stage auto">
+        <div class="auto__copy">
+          <h3 id="auto-title" class="auto__title">{t('tul.auto.title')}</h3>
+          <p class="auto__name">{automation.bot1Title}</p>
+          <p class="auto__desc">{automation.bot1Desc}</p>
+          <p class="auto__metric">{automation.bot1Metric}</p>
+        </div>
+        <div class="auto__side">
+          <ul class="auto__flow">
+            {autoSteps.map((label, i) => (
+              <li class="auto__step" style={`--t:${AUTO_T[i]}`}>
+                <span class="auto__num num" aria-hidden="true">{i + 1}</span>
+                <span>{label}</span>
+              </li>
+            ))}
+          </ul>
+          <div class="auto__map" data-tatami-box aria-hidden="true">
+            <FloorDiagram form={mainForm} labelled progress stopLabels={stopLabels} />
+          </div>
+        </div>
+      </div>
+    </aside>
+  )}
+
+  {passages.map((p, i) => (
+    <article
+      id={p.id}
+      class="tc__scene tc__scene--pin tc__sub"
+      style="--n:3"
+      data-tul-scene
+      data-form-label={p.project.name}
+      data-form={p.form.id}
+      aria-labelledby={`${p.id}-title`}
+    >
+      <div class="tc__stage">
+        <div class="tc__side tc__side--map">
+          <figure class="tc__map">
+            <div class="tc__fig tc__fig--full">
+              <FloorDiagram form={p.form} labelled progress stopLabels={{ [p.id]: p.project.name }} />
+            </div>
+            <div class="tc__fig tc__fig--mini">
+              <FloorDiagram form={p.form} compact progress />
+            </div>
+            <figcaption class="tc__cap">{caption(tulLabel(belt.gup), p.form.movements)}</figcaption>
+          </figure>
+        </div>
+
+        <div class="tc__copy tc__beats">
+          <div class="tc__beat" style="--t:0.05">
+            <h3 id={`${p.id}-title`} class="tc__project grade-type">{p.project.name}</h3>
+            <p class="tc__meta">{passageLabel(i)} · {p.project.role}</p>
+            <p class="tc__text">{p.project.description}</p>
+          </div>
+          <div class="tc__beat" style="--t:0.35">
+            <dl class="tc__facts">
+              <dt>{t('tul.project.problem')}</dt>
+              <dd>{p.project.problem}</dd>
+              <dt>{t('tul.project.solution')}</dt>
+              <dd>{p.project.solution}</dd>
+              <dt>{t('tul.project.impact')}</dt>
+              <dd>{p.project.impact}</dd>
+            </dl>
+          </div>
+          <div class="tc__beat" style="--t:0.65">
+            <ul class="tc__tech" aria-label={t('tul.project.stack')}>
+              {p.project.tech.map((item) => <li>{item}</li>)}
+            </ul>
+            {p.project.url && (
+              <a class="tc__visit" href={p.project.url} target="_blank" rel="noopener">{p.project.name} · {t('tul.project.visit')}</a>
+            )}
+          </div>
+        </div>
+      </div>
+    </article>
+  ))}
+
+  {isBlack && stage.closing && (
+    <div
+      class="tc__scene tc__scene--pin tc__outro"
+      style="--n:1"
+      data-tul-scene
+      data-belt-outro
+    >
+      <div class="tc__stage tc__stage--closing">
+        <p class="tc__closing grade-type">{stage.closing}</p>
+      </div>
+    </div>
+  )}
+</section>
+
+<style>
+  .tc {
+    position: relative;
+    padding: 0;
+  }
+
+  .tc__scene {
+    position: relative;
+  }
+
+  /* Stage: head, list and diagram together. Static flow by default (no JS, reduced motion). */
+  .tc__stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 3rem var(--gutter) var(--space-l);
+  }
+
+  .tc__side {
+    grid-row: 1;
+    align-self: start;
+    background-color: var(--field);
+    padding-block: var(--space-xs);
+  }
+
+  .tc__side--map {
+    border-bottom: var(--line) solid var(--ink-soft);
+  }
+
+  .tc__copy {
+    grid-row: 2;
+    min-width: 0;
+  }
+
+  .tc__map {
+    --ready-o: clamp(0, calc((0.12 - var(--draw, 1)) * 24), 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3xs);
+    margin: 0;
+  }
+
+  .tc__fig--full {
+    display: none;
+  }
+
+  .tc__fig--mini {
+    display: flex;
+    justify-content: center;
+    height: calc(26svh - 1.6rem);
+    min-height: 7rem;
+  }
+
+  .tc__fig--mini :global(.fd) {
+    width: auto;
+    height: 100%;
+  }
+
+  .tc__cap {
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  /* Head */
+
+  .tc__head {
+    display: grid;
+    gap: var(--space-xs);
+    padding-block: var(--space-s) var(--space-xs);
+  }
+
+  .tc__title {
+    font-size: var(--tc-fs);
+    letter-spacing: var(--track-display);
+    line-height: 0.98;
+    overflow-wrap: break-word;
+  }
+
+  /* Title reveal: with motion the letters rise out of a SplitText mask (src/scripts/titleReveal.ts).
+     Default and reduced motion: the plain visible h2. */
+  .tc__titlewrap {
+    --tc-fs: var(--step-3);
+    position: relative;
+  }
+
+  /* Grade seal: the box is reserved (no layout shift), the belt mark fills it. */
+  .tc__id {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-s);
+  }
+
+  .tc__seal {
+    width: 4.5rem;
+    aspect-ratio: 120 / 88;
+    position: relative;
+  }
+
+  .tc__seal :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .tc__idtext {
+    display: grid;
+    gap: var(--space-2xs);
+    min-width: 0;
+  }
+
+  .tc__meta {
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-size: var(--step--1);
+    font-variation-settings: 'wght' 560, 'wdth' 90;
+  }
+
+  .tc__line {
+    max-width: 34ch;
+    font-size: var(--step-0);
+    line-height: 1.25;
+    font-weight: 500;
+  }
+
+  .tc__lede {
+    max-width: 50ch;
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+    line-height: 1.45;
+  }
+
+  /* Milestone rows: fixed columns, the same in every chapter. */
+
+  .ms {
+    --on: clamp(0, calc((var(--draw, 1) - var(--t, 0)) * 24), 1);
+    --cur: 1;
+    display: grid;
+    grid-template-columns: 1.75rem 5.5rem minmax(0, 1fr);
+    grid-template-areas:
+      'mark date role'
+      'mark date org'
+      '. extra extra';
+    align-items: start;
+    column-gap: var(--space-xs);
+    row-gap: var(--space-3xs);
+    padding-block: var(--space-s) var(--space-xs);
+    border-bottom: var(--line) solid color-mix(in srgb, var(--ink-soft) 40%, transparent);
+    color: color-mix(in srgb, var(--ink) calc(var(--on) * 100%), var(--ink-soft));
+  }
+
+  .ms__mark {
+    grid-area: mark;
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: var(--line-strong) solid currentColor;
+    border-radius: 50%;
+    border-color: color-mix(in srgb, var(--belt-line) calc(var(--on) * 100%), var(--ink-soft));
+    background-color: color-mix(in srgb, var(--belt-line) calc(var(--on) * 100%), transparent);
+    color: color-mix(in srgb, #ffffff calc(var(--on) * 100%), var(--ink-soft));
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums lining-nums;
+    line-height: 1;
+  }
+
+  .ms__mark--none {
+    visibility: hidden;
+  }
+
+  .ms__date {
+    grid-area: date;
+    font-size: var(--step--1);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .ms__role {
+    grid-area: role;
+    display: grid;
+    font-family: var(--font-display);
+    font-size: var(--step-0);
+    font-weight: calc(600 + 200 * var(--on));
+    line-height: 1.2;
+  }
+
+  .ms__role-text {
+    grid-area: 1 / 1;
+  }
+
+  /* Hidden bold twin: the role cell always has its heaviest width, so activation never reflows. */
+  .ms__role::after {
+    content: attr(data-text);
+    grid-area: 1 / 1;
+    visibility: hidden;
+    font-weight: 800;
+  }
+
+  .ms__org {
+    grid-area: org;
+    font-size: var(--step--1);
+    line-height: 1.3;
+  }
+
+  .ms__extra {
+    grid-area: extra;
+    min-width: 0;
+  }
+
+  /* Detail trigger. With JS the panel (ExperiencePanel.astro) opens; without JS the <details> is the fallback. */
+  .ms__open {
+    display: none;
+    position: relative;
+    align-items: center;
+    min-height: 1.75rem;
+    font-size: var(--step--1);
+    font-weight: 700;
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--line);
+    text-underline-offset: 0.22em;
+    cursor: pointer;
+    transition: opacity var(--dur-fast) var(--ease-out);
+  }
+
+  .ms__open:hover {
+    opacity: 0.75;
+  }
+
+  .ms__open:focus-visible {
+    outline: var(--line-strong) solid var(--belt-line);
+    outline-offset: 3px;
+  }
+
+  .ms__open::after {
+    content: '';
+    position: absolute;
+    inset: -0.5rem -0.75rem;
+  }
+
+  :global(html.js) .ms__open {
+    display: inline-flex;
+  }
+
+  :global(html.js) .ms__more {
+    display: none;
+  }
+
+  .ms__more {
+    max-width: 60ch;
+    font-size: var(--step--1);
+  }
+
+  .ms__more summary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    min-height: 1.75rem;
+    font-weight: 700;
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--line);
+    text-underline-offset: 0.22em;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .ms__more summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .ms__more summary::after {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: var(--line-strong) solid currentColor;
+    border-bottom: var(--line-strong) solid currentColor;
+    transform: translateY(-0.12rem) rotate(45deg);
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .ms__more[open] summary::after {
+    transform: translateY(0.1rem) rotate(-135deg);
+  }
+
+  .ms__more p {
+    margin-top: var(--space-2xs);
+  }
+
+  .ms__comp strong {
+    font-weight: 700;
+  }
+
+  /* Black belt frame and project parts */
+
+  .tc--black .ms {
+    padding-block: var(--space-s);
+  }
+
+  .tc__frame {
+    display: grid;
+    gap: var(--space-s);
+    justify-items: start;
+    padding-top: var(--space-m);
+  }
+
+  .tc__tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-xs);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  .tc__tech li {
+    padding: var(--space-3xs) var(--space-2xs);
+    border: var(--line) solid var(--ink-soft);
+  }
+
+  .tc__visit {
+    font-weight: 700;
+  }
+
+  .tc__passages ul {
+    display: grid;
+  }
+
+  .tc__passages a {
+    display: grid;
+    grid-template-columns: 9.5rem minmax(0, 1fr);
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-2xs);
+    border-bottom: var(--line) solid color-mix(in srgb, var(--ink-soft) 40%, transparent);
+    text-decoration: none;
+    transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+
+  .tc__passages a:hover {
+    background-color: color-mix(in srgb, var(--ink) 4%, transparent);
+  }
+
+  .tc__passages a:focus-visible {
+    outline: var(--line-strong) solid var(--belt-line);
+    outline-offset: 2px;
+  }
+
+  /* One line: wide enough for "Tul 1º dan · 1 de 3", so a lone "3" never wraps under it. */
+  .tc__passage-form {
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* The list of passages sits above the title on a phone: room between them. */
+  .tc--black .tc__side:not(.tc__side--map) {
+    padding-bottom: var(--space-m);
+  }
+
+  .tc__passage-name {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 800;
+  }
+
+  .tc__sub {
+    border-top: var(--line) solid var(--ink-soft);
+  }
+
+  /* Beats of a passage: each lights up as the line reaches it. */
+  .tc__beat {
+    --on: clamp(0, calc((var(--draw, 1) - var(--t, 0)) * 24), 1);
+    display: grid;
+    gap: var(--space-2xs);
+    padding-block: var(--space-xs);
+    color: color-mix(in srgb, var(--ink) calc(var(--on) * 100%), var(--ink-soft));
+  }
+
+  .tc__project {
+    font-size: var(--step-3);
+    letter-spacing: var(--track-display);
+    line-height: 1;
+  }
+
+  .tc__text {
+    max-width: 56ch;
+    font-size: var(--step--1);
+  }
+
+  .tc__facts {
+    display: grid;
+    grid-template-columns: 4.75rem minmax(0, 1fr);
+    gap: var(--space-2xs) var(--space-xs);
+    margin: 0;
+    max-width: 60ch;
+    font-size: var(--step--1);
+    line-height: 1.4;
+  }
+
+  .tc__facts dt {
+    font-family: var(--font-display);
+    font-weight: 700;
+  }
+
+  .tc__facts dd {
+    margin: 0;
+  }
+
+  .tc__stage--closing {
+    align-content: center;
+  }
+
+  .tc__stage--closing .tc__closing {
+    padding-block: var(--space-2xl);
+  }
+
+  .tc__closing {
+    max-width: 22ch;
+    padding: var(--space-2xl) var(--gutter) var(--space-3xl);
+    font-size: var(--step-3);
+    letter-spacing: var(--track-display);
+    line-height: 1.08;
+  }
+
+  /* Friction to code: the process of one real automation as a notation line. */
+
+  .auto {
+    gap: var(--space-m);
+    align-content: start;
+  }
+
+  .auto__copy {
+    display: grid;
+    gap: var(--space-xs);
+    align-content: start;
+    max-width: 44rem;
+    padding-top: var(--space-m);
+  }
+
+  .auto__title {
+    font-size: var(--step-3);
+    font-variation-settings: 'wght' 700, 'wdth' 85;
+  }
+
+  .auto__name {
+    font-weight: 700;
+  }
+
+  .auto__desc {
+    max-width: 56ch;
+    font-size: var(--step--1);
+  }
+
+  .auto__metric {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-variation-settings: 'wght' 700, 'wdth' 85;
+  }
+
+  .auto__side {
+    display: grid;
+    gap: var(--space-m);
+    align-content: start;
+    align-self: start;
+    min-width: 0;
+  }
+
+  /* Desktop with the 3D scene only: the red floor under the steps (its fallback is the isometric SVG). */
+  .auto__map {
+    display: none;
+    aspect-ratio: 5 / 4;
+  }
+
+  .auto__flow {
+    position: relative;
+    display: grid;
+    gap: var(--space-s);
+    align-content: start;
+    align-self: start;
+    margin-block: var(--space-xs);
+  }
+
+  /* The line of movement: one rule through the numbered stops. */
+  .auto__flow::before {
+    content: '';
+    position: absolute;
+    inset: 0.9rem auto 0.9rem 0.875rem;
+    width: var(--line-strong);
+    background-color: var(--belt-line);
+  }
+
+  .auto__step {
+    --on: clamp(0, calc((var(--draw, 1) - var(--t, 0)) * 24), 1);
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-xs);
+    font-weight: 600;
+    color: color-mix(in srgb, var(--ink) calc(var(--on) * 100%), var(--ink-soft));
+  }
+
+  .auto__num {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: var(--line-strong) solid currentColor;
+    border-radius: 50%;
+    border-color: color-mix(in srgb, var(--belt-line) calc(var(--on) * 100%), var(--ink-soft));
+    background-color: color-mix(in srgb, var(--belt-line) calc(var(--on) * 100%), var(--field));
+    color: color-mix(in srgb, #ffffff calc(var(--on) * 100%), var(--ink-soft));
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  /* Pinned stage: only when JS runs and motion is allowed, from 62rem. The whole stage stays put;
+     scrolling only advances --p / --draw. Scene height = 100svh plus 45svh per stop. */
+  @media (min-width: 62rem) and (prefers-reduced-motion: no-preference) {
+    :global(html.js) .tc__scene--pin {
+      height: calc(100svh + var(--n, 2) * 45svh);
+    }
+
+    :global(html.js) .tc__scene--pin .tc__stage {
+      position: sticky;
+      top: 3rem;
+      grid-template-rows: auto minmax(0, 1fr);
+      height: calc(100svh - 3rem);
+      padding-block: 0 var(--space-xs);
+      overflow: hidden;
+    }
+
+    :global(html.js) .tc__scene--pin .tc__copy {
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+  }
+
+  /* Phone and narrow tablet: nothing is pinned and no block scrolls inside the page. Only the figure sticks (about
+     45svh at most, under the header) while the copy flows with the normal scroll; the scene's --p, which spans the
+     whole scene, still draws the route and lights the rows. */
+  @media (max-width: 61.99rem) and (prefers-reduced-motion: no-preference) {
+    :global(html.js) .tc__scene--pin .tc__stage {
+      display: block;
+    }
+
+    :global(html.js) .tc__scene--pin .tc__side--map {
+      position: sticky;
+      top: 3rem;
+      z-index: 2;
+      max-height: 45svh;
+      overflow: hidden;
+    }
+
+    :global(html.js) .tc__scene--pin .tc__fig--mini {
+      width: 100%;
+      height: auto;
+      min-height: 0;
+    }
+
+    :global(html.js) .tc__scene--pin .tc__fig--mini :global(.fd) {
+      width: min(100%, calc((45svh - 5rem) * 1.55));
+      height: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Title reveal: hidden until the engine marks it in view (html.js is set before first paint). */
+    :global(html.js) .tc__titlewrap:not(.is-in) .tc__title {
+      opacity: 0;
+    }
+  }
+
+  @media (min-width: 62rem) {
+    .tc__stage {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+      column-gap: var(--space-xl);
+    }
+
+    .tc__copy {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .tc__side {
+      grid-column: 2;
+      grid-row: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-block: var(--space-m);
+      background-color: transparent;
+    }
+
+    .tc__side--map {
+      border-bottom: 0;
+    }
+
+    .tc__passages {
+      width: 100%;
+    }
+
+    .tc__fig--full {
+      display: block;
+      width: min(100%, calc(100svh - 9rem));
+    }
+
+    .tc__fig--mini {
+      display: none;
+    }
+
+    .tc__cap {
+      font-size: var(--step-0);
+    }
+
+    .tc--black .tc__side:not(.tc__side--map) {
+      align-self: start;
+      padding-top: var(--space-2xl);
+    }
+
+    .tc__titlewrap {
+      --tc-fs: var(--step-4);
+    }
+
+    .tc__head {
+      padding-block: var(--space-l) var(--space-m);
+    }
+
+    .tc__seal {
+      width: 120px;
+    }
+
+    .ms {
+      grid-template-columns: 1.75rem 9.75rem minmax(0, 1fr) minmax(0, 9.5rem);
+      grid-template-areas:
+        'mark date role org'
+        '. extra extra extra';
+    }
+
+    .ms__role {
+      font-size: var(--step-1);
+    }
+
+    .tc__facts {
+      grid-template-columns: 6rem minmax(0, 1fr);
+    }
+
+    .tc__project {
+      font-size: var(--step-4);
+    }
+
+    .tc__text,
+    .tc__facts {
+      font-size: var(--step-0);
+    }
+
+    .auto {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+      column-gap: var(--space-xl);
+    }
+
+    /* Wide screens: pinned stages start at the top, like the diagram column. */
+    .auto__flow,
+    .auto__copy {
+      align-self: start;
+    }
+
+    .auto__copy {
+      padding-top: var(--space-l);
+    }
+
+    .auto__flow {
+      margin-block: var(--space-l) 0;
+    }
+
+    .tc__beats {
+      align-content: start;
+      padding-top: var(--space-l);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      :global(html.js) .tc__scene--pin .tc__stage {
+        grid-template-rows: minmax(0, 1fr);
+      }
+
+      :global(html.js) .tc__scene--pin .tc__side {
+        padding-block: var(--space-s);
+      }
+    }
+  }
+
+  /* The 3D scene's own floor under the steps of the automation beat (see the file header). */
+  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+    :global(html.js) .auto__map {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  /* The side column of the 3D belt (src/scripts/belt3d). Desktop with JS and motion only: the fixed canvas
+     draws the belt in this strip at the right edge of the viewport (tul.ts measures the same --belt-col
+     with a probe), so no text of any chapter ever lies under it. Every stage reserves it, pinned or not. */
+  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+    :global(html.js) .tc__stage {
+      padding-inline-end: calc(var(--gutter) + var(--belt-col));
+    }
+  }
+
+  /* With the column reserved the copy is narrower at 1024 to 1360 px: the rows keep the compact three-column
+     form (mark, date, role over org) instead of squeezing a fourth column for the organisation. */
+  @media (min-width: 64rem) and (max-width: 84.99rem) and (prefers-reduced-motion: no-preference) {
+    :global(html.js) .ms {
+      grid-template-columns: 1.75rem 5.5rem minmax(0, 1fr);
+      grid-template-areas:
+        'mark date role'
+        'mark date org'
+        '. extra extra';
+    }
+  }
+</style>

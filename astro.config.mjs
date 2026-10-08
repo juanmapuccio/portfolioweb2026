@@ -11,5 +11,10 @@ export default defineConfig({
       prefixDefaultLocale: false
     }
   },
-  integrations: [sitemap()]
+  integrations: [sitemap()],
+  vite: {
+    build: {
+      chunkSizeWarningLimit: 1000
+    }
+  }
 });

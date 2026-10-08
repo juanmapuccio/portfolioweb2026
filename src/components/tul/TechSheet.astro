@@ -1,0 +1,207 @@
+---
+import ExternalDocIcon from './ExternalDocIcon.astro';
+import { useTranslations, type Lang } from '../../i18n/ui';
+import { CV_PDF_HREF, certifications, stackRows } from '../../data/cvSheet';
+import { educationContent } from '../../data/education';
+
+/**
+ * The dense passage, on the white field: a manual's specification page. Ruled rows, a label
+ * column and a value column (label above value on mobile), tabular numerals. Values are plain
+ * text, never tag pills.
+ */
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'es' } = Astro.props;
+const t = useTranslations(lang);
+
+const CV_HREF = CV_PDF_HREF;
+const stackRowsList = stackRows(lang);
+const certs = certifications(lang);
+
+const education = educationContent[lang];
+---
+
+<section id="hoja-tecnica" class="ts" data-belt="negro" aria-labelledby="hoja-tecnica-title">
+  <header class="ts__head">
+    <h2 id="hoja-tecnica-title" class="ts__title grade-type">{t('tul.sheet.title')}</h2>
+    <a class="ts__cv" href={CV_HREF} target="_blank" rel="noopener noreferrer">
+      <span>{t('hero.btn.cv')}<span class="visually-hidden"> {t('tul.cv.newTab')}</span></span>
+      <ExternalDocIcon />
+    </a>
+  </header>
+
+  <div class="ts__sheet">
+    <h3 class="ts__group">{t('tul.sheet.stack')}</h3>
+    <dl class="ts__rows">
+      {stackRowsList.map((row) => (
+        <div class="ts__row" data-row={row.id}>
+          <dt>{row.label}</dt>
+          <dd>{row.value}</dd>
+        </div>
+      ))}
+    </dl>
+
+    <h3 class="ts__group">{t('tul.sheet.credentials')}</h3>
+    <dl class="ts__rows">
+      <div class="ts__row" data-row="certifications">
+        <dt>{t('tul.sheet.certifications')}</dt>
+        <dd>
+          <ul class="ts__certs">
+            {certs.map((c) => (
+              <li>
+                <span>{c.name}</span>
+                <span class="ts__year num">{c.year}</span>
+              </li>
+            ))}
+          </ul>
+        </dd>
+      </div>
+      <div class="ts__row" data-row="languages">
+        <dt>{t('tul.sheet.languages')}</dt>
+        <dd>{t('tul.sheet.lang.es')} · {t('tul.sheet.lang.en')}</dd>
+      </div>
+      <div class="ts__row" data-row="education">
+        <dt>{education.title}</dt>
+        <dd>
+          <ul class="ts__certs">
+            {education.entries.map((e) => (
+              <li>
+                <span>{e.title}, {e.institution}{e.status ? ` (${e.status})` : ''}</span>
+                <span class="ts__year num">{e.dates}</span>
+              </li>
+            ))}
+          </ul>
+        </dd>
+      </div>
+      <div class="ts__row" data-row="credential">
+        <dt>{t('tul.sheet.credential')}</dt>
+        <dd>{education.teaching.title}, {education.teaching.org}. {education.teaching.note}</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<style>
+  .ts {
+    display: grid;
+    gap: var(--space-l);
+    align-content: start;
+    min-height: 0;
+    padding-block: var(--space-2xl);
+  }
+
+  .ts__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--space-s) var(--space-l);
+    padding-bottom: var(--space-s);
+    border-bottom: var(--line-strong) solid var(--ink);
+  }
+
+  .ts__title {
+    --grade: 0.7;
+    font-size: var(--step-3);
+    letter-spacing: var(--track-display);
+  }
+
+  .ts__cv {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-height: 2.75rem;
+    font-size: var(--step-0);
+    font-weight: 700;
+  }
+
+  .ts__sheet {
+    display: grid;
+    max-width: 72rem;
+  }
+
+  .ts__group {
+    padding-block: var(--space-m) var(--space-2xs);
+    font-size: var(--step--1);
+    font-variation-settings: 'wght' 700, 'wdth' 100;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .ts__rows {
+    display: grid;
+    margin: 0;
+  }
+
+  .ts__row {
+    display: grid;
+    gap: var(--space-3xs);
+    padding-block: var(--space-xs);
+    border-top: var(--line) solid var(--ink-soft);
+  }
+
+  .ts__rows .ts__row:last-child {
+    border-bottom: var(--line) solid var(--ink-soft);
+  }
+
+  .ts__row dt {
+    font-family: var(--font-display);
+    font-size: var(--step-0);
+    font-variation-settings: 'wght' 700, 'wdth' 90;
+  }
+
+  .ts__row dd {
+    margin: 0;
+    max-width: 62ch;
+    font-size: var(--step-0);
+    line-height: 1.5;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  .ts__certs {
+    display: grid;
+  }
+
+  .ts__certs li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-s);
+    padding-block: var(--space-3xs);
+  }
+
+  .ts__certs li + li {
+    border-top: var(--line) dotted var(--ink-soft);
+  }
+
+  .ts__year {
+    flex: none;
+    color: var(--ink-soft);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 48rem) {
+    .ts__row {
+      grid-template-columns: minmax(10rem, 15rem) minmax(0, 1fr);
+      column-gap: var(--space-l);
+    }
+
+    .ts__row dd {
+      max-width: none;
+    }
+  }
+
+  @media (min-width: 62rem) {
+    .ts__row {
+      grid-template-columns: 17rem minmax(0, 40rem);
+    }
+
+    .ts__title {
+      font-size: var(--step-4);
+    }
+  }
+</style>

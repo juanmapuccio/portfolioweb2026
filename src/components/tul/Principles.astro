@@ -1,0 +1,223 @@
+---
+import { useTranslations, type Lang } from '../../i18n/ui';
+import { principlesData, type TkdPrinciple } from '../../data/principles';
+import { skillsData } from '../../data/skills';
+
+/**
+ * The quiet passage, on the white field: the five ITF tenets in their canonical order, set like
+ * an oath. The tenet name leads; the romanized term and the career line follow. No motion: the
+ * pause is made of space and type size.
+ */
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'es' } = Astro.props;
+const t = useTranslations(lang);
+
+/** Romanized ITF terms. Not translated. */
+const TERMS: Record<TkdPrinciple['key'], string> = {
+  courtesy: 'Ye Ui',
+  integrity: 'Yom Chi',
+  perseverance: 'In Nae',
+  'self-control': 'Guk Gi',
+  'indomitable-spirit': 'Baekjul Boolgool'
+};
+
+const items = principlesData[lang].items;
+const quote = skillsData[lang].philosophy[1]?.quote;
+
+/**
+ * Words are split here, at build time. Only the first MAX_WORDS words of the section animate (each
+ * gets `--i`, its stagger index); anything beyond renders as plain text. The spaces between the
+ * word spans stay real text nodes, so wrapping, copy-paste and reading order are those of the text.
+ */
+const MAX_WORDS = 40;
+let used = 0;
+const split = (text: string): { word: string; i?: number }[] =>
+  text.split(' ').map((word) => (used < MAX_WORDS ? { word, i: used++ } : { word }));
+const introWords = split(t('tul.principles.intro'));
+const quoteWords = quote ? split(quote) : [];
+---
+
+<section id="principios" class="pr" data-belt="negro" aria-labelledby="principios-title">
+  <header class="pr__head">
+    <h2 id="principios-title" class="pr__title grade-type">{t('tul.principles.title')}</h2>
+    <p class="pr__intro" data-words>
+      {introWords.map(({ word, i }, n) => (<Fragment>{n > 0 && ' '}{i === undefined ? word : <span class="w" style={`--i:${i}`}>{word}</span>}</Fragment>))}
+    </p>
+  </header>
+
+  <ol class="pr__oath">
+    {items.map((item, i) => (
+      <li class="pr__item">
+        <span class="pr__ord num" aria-hidden="true">{i + 1}</span>
+        <p class="pr__name grade-type" data-rise>{item.name}</p>
+        <p class="pr__term">{TERMS[item.key]}</p>
+        <p class="pr__line">{item.line}</p>
+      </li>
+    ))}
+  </ol>
+
+  {quote && (
+    <blockquote class="pr__quote">
+      <p data-words>
+        {quoteWords.map(({ word, i }, n) => (<Fragment>{n > 0 && ' '}{i === undefined ? word : <span class="w" style={`--i:${i}`}>{word}</span>}</Fragment>))}
+      </p>
+    </blockquote>
+  )}
+</section>
+
+<style>
+  .pr {
+    --grade: 0.5;
+    display: grid;
+    gap: var(--space-2xl);
+    align-content: start;
+    padding-block: var(--space-3xl) var(--space-3xl);
+  }
+
+  .pr__head {
+    display: grid;
+    gap: var(--space-s);
+    max-width: 40rem;
+  }
+
+  .pr__title {
+    font-size: var(--step-3);
+    letter-spacing: var(--track-display);
+  }
+
+  .pr__intro {
+    max-width: 44ch;
+    color: var(--ink-soft);
+    font-size: var(--step-1);
+    line-height: 1.4;
+  }
+
+  .pr__oath {
+    display: grid;
+    max-width: 62rem;
+  }
+
+  .pr__item {
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    column-gap: var(--space-xs);
+    row-gap: var(--space-2xs);
+    padding-block: var(--space-xl);
+    border-top: var(--line) solid var(--ink-soft);
+  }
+
+  .pr__item:last-child {
+    border-bottom: var(--line) solid var(--ink-soft);
+  }
+
+  .pr__ord {
+    grid-row: 1;
+    align-self: start;
+    padding-top: 0.55em;
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  .pr__name {
+    grid-column: 2;
+    font-size: var(--step-4);
+    letter-spacing: var(--track-display);
+    line-height: 1;
+    overflow-wrap: anywhere;
+  }
+
+  .pr__term {
+    grid-column: 2;
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-size: var(--step--1);
+    font-variation-settings: 'wght' 600, 'wdth' 100;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .pr__line {
+    grid-column: 2;
+    max-width: 52ch;
+    margin-top: var(--space-xs);
+    font-size: var(--step-0);
+    line-height: 1.6;
+  }
+
+  .pr__quote {
+    max-width: 30ch;
+    margin: 0;
+    padding-left: var(--space-s);
+    border-left: var(--line-strong) solid var(--ink);
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-variation-settings: 'wght' 600, 'wdth' 90;
+    line-height: 1.2;
+    word-spacing: 0.08em;
+  }
+
+  /* Word by word: only with JS and motion allowed. Default: every word fully visible. */
+  @media (prefers-reduced-motion: no-preference) {
+    /* A word waits a little lower, not bigger: a scaled word grows into the gap and the line reads as one string. */
+    :global(html.js) .pr .w {
+      display: inline-block;
+      opacity: 0.12;
+      transform: translateY(0.2em);
+    }
+
+    :global(html.js) .pr [data-words].is-in .w {
+      opacity: 1;
+      transform: translateY(0);
+      transition:
+        opacity 400ms var(--ease-out) calc(var(--i, 0) * 70ms),
+        transform 400ms var(--ease-out) calc(var(--i, 0) * 70ms);
+    }
+
+    :global(html.js) .pr [data-rise] {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+
+    :global(html.js) .pr [data-rise].is-in {
+      opacity: 1;
+      transform: translateY(0);
+      transition:
+        opacity var(--dur) var(--ease-out),
+        transform var(--dur) var(--ease-out);
+    }
+  }
+
+  @media (min-width: 62rem) {
+    .pr__item {
+      grid-template-columns: 3rem minmax(0, 1.1fr) minmax(0, 1fr);
+      column-gap: var(--space-l);
+      row-gap: var(--space-3xs);
+      align-items: start;
+    }
+
+    .pr__name {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .pr__term {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .pr__line {
+      grid-column: 3;
+      grid-row: 1 / span 2;
+      margin-top: 0.6em;
+    }
+
+    .pr__title {
+      font-size: var(--step-4);
+    }
+  }
+</style>

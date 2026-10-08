@@ -17,8 +17,6 @@ export interface ContactData {
   title: string;
   subtitle: string;
   ctaButtonText: string;
-  statusText: string;
-  locationText: string;
   channels: ContactChannel[];
 }
 
@@ -26,14 +24,12 @@ export const contactData: Record<Lang, ContactData> = {
   es: {
     badge: 'DISPONIBILIDAD & CONTRATACIÓN',
     title: 'Busco sumarme a un equipo técnico con desafíos reales.',
-    subtitle: 'Busco sumarme como Desarrollador Full Stack en un equipo técnico de alto impacto, con disponibilidad full-time. Diseño, despliego y estabilizo software de negocio en producción — esa es la prueba de ingeniería que quiero poner al servicio de tu equipo.',
+    subtitle: 'Busco sumarme como Desarrollador Full Stack en un equipo técnico de alto impacto, con disponibilidad full-time. Diseño, despliego y estabilizo software de negocio en producción: esa es la prueba de ingeniería que quiero poner al servicio de tu equipo.',
     ctaButtonText: 'Conversar por WhatsApp',
-    statusText: 'Disponible para incorporación a equipos de producto & ingeniería',
-    locationText: 'Rosario, Santa Fe, Argentina · Modalidad Remota / Híbrida / On-site',
     channels: [
       {
         id: 'whatsapp',
-        name: 'WhatsApp Directo',
+        name: 'WhatsApp',
         label: '+54 9 341 319-2179',
         value: '+5493413192179',
         url: 'https://wa.me/5493413192179',
@@ -41,7 +37,7 @@ export const contactData: Record<Lang, ContactData> = {
       },
       {
         id: 'email',
-        name: 'Email Directo',
+        name: 'Email',
         label: 'juan.pucciom@gmail.com',
         value: 'juan.pucciom@gmail.com',
         url: 'mailto:juan.pucciom@gmail.com'
@@ -62,7 +58,7 @@ export const contactData: Record<Lang, ContactData> = {
       },
       {
         id: 'nodosur',
-        name: 'NodoSur (Prueba de Producción)',
+        name: 'NodoSur',
         label: 'nodosur.dev',
         value: 'nodosur.dev',
         url: 'https://nodosur.dev/'
@@ -70,16 +66,14 @@ export const contactData: Record<Lang, ContactData> = {
     ]
   },
   en: {
-    badge: 'CAREER & HIRING',
+    badge: 'AVAILABILITY & HIRING',
     title: 'Looking to join a technical team with real challenges.',
-    subtitle: 'Looking to join an ambitious engineering team as a Full Stack Developer, with full-time availability. I design, ship, and stabilize production business software — that is the engineering proof I want to bring to your team.',
+    subtitle: 'Looking to join a high-impact technical team as a Full Stack Developer, with full-time availability. I design, ship, and stabilize production business software: that is the engineering proof I want to bring to your team.',
     ctaButtonText: 'Chat on WhatsApp',
-    statusText: 'Available for full-time engineering & product roles',
-    locationText: 'Rosario, Argentina · Remote / Hybrid / On-site',
     channels: [
       {
         id: 'whatsapp',
-        name: 'WhatsApp Direct',
+        name: 'WhatsApp',
         label: '+54 9 341 319-2179',
         value: '+5493413192179',
         url: 'https://wa.me/5493413192179',
@@ -87,7 +81,7 @@ export const contactData: Record<Lang, ContactData> = {
       },
       {
         id: 'email',
-        name: 'Direct Email',
+        name: 'Email',
         label: 'juan.pucciom@gmail.com',
         value: 'juan.pucciom@gmail.com',
         url: 'mailto:juan.pucciom@gmail.com'
@@ -108,7 +102,7 @@ export const contactData: Record<Lang, ContactData> = {
       },
       {
         id: 'nodosur',
-        name: 'NodoSur (Production Evidence)',
+        name: 'NodoSur',
         label: 'nodosur.dev',
         value: 'nodosur.dev',
         url: 'https://nodosur.dev/'
@@ -116,16 +110,14 @@ export const contactData: Record<Lang, ContactData> = {
     ]
   },
   pt: {
-    badge: 'CONTRATAÇÃO & DISPONIBILIDADE',
+    badge: 'DISPONIBILIDADE & CONTRATAÇÃO',
     title: 'Busco ingressar em uma equipe técnica com desafios reais.',
-    subtitle: 'Busco ingressar como Desenvolvedor Full Stack em uma equipe técnica de alto impacto, com disponibilidade full-time. Projeto, implanto e estabilizo software de negócio em produção — essa é a prova de engenharia que quero colocar a serviço da sua equipe.',
-    ctaButtonText: 'Conversar no WhatsApp',
-    statusText: 'Disponível para contratação em equipes de produto & engenharia',
-    locationText: 'Rosário, Argentina · Remoto / Híbrido / Presencial',
+    subtitle: 'Busco ingressar como Desenvolvedor Full Stack em uma equipe técnica de alto impacto, com disponibilidade full-time. Projeto, implanto e estabilizo software de negócio em produção: essa é a prova de engenharia que quero colocar a serviço da sua equipe.',
+    ctaButtonText: 'Conversar pelo WhatsApp',
     channels: [
       {
         id: 'whatsapp',
-        name: 'WhatsApp Direto',
+        name: 'WhatsApp',
         label: '+54 9 341 319-2179',
         value: '+5493413192179',
         url: 'https://wa.me/5493413192179',
@@ -133,7 +125,7 @@ export const contactData: Record<Lang, ContactData> = {
       },
       {
         id: 'email',
-        name: 'Email Direto',
+        name: 'E-mail',
         label: 'juan.pucciom@gmail.com',
         value: 'juan.pucciom@gmail.com',
         url: 'mailto:juan.pucciom@gmail.com'
@@ -154,7 +146,7 @@ export const contactData: Record<Lang, ContactData> = {
       },
       {
         id: 'nodosur',
-        name: 'NodoSur (Evidência de Produção)',
+        name: 'NodoSur',
         label: 'nodosur.dev',
         value: 'nodosur.dev',
         url: 'https://nodosur.dev/'
