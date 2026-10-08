@@ -17,7 +17,7 @@
 // Continuity: every beat ends in the pose the next one starts with (travel p = 1 equals passage p = 0,
 // passage p = 1 equals travel p = 0), so switching beats never jumps.
 import { pointAt, type Route } from '../../data/tulRoute';
-import type { BeltKey } from './colors';
+import { BELT_KEYS, type BeltKey } from './colors';
 
 const DEG = Math.PI / 180;
 
@@ -38,6 +38,23 @@ const TRAVEL_TARGET: [number, number, number] = [0, -0.09, 0];
 export const TRAVEL_YAW = 0.55;
 /** The tie beat publishes the knot while the passage is below this progress (the flood is over at 0.5). */
 export const KNOT_UNTIL = 0.55;
+
+// ---- T1: waypoints ------------------------------------------------------------------------------------------------
+// The camera no longer orbits one near-fixed target for every chapter: each belt chapter owns a waypoint along the
+// travel axis (Z, metres). `travelCam`/`tatamiChapterFrame`/`tatamiLowFrame` read a chapter's own depth so the
+// camera (and the single belt/tatami meshes that stand in for "the current chapter's geometry") really translates
+// through world space between chapters, instead of only re-tilting around one spot. `passageFrame` dollies the
+// camera continuously between the `from` and `to` depths while the spacer between two chapters scrolls past, which
+// is the real 3D position/target interpolation T1 asks for; `travelFrame` (inside a chapter, text on screen) keeps
+// composing with `setViewOffset`'s screen-space column reframing exactly as before (see scene.ts's `aim()`), so the
+// two behaviours layer rather than replace each other.
+/** Metres of travel depth between two consecutive belt chapters. */
+const CHAPTER_DEPTH = 1.1;
+/** The Z waypoint (metres, negative = further from the camera's resting side) of a belt chapter, in journey order. */
+export function beltDepth(belt: BeltKey): number {
+  const i = BELT_KEYS.indexOf(belt);
+  return i < 0 ? 0 : -CHAPTER_DEPTH * i;
+}
 
 export const clamp01 = (n: number): number => Math.min(1, Math.max(0, n));
 export const smooth = (x: number, a: number, b: number): number => {
@@ -119,11 +136,16 @@ function heroPpm(m: Metrics): number {
   return m.hero.s / (2 * HERO_DIST * Math.tan((FOV / 2) * DEG));
 }
 
-export function travelCam(m: Metrics): Cam {
-  return { sx: m.col.x, sy: m.col.y, ppm: columnPpm(m), elevation: TRAVEL_EL, dist: TRAVEL_DIST, target: TRAVEL_TARGET };
+/** The chapter's own waypoint: same column framing for every belt, but the target (and so the camera) sits at
+ * that belt's depth along Z — a real 3D position, not just a re-tilt. */
+export function travelCam(m: Metrics, belt: BeltKey = 'blanco'): Cam {
+  const target: [number, number, number] = [TRAVEL_TARGET[0], TRAVEL_TARGET[1], TRAVEL_TARGET[2] + beltDepth(belt)];
+  return { sx: m.col.x, sy: m.col.y, ppm: columnPpm(m), elevation: TRAVEL_EL, dist: TRAVEL_DIST, target };
 }
 
-function lerpCam(a: Cam, b: Cam, t: number): Cam {
+/** Interpolates two `Cam`s, world-space target included: used both for the hero->travel blend and for the
+ * generalized N-waypoint passage dolly below. */
+export function lerpCam(a: Cam, b: Cam, t: number): Cam {
   return {
     sx: lerp(a.sx, b.sx, t),
     sy: lerp(a.sy, b.sy, t),
@@ -173,7 +195,7 @@ export function heroFrame(q: number, e: number, m: Metrics, yawExtra: number): F
     resting: landed >= 1 && blend === 0
   };
   if (blend > 0) {
-    frame.cam = lerpCam(cam, travelCam(m), blend);
+    frame.cam = lerpCam(cam, travelCam(m, 'blanco'), blend);
     frame.poseB = { kind: 'hang', yaw: travelYaw(0), k: 1, lean: 1 };
     frame.blend = blend;
   }
@@ -188,7 +210,7 @@ export function travelFrame(belt: BeltKey, p: number, m: Metrics, fade = true): 
   const black = belt === 'negro';
   return {
     opacity: black && fade ? 1 - smooth(p, 0.9, 0.98) : 1,
-    cam: travelCam(m),
+    cam: travelCam(m, belt),
     pose: { kind: 'hang', yaw: travelYaw(p), k: 1, lean: 1 },
     blend: 0,
     from: belt,
@@ -226,13 +248,17 @@ export function passageFrame(from: BeltKey, to: BeltKey, p: number, m: Metrics):
   // the empty box between the chapters. In the column it is free to be anywhere.
   const rideY = Math.min(0.8 * m.h, Math.max(0.2 * m.h, m.h * (1 + SPACER_VH / 2 - (1 + SPACER_VH) * p)));
   const follow = smooth(p, 0, 0.3) * (1 - smooth(p, 0.7, 1));
+  // Real world-space dolly: the camera's target (and so its position) translates from the `from` chapter's
+  // waypoint depth to the `to` chapter's, continuously over the spacer's scroll — this is the N-waypoint
+  // interpolation T1 asks for, not just a re-tilt around a fixed point.
+  const z = TRAVEL_TARGET[2] + lerp(beltDepth(from), beltDepth(to), clamp01(p));
   const cam: Cam = {
     sx: lerp(m.col.x, m.w / 2, out),
     sy: lerp(m.col.y, rideY, follow),
     ppm: lerp(columnPpm(m), centrePpm(m), out),
     elevation: TRAVEL_EL,
     dist: TRAVEL_DIST,
-    target: TRAVEL_TARGET
+    target: [TRAVEL_TARGET[0], TRAVEL_TARGET[1], z]
   };
   // k: 1 = tied, 0 = loose. Ordinary passage: untie, change colour while loose, tie again.
   // Tie beat: untie early, then tie while the colour turns black and the stitches go gold.
@@ -295,7 +321,7 @@ export const diagramPpm = (boxWidth: number): number => (boxWidth * 100) / (VIEW
  * It does not fade: the scene is drawn from the moment its stage enters until the stage has left, at `off` px from
  * the pinned place (see `stageOffset`), so it travels with its stage and the route stays drawn at both ends.
  */
-export function tatamiChapterFrame(p: number, box: { x: number; y: number; s: number }, off = 0): TatamiFrame {
+export function tatamiChapterFrame(p: number, box: { x: number; y: number; s: number }, off = 0, belt: BeltKey = 'blanco'): TatamiFrame {
   const k = clamp01(p);
   const tilt = 58 - 14 * k;
   return {
@@ -306,7 +332,7 @@ export function tatamiChapterFrame(p: number, box: { x: number; y: number; s: nu
       ppm: diagramPpm(box.s) * (0.96 + 0.08 * k) * (1 - 0.0048 * tilt),
       elevation: (90 - tilt) * DEG,
       dist: HERO_DIST,
-      target: CHAPTER_TARGET
+      target: [CHAPTER_TARGET[0], CHAPTER_TARGET[1], CHAPTER_TARGET[2] + beltDepth(belt)]
     },
     yaw: 8 * DEG
   };
@@ -373,7 +399,14 @@ export function tatamiLowFrame(p: number, box: { x: number; y: number; s: number
   const pt = pointAt(route, k);
   const x = (pt[0] - 50) * UNIT;
   const z = (pt[1] - 50) * UNIT;
-  const target: [number, number, number] = [x * Math.cos(yaw) + z * Math.sin(yaw), FLOOR_TOP, -x * Math.sin(yaw) + z * Math.cos(yaw)];
+  // Known special case (T6): this low camera is only ever used by the red-belt automation beat, so its own
+  // waypoint depth is baked in rather than threaded through as a parameter.
+  const depth = beltDepth('rojo');
+  const target: [number, number, number] = [
+    x * Math.cos(yaw) + z * Math.sin(yaw),
+    FLOOR_TOP,
+    -x * Math.sin(yaw) + z * Math.cos(yaw) + depth
+  ];
   const h = box.h ?? (box.s * 122) / 189;
   return {
     opacity: 1,

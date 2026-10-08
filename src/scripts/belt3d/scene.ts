@@ -35,6 +35,7 @@ import {
   ACESFilmicToneMapping,
   Color,
   DirectionalLight,
+  Fog,
   PerspectiveCamera,
   PMREMGenerator,
   Scene,
@@ -140,6 +141,8 @@ const metrics: Metrics = {
 };
 const colour = new Map<BeltKey, Color>();
 const goldColour = new Color(STITCH_GOLD);
+const fieldLight = new Color(FIELD_LIGHT);
+const fieldDark = new Color(FIELD_DARK);
 const knotWorld = new Vector3();
 const postWorld = new Vector3();
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -236,6 +239,13 @@ function createView(): View {
   const tatami = createTatami();
   scene.add(tatami.group);
   const rimLights = lights(scene, envTexture);
+  // T2: depth cueing between chapters. There is one shared belt mesh and one shared tatami mesh (never several
+  // chapters' geometry on screen at once — see scene.ts's `tatamiView()`), so fog cannot fade a receding
+  // neighbour that is not drawn. Instead the fog itself becomes the travel cue: its colour crosses from the
+  // light field to the black field exactly where the page's own field flip happens (see tul.ts's FLOOD_FULL),
+  // and its near/far band is keyed to the active camera's own distance so whichever chapter is on screen stays
+  // crisp while anything nominally behind or ahead of it (the belt's own tails, the tatami's far edge) softens.
+  scene.fog = new Fog(FIELD_LIGHT, 1, 4);
   return { scene, camera, tcam, belt, tatami, rimLights };
 }
 
@@ -296,6 +306,11 @@ function applyFrame(v: View, f: Frame): void {
   if (f.poseB && f.blend > 0) blendPose(belt, f.pose, f.poseB, f.blend);
   else applyPose(belt, f.pose);
   belt.group.visible = true;
+  // T1/T2: the belt is the one mesh standing in for "the current chapter's geometry" (see createView's fog
+  // comment) — it sits at the camera's own focal depth, so it rides the same real Z translation the camera does
+  // between waypoints (travelCam/passageFrame in journey.ts), instead of staying parked at the origin while only
+  // the camera re-tilts around it.
+  belt.group.position.z = f.cam.target[2];
 
   belt.setColors(paletteOf(f.from), paletteOf(f.to), f.mix);
   if (f.gold > 0) belt.materials.stitch.color.lerp(goldColour, f.gold);
@@ -305,6 +320,11 @@ function applyFrame(v: View, f: Frame): void {
   v.rimLights[1].intensity = 1.0 * f.rim;
   v.scene.environmentIntensity = 0.4 + 0.15 * f.rim;
   belt.materials.cloth.sheen = 1 - 0.7 * f.rim;
+  if (v.scene.fog instanceof Fog) {
+    v.scene.fog.color.copy(fieldLight).lerp(fieldDark, f.rim);
+    v.scene.fog.near = Math.max(0.1, f.cam.dist - 0.6);
+    v.scene.fog.far = f.cam.dist + 2.2;
+  }
 
   aim(camera, f.cam);
 }
@@ -313,6 +333,8 @@ function applyFrame(v: View, f: Frame): void {
 function applyTatami(v: View, tv: TatamiView): void {
   const c = tv.frame.cam;
   aim(v.tcam, { ...c, elevation: c.elevation + par.y * PARALLAX_DEG * DEG });
+  // Same co-location as the belt (applyFrame): the one shared tatami mesh sits at its chapter's own waypoint depth.
+  v.tatami.group.position.z = c.target[2];
   v.tatami.setYaw(tv.frame.yaw + par.x * PARALLAX_DEG * DEG);
   v.tatami.show(tv.entry.key, tv.entry.data, BELT_LINES[tv.entry.belt], tv.entry.belt === 'negro' ? FIELD_DARK : FIELD_LIGHT);
   v.tatami.look(tv.frame.opacity, tv.draw, tv.all);
@@ -375,7 +397,9 @@ function tatamiView(): TatamiView | undefined {
     if (box.s <= 0) continue;
     const off = stageOffset(en, ex, metrics.h, readNum(t.scene, '--tat-t', 0));
     const p = readNum(t.scene, '--p', 0);
-    const frame = t.low ? tatamiLowFrame(p, box.h > 0 ? box : { x: box.x, y: box.y, s: box.s }, t.route, off) : tatamiChapterFrame(p, box, off);
+    const frame = t.low
+      ? tatamiLowFrame(p, box.h > 0 ? box : { x: box.x, y: box.y, s: box.s }, t.route, off)
+      : tatamiChapterFrame(p, box, off, t.belt);
     best = { entry: t, frame, draw: readNum(t.scene, '--draw', 1), all: false };
     bestScore = score;
   }
