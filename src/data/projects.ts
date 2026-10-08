@@ -36,11 +36,11 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       badge: 'SaaS en Producción',
       name: 'NodoFit',
       role: 'Creador & Arquitecto Full Stack',
-      category: 'Gestión para Dojos, Gyms & Entrenadores',
-      description: 'Sistema cloud moderno para la gestión administrativa y contable de gimnasios, dojos y entrenadores personales, con control de ingresos y gestor de cuotas.',
-      problem: 'Pérdida de cobros, registros manuales en planillas y falta de control en el acceso y estado de las membresías.',
-      solution: 'Plataforma ágil con dashboard operativo en tiempo real, alertas de cuotas vencidas y métricas de retención de alumnos.',
-      impact: 'En producción activa reduciendo a cero las horas de conciliación manual de cobros y accesos.',
+      category: 'Gestión para Gyms, Dojos, Entrenadores & Clubes con Canchas',
+      description: 'Sistema integral nacido de la experiencia con Satori Dojo, al ver que el producto tenía que crecer. Gestiona gimnasios, entrenadores personales, dojos y clubes con reservas de canchas (fútbol, pádel, tenis), con control de ingresos y gestor de cuotas.',
+      problem: 'Pérdida de cobros, registros manuales en planillas, reservas de canchas sin control y falta de seguimiento del acceso y del estado de cuotas y membresías.',
+      solution: 'Plataforma ágil con dashboard operativo en tiempo real, reservas de canchas, alertas de cuotas y membresías vencidas y métricas de retención.',
+      impact: 'En producción con usuarios reales: centraliza cobros, cuotas, accesos y reservas que antes se llevaban a mano.',
       url: 'https://nodofit.com.ar',
       tech: ['Next.js', 'PostgreSQL', 'Tailwind', 'Supabase', 'REST APIs'],
       featured: false
@@ -94,11 +94,11 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       badge: 'Production SaaS',
       name: 'NodoFit',
       role: 'Creator & Full Stack Architect',
-      category: 'Management for Dojos, Gyms & Trainers',
-      description: 'Modern cloud system for the administrative and accounting management of gyms, dojos, and personal trainers, with revenue control and a dues manager.',
-      problem: 'Lost payments, manual spreadsheet records, and no control over access and membership status.',
-      solution: 'Agile platform with a real-time operational dashboard, overdue-fee alerts, and student retention metrics.',
-      impact: 'Live in production, reducing to zero the hours of manual reconciliation of payments and access.',
+      category: 'Management for Gyms, Dojos, Trainers & Clubs with Courts',
+      description: 'An integral system born from the Satori Dojo experience, which showed the product had to grow. It manages gyms, personal trainers, dojos, and clubs with court bookings (football, padel, tennis), with revenue control and a dues manager.',
+      problem: 'Lost payments, manual spreadsheet records, unmanaged court bookings, and no tracking of access or of dues and membership status.',
+      solution: 'Agile platform with a real-time operational dashboard, court bookings, overdue dues and membership alerts, and retention metrics.',
+      impact: 'Live in production with real users: it centralizes payments, dues, access, and bookings that used to be handled by hand.',
       url: 'https://nodofit.com.ar',
       tech: ['Next.js', 'PostgreSQL', 'Tailwind', 'Supabase', 'REST APIs'],
       featured: false
@@ -152,11 +152,11 @@ export const projectsContent: Record<Lang, ProjectData[]> = {
       badge: 'SaaS em Produção',
       name: 'NodoFit',
       role: 'Criador & Arquiteto Full Stack',
-      category: 'Gestão para Dojos, Academias & Treinadores',
-      description: 'Sistema cloud moderno para a gestão administrativa e contábil de academias, dojos e personal trainers, com controle de receitas e gestor de mensalidades.',
-      problem: 'Perda de cobranças, registros manuais em planilhas e falta de controle de acesso e do status das mensalidades.',
-      solution: 'Plataforma ágil com dashboard operacional em tempo real, alertas de mensalidades vencidas e métricas de retenção de alunos.',
-      impact: 'Em produção ativa, reduzindo a zero as horas de conciliação manual de cobranças e acessos.',
+      category: 'Gestão para Academias, Dojos, Treinadores & Clubes com Quadras',
+      description: 'Sistema integral nascido da experiência com o Satori Dojo, que mostrou que o produto precisava crescer. Gerencia academias, personal trainers, dojos e clubes com reservas de quadras (futebol, padel, tênis), com controle de receitas e gestor de mensalidades.',
+      problem: 'Perda de cobranças, registros manuais em planilhas, reservas de quadras sem controle e falta de acompanhamento do acesso e do status das mensalidades.',
+      solution: 'Plataforma ágil com dashboard operacional em tempo real, reservas de quadras, alertas de mensalidades vencidas e métricas de retenção.',
+      impact: 'Em produção com usuários reais: centraliza cobranças, mensalidades, acessos e reservas que antes eram feitos à mão.',
       url: 'https://nodofit.com.ar',
       tech: ['Next.js', 'PostgreSQL', 'Tailwind', 'Supabase', 'REST APIs'],
       featured: false
@@ -198,29 +198,29 @@ export const automationsContent = {
     subtitle: 'Resolviendo cuellos de botella reales en empresas y organismos',
     bot1Title: 'Lector & Conciliador de Extractos Bancarios (Python)',
     bot1Desc: 'Procesa PDFs bancarios heterogéneos de múltiples entidades bancarias, identifica alícuotas de IVA y totaliza movimientos automáticamente para liquidaciones contables.',
-    bot1Metric: 'Reducción de horas de marcado manual a segundos con 0% de margen de error.',
+    bot1Metric: 'De horas de marcado manual a segundos.',
     bot2Title: 'Facturación Electrónica Fiscal ARCA (ex AFIP)',
     bot2Desc: 'Integración vía Webservices seguros con el organismo tributario para la emisión automatizada de comprobantes fiscales, con validación humana en el loop.',
-    bot2Metric: '100% de cumplimiento normativo y trazabilidad contable.'
+    bot2Metric: 'Cumplimiento normativo y trazabilidad contable.'
   },
   en: {
     title: 'Automations & Business Bots',
     subtitle: 'Solving real operational bottlenecks in businesses and organizations',
     bot1Title: 'Bank Statement Parser & Reconciliation Bot (Python)',
     bot1Desc: 'Processes heterogeneous bank PDF statements across multiple banks, identifies VAT rates, and automatically totals transactions for accounting settlements.',
-    bot1Metric: 'Reduction of hours of manual marking to seconds with 0% margin of error.',
+    bot1Metric: 'From hours of manual marking to seconds.',
     bot2Title: 'Fiscal Electronic Invoicing ARCA (ex AFIP)',
     bot2Desc: 'Integration via secure webservices with the tax authority for automated issuance of fiscal receipts, with human validation in the loop.',
-    bot2Metric: '100% regulatory compliance and accounting traceability.'
+    bot2Metric: 'Regulatory compliance and accounting traceability.'
   },
   pt: {
     title: 'Automações & Bots de Negócio',
     subtitle: 'Resolvendo gargalos operacionais reais em empresas e organizações',
     bot1Title: 'Leitor & Conciliador de Extratos Bancários (Python)',
     bot1Desc: 'Processa extratos bancários em PDF de múltiplas instituições, identifica alíquotas de IVA e totaliza movimentações automaticamente para liquidações contábeis.',
-    bot1Metric: 'Redução de horas de marcação manual para segundos com 0% de margem de erro.',
+    bot1Metric: 'De horas de marcação manual a segundos.',
     bot2Title: 'Faturamento Eletrônico Fiscal ARCA (ex AFIP)',
     bot2Desc: 'Integração via Webservices seguros com o órgão tributário para emissão automatizada de comprovantes fiscais, com validação humana no loop.',
-    bot2Metric: '100% de conformidade regulatória e rastreabilidade contábil.'
+    bot2Metric: 'Conformidade normativa e rastreabilidade contábil.'
   }
 };

@@ -1,0 +1,242 @@
+---
+import BeltMark from './BeltMark.astro';
+import { useTranslations, type Lang } from '../../i18n/ui';
+import { BELTS, martialExperienceData } from '../../data/martialExperience';
+
+/**
+ * The one detail panel of the page: a modal <dialog> that slides in from the right (a bottom sheet on
+ * small screens). Its content is never fetched: every position is serialised once, here, into an inert
+ * <template data-exp-template="<id>"> and src/scripts/experiencePanel.ts clones the one that is asked for.
+ *
+ * Progressive enhancement: without JS the dialog stays closed (UA display none) and each chapter row
+ * carries a <details> with the same content (TulChapter.astro). The panel uses only the page tokens
+ * (--field, --ink, --ink-soft), so it is legible on white and on the black field alike.
+ */
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'es' } = Astro.props;
+const t = useTranslations(lang);
+const content = martialExperienceData[lang];
+const items = content.stages.flatMap((stage) =>
+  stage.positions.map((position) => ({ stage, position, belt: BELTS[stage.beltKey] }))
+);
+---
+
+<dialog class="xp" data-exp-panel>
+  <div class="xp__sheet">
+    <button type="button" class="xp__close" data-exp-close>{t('tul.panel.close')}</button>
+    <div class="xp__body" data-exp-body></div>
+  </div>
+</dialog>
+
+{items.map(({ stage, position, belt }) => (
+  <template data-exp-template={position.id} data-belt={stage.beltKey}>
+    <div class="xp__head">
+      <BeltMark beltKey={stage.beltKey} size="mini" title={belt.beltName[lang]} class="xp__belt" />
+      <p class="xp__dates num">{position.dates}</p>
+    </div>
+    <h2 class="xp__role" data-exp-title>{position.role}</h2>
+    <p class="xp__org">{position.org}</p>
+    <p class="xp__teaser">{position.teaser}</p>
+    {position.description !== position.teaser && <p class="xp__text">{position.description}</p>}
+    {position.transferableCompetency && (
+      <p class="xp__comp">
+        <strong>{content.competencyLabel}</strong> {position.transferableCompetency}
+      </p>
+    )}
+  </template>
+))}
+
+<style is:global>
+  /* The scrollbar track is always reserved, so locking the page scroll never moves the layout. */
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  html.xp-lock {
+    overflow: hidden;
+  }
+
+  dialog.xp {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    overflow: hidden;
+  }
+
+  dialog.xp[data-dark] {
+    --field: var(--field-dark);
+    --ink: var(--ink-dark);
+    --ink-soft: var(--ink-soft-dark);
+  }
+
+  dialog.xp::backdrop {
+    background: rgb(5 8 12 / 0.55);
+    opacity: 1;
+    transition: opacity 280ms var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+  }
+
+  .xp__sheet {
+    position: absolute;
+    inset: auto 0 0 0;
+    display: grid;
+    align-content: start;
+    gap: var(--space-s);
+    max-height: 88svh;
+    padding: var(--space-m) var(--gutter) calc(var(--space-l) + env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-top: var(--line-strong) solid var(--ink);
+    background-color: var(--field);
+    color: var(--ink);
+    transform: translateY(0);
+    opacity: 1;
+    transition:
+      transform 280ms var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)),
+      opacity 280ms var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+  }
+
+  @media (min-width: 40rem) {
+    .xp__sheet {
+      inset: 0 0 0 auto;
+      width: min(32rem, 100%);
+      max-height: none;
+      padding: var(--space-l) var(--space-l) var(--space-xl);
+      border-top: 0;
+      border-left: var(--line-strong) solid var(--ink);
+    }
+  }
+
+  /* Enter and exit: transform and opacity only. */
+  @starting-style {
+    dialog.xp[open]::backdrop {
+      opacity: 0;
+    }
+
+    dialog.xp[open] .xp__sheet {
+      transform: translateY(2.5rem);
+      opacity: 0;
+    }
+
+  }
+
+  @media (min-width: 40rem) {
+    @starting-style {
+      dialog.xp[open] .xp__sheet {
+        transform: translateX(2.5rem);
+      }
+    }
+  }
+
+  dialog.xp[data-closing]::backdrop {
+    opacity: 0;
+  }
+
+  dialog.xp[data-closing] .xp__sheet {
+    transform: translateY(2.5rem);
+    opacity: 0;
+  }
+
+  @media (min-width: 40rem) {
+    dialog.xp[data-closing] .xp__sheet {
+      transform: translateX(2.5rem);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    dialog.xp::backdrop,
+    .xp__sheet {
+      transition: none;
+    }
+  }
+
+  .xp__close {
+    justify-self: end;
+    min-height: 2.75rem;
+    padding-inline: var(--space-xs);
+    border: var(--line-strong) solid currentColor;
+    font-family: var(--font-display);
+    font-size: var(--step--1);
+    font-weight: 700;
+  }
+
+  .xp__close:hover {
+    background-color: var(--ink);
+    color: var(--field);
+  }
+
+  /* The button already has a border: a ring 3px away would read as a second, doubled border. Flush, it thickens
+     the one border instead. */
+  .xp__close:focus-visible {
+    outline: var(--line-strong) solid currentColor;
+    outline-offset: 0;
+  }
+
+  .xp__sheet:focus-visible {
+    outline: var(--line-strong) solid currentColor;
+    outline-offset: 3px;
+  }
+
+  .xp__body {
+    display: grid;
+    gap: var(--space-xs);
+    min-width: 0;
+  }
+
+  .xp__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+  }
+
+  .xp__belt {
+    width: 3.5rem;
+    height: auto;
+    aspect-ratio: 28 / 22;
+  }
+
+  .xp__dates {
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  .xp__role {
+    font-size: var(--step-2);
+    letter-spacing: var(--track-display);
+    line-height: 1.05;
+    overflow-wrap: break-word;
+  }
+
+  .xp__org {
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+
+  .xp__teaser {
+    font-size: var(--step-0);
+    font-weight: 500;
+    line-height: 1.35;
+  }
+
+  .xp__text,
+  .xp__comp {
+    max-width: 60ch;
+    font-size: var(--step--1);
+  }
+
+  .xp__comp strong {
+    font-weight: 700;
+  }
+</style>

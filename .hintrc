@@ -1,0 +1,26 @@
+{
+  "extends": ["development"],
+  "hints": {
+    "compat-api/css": [
+      "default",
+      {
+        "ignore": [
+          "-moz-appearance: none",
+          "-webkit-appearance: none",
+          "appearance: none",
+          "cursor",
+          "zoom: 1",
+          "text-size-adjust",
+          "scrollbar-color",
+          "scrollbar-width",
+          "scrollbar-width: thin",
+          "scrollbar-width: none",
+          "text-wrap",
+          "text-wrap: balance",
+          "text-wrap: pretty",
+          "text-wrap: wrap"
+        ]
+      }
+    ]
+  }
+}

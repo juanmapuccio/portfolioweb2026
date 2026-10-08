@@ -1,0 +1,522 @@
+// The only scroll engine of the tul world. Native scroll, no smooth-scroll library.
+//
+// Contract for chapters (T4+):
+//   [data-tul-scene]   element whose scroll span (top of element at viewport top, to its
+//                      bottom at viewport bottom) writes `--p` (0..1) and `--draw`.
+//   data-p-from/to     optional range (default 0..1) that --p is mapped onto for `--draw`.
+//   data-q-end         optional: --q (0..1) runs over scene progress 0..q-end (the hero's portrait
+//                      turning into the path).
+//   data-draw-start    optional: --draw starts moving once the scene progress passes this value.
+//   --draw             consumed by TatamiIso (the floor of FloorDiagram): stroke-dashoffset, stops and arrows.
+//   main section[data-belt]  the section at mid-viewport sets html[data-active-belt] and the header
+//                      grade indicator ([data-grade-gup], [data-grade-form]). The belt never changes the
+//                      page background: the field is white up to the red belt and flips to black once, at 1st
+//                      dan (see [data-tul-passage]). The belt only drives the header belt mark (a short
+//                      clip-path wipe from the previous belt) and accent colours. Sections after the black belt (principles, sheet,
+//                      close) carry data-belt="negro" as their accent, so the header keeps showing 1st dan.
+//   data-form-label    optional on a sub-scene (black belt passages): the header's form text shows
+//                      this label while the sub-scene sits at mid-viewport.
+//   [data-tul-passage] spacer between two chapters (InkPassage.astro): `--p` (0..1) while it crosses the
+//                      viewport (top at the bottom edge to bottom at the top edge). The belt drawing inside
+//                      ([data-belt-drawing]) unties and ties with it. The one that arrives at 1st dan also
+//                      drives the black flood and sets html[data-field="dark"] at p >= 0.5.
+// With reduced motion nothing is scrubbed: --p and --draw are 1, everything is drawn.
+// Only GSAP's ticker schedules frames here; only CSS-driven transform, opacity, clip-path
+// and stroke-dashoffset react to the variables.
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { SplitText } from 'gsap/SplitText';
+import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
+import { bootBelt3d } from './belt3d/boot';
+import { playTitleReveal } from './titleReveal';
+import { buildBeltTimeline } from './beltDrawing';
+import { initExperiencePanel } from './experiencePanel';
+
+type Grade = { gup: string; form: string };
+
+const root = document.documentElement;
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// GSAP's formerly paid plugins ship free in the `gsap` package: SplitText for the title reveal and DrawSVG for the belt drawing.
+gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin);
+
+type Grades = Record<string, Grade>;
+
+const indicator = document.querySelector<HTMLElement>('[data-grade-indicator]');
+const gupEl = document.querySelector<HTMLElement>('[data-grade-gup]');
+const formEl = document.querySelector<HTMLElement>('[data-grade-form]');
+
+let grades: Grades = {};
+try {
+  grades = JSON.parse(indicator?.dataset.grades ?? '{}') as Grades;
+} catch {
+  grades = {};
+}
+
+const swatchPrev = document.querySelector<HTMLElement>('[data-swatch-prev]');
+const swatchFill = document.querySelector<HTMLElement>('[data-swatch-fill]');
+
+/** Belt whose grade the indicator currently shows. */
+let shownGrade = '';
+
+/** Line hand-off: the new belt's fill wipes over the previous one (instant with reduced motion). */
+function wipeSwatch(from: string, key: string): void {
+  if (reduced || !swatchFill || !swatchPrev || !swatchFill.animate) return;
+  swatchPrev.style.setProperty('--belt-fill', from);
+  swatchPrev.style.setProperty('--belt-key', key);
+  swatchFill.animate(
+    [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0 0 0)' }],
+    { duration: 450, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }
+  );
+}
+
+function setBelt(belt: string): void {
+  if (shownGrade === belt) return;
+  const header = swatchFill?.closest<HTMLElement>('.tul-header');
+  const style = header ? getComputedStyle(header) : undefined;
+  const from = style?.getPropertyValue('--belt-fill').trim() ?? '';
+  const key = style?.getPropertyValue('--belt-key').trim() ?? '';
+  const first = shownGrade === '';
+  shownGrade = belt;
+  root.dataset.activeBelt = belt;
+  if (!first && from) wipeSwatch(from, key);
+  const grade = grades[belt];
+  if (grade && gupEl) gupEl.textContent = grade.gup;
+  if (grade && formEl) formEl.textContent = grade.form;
+}
+
+function readRange(el: HTMLElement): [number, number] {
+  const from = parseFloat(el.dataset.pFrom ?? '0');
+  const to = parseFloat(el.dataset.pTo ?? '1');
+  return [Number.isFinite(from) ? from : 0, Number.isFinite(to) ? to : 1];
+}
+
+const clamp01 = (n: number): number => Math.min(1, Math.max(0, n));
+
+function write(el: HTMLElement, p: number, from: number, to: number): void {
+  const qEnd = parseFloat(el.dataset.qEnd ?? '');
+  const drawStart = parseFloat(el.dataset.drawStart ?? '0') || 0;
+  el.style.setProperty('--p', p.toFixed(4));
+  if (Number.isFinite(qEnd) && qEnd > 0) el.style.setProperty('--q', clamp01(p / qEnd).toFixed(4));
+  const d = clamp01((p - drawStart) / (1 - drawStart));
+  el.style.setProperty('--draw', (from + (to - from) * d).toFixed(4));
+}
+
+function initScenes(): void {
+  const scenes = document.querySelectorAll<HTMLElement>('[data-tul-scene]');
+
+  for (const el of scenes) {
+    if (reduced) {
+      // A scene with a portrait phase stays in its static state (portrait shown, line undrawn).
+      if (el.dataset.qEnd) continue;
+      el.style.setProperty('--p', '1');
+      el.style.setProperty('--draw', '1');
+      continue;
+    }
+
+    const [from, to] = readRange(el);
+    const state = { p: 0 };
+    write(el, 0, from, to);
+
+    gsap.to(state, {
+      p: 1,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: el,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 0.4
+      },
+      onUpdate: () => write(el, state.p, from, to)
+    });
+  }
+}
+
+// 3D scene beats (the belt journey is desktop only: three never loads below 1024 px or with reduced motion,
+// except on a tap of the hero's "Ver en 3D", belt3d/boot.ts). The scene (belt3d/scene.ts) reads these as inline
+// custom properties and never touches layout:
+//   [data-belt-beat="travel"]  a chapter: `--bp` (0..1) from its top at the viewport top to its bottom at the
+//                              viewport bottom. The belt turns slowly in the reserved column with it.
+//   [data-belt-beat="land"]    the hero: besides `--p` / `--q` (initScenes) it gets `--e` (0..1) while it scrolls
+//                              away (bottom at the viewport bottom to bottom at the top): the belt leaves its floor
+//                              for the column and the hero tatami rides up with the stage. Written on every viewport.
+//   [data-belt-beat="passage"] a spacer: `--p` is written by initPassages.
+// Layout is measured here, on refresh and resize only, and published on <html> in px for the scene:
+//   --belt-vw/vh        the viewport (without the scrollbar),
+//   --belt-col-x/y/w/h  the reserved side column (a fixed probe sized by --belt-col, the same token the
+//                       chapter stages reserve as padding),
+//   --belt-hero-x/y/s   the hero's floor box (data-belt-anchor="hero") as it sits while the hero is pinned, and
+// Each scene that holds a 3D diagram (a [data-tatami] figure, desktop and motion only) also gets, as inline
+// custom properties on the scene itself:
+//   --tat-x/y/s/h/t     the figure's box (centre, width, height) as it sits while the stage is pinned, and the stage's sticky
+//                       offset: where the tatami lies. Written on refresh and resize.
+//   --en / --ex         the exact scroll progress of the stage entering (its top at the viewport bottom to the top)
+//                       and leaving (its bottom at the viewport bottom to the top), not smoothed: the tatami
+//                       travels with its stage through both, so it is on screen from entry to exit.
+// The hero floor box only exists on a phone once the tap mode is on; the scene says so with `tul:belt3d-tap`.
+// On a phone `--bp` is written only while the tap mode is on (the hero belt hands over to the chapters with it).
+function initBeats(): void {
+  const wide = !reduced && matchMedia('(min-width: 1024px)').matches;
+
+  const travel = document.querySelectorAll<HTMLElement>('[data-belt-beat="travel"]');
+  if (wide) {
+    for (const el of travel) {
+      const state = { p: 0 };
+      el.style.setProperty('--bp', '0');
+      gsap.to(state, {
+        p: 1,
+        ease: 'none',
+        scrollTrigger: { trigger: el, start: 'top top', end: 'bottom bottom', scrub: 0.4 },
+        onUpdate: () => el.style.setProperty('--bp', state.p.toFixed(4))
+      });
+    }
+  } else {
+    // Phone: the scene needs to know which chapter is on screen while the hero's "Ver en 3D" is on, so the hero
+    // belt does not hang over the first chapter. Nothing is written otherwise.
+    const tapOn = (): boolean => root.dataset.belt3dTap === 'on';
+    const triggers = [...travel].map((el) =>
+      ScrollTrigger.create({
+        trigger: el,
+        start: 'top top',
+        end: 'bottom bottom',
+        onUpdate: (self) => {
+          if (tapOn()) el.style.setProperty('--bp', self.progress.toFixed(4));
+        }
+      })
+    );
+    window.addEventListener('tul:belt3d-tap', () => {
+      if (!tapOn()) return;
+      triggers.forEach((st, i) => [...travel][i].style.setProperty('--bp', st.progress.toFixed(4)));
+    });
+  }
+
+  const hero = document.querySelector<HTMLElement>('[data-belt-beat="land"]');
+  if (hero) {
+    const state = { e: 0 };
+    hero.style.setProperty('--e', '0');
+    gsap.to(state, {
+      e: 1,
+      ease: 'none',
+      scrollTrigger: { trigger: hero, start: 'bottom bottom', end: 'bottom top', scrub: 0.4 },
+      onUpdate: () => hero.style.setProperty('--e', state.e.toFixed(4))
+    });
+  }
+
+  const probe = document.createElement('div');
+  probe.className = 'belt-col-probe';
+  probe.setAttribute('aria-hidden', 'true');
+  document.body.append(probe);
+  const anchor = document.querySelector<HTMLElement>('[data-belt-anchor="hero"]');
+  const stage = document.querySelector<HTMLElement>('[data-belt-stage]');
+  // Every scene with a 3D diagram: the figure box and the stage it sticks in.
+  const stages = wide
+    ? [...document.querySelectorAll<HTMLElement>('[data-tul-scene]')]
+        .filter((scene) => !scene.closest('[data-belt-beat="land"]'))
+        .flatMap((scene) => {
+          // The figure box; the automation beat measures its own, taller wrapper (`data-tatami-box`).
+          const fig = scene.querySelector<HTMLElement>('[data-tatami-box], .fd[data-tatami]');
+          const stage = scene.querySelector<HTMLElement>('.tc__stage, .ky__stage');
+          return fig && stage ? [{ scene, fig, stage }] : [];
+        })
+    : [];
+  const px = (n: number): string => n.toFixed(1);
+
+  const publish = (): void => {
+    root.style.setProperty('--belt-vw', px(root.clientWidth));
+    root.style.setProperty('--belt-vh', px(root.clientHeight));
+    const col = probe.getBoundingClientRect();
+    root.style.setProperty('--belt-col-x', px(col.left + col.width / 2));
+    root.style.setProperty('--belt-col-y', px(col.top + col.height / 2));
+    root.style.setProperty('--belt-col-w', px(col.width));
+    root.style.setProperty('--belt-col-h', px(col.height));
+    if (anchor && stage) {
+      const box = anchor.getBoundingClientRect();
+      if (box.width > 0) {
+        // The stage is sticky at top: 0; measure against its own top so the numbers hold at any scroll offset.
+        const top = box.top - stage.getBoundingClientRect().top;
+        root.style.setProperty('--belt-hero-x', px(box.left + box.width / 2));
+        root.style.setProperty('--belt-hero-y', px(top + box.height / 2));
+        root.style.setProperty('--belt-hero-s', px(box.width));
+      }
+    }
+    for (const { scene, fig, stage } of stages) {
+      const box = fig.getBoundingClientRect();
+      if (box.width <= 0) continue;
+      // A stage sticks at `top` (3rem): add it to the offset inside the stage.
+      const stuck = parseFloat(getComputedStyle(stage).top) || 0;
+      const top = box.top - stage.getBoundingClientRect().top + stuck;
+      scene.style.setProperty('--tat-x', px(box.left + box.width / 2));
+      scene.style.setProperty('--tat-y', px(top + box.height / 2));
+      scene.style.setProperty('--tat-s', px(box.width));
+      scene.style.setProperty('--tat-h', px(box.height));
+      scene.style.setProperty('--tat-t', px(stuck));
+    }
+  };
+  // Exact (unsmoothed) entry and exit progress: the stage moves with the scroll, so the tatami must too.
+  for (const { scene } of stages) {
+    const write = (name: string) => (self: ScrollTrigger) => scene.style.setProperty(name, self.progress.toFixed(4));
+    scene.style.setProperty('--en', '0');
+    scene.style.setProperty('--ex', '0');
+    const enter = write('--en');
+    const leave = write('--ex');
+    ScrollTrigger.create({ trigger: scene, start: 'top bottom', end: 'top top', onUpdate: enter, onRefresh: enter });
+    ScrollTrigger.create({ trigger: scene, start: 'bottom bottom', end: 'bottom top', onUpdate: leave, onRefresh: leave });
+  }
+  publish();
+  ScrollTrigger.addEventListener('refresh', publish);
+  window.addEventListener('tul:belt3d-tap', publish);
+}
+
+// [data-tul-passage]  an in-flow spacer between two chapters. It writes its own `--p` (the CSS of the flood
+//                     reads it) and scrubs the belt drawing inside it (beltDrawing.ts) with the same value.
+//                     With reduced motion nothing is written and the CSS shows a static gap with the
+//                     finished drawing.
+// The passage that arrives at 1st dan (data-belt="negro") also owns the field flip: once its progress passes
+// FLOOD_FULL the black flood covers the whole view, so the page tokens are switched to the dark field
+// underneath it (html[data-field="dark"], tokens.css) and switched back when scrolling up past it. Both read
+// the same scrubbed `p`, so the flip always happens while the flood is fully opaque. Keep FLOOD_FULL equal to
+// the 0.5 in InkPassage.astro.
+const FLOOD_FULL = 0.5;
+
+function setField(dark: boolean): void {
+  if (dark) {
+    if (root.dataset.field !== 'dark') root.dataset.field = 'dark';
+  } else if (root.dataset.field) {
+    delete root.dataset.field;
+  }
+}
+
+function initPassages(): void {
+  if (reduced) return;
+  for (const el of document.querySelectorAll<HTMLElement>('[data-tul-passage]')) {
+    const flips = el.dataset.belt === 'negro';
+    const state = { p: 0 };
+    el.style.setProperty('--p', '0');
+
+    // The belt drawing of the spacer unties and ties again with the same `p`. DrawSVG needs the drawing
+    // to be rendered, so the timeline is built the first time it is (it is hidden on desktop once the 3D
+    // belt is ready, and may only show after a resize).
+    const drawing = el.querySelector<SVGSVGElement>('[data-belt-drawing]');
+    let belt: gsap.core.Timeline | null = null;
+    let tried = false;
+    const ensureDrawing = (): void => {
+      if (tried || !drawing || drawing.getClientRects().length === 0) return;
+      tried = true;
+      belt = buildBeltTimeline(drawing);
+      belt?.progress(state.p);
+    };
+    ensureDrawing();
+
+    gsap.to(state, {
+      p: 1,
+      ease: 'none',
+      scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: 0.4 },
+      onUpdate: () => {
+        el.style.setProperty('--p', state.p.toFixed(4));
+        ensureDrawing();
+        belt?.progress(state.p);
+        if (flips) setField(state.p >= FLOOD_FULL);
+      }
+    });
+  }
+}
+
+function initChapters(): void {
+  const sections = document.querySelectorAll<HTMLElement>('main section[data-belt]');
+  if (!sections.length) return;
+
+  // A thin band at the middle of the viewport decides the active chapter.
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const target = entry.target as HTMLElement;
+        const belt = target.dataset.belt ?? 'blanco';
+        setBelt(belt);
+      }
+    },
+    { rootMargin: '-50% 0px -50% 0px', threshold: 0 }
+  );
+
+  for (const section of sections) observer.observe(section);
+
+  // Black belt passages: the header's form text follows the sub-scene at mid-viewport and falls
+  // back to the chapter's own text when none is there.
+  const passages = document.querySelectorAll<HTMLElement>('[data-form-label]');
+  if (!passages.length || !formEl) return;
+
+  const passageObserver = new IntersectionObserver(
+    (entries) => {
+      // Exits first, so moving from one passage to the next never ends on the fallback.
+      for (const entry of entries) {
+        if (entry.isIntersecting) continue;
+        const fallback = grades[shownGrade]?.form;
+        if (fallback) formEl.textContent = fallback;
+      }
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const label = (entry.target as HTMLElement).dataset.formLabel;
+        if (label) formEl.textContent = label;
+      }
+    },
+    { rootMargin: '-50% 0px -50% 0px', threshold: 0 }
+  );
+
+  for (const passage of passages) passageObserver.observe(passage);
+}
+
+// The entrance is pure CSS keyed on html.tul-intro (set by the layout's inline script).
+// Clear it once it has played so the frame returns to solid strokes.
+function endIntro(): void {
+  if (!root.classList.contains('tul-intro')) return;
+  gsap.delayedCall(2.4, () => root.classList.remove('tul-intro'));
+}
+
+// Entrances, once per element. Without motion, or without IntersectionObserver, nothing is
+// hidden: the CSS "from" states exist only under html.js with motion allowed, and the plain
+// state (visible title, full-opacity words) is what is left when this does not run.
+//   [data-split-title]  chapter title reveal (titleReveal.ts): `.is-in` once the entrance has been built and starts
+//                       (letters rise out of a SplitText mask), `.is-done` when
+//                       it has finished and the real h2 is back.
+//   [data-words]        build-time word spans (`--i`): `.is-in` lets them settle, staggered by CSS.
+//   [data-rise]         a block that rises with opacity: `.is-in`.
+//   [data-belt-mark]    chapter belt mark: `.is-in` draws the outline in (700 ms), then fades the fill.
+function initEntrances(): void {
+  const titles = document.querySelectorAll<HTMLElement>('[data-split-title]');
+  const reveals = document.querySelectorAll<HTMLElement>('[data-words], [data-rise], [data-belt-mark]');
+  if (!titles.length && !reveals.length) return;
+
+  const finish = (el: HTMLElement): void => {
+    el.classList.add('is-in', 'is-done');
+  };
+  if (reduced || !('IntersectionObserver' in window)) {
+    for (const el of titles) finish(el);
+    for (const el of reveals) el.classList.add('is-in');
+    return;
+  }
+
+  const titleObserver = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const el = entry.target as HTMLElement;
+        titleObserver.unobserve(el);
+        if (!playTitleReveal(el, () => el.classList.add('is-done'))) finish(el);
+      }
+    },
+    { threshold: 0.4 }
+  );
+  for (const el of titles) titleObserver.observe(el);
+
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        revealObserver.unobserve(entry.target);
+        entry.target.classList.add('is-in');
+      }
+    },
+    { threshold: 0.4 }
+  );
+  for (const el of reveals) revealObserver.observe(el);
+}
+
+function initHeaderAutohide(): void {
+  const header = document.querySelector<HTMLElement>('.tul-header');
+  if (!header) return;
+
+  const hero = document.querySelector<HTMLElement>('[data-belt-beat="land"]');
+  let hideTimer: ReturnType<typeof setTimeout> | undefined;
+  let isHovered = false;
+
+  const clearTimer = (): void => {
+    if (hideTimer !== undefined) {
+      clearTimeout(hideTimer);
+      hideTimer = undefined;
+    }
+  };
+
+  const getHeroBottom = (): number => {
+    if (!hero) return window.innerHeight;
+    return hero.offsetTop + hero.offsetHeight;
+  };
+
+  const isPastHero = (): boolean => {
+    return window.scrollY >= getHeroBottom() - 100;
+  };
+
+  const showHeader = (autoHideAfterMs?: number): void => {
+    clearTimer();
+    header.classList.remove('is-hidden');
+    if (autoHideAfterMs && isPastHero() && !isHovered) {
+      hideTimer = setTimeout(() => {
+        if (isPastHero() && !isHovered) {
+          header.classList.add('is-hidden');
+        }
+      }, autoHideAfterMs);
+    }
+  };
+
+  const hideHeader = (): void => {
+    clearTimer();
+    if (isPastHero() && !isHovered) {
+      header.classList.add('is-hidden');
+    }
+  };
+
+  // Hover management: entering header or sensor strip keeps it visible
+  header.addEventListener('pointerenter', () => {
+    isHovered = true;
+    showHeader();
+  });
+
+  header.addEventListener('pointerleave', () => {
+    isHovered = false;
+    if (isPastHero()) {
+      // Autohide a few seconds after mouse leaves
+      showHeader(2200);
+    }
+  });
+
+  // Top region mouse trigger: moving pointer within top 40px summons header
+  window.addEventListener('pointermove', (e) => {
+    if (e.clientY <= 40 && isPastHero()) {
+      showHeader(3000);
+    }
+  }, { passive: true });
+
+  let lastY = window.scrollY;
+
+  window.addEventListener('scroll', () => {
+    const currentY = window.scrollY;
+    const diff = currentY - lastY;
+
+    if (!isPastHero()) {
+      // Still inside or near hero: header remains naturally visible
+      showHeader();
+    } else {
+      // Past hero: scrolling automatically hides header unless cursor is directly hovering it
+      if (!isHovered) {
+        if (diff > 5) {
+          hideHeader();
+        } else if (diff < -8) {
+          // Responsive flick/scroll up immediately reveals it on mobile/desktop, auto-hiding after 2.8s
+          showHeader(2800);
+        }
+      }
+    }
+
+    lastY = currentY;
+  }, { passive: true });
+}
+
+initScenes();
+initBeats();
+initPassages();
+initChapters();
+initEntrances();
+initHeaderAutohide();
+endIntro();
+initExperiencePanel();
+// Desktop only, after load and idle: the 3D belt (three never loads otherwise).
+bootBelt3d();

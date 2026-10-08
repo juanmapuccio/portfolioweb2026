@@ -1,0 +1,464 @@
+---
+import { languages, useTranslations, type Lang } from '../../i18n/ui';
+import { BELTS, martialExperienceData } from '../../data/martialExperience';
+import type { BeltKey } from '../../data/tuls';
+import BeltMark from './BeltMark.astro';
+
+interface Props {
+  lang?: Lang;
+  /** Path below the locale root, so the language switch lands on the equivalent page. */
+  path?: string;
+}
+
+const { lang = 'es', path = '' } = Astro.props;
+const isCv = path === 'cv/';
+const t = useTranslations(lang);
+
+const localePaths: Record<Lang, string> = { es: '/', en: '/en/', pt: '/pt/' };
+const beltOrder: BeltKey[] = ['blanco', 'amarillo', 'verde', 'azul', 'rojo', 'negro'];
+
+/** Grade and the chapter's professional-area title per belt, for the first paint and the engine. */
+const stages = martialExperienceData[lang].stages;
+const grades = Object.fromEntries(
+  beltOrder.map((key) => [
+    key,
+    {
+      gup: BELTS[key].gup,
+      form: stages.find((s) => s.beltKey === key)?.title ?? ''
+    }
+  ])
+) as Record<BeltKey, { gup: string; form: string }>;
+
+const initial = grades[beltOrder[0]];
+
+const legend = [
+  { id: 'footprint', term: t('tul.legend.footprint.term'), desc: t('tul.legend.footprint.desc') },
+  { id: 'arrow', term: t('tul.legend.arrow.term'), desc: t('tul.legend.arrow.desc') },
+  { id: 'number', term: t('tul.legend.number.term'), desc: t('tul.legend.number.desc') },
+  { id: 'line', term: t('tul.legend.line.term'), desc: t('tul.legend.line.desc') },
+  { id: 'belt', term: t('tul.legend.belt.term'), desc: t('tul.legend.belt.desc') }
+] as const;
+---
+
+<header class="tul-header">
+  <nav class="tul-header__bar" aria-label={t('tul.nav.label')}>
+    <button
+      class="tul-grade"
+      type="button"
+      popovertarget="tul-legend"
+      aria-haspopup="dialog"
+      data-grade-indicator
+      data-grades={JSON.stringify(grades)}
+    >
+      <span class="tul-grade__mark" aria-hidden="true">
+        <span class="tul-grade__prev" data-swatch-prev><BeltMark size="mini" /></span>
+        <span class="tul-grade__fill" data-swatch-fill><BeltMark size="mini" /></span>
+      </span>
+      <span class="visually-hidden">{t('tul.grade.label')}:</span>
+      <span class="tul-grade__live" role="status">
+        <span class="tul-grade__gup num" data-grade-gup>{initial.gup}</span>
+        <span class="tul-grade__form" data-grade-form>{initial.form}</span>
+      </span>
+      <span class="visually-hidden">. {t('tul.grade.legend')}</span>
+    </button>
+
+    <div class="tul-header__tools">
+      <button
+        class="tul-btn tul-btn--legend"
+        type="button"
+        popovertarget="tul-legend"
+        aria-haspopup="dialog"
+      >
+        {t('tul.legend.button')}
+      </button>
+
+      <ul class="tul-lang" aria-label={t('tul.lang.label')}>
+        {(Object.keys(languages) as Lang[]).map((code) => (
+          <li>
+            <a
+              class="tul-btn"
+              href={localePaths[code] + path}
+              hreflang={code}
+              lang={code}
+              aria-current={code === lang ? 'page' : undefined}
+              aria-label={languages[code]}
+            >
+              {code.toUpperCase()}
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <a
+        class="tul-btn tul-btn--top"
+        href="#main"
+        aria-label={t('tul.close.back')}
+        title={t('tul.close.back')}
+      >
+        <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
+          <path d="M10 15V5M5 10L10 5L15 10"></path>
+        </svg>
+      </a>
+
+      {!isCv && (
+        <a class="tul-btn tul-btn--cv" href={localePaths[lang] + 'cv/'} aria-label={t('tul.cv.short')}>{t('tul.cv.nav')}</a>
+      )}
+      <a class="tul-btn tul-btn--contact" href="#contacto">{t('tul.header.contact')}</a>
+    </div>
+  </nav>
+
+  <div id="tul-legend" class="tul-legend" popover="auto" aria-label={t('tul.legend.title')}>
+    <div class="tul-legend__head">
+      <h2 class="tul-legend__title">{t('tul.legend.title')}</h2>
+      <button
+        class="tul-btn"
+        type="button"
+        popovertarget="tul-legend"
+        popovertargetaction="hide"
+        aria-label={t('tul.legend.close')}
+      >
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+          <path d="M3 3L13 13M13 3L3 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"></path>
+        </svg>
+      </button>
+    </div>
+    <p class="tul-legend__intro">{t('tul.legend.intro')}</p>
+    <dl class="tul-legend__list">
+      {legend.map((item) => (
+        <div class="tul-legend__row">
+          <dt>
+            {item.id === 'belt' ? (
+              <span class="tul-legend__icon tul-legend__icon--belt"><BeltMark size="mini" /></span>
+            ) : (
+            <svg class="tul-legend__icon" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+              {item.id === 'footprint' && (
+                <>
+                  <path d="M7 5H13V16H7Z M7 19H13V23H7Z"></path>
+                  <path d="M19 10H25V21H19Z M19 24H25V28H19Z"></path>
+                </>
+              )}
+              {item.id === 'arrow' && (
+                <>
+                  <path d="M4 16H27"></path>
+                  <path d="M21 10L27 16L21 22"></path>
+                </>
+              )}
+              {item.id === 'number' && (
+                <>
+                  <circle cx="16" cy="16" r="10"></circle>
+                  <path d="M13 13L16.5 10.5V21.5"></path>
+                </>
+              )}
+              {item.id === 'line' && (
+                <>
+                  <path d="M5 24H14V8H27"></path>
+                  <rect x="3" y="22" width="4" height="4" fill="currentColor"></rect>
+                  <rect x="25" y="6" width="4" height="4" fill="currentColor"></rect>
+                </>
+              )}
+            </svg>
+            )}
+            <span>{item.term}</span>
+          </dt>
+          <dd>{item.desc}</dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+</header>
+
+<style>
+  .tul-header {
+    --belt-fill: #ffffff;
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    background-color: var(--field);
+    color: var(--ink);
+    border-bottom: var(--line) solid var(--ink);
+    transition: transform 300ms var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+    will-change: transform;
+  }
+
+  .tul-header.is-hidden {
+    transform: translateY(-100%);
+  }
+
+  /* Thin interactive sensor strip when hidden: moving the mouse to the top edge (or into the header) reveals it */
+  .tul-header.is-hidden::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 14px;
+    pointer-events: auto;
+  }
+
+  .tul-header__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    min-height: 3rem;
+    padding: 0 var(--gutter);
+  }
+
+  .tul-grade {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    min-width: 0;
+    min-height: 2.75rem;
+    margin: 0;
+    margin-left: calc(-1 * var(--space-2xs));
+    padding: 0 var(--space-2xs);
+    border: var(--line) solid transparent;
+    font-size: var(--step--1);
+    font-weight: 600;
+    white-space: nowrap;
+    text-align: left;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out);
+  }
+
+  .tul-grade:hover {
+    border-color: var(--ink);
+    background-color: color-mix(in srgb, var(--ink) 4%, transparent);
+  }
+
+  .tul-grade:focus-visible {
+    outline: var(--line-strong) solid var(--belt-line);
+    outline-offset: 2px;
+  }
+
+  .tul-grade:active {
+    background-color: var(--ink);
+    color: var(--field);
+  }
+
+  .tul-grade__live {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    min-width: 0;
+  }
+
+  /* The mark follows the active chapter (html[data-active-belt]); the page field never changes.
+     Two marks are stacked: a change wipes the new one over the previous belt's colours (see tul.ts). */
+  .tul-grade__mark {
+    display: grid;
+    flex: none;
+    width: 28px;
+    height: 22px;
+  }
+
+  .tul-grade__prev,
+  .tul-grade__fill {
+    grid-area: 1 / 1;
+    display: block;
+  }
+
+  .tul-legend__icon--belt {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+  }
+
+  .tul-grade__gup {
+    flex: none;
+  }
+
+  .tul-grade__form {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+
+  .tul-grade__form::before {
+    content: '\00b7';
+    margin-right: var(--space-2xs);
+  }
+
+  .tul-header__tools {
+    display: flex;
+    align-items: center;
+    flex: none;
+    gap: var(--space-2xs);
+  }
+
+  .tul-lang {
+    display: flex;
+    gap: 0;
+  }
+
+  .tul-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    padding: 0 var(--space-xs);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    text-decoration: none;
+    border: var(--line) solid transparent;
+    background: transparent;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out);
+  }
+
+  .tul-btn:hover {
+    border-color: var(--ink);
+    background-color: color-mix(in srgb, var(--ink) 5%, transparent);
+  }
+
+  .tul-btn:focus-visible {
+    outline: var(--line-strong) solid var(--belt-line);
+    outline-offset: 2px;
+  }
+
+  .tul-btn:active,
+  .tul-btn[aria-current='page'] {
+    background-color: var(--ink);
+    color: var(--field);
+    border-color: var(--ink);
+  }
+
+  .tul-btn--top {
+    padding: 0 var(--space-2xs);
+    opacity: 0.85;
+  }
+
+  .tul-btn--top:hover {
+    opacity: 1;
+    border-color: var(--ink);
+  }
+
+  .tul-btn--top svg {
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .tul-btn--top:hover svg {
+    transform: translateY(-2px);
+  }
+
+  .tul-btn--contact {
+    border-color: var(--ink);
+  }
+
+  .tul-btn--contact:hover {
+    background-color: var(--ink);
+    color: var(--field);
+  }
+
+  /* The grade indicator is the legend trigger; below 62rem it replaces the Leyenda button. */
+  @media (max-width: 61.999rem) {
+    .tul-btn--legend {
+      display: none;
+    }
+  }
+
+  .tul-legend {
+    position: fixed;
+    inset: 3.5rem var(--gutter) auto auto;
+    width: min(26rem, calc(100vw - 2 * var(--gutter)));
+    margin: 0;
+    padding: var(--space-m);
+    background-color: var(--field);
+    color: var(--ink);
+    border: var(--line-strong) solid var(--ink);
+  }
+
+  .tul-legend:not(:popover-open) {
+    display: none;
+  }
+
+  .tul-legend__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+  }
+
+  .tul-legend__title {
+    font-size: var(--step-1);
+    font-variation-settings: 'wght' 700, 'wdth' 100;
+  }
+
+  .tul-legend__intro {
+    margin-top: var(--space-2xs);
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+  }
+
+  .tul-legend__list {
+    margin: var(--space-s) 0 0;
+    display: grid;
+    gap: 0;
+  }
+
+  .tul-legend__row {
+    display: grid;
+    grid-template-columns: 9rem 1fr;
+    align-items: center;
+    gap: var(--space-s);
+    padding: var(--space-2xs) 0;
+    border-top: var(--line) solid var(--ink-soft);
+  }
+
+  .tul-legend__row dt {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-weight: 700;
+  }
+
+  .tul-legend__row dd {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+
+  .tul-legend__icon {
+    flex: none;
+  }
+
+  @media (max-width: 30rem) {
+    .tul-grade {
+      flex: none;
+    }
+
+    .tul-btn--contact,
+    .tul-btn--cv {
+      padding: 0 var(--space-2xs);
+    }
+
+    /* Keep the grade readable at 390: swatch and form name give way to the tools. */
+    .tul-grade__form {
+      display: none;
+    }
+
+    .tul-header__tools {
+      gap: 0;
+    }
+
+    .tul-lang .tul-btn {
+      min-width: 2.25rem;
+      padding: 0 var(--space-3xs);
+    }
+
+    .tul-legend__row {
+      grid-template-columns: 7rem 1fr;
+    }
+  }
+</style>

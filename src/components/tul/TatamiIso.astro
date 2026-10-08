@@ -1,0 +1,240 @@
+---
+import type { TulForm } from '../../data/tuls';
+import { VIEW_BOX, buildTatamiIso, fmt, points } from './tatamiIso';
+
+/**
+ * The floor of a tul as an isometric SVG, generated at build time from the same route and stops the 3D tatami
+ * reads (`data-tatami`, see FloorDiagram). It is the floor wherever the 3D scene is not drawn: a phone, reduced
+ * motion, no JS, no WebGL, and a desktop whose scene has not loaded yet.
+ *
+ * - Floor: tatami mats in an isometric grid. Each mat is a top face and two side faces (its thickness); the gaps
+ *   between mats are the seams. Every face is one flat polygon with a tone mixed from `--field` and `--ink` (so it
+ *   works on white and on the dark field). No gradient, no shadow.
+ * - Route: projected on the top faces in `--belt-line` and drawn by `--draw` (stroke-dashoffset, `pathLength=1`).
+ *   Without `--draw` it is fully drawn (no JS and reduced motion).
+ * - Posts: square prisms standing on the route at each milestone, the number on the face that looks left, horizontal,
+ *   never turned. They appear once `--draw` passes their `--t`.
+ * - Motion: only `transform` (a slight turn and a slight approach, from the scene's `--p`) and the draw. Static
+ *   and complete without `--p`, and under reduced motion.
+ * - Decorative: aria-hidden; the real content lives in HTML.
+ * - Geometry is design layer, never the technical execution of the form.
+ */
+interface Props {
+  form: TulForm;
+  /** Minimap: fewer mats, small solid posts, no arrowheads, no numbers. */
+  compact?: boolean;
+  /** Numbers on the posts and the ready flag. */
+  labelled?: boolean;
+  /** Mark the diagram as scroll-driven (engine hook, `data-diagram-progress`). */
+  progress?: boolean;
+  /** Short "ready" label drawn on a flag beside the footprints (passed in by the caller). */
+  readyLabel?: string;
+  /** The floor of the hero: it stays out of sight while the portrait is on screen (`--q`). */
+  portrait?: boolean;
+  /** Unique id suffix for the brush mask (several diagrams of the same form can share a page). */
+  uid: string;
+}
+
+const { form, compact = false, labelled = false, progress = false, readyLabel, portrait = false, uid } = Astro.props;
+
+const model = buildTatamiIso(form, { compact, labelled, flag: !!readyLabel });
+const brushId = `tiso-brush-${uid}`;
+---
+
+<svg
+  class:list={['tatami-iso', { 'tatami-iso--compact': compact, 'tatami-iso--portrait': portrait }]}
+  viewBox={model.viewBox}
+  preserveAspectRatio="xMidYMid meet"
+  aria-hidden="true"
+  focusable="false"
+  data-diagram-progress={progress ? '' : undefined}
+  data-form={form.id}
+>
+  <defs>
+    <pattern id={`${brushId}-p`} width="2.6" height="2.08" patternUnits="userSpaceOnUse" patternTransform="rotate(16)">
+      <rect width="2.6" height="2.08" fill="#fff"></rect>
+      <rect width="2.6" height="0.26" fill="#000" fill-opacity="0.55"></rect>
+      <rect x="0.35" y="1.13" width="1.4" height="0.19" fill="#000" fill-opacity="0.65"></rect>
+    </pattern>
+    <mask id={brushId} maskUnits="userSpaceOnUse" x={VIEW_BOX.x} y={VIEW_BOX.y} width={VIEW_BOX.w} height={VIEW_BOX.h}>
+      <rect x={VIEW_BOX.x} y={VIEW_BOX.y} width={VIEW_BOX.w} height={VIEW_BOX.h} fill={`url(#${brushId}-p)`}></rect>
+    </mask>
+  </defs>
+
+  <g class="tiso-floor">
+    <polygon class="tiso-base" points={points(model.base)}></polygon>
+    {model.plates.map((plate) => (
+      <g class="tiso-plate">
+        <polygon class="tiso-l" points={points(plate.left)}></polygon>
+        <polygon class="tiso-r" points={points(plate.right)}></polygon>
+        <polygon class="tiso-t" points={points(plate.top)}></polygon>
+      </g>
+    ))}
+  </g>
+
+  <path class="tiso-ghost" d={model.route}></path>
+  <path class="tiso-line" d={model.route} pathLength="1" mask={`url(#${brushId})`}></path>
+
+  {model.arrows.map((a) => <path class="tiso-arrow" d={a.d} style={`--t:${a.t}`}></path>)}
+
+  <g class="tiso-ready">
+    {model.feet.map((foot) => <polygon class="tiso-foot" points={points(foot)}></polygon>)}
+  </g>
+  {model.flag && readyLabel && (
+    <g class="tiso-ready tiso-flag">
+      <line x1={fmt(model.flag.foot[0])} y1={fmt(model.flag.foot[1])} x2={fmt(model.flag.top[0])} y2={fmt(model.flag.top[1])}></line>
+      <text x={fmt(model.flag.top[0] + 1.4)} y={fmt(model.flag.top[1])} dy="0.35em">{readyLabel}</text>
+    </g>
+  )}
+
+  {model.posts.map((post) => (
+    <g class="tiso-post" style={`--t:${post.t}`}>
+      <polygon class="tiso-pl" points={points(post.faces.left)}></polygon>
+      <polygon class="tiso-pr" points={points(post.faces.right)}></polygon>
+      <polygon class="tiso-pt" points={points(post.faces.top)}></polygon>
+      {post.label && (
+        <text class="tiso-num" x={fmt(post.label[0])} y={fmt(post.label[1])} text-anchor="middle" dy="0.35em">{post.n}</text>
+      )}
+    </g>
+  ))}
+</svg>
+
+<style>
+  .tatami-iso {
+    /* Flat tones per face, mixed from the page tokens: they follow the white and the dark field. */
+    --tiso-base: color-mix(in srgb, var(--ink) 52%, var(--field));
+    --tiso-top: color-mix(in srgb, var(--ink) 7%, var(--field));
+    --tiso-right: color-mix(in srgb, var(--ink) 17%, var(--field));
+    --tiso-left: color-mix(in srgb, var(--ink) 29%, var(--field));
+    --tiso-stroke: 1.05;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+    /* The route, footprints and posts take the active belt's line colour. */
+    color: var(--belt-line);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: var(--tiso-stroke);
+    stroke-linecap: butt;
+    stroke-linejoin: miter;
+    /* A slight turn and approach with the scene (--p). No scene (no JS) rests at the middle of the range. */
+    transform-origin: 50% 58%;
+    transform: rotate(calc((var(--p, 0.5) - 0.5) * 5deg)) scale(calc(1 + var(--p, 0.5) * 0.04));
+  }
+
+  .tatami-iso--compact {
+    --tiso-stroke: 1.6;
+  }
+
+  /* The hero floor appears as the portrait gives way (--q 0.3 to 1). */
+  .tatami-iso--portrait {
+    opacity: clamp(0, calc((var(--q, 0) - 0.3) * 1.4286), 1);
+  }
+
+  .tiso-floor polygon {
+    stroke: none;
+  }
+
+  .tiso-base {
+    fill: var(--tiso-base);
+  }
+
+  .tiso-t {
+    fill: var(--tiso-top);
+  }
+
+  .tiso-r {
+    fill: var(--tiso-right);
+  }
+
+  .tiso-l {
+    fill: var(--tiso-left);
+  }
+
+  .tiso-ghost {
+    stroke-width: calc(var(--tiso-stroke) * 0.55);
+    stroke-dasharray: 1.8 2;
+    opacity: var(--ghost-o, 0.85);
+  }
+
+  .tiso-line {
+    stroke-width: calc(var(--tiso-stroke) * 1.25);
+    stroke-dasharray: 1 2;
+    stroke-dashoffset: calc(1 - var(--draw, 1));
+  }
+
+  .tiso-arrow,
+  .tiso-post {
+    opacity: clamp(0, calc((var(--draw, 1) - var(--t, 0)) * 24), 1);
+  }
+
+  .tiso-arrow {
+    stroke-width: calc(var(--tiso-stroke) * 0.9);
+  }
+
+  .tiso-ready {
+    opacity: var(--ready-o, 1);
+  }
+
+  .tiso-foot {
+    fill: var(--field);
+    stroke-width: calc(var(--tiso-stroke) * 1.1);
+  }
+
+  .tiso-flag line {
+    stroke-width: calc(var(--tiso-stroke) * 0.7);
+  }
+
+  .tiso-flag text {
+    fill: var(--ink-soft);
+    stroke: none;
+    font-family: var(--font-display);
+    font-size: 6.4px;
+    font-weight: 600;
+  }
+
+  /* Posts: the face that looks left carries the number, so it is the lightest. */
+  .tiso-post polygon {
+    stroke-width: calc(var(--tiso-stroke) * 0.5);
+    stroke-linejoin: round;
+  }
+
+  .tiso-pt {
+    fill: var(--field);
+  }
+
+  .tiso-pr {
+    fill: color-mix(in srgb, var(--belt-line) 46%, var(--field));
+  }
+
+  .tiso-pl {
+    fill: color-mix(in srgb, var(--belt-line) 16%, var(--field));
+  }
+
+  .tiso-num {
+    fill: var(--ink);
+    stroke: none;
+    font-family: var(--font-display);
+    font-size: 4.6px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  /* The minimap has small solid posts. */
+  .tatami-iso--compact .tiso-pl {
+    fill: color-mix(in srgb, var(--belt-line) 78%, var(--field));
+  }
+
+  .tatami-iso--compact .tiso-pr {
+    fill: var(--belt-line);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tatami-iso {
+      transform: none;
+    }
+  }
+</style>

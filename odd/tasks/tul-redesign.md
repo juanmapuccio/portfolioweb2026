@@ -1,0 +1,300 @@
+# tul-redesign
+
+## Objective
+Rebuild the portfolio from scratch as an immersive CV around the "Tul diagram" world. Each belt chapter is told as the floor diagram of its ITF tul: footprints, numbered arrows and a line of movement. Each movement is a CV milestone. Contact is the destination.
+
+## Problem / why
+The user asked for an immersive site of his trajectory and CV, redesigned from scratch. The manga/sumi-e world on `feat/ink-redesign` is evidence only, not authority. The ITF belt progression stays as the narrative spine (user decision). The direction was picked by the user on 2026-10-05: impeccable seed `050d9965`, the pick card. The approved plan is at `C:\Users\juanr\.claude\plans\codegraph-engram-context7-gentle-ai-snoopy-squid.md`.
+
+## Decisions (user)
+- Redesign from scratch: replace the visual world and keep product truth, content, i18n and data.
+- Belts stay the narrative spine (10th gup to 1st dan).
+- World: "Tul diagram". The "dojang name board" option was rejected because it is not verified as ITF practice.
+- Branching: commit the WIP on `feat/ink-redesign` (`3de8f84`, PNGs excluded), then create `feat/tul-redesign` from it so that `src/data` and `src/i18n` are inherited.
+- Build path: code-led, with no generated comps.
+
+## Scope
+In: tasks T0 to T13 and T8 below.
+Out: push, PR and merge, which are user decisions. Changes to the CV PDF are also out.
+
+## Constraints
+- Content canon: `docs/copywriting-full.md` plus `rules/`.
+  - Authorship: only NodoSur, NodoFit, Satori Dojo and Don Pizza are Juan's work. Stoky, Inmotuls and Credituls are not.
+  - No Abogacía. No revenue figures. Real, immediate availability. No negative words about former employers. No em-dashes.
+- Diagram movements are a design layer over the real tul shape. They are never presented as the technical execution of the form.
+- Belt colours are the only chromatic inks on the site. Each chapter drenches the viewport in its colour. No shadows, cards or glow.
+- Mobile first: a QR visitor gets the verdict in seconds. Zero CLS. No content depends on JS or animation. `prefers-reduced-motion` is honoured.
+- Copy lives in `src/data/*` and `src/i18n/ui.ts`, in es/en/pt, never hardcoded.
+- Animate only transform, opacity, clip-path and stroke-dashoffset.
+- Conventional commits with no AI attribution. Generated artifacts are in English.
+
+## Route
+- Per task: delegated direct, with one bounded `sonnet` writer per task that touches 2 or more non-trivial files. The parent verifies and commits.
+- TDD: not configured. Source: `odd/tasks/ink-redesign.md` and `odd/tasks/mobile-immersive-portfolio.md`. Ordinary functional checks apply.
+- Runner: `bunx astro check`, `bun run build`, `bun test`.
+- Delivery strategy: `ask-on-risk`. Chain strategy chosen by the user on 2026-10-05: `feature-branch-chain`. Each PR targets the previous slice, and everything integrates into `feat/tul-redesign`, which reaches `master` once.
+- Slices (one PR each):
+  - S1 = T0 and T1: `181152a`, `8796b6b`, `64f902d`.
+  - S3 = T3: `739b965`, about 850 lines. It is the hero, the FloorDiagram primitive and the engine as one coherent unit.
+  - S4 = T3b and T4: `97d7fee`, `d2d6d68`, about 1,300 lines. TulChapter is one data-driven component for all six belts, so it stays one slice.
+  - S2 = T2: `3eddaac`. About 740 authored lines, which is over budget. It is one coherent foundation (tokens, layout, header, i18n, test), so it stays as a single slice.
+
+## Tasks
+- [x] T0 Prepare: WIP committed on `feat/ink-redesign` as `3de8f84`, and branch `feat/tul-redesign` created from it. This feature document and its Engram mirror `odd/tul-redesign/tasks` created. Surface brief with the direction contract (THESIS, OWN-WORLD, STORY, FIRST VIEWPORT, FORM, FINISH) is in `.impeccable/` (see Progress).
+- [x] T1 Data: `src/data/tuls.ts` (diagram shape per belt, stops mapped to position ids) plus CV-to-data corrections in es/en/pt:
+  - Aurea Med Jan to Apr 2025.
+  - NodoSur running in parallel with Repuestos JL from Jun 2025.
+  - Certifications: AWS, AZ-900, GCP, CS50.
+  - English B2.
+  - Licenciatura en Filosofía at UNR, in progress.
+  - Data integrity tests.
+  - User validated (2026-10-05): one form per belt. White = Saju Jirugi, yellow = Dan-Gun, green = Won-Hyo, blue = Joong-Gun, red = Hwa-Rang. Black uses three tul as a passage through the products: Kwang-Gae for NodoFit, Po-Eun for Satori Dojo, Ge-Baek for Don Pizza, with NodoSur as the frame.
+  - Route: delegated (writer trigger, 4 files). Commit `8796b6b`. CV drift: none found, data already matched the CV.
+  - To confirm: 12 movements for Saju Jirugi.
+- [x] T2 Base system: new tokens (belt fields, ink, variable type), layout, header with grade indicator and legend.
+- [x] T3 Joon-bi hero plus the `src/scripts/tul.ts` scene engine (`--p` scenes, line tracing, reduced motion).
+- [x] T3b Hero portrait (user request 2026-10-05):
+  - Profile photo shown as the plate inside the measuring frame. It is served through `astro:assets` as AVIF/WebP at about 26 kB, eager with `fetchpriority=high`.
+  - Cinematic entrance of about 1.6 s with a curtain, scale and blur, gated by `html.tul-intro`.
+  - On scroll, the portrait becomes the path: `--q` scales and fades the portrait, then the ghost route and footprints appear.
+  - The parent fixed the ghost route crossing the face: it is now hidden while the portrait is legible.
+  - Checks: `astro check` 0 errors; build OK; `bun test` 139 pass, 3 skip, 13 fail (baseline).
+  - Visual: rest, mid and late at 1440 and 390, plus reduced motion.
+- [x] T4 Chapters 1 to 6, with a reusable FloorDiagram. One commit per chapter or per pair.
+- [x] T4b NodoFit reframe (user, 2026-10-05):
+  - NodoFit is presented as an integral system born from Satori Dojo, covering gyms, trainers, dojos and clubs with court bookings. All of it is in production (user confirmed).
+  - Impact softened: the "a cero" claim is removed.
+  - Black passage order is now origin to evolution: Kwang-Gae for Satori, Po-Eun for NodoFit, Ge-Baek for Don Pizza.
+  - Canon docs updated.
+  - Checks: `bun test` 158 pass, 3 skip, 13 fail (baseline). Build OK. NodoFit captured at 1440 and 390 with 0 overflow.
+- [x] T5 Principles, technical sheet (stack, certifications, education, languages) and the Kyong-ye close, where the line returns to the origin.
+- [x] T6 `/cv` route (es/en/pt) plus a mobile "CV in 30 s" button and the PDF download.
+- [x] T7 Retire the old world: `src/components/ink/*`, `src/components/lab/*` and `/lab`, `Belt3D`, `proceduralBelt.ts`, the `three` and Lenis dependencies, and old tokens and tests.
+- [x] T9a Always-white field. Add `--belt-fill` / `--belt-line` tokens; remove the drench, the tie plane, the early flip, the header field swap and `data-grade-belt`. Move the accent to strokes, stops, rows, the title cut, the header and `/cv`. Add a line hand-off transition. Update the tests. (User 2026-10-06: no full-screen belt colours.)
+- [x] T9b `BeltMark.astro`: a drawn tied belt (SVG, ink outline plus belt fill, contour draw-in) in chapter heads, the header, the legend and `/cv`. It is also the 3D poster.
+- [x] T9c Perspective floor in `FloorDiagram` (CSS 3D plane, upright HTML stop markers, scroll camera). Mobile gets a lighter tilt; reduced motion gets a static mild tilt.
+- [x] T9d WebGL belt (desktop >=1024 only, lazy, procedural belt from `feat/ink-redesign:src/scripts/proceduralBelt.ts`):
+  - Moment A: the white belt lands on the hero floor.
+  - Moment B: the belt is tied red to black at 1st dan.
+  - Re-add `three`. Delete the unused 5.4 MB GLBs.
+- [x] T10a Brush kit: own SVGs in `src/assets/brush/` (rule, drop, dry, drip, enso, vertical) plus `InkPassage.astro` (props `from`, `to`). `35c1750`.
+- [x] T10b Ink passages mounted between the six chapters in es/en/pt and scrubbed by `initPassages()` in `tul.ts` (`[data-tul-passage]`, ScrollTrigger only). `c2e4cea`.
+- [x] T10c Brush detail on white: dry brush title-cut rule in `--belt-line`, ensō behind the chapter BeltMark, bristle-masked route stroke in FloorDiagram. Paper grain skipped (the contract forbids decoration). `396ef8f`.
+- [x] T10d Direction contract (OWN-WORLD sumi-e ink, memorable moment with ink passages) and this document. Commit: the one that adds this line (`docs(tul): ...`, see git log).
+- [x] T11a Ink only under titles plus GSAP plugins: SplitText, DrawSVG and MorphSVG registered from the installed `gsap` 3.15 (free since 3.13, no bump). The fixed full-screen ink layer is gone and `InkPassage` is an in-flow spacer. Each chapter title gets its own sumi-e underline (`TitleInk.astro`). `303cc3e`.
+- [x] T11b Black flood at 1st dan: `[data-field="dark"]` tokens with measured contrast, a `clip-path` circle flood scrubbed by `--p`, `html[data-field]` set at p >= 0.5, CSS fallback for no JS and reduced motion. `67154ef`.
+- [x] T11c `BeltDrawing.astro`: detailed tied belt (pespunte, weave, knot folds, frayed cut tails, gold on 1st dan) mounted in every spacer; it unties and ties with DrawSVG scrubbed by `--p`, and the band wipes to the next belt colour. Mobile always, desktop poster until `html[data-belt3d="ready"]`. Commit: the one that adds this line (`feat(tul): ...`, see git log).
+- [x] T11d Persistent 3D canvas (desktop): beats (land, travel, untie and retie, tie, rest), noise-mask colour mix, `--knot-x` / `--knot-y` as the flood centre, reserved side column, posters replaced. `ff71ca3`.
+- [x] T11e Direction contract (`.impeccable/surfaces/src-pages-index-astro.md`) and this document. Commit: the one that adds this line (`docs(tul): ...`, see git log).
+- [x] T12a Chapter summary plus the experience panel (user 2026-10-07: only the stage summary per belt, detail per position on demand). Commit: this commit (`feat(tul): ...`, see git log).
+- [x] T12b Procedural belt tessellation from 168,516 to 43,820 triangles (budget 60k, asserted by a test). `ae5cc77`. The full-viewport canvas landed with T12c, because the scene rewrite and the canvas size are one change.
+- [x] T12c 3D tatami in the same renderer, scene and fixed canvas, now full-viewport: instanced mats, route tube drawn by `--draw`, posts with number sprites, camera on the CSS floor curve, mouse parallax, hover tooltip, click opens the panel. `a1522dd`.
+- [x] T12d "Ver en 3D" / "Ver en 2D" on a phone (es, en, pt): the scene chunk loads on a tap only. `b42e9a1`.
+- [x] T12e Direction contract (`.impeccable/surfaces/src-pages-index-astro.md`) and this document. Commit: the one that adds this line (`docs(tul): ...`, see git log).
+- [x] T13a One dry-brush underline for every chapter title (user 2026-10-07; plan `codegraph-engram-context7-gentle-ai-snoopy-squid.md`, sections 2 and 4): the six per-belt variants are replaced by one shape, coloured by `--belt-line`; MorphSVG, spatter dots, ensō, drip and vertical removed; MorphSVG unregistered. `93cdbad`.
+- [x] T13b `TatamiIso.astro` (isometric SVG generated at build from the route and stops, the same data as `data-tatami`) plus `tatamiIso.ts` (pure projection, geometry tests), `FloorDiagram.astro` reduced to a container (no CSS 3D plane, no `--tv`), the SVG hidden as soon as the scene marks its tatami live (no opacity threshold). `0d01f71`.
+- [x] T13c Sticky zones coherent with the 3D: the tatami follows its stage from entry to exit, the red automation block is a tatami beat with a low camera, the black outro moves the belt (it keeps its pin), Kyong-ye draws the return loop in 3D, below 62rem only the figure sticks, `--bp` is written on a phone with "Ver en 3D". `53f7790`.
+- [x] T13d `.hintrc` at the repo root so webhint `compat-api/css` ignores `text-size-adjust`, `scrollbar-color`, `scrollbar-width` and `text-wrap` (the Edge Tools hints on `base.css`). `d15c782`.
+- [x] T13e Direction contract (`.impeccable/surfaces/src-pages-index-astro.md`: isometric tatami fallback, single underline, sticky rule) and this document for T13b, T13c and T13f. Commit: the one that adds this line (`docs(tul): ...`, see git log).
+- [x] T13f Visual audit of the whole page at 1440 and 390 and its fixes (findings below). `0bd5115`.
+- [x] T14 Remove the title underline (owner decision 2026-10-07): `TitleInk.astro` and its markup, CSS and DrawSVG tween are gone; `titleInk.ts` became `titleReveal.ts` (SplitText letter rise only, `playTitleReveal`); the room reserved under `.tc__titlewrap` is replaced by a slightly larger `.tc__head` gap. `b4f2c09`.
+- [ ] T8 Finish: `impeccable detect`, then the finish reviewer at desktop 1440 and mobile 390, one fix round, and the documenter rewriting `DESIGN.md` and `.impeccable/design.json`.
+
+## Acceptance criteria
+- The first viewport shows the name, the hook, "Contactame" and "Descargar CV" with no scroll, on both 390 and 1440 widths.
+- Six belt chapters each show their tul floor diagram, drawn by scroll, with fixed date, role and org columns per milestone.
+- The close returns the line to the start point and lands on contact.
+- With JS disabled and with reduced motion, all content is visible as a semantic `<ol>`.
+- es, en and pt are complete. `astro check`, `bun test` and `bun run build` are green.
+- Text contrast is AA on every belt field.
+- Copy follows the authorship and money rules.
+
+## Open decisions (user)
+- Unreferenced public assets: `public/fotojmPerfil.PNG`, `public/models/*.glb`, and `public/fonts/` (27 MB of old fonts). There is also a stale `package-lock.json` and untracked PNGs under `tests/`.
+- Whether to add the "IA y agentes" skills category from the CV to `skills.ts`.
+- The white-belt (10th gup) exercise, and which 1st dan tul to use (Kwang-Gae, Po-Eun or Ge-Baek).
+- The chain-PR strategy once the work passes about 400 lines.
+- Whether to add the roles missing from the CV PDF (Grido, Al Natural, Providus, AS MED).
+
+## Progress / evidence
+- 2026-10-07 T13b, T13c, T13e and T13f (user: tatami without a 2D drawing, coherent sticky zones, a visual audit). Route: delegated, one `sonnet` writer for the four tasks (writer trigger: 2+ non-trivial files per task; mapping trigger: understanding the sticky behaviour took more than 4 files). TDD: off. Runner: `bunx astro check`, `bun test`, `bun run build`. Deviation from the order asked: the working tree already held a finished T13b (an earlier, interrupted run: `TatamiIso`, `tatamiIso.ts`, `tulRoute.ts`, the reduced `FloorDiagram`, tests). It was read, checked (333 tests green, build green) and committed as T13b, and the audit ran on the final state of T13b and T13c instead of before T13b, so it covers the real result.
+  - T13b `0d01f71`:
+    - `tatamiIso.ts` projects a point of the diagram (x right, y down, z up) to the isometric plane (30 degrees, the same scale on every axis); mats are boxes with a top face and two side faces; posts are prisms with the number on the left face, horizontal. `TatamiIso.astro` draws it with flat per-face tones from `color-mix(--ink, --field)`, the route on the top face by `--draw` (`pathLength=1`, brush mask kept), arrows, footprints and the ready flag. Compact variant: two rows of mats, small posts, no arrows, no numbers. Only a slight `transform` from `--p` and the draw move; without `--p` and under reduced motion it is static and complete.
+    - `FloorDiagram.astro` is a container: `data-tatami` for three (also for the Kyong-ye return, through the new `tatami` prop), the SVG as the fallback, the hero portrait and overlay slots, and one rule: `html[data-belt3d='ready'] [data-tatami-live] .fd:not(.fd--compact) .tatami-iso { visibility: hidden }`. `rg "rotateX|--tv"` over `FloorDiagram.astro` finds nothing.
+    - The Kyong-ye figure box follows the isometric aspect (189 x 122), which fixes the 430 px wide page on a phone (`.ky__fig`).
+    - Tests: `tul-floor3d` rewritten on purpose, new `tul-tatamiiso` (geometry), and `tul-hero`, `tul-ink` and `tul-tatami` follow the new markup.
+  - T13c `53f7790`. Code facts verified first: scenes are `100svh + n * 45svh` with a sticky stage and `--p` runs from the scene top at the viewport top to its bottom at the viewport bottom; the old tatami only drew for the `travel` beat and faded in 4% ramps at both ends of the pin, so it was gone through the 100svh of entry and exit; the rojo automation aside (135svh) had no diagram at all; the black outro (45svh) had no reader of `--p`; `--bp` was written on desktop only. Design:
+    - `tul.ts` writes, on each scene with a 3D diagram, the exact (unsmoothed) scroll progress of its entry `--en` and exit `--ex` and the figure box `--tat-x/y/s/h/t` (measured in `publish()`, still the only layout reads; the global `--belt-tat-*` is gone). `journey.ts` turns them into `stageOffset` (px from the pinned place) and `stageScore` (`en * (1 - ex)`). `scene.ts` picks the stage with the best score (the hero floor counts as `1 - e`), so adjacent stages hand over when both are half away and off screen. The tatami frame has no fade at the ends and the route is drawn at both, because the stage and the tatami move together. The hero SVG stays hidden while its stage is leaving (`keep`), so it never pops up over the first chapter.
+    - Rojo automation: the aside holds the chapter diagram under the steps (`data-tatami-low`; its wrapper `data-tatami-box` is the measured box). `tatamiLowFrame`: elevation 17 degrees, zoom 2.3 over the chapter view, the target is the route point at `p` (turned with the floor), a slow yaw swing of 16 degrees, cut to the box with a GL scissor so the near floor never runs under the steps. The isometric SVG is its fallback (64rem and up, with JS and motion).
+    - Black outro, decision: keep the pin. `outroFrame` makes the resting belt rise 22% of the viewport, turn 0.9 rad more and fade (from 45% of the outro), and the chapter's own fade (90 to 98%) is switched off when an outro exists. The outro had nothing to scrub, so removing the pin would have left a closing line with no movement under it; the belt leaving there is the point of it.
+    - Kyong-ye: the same `tatamiChapterFrame` on its own scene, with the return loop on the dark tatami (belt `negro`).
+    - Mobile (below 62rem, JS and motion): the scene is not pinned (no 135svh tails; the page went from about 29,000 to 19,000 px) and `.tc__copy` has no inner scroller. `.tc__side--map` is `position: sticky; top: 3rem; max-height: 45svh` over a block stage, with the compact isometric figure at about 32svh; the scene `--p` still spans the whole scene and lights the rows. 62rem to 64rem keeps the old pinned layout without 3D.
+    - Phone with "Ver en 3D": `tul.ts` writes `--bp` only while `html[data-belt3d-tap='on']` (a raw ScrollTrigger per chapter, rewritten when the mode turns on), and the hero belt uses `tapBeltFrame`: it stays on its floor and rides up with it (opacity out at 70 to 100%), instead of flying to a column the phone does not have. That was the belt hanging over blanco.
+    - `scene.ts` still has no `getBoundingClientRect` or `getComputedStyle`, only the gsap ticker and no raw rAF; three still never loads on a phone by default nor with reduced motion.
+  - T13f `0bd5115`: audit findings (severity, evidence, fix). Method: Playwright through node on the built `dist`, 1440 and 390: hero, every chapter, negro on black, Principles, TechSheet, KyongYe, `/cv`, the detail panel, plus computed checks (contrast of every link, button and summary on white and on black, horizontal overflow, H1 lines).
+    - High, KyongYe at 390 made the page 430 px wide (`.ky__fig` taller than wide). Fixed in T13b (the box follows the isometric aspect); verified `scrollWidth == clientWidth` (390 == 390) on the document and on every `main` child, and 0 overflow over a full scroll sweep.
+    - Medium, the hero SVG floor showed up next to the 3D floor of the first chapter while the hero left. Fixed in T13c (`keep`).
+    - Medium, the Principles quote read as one string while the words waited (scale 1.06 grew each word into its 4 to 6 px gap). Fixed: the word waits `translateY(0.2em)` and the quote has `word-spacing: 0.08em`.
+    - Low, the detail panel Close button showed a second border on focus (2 px border plus a ring 3 px away). Fixed: flush ring (`outline-offset: 0`).
+    - Low, on a phone the black chapter passage list wrapped "Tul 1º dan · 1 de 3" leaving a lone "3" and sat 15 px above the title. Fixed: 9.5rem column, one line, room below the list.
+    - Checked and fine: the H1 is 2 lines at 1440 and 390; no cheap meta labels (the small caps heads of the tech sheet and the ITF grade labels are real content); every link, button and summary is at least 4.5:1 on white and on black; `/cv` has no overflow at either width; no text under the 3D belt column; the title underline is complete and not clipped. Not adopted from the taste skill, because the contract forbids it: font changes, stock images, gradients, blur, grain, bento grids and glass pills.
+    - Not fixed, noted: with no JS the header grade indicator stays on "10º gup" everywhere (the engine writes it); the tech sheet lists stop short of their rules on desktop (dates end at 992 px, rules at 1192 px); the pinned stages of white and red leave the lower half of the viewport empty while the pin runs (the stage reserves the viewport by design).
+  - Checks: `bunx astro check` 0 errors; `bun test` 347 pass, 0 fail (was 284: `tul-tatamiiso`, `tul-audit`, the sticky block in `tul-tatami` and the rewritten `tul-floor3d`); `bun run build` 6 pages; a search for the Hangul range over `src/components`, `src/scripts`, `src/pages` and `src/styles` finds nothing.
+  - Playwright (software GL, built `dist` on the already running preview at 4322; 4321 untouched):
+    - 1440 sweep of every 3D scene at entry, pin start, middle, pin end and exit: the tatami is drawn at every step, the live scene's own SVG is hidden at every step, `data-belt3d` is ready; the rojo low camera shows the red route and posts cut to its box; the Kyong-ye return loop is drawn in 3D on the charcoal tatami; the outro belt is in its column. Console clean (only the software GL `ReadPixels` notices).
+    - 390: no scene or three chunk on load; `.tc__copy` overflow is `visible`; the figure is sticky at `top: 48` with 274 px (about 32svh) and the copy flows; "Ver en 3D" loads one chunk, the hero belt rides up with its floor and is gone at the top of blanco.
+    - No JS and reduced motion at 1440: 9 isometric figures, `stroke-dashoffset` 0, posts at opacity 1, no canvas, no three chunk, no overflow; white (blanco) and black (satori, contacto) captured.
+  - Not verified: a real GPU (software GL only; the frame time of the full-viewport canvas is unmeasured); hover and click on posts under the low camera (the pick is limited to its box, by code and test, not by mouse); a real touch device for the sticky figure (emulated mobile only); the passage list and quote fixes were asserted by tests and CSS, not captured again.
+  - Risks: the stage offset assumes the stage sticks at `top: 3rem` and ends at the scene bottom (the top is published as `--tat-t`); a change of that CSS needs the offset checked. The low camera zoom and swing are tuned by eye at 1440 only.
+- 2026-10-07 T13a and T13d (user: one underline for all titles, tatami without a 2D drawing, coherent sticky zones, Edge Tools hints; plan `codegraph-engram-context7-gentle-ai-snoopy-squid.md`, sections 2 and 4). Route: delegated, one `sonnet` writer for T13a and T13d (writer trigger: T13a touches 6 files, 4 non-trivial; T13d is one config file, done in the same run because it is independent). TDD: off. Runner: `bunx astro check`, `bun test`, `bun run build`. T13b, T13c and T13e are pending and get their own writers in order.
+  - T13a `93cdbad`:
+    - `TitleInk.astro` is one `<svg class="ti" data-ink="dry">` with the four streaks of the old `dry` variant (widths 8, 6, 4, 2.5, all paths run left to right). No props, no per-belt branch: `TulChapter` mounts `<TitleInk />` once for all six belts. The colour is `currentColor` from `.ti { color: var(--belt-line) }`, so blanco is `#41546b`, amarillo `#8a6700`, verde `#1d6a44`, azul `#1d4a99`, rojo `#b3312a` and negro `#c8c1b6` (the dark-field line).
+    - `titleInk.ts`: SplitText title reveal unchanged; DrawSVG draws the four streaks from 0% to 100% (0.7 s, 0.09 s stagger, starts at 0.2 s). The dots, the morph and the `gsap.set(dots)` are gone, so the `GSAP target  not found` warning noted in T11a and T12c is fixed (0 such messages at 1440, 390, reduced motion and no JS). `clearProps` on the strokes is guarded by `strokes.length`.
+    - `tul.ts` no longer imports or registers MorphSVG: `gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin)`. `rg MorphSVG` over `src` finds nothing (a test asserts it).
+    - Tests: `tul-ink.test.ts` rewritten on purpose (one svg, no variant, no `beltKey`; streaks variable width and left to right inside the 600 view box; DrawSVG hooks only; colour only through `--belt-line` with no hard-coded colour; six distinct colours; contrast of each belt line at least 3:1 on its field, white `--field` for blanco to rojo and `--field-dark` for negro, computed from `tokens.css`; MorphSVG absent from `src`). `tul-motion.test.ts` follows the new markup. `tul-chapters.test.ts` needed no change.
+  - T13d `d15c782`: `.hintrc` at the repo root, `{"extends": ["development"], "hints": {"compat-api/css": ["default", {"ignore": [...]}]}}`. Format taken from the webhint docs (`https://webhint.io/docs/user-guide/hints/hint-compat-api/css/`: `ignore` is a list of CSS features, example `"compat-api/css": ["error", {"ignore": [...]}]`; `https://webhint.io/docs/user-guide/extensions/vscode-webhint/`: the extension uses `@hint/configuration-development` by default and a local `.hintrc` gives more control; `https://webhint.io/docs/user-guide/concepts/configurations/`: `@hint/` configurations are extended by short name). Two findings from running the real CLI (`hint` 7.1.13, local connector, on a copy of `base.css`):
+    - The property name alone does not cover the value form: with only the four names, `scrollbar-width: thin`, `text-wrap: balance` and `text-wrap: pretty` were still reported. The list therefore also holds `scrollbar-width: thin`, `scrollbar-width: none`, `text-wrap: balance`, `text-wrap: pretty` and `text-wrap: wrap` (the values the CSS uses).
+    - `ignore` replaces the hint's default list, so the defaults (`-moz-appearance: none`, `-webkit-appearance: none`, `appearance: none`, `cursor`, `zoom: 1`) are repeated. Severity is `default`, the same the development configuration gives, so nothing else changes.
+    - Result: `base.css` went from the 6 reported features to 0; a control file with `backdrop-filter` is still reported, so the hint stays on. `base.css` is untouched.
+  - Checks: `bunx astro check` 0 errors (the 6 hints are the pre-existing ones, none in the touched files); `bun test` 284 pass, 0 fail (was 281; `tul-ink` grew by three tests); `bun run build` 6 pages; `rg "[가-힯]"` over `src/components`, `src/scripts`, `src/pages`, `src/styles` finds nothing.
+  - Playwright (built `dist` served by the already running `astro preview` on 4322; 4321 untouched): at 1440 and 390 all six chapter titles captured. One distinct underline shape, six distinct computed stroke colours (the ones above), every title `is-done`, `html[data-field]` dark only for negro. Console: no `GSAP target not found`; the only 4 messages at 1440 are Chromium `GPU stall due to ReadPixels` driver notices from the software WebGL. Reduced motion and no JS at 1440: all six strokes visible, `stroke-dasharray: none`, `stroke-dashoffset: 0`, opacity 1, title opacity 1.
+  - Not verified: a real mid-draw frame of the left-to-right sweep (the one capture at 550 ms came after the entrance had finished); the direction rests on the path geometry, asserted by a test, and on DrawSVG's start-to-end drawing. The webhint run was made with the CLI, not inside the VS Code extension, so the editor diagnostics need a reload to confirm.
+- 2026-10-07 T12b to T12e (user: interactive 3D tatami; plan `codegraph-engram-context7-gentle-ai-snoopy-squid.md`, sections 2 and 3). Route: delegated, one `sonnet` writer for the four tasks (writer trigger: 2+ non-trivial files per task; the parent read the plan and the T12a API first). TDD: off. Runner: `bunx astro check`, `bun test`, `bun run build`.
+  - T12b `ae5cc77`: sweep segments band 240 to 100, wraps 70/48 to 36/26, flaps 36 to 20, tails 80 to 40; 4 profile points per puff (was 9); 4-sided thread (was 6). 168,516 to 43,820 triangles, counted from the real geometry in `tests/tul-beltbudget.test.ts` (document stub, no GL). Puffs and threads are sub-millimetre, so the look holds (captures compared by eye).
+  - T12c `a1522dd`. Design:
+    - One scene, one renderer, one canvas, two passes: the tatami on layer 1 with its own camera, then `clearDepth` and the belt on layer 0 with the belt camera. Key and fill lights are on both layers. Canvas is `position: fixed; inset: 0; pointer-events: none`, sized from `--belt-vw/vh`; the old square canvas, `canvasSize` and `REACH` are gone. The belt fades by canvas opacity only when no tatami is drawn; the tatami fades by its own materials.
+    - `tatami.ts` (three): ten mats in one `InstancedMesh` (seams, canvas-2D rush weave, straw on white and charcoal on black), route `TubeGeometry` with a draw range from `--draw`, a dashed ghost line, one post per stop (stem, number disc sprite, invisible hit sphere), one `Raycaster`. `tatamiTip.ts` (no three): the tooltip, positioned by a transform from the projected post. `journey.ts` stays pure: `tatamiChapterFrame` (tilt 58 to 44, dolly 0.96 to 1.04, the CSS `fit` and lift, ramps at both ends of the pinned scene) and `tatamiHeroFrame` (the hero belt camera, so the belt rests on the floor).
+    - `FloorDiagram` emits `data-tatami` (route and stops, diagram units, build-time JSON) on the full diagram only; `TulChapter` and the hero pass `stopLabels` (role and org) for the tooltip. The scene fetches nothing.
+    - `tul.ts` publishes `--belt-tat-x/y/s` (first chapter map box, relative to its sticky stage) and writes the hero `--e` on every viewport; `--bp` stays desktop and motion only. 5 `getBoundingClientRect` calls, all in `publish()`.
+    - Pointer: window listeners, no pointer events on the canvas. One ray from `pickAt`, called by `pointermove` and, because a touch has no move, by a touch `pointerup` that moved less than 10 px. Click opens `openExperience(id)`; the click after a touch is ignored; nothing under the open panel (`html.xp-lock`). Parallax 3 degrees, `1 - exp(-dt * 7)` easing in the gsap ticker, off with reduced motion and in the phone mode. Pause on `document.hidden`; context loss and teardown dispose the tatami, the tooltip and the listeners.
+    - The CSS floor hides only for the scene whose tatami is drawn: `html[data-belt3d="ready"] [data-tatami-live] .fd:not(.fd--compact) .fd__stage`. The scene sets and clears `data-tatami-live`.
+  - T12d `b42e9a1`: `boot.ts` binds `[data-belt3d-toggle]` (CSS shows it below 64rem with JS). On a tap it checks `isBelt3dTapAllowed()` (no saveData and WebGL; not the width, not reduced motion), imports the scene on demand and calls `setTapMode(true)`. The phone mode shows the hero only, landed, every post, no parallax; `html[data-belt3d-tap="on"]` shows the hero floor box as the measuring anchor (no touches), hides the portrait and makes `tul.ts` measure again (`tul:belt3d-tap`). "Ver en 2D" removes it, ticker and GL go.
+  - Checks: `bunx astro check` 0 errors; `bun test` 281 pass, 0 fail (new `tul-tatami`, `tul-tatami-phone`, `tul-beltbudget`; `tul-belt3d` and `tul-floor3d` updated on purpose); `bun run build` 6 pages; `rg "[가-힯]"` over `src/components`, `src/scripts`, `src/pages`, `src/styles` finds nothing.
+  - Playwright (software GL, built `dist` served by preview):
+    - 1440: tatami drawn in the hero (belt resting on it), in amarillo and in a black passage (charcoal floor); mouse move changes the frame (parallax); hover on a post shows "Gastronómico · Al Natural" with a pointer cursor; click opens the panel (`#exp-al-natural`); Esc closes it and focus returns to the row button. Reduced motion at 1440: no scene chunk, no canvas, toggle hidden.
+    - 390: no scene or three chunk and no canvas on load; tap "Ver en 3D" loads the chunk, `data-belt3d-tap="on"`, tatami and belt shown; a tap on the post opens the sheet (`#exp-secundario-belgrano`); "Ver en 2D" removes the canvas, the tooltip, `data-belt3d` and the live mark. Same flow with reduced motion.
+  - Frame time, headless swiftshader, same machine, same sweep script, base (`473a92a`) vs new, two runs each (rAF gaps while scrolling): amarillo chapter average 47 and 58 ms (p95 226 and 345 ms) against 23 and 24 ms (p95 73 and 81 ms); hero 18 to 19 ms against 17 to 20 ms; rojo 20 to 27 ms (p95 18 to 110 ms) against 18 to 22 ms (p95 20 to 74 ms). Noisy, but better where the belt drew most. Not measured: a real GPU. The T11d figure (170 to 180 ms) came from a different harness, so it is not compared directly.
+  - Known and not caused here: with reduced motion on a phone the page is 430 px wide before any tap (Kyong-ye map, `.ky__fig`), which skews the viewport metrics the scene reads; the `GSAP target  not found` warning from `titleInk.ts` (T11a).
+  - Risks for T8: the tatami and its posts are not yet reviewed against the contract at 1440 and 390 (straw floor on white is a tinted neutral, not a belt ink); parallax and hover were checked with a mouse only; the first draw of a chapter tatami builds a tube and sprites on the main thread; real-GPU cost of a full-viewport MSAA canvas is unmeasured.
+- 2026-10-07 T12a (plan `codegraph-engram-context7-gentle-ai-snoopy-squid.md`, section 1). Route: delegated, one `sonnet` writer (writer trigger: 2+ non-trivial files: chapter, panel, script, i18n, pages, tests). TDD: off. Runner: `bunx astro check`, `bun test`, `bun run build`.
+  - Chapters show `stage.lede` and `stage.line` plus a compact row list (dates, role, org) with a "Ver detalle" button per position. Row ids, `data-stop`, `--t` and the pinned stage are unchanged. The closing stays in the black outro scene (it already has its own pinned stage), so it is not repeated in the head.
+  - `ExperiencePanel.astro`: one `<dialog>` per page plus one inert `<template data-exp-template="<id>">` per position (no fetch). Right slide-over of 32rem from 40rem up, bottom sheet below. Only page tokens; `data-dark` re-points them for the negro positions, so it reads on black. Black product passages (Satori, NodoFit, Don Pizza) are untouched.
+  - `src/scripts/experiencePanel.ts`: `showModal()` focus trap, focus returns to the trigger, Esc, backdrop and Close button, `#exp-<id>` opens on load, `pushState` on open and Back closes, `html.xp-lock` plus `scrollbar-gutter: stable` for a lock with no layout jump, 280 ms CSS transform and opacity (none under reduced motion).
+  - API for T12c: `openExperience(id, opener?)` and `closeExperience()` exported, or `window.dispatchEvent(new CustomEvent('tul:open-experience', { detail: { id } }))`.
+  - No JS: each row is a `<details>` (teaser, description, competency); the dialog stays closed. With JS the `<details>` is hidden and the button shows.
+  - i18n: only `tul.panel.close` (es, en, pt).
+  - Checks: `bunx astro check` 0 errors; `bun test` 260 pass, 0 fail (new `tests/tul-panel.test.ts`); `bun run build` 6 pages. Playwright at 1440 and 390: open, Esc closes and focus returns to the button, Back closes, backdrop click closes, `#exp-nodosur` opens on load (dark), panel on black reads, scrollY unchanged across open and close, no-JS details visible and dialog hidden.
+- 2026-10-06 T11d and T11e (user: 3D belt as the thread of the journey on desktop; plan `codegraph-engram-context7-gentle-ai-snoopy-squid.md`). Route: delegated, one `sonnet` writer for both (writer trigger: 2+ non-trivial files; the parent read the plan and the T11a-c hooks first). TDD: off. Runner: `bunx astro check`, `bun test`, `bun run build`.
+  - T11d `ff71ca3`. Design:
+    - `journey.ts` (no three, no DOM) is the route as pure numbers. The scene reads inline custom properties and draws it. The active beat is the last one whose progress has started, so no visibility observer is needed.
+    - Beats are markup: `data-belt-beat="land"` (hero, `--p`/`--q` plus a new `--e` while it scrolls away), `"travel"` (each chapter, `--bp`), `"passage"` (each spacer, existing `--p`). `tul.ts` writes them with ScrollTrigger only, desktop and motion only.
+    - Continuity: each beat ends in the pose the next one starts with (tests assert it for every pair), so switching beats never jumps.
+    - The belt rides the empty spacer to the centre of the screen only while the spacer contains it vertically (asserted for 1440x900 and 1024x768). Everywhere else it stays in the reserved column.
+    - Colour change: `uMix` and `uColorB` on the cloth through `onBeforeCompile` with a 3D value-noise mask glued to the belt (`setColors(from, to, mix)`). Tie beat: red to black, knot tightens, stitches turn gold, rim light grows. `rest` (black chapter) keeps the rim light and fades out at 90 to 98% of the chapter, long before the close.
+    - Flood centre: the scene publishes `--knot-x` / `--knot-y` in px (with the unit, because the flood uses them in `calc()` next to lengths) while the tie passage is below p = 0.55, and removes them after. First capture had them unitless, which invalidated the clip-path and filled the screen black: fixed.
+    - `html[data-belt3d="ready"]` is set after the first drawn frame and removed on teardown and context loss, so the posters return.
+    - Reserved column: `--belt-col: clamp(8.5rem, 15vw, 17rem)`; every chapter stage reserves it as `padding-inline-end` at 1024 px and up with JS and motion. A fixed hidden probe with the same token gives `tul.ts` the exact box. `tul.ts` is the only place that reads layout (3 `getBoundingClientRect` calls, on ScrollTrigger refresh), and publishes `--belt-vw/vh`, `--belt-col-*`, `--belt-hero-*` on `<html>`.
+    - Between 1024 and 1360 px the milestone rows use the compact three-column form, because the reserved column narrows the copy (first capture at 1024 squeezed the role to one word per line).
+  - Deviations from the plan, both deliberate:
+    - The canvas is fixed and `pointer-events: none` but not full-viewport: it is a square sized from the belt's reach (about 0.4 m at the largest scale) and moved onto the belt with a transform. A full-screen layer costs 3 to 7 times the pixels and the MSAA on them. Visual output is identical (captures compared). In software GL it made no measurable difference (see perf), so this is a precaution for real GPUs, not a measured win.
+    - z-index 11: above the flood (10) so the belt stays visible while the flood grows from its own knot, below the header (50). The belt never lies over text because of the reserved column, so "behind the text" is not needed.
+    - The chapter head keeps its BeltMark seal (identity mark, reserved box, no CLS). Only the black chapter's 15rem 3D box is gone.
+  - Checks: `bunx astro check` 0 errors; `bun test` 242 pass, 0 fail (tests/tul-belt3d.test.ts rewritten for beats, journey continuity and the reserved column; one assertion in tul-ink.test.ts updated for `initBeats`); `bun run build` 6 pages; `rg "[가-힯]"` over `src/components`, `src/scripts`, `src/pages`, `src/styles` finds nothing.
+  - Captures (Playwright, software GL): 1440 and 1024: hero before, falling and landed; hero exit; a chapter with the belt in its column; a passage at p 0.1 to 0.9 (colour mix in blotches, belt loose at the centre); the tie at p 0.2, 0.35 (flood circle centred on the knot), 0.5 (field dark) and 0.7; rest on black; Principles and `#contacto` with the belt gone. A scroll sweep at 1440, 1280 and 1024 found no text under the column. 390: no three chunk, no canvas, drawing and flood as in T11c.
+  - Network: 390 and 1440 reduced motion request no three chunk; 1440 requests the scene chunk after `load` (243 ms vs 238 ms).
+  - Perf, software GL only (headless swiftshader, no GPU): with the scene 170 to 180 ms per frame scrolling the chapters and the black chapter; without it 16.7 ms. Antialias off gave about 50 ms, so the cost is triangle rasterisation of the procedural belt (roughly 200k triangles), not canvas size. Not measured: a real GPU. A real-GPU trace is the first thing to do in T8.
+  - Known and not caused here: `GSAP target  not found` console warning from `gsap.set(dots)` in `titleInk.ts` on belts that have no dots (T11a).
+  - T11e: direction contract rewritten (white to red then black from 1st dan by the flood, sumi-e only under titles, 3D belt as thread on desktop, detailed drawn belt on mobile).
+- 2026-10-06 T11a to T11c (user: ink only under titles, black flood at 1st dan, detailed belt drawing; plan `codegraph-engram-context7-gentle-ai-snoopy-squid.md`). Route: delegated, one writer for the three tasks in order (writer trigger: 2+ non-trivial files per task). TDD: off. Runner: `bunx astro check`, `bun test`, `bun run build`.
+  - T11a `303cc3e`: the six full-screen brush SVGs in `src/assets/brush/` are now unreferenced (the underlines are authored paths in `TitleInk.astro` so DrawSVG and MorphSVG can drive them). Deleting them was refused by the shell policy, so they remain on disk and need a user decision.
+  - T11a design: the real h2 is split by SplitText (`aria: 'auto'`, masked chars), reverted when the entrance ends. Amarillo splat morphs from a thin shape with MorphSVG; spatter scales in. Tween props: transform, opacity, stroke-dashoffset (DrawSVG), path data of one decorative splat.
+  - T11b `67154ef`: flood layer is a fixed viewport layer (z-index 10, under the header) on the passage that arrives at negro. Radius is `--f * --f * 150vmax` with `--f` 0 at p 0.2 and 1 at p 0.5; centre is `--knot-x/--knot-y` when published, otherwise the drawn knot computed from `--p`. Static feTurbulence edge on desktop only.
+  - T11b contrast (tests): dark ink 17:1, soft ink about 9:1, light line about 10:1 on `#0a0d11`. Negro belt line is now the light line.
+  - T11b fallbacks verified at 1440: no JS and reduced motion give black negro, principles, sheet and close with no flood; the header goes dark with the active negro belt.
+  - T11c: spacer static height is 12rem (was 8rem) so the static drawing fits. Drawing is 480x260 with the knot at its centre (`KNOT_AT` in `beltDrawing.ts`, exposed as `--knot-fx/--knot-fy` on the passage).
+  - Checks: `bunx astro check` 0 errors; `bun test` 215 pass, 0 fail; `bun run build` 6 pages; `rg "[가-힯]"` over `src/components`, `src/scripts`, `src/pages` finds nothing.
+  - Captures (Playwright, 1440 and 390): all six title underlines, animation frames, flood at p 0.1 to 0.8, principles and close on black, no-JS and reduced motion, mobile spacer mid-scroll. A software-rendered sweep of the flood gave 17 ms frames and no long tasks. Not measured: a real GPU (the displacement edge filter re-runs per frame on desktop).
+- 2026-10-06 T10 (user: sumi-e ink passages and brush detail; plan `codegraph-engram-context7-gentle-ai-snoopy-squid.md`). Route: delegated, one writer for T10a to T10d (writer trigger: 2+ non-trivial files per task). TDD: off (explicit in the request). Runner: `bunx astro check`, `bun test`, `bun run build`.
+  - T10a `35c1750`: kit and component. Each arriving belt has its own piece: yellow drop, green dry sweep, blue drip curtain, red ensō, black single vertical stroke. No text, no hangul.
+  - T10b `c2e4cea`: passages mounted in the three pages; the engine writes `--p` per passage (top at the bottom edge to bottom at the top edge). CSS derives `--k` (0, 1, 0).
+  - T10c `396ef8f`: brush detail. The old straight `<line>` stays but is stroked 6 wide under a static bristle mask (selector still matches the existing chapter test, so no test was edited for it).
+  - Design decisions:
+    - The passage box is in flow (60svh, 40svh mobile). Its ink layer is a fixed viewport overlay at z-index 10 (header is 50), invisible when `--k` is 0, so the field is white at both ends. First attempt with an absolute layer centred on the passage left ink over the previous chapter at p=0; replaced.
+    - Peak scale was reduced after the first capture (a flat full-screen fill read as a drench).
+    - Static SVG displacement filters only on dry, drip and vertical; they sit on the SVG and the HTML wrapper animates (transform, opacity, clip-path). Drop and ensō animate inside the SVG, so they have no filter. On mobile `filter: none`.
+    - Reduced motion or no JS: static 8rem divider (verified: 128 px, no overflow).
+  - Checks: `bunx astro check` 0 errors; `bun test` 171 pass, 0 fail (14 new in `tests/tul-ink.test.ts`); `bun run build` 6 pages; `rg "[가-힯]" src` matches only the pre-existing, unrendered `hangul` data fields in `src/data/principles.ts` (none in dist).
+  - Captures (Playwright, 1440 and 390): scroll sweeps of all five passages gave `--p` 0, 0.5 and 1 with no horizontal overflow; peak and recede frames reviewed for drop, drip, ensō, dry sweep and vertical stroke.
+  - Not measured: scroll performance trace on a real GPU; mobile peak captures were taken, not individually judged.
+- 2026-10-06 T9 (user: always-white field plus hybrid 3D). Route: delegated, one writer per task in order. The parent reviewed every capture.
+  - T9a `df69be8`: one white field. Per-belt `--belt-fill`, and a `--belt-line` stroke that passes ≥4.5:1 on all six belts (yellow becomes ochre `#8a6700`). Removed the tie plane, early flip, header field swap and `data-grade-belt`. The header swatch wipes on chapter change.
+  - T9b `c2f5587`: `BeltMark.astro`, a drawn tied belt with ink outline and flat fill. Negro gets a light knot keyline. It is used in the chapter heads, header (mini), legend and `/cv`, with an outline draw-in.
+  - T9c `3a7d769`: FloorDiagram is a CSS 3D perspective plane with HTML stop posts that counter-rotate.
+    - Tilt follows `--p`: 58° to 44° on desktop, 34° fixed on mobile, 30° static under reduced motion. The hero floor tilts in as the portrait fades.
+  - T9d `d6af3c7`: WebGL belt, lazy and desktop-only. The gate checks width ≥1024, no reduced motion, WebGL available and no saveData.
+    - three is loaded only through a dynamic import after `load` plus idle. The scene chunk is 145 KB gzip.
+    - One shared renderer serves both moments: the white belt lands on the hero floor, and the belt ties red to black with gold stitches at 1st dan. It handles context loss and disposes when off-screen.
+    - The unused 5.4 MB GLBs were deleted.
+    - Network checks (Playwright): mobile requests no three chunk; desktop requests it after `load`; reduced motion requests none.
+  - Direction contract updated (OWN-WORLD is now restrained white plus drawn belts and perspective). Checks: `bun test` 157 pass, 0 fail; build 6 pages.
+  - Risks to review in T8: real-GPU performance is unmeasured (headless swiftshader only); the white 3D belt has modest contrast on white; the negro seal box reserves 15rem on desktop even when 3D is off.
+- 2026-10-06 T7c and T7d, commit `135e922`. Route: delegated; the parent verified deep entry.
+  - The user picked 2 of 4 candidates from the `/lab` shortlist: the horizontal cut for chapter titles (two halves plus a drawn underline) and the word-by-word reveal for the principles. They were ported without any ink look: only transform, opacity, clip-path and stroke-dashoffset, with no filters.
+  - The title keeps a single real `h2`; the split copies are `aria-hidden` and are removed after the animation.
+  - T7d: the negro beats and the rojo stage are now top-aligned. The 330 px gap on amarillo could not be reproduced at 1920x900.
+  - Parent check: loading the page already deep inside a chapter leaves every visible title and word at full opacity; only off-screen words stay dimmed until reached.
+  - Checks: `bun test` 119 pass, 0 fail; build OK.
+  - Rejected from `/lab`: the bar burst between chapters, hold-to-send CTA and the per-row mark. They stay available if wanted.
+  - Next: T8.
+- 2026-10-06 T7b (user feedback round), route delegated in two writers.
+  - T7b-1 `4836b44`: chapter titles are now by professional area (Formación técnica, Ventas y atención al cliente, Administración pública, Reconversión profesional, Salud y logística, Software en producción). Career copy was neutralized: "sistemas arcaicos", "trinchera" and "la calle" removed, which also fixes a breach of the no-criticism-of-employers rule. Unused fields (`kicker`, `sectionBadge`, general title and subtitle) were removed. `tests/copy-tone.test.ts` guards the tone.
+  - T7b-2: tul are shown by grade ("Tul 8º gup · Diagrama de piso · 21 movimientos", "Tul 1º dan · 2 de 3"). The header shows grade plus area title, or the product name in the black passages. No Korean tul names appear on any screen; they live only in `src/data/tuls.ts`. CV buttons say "Ver CV" and use a new external-document icon, with a hidden new-tab hint.
+  - Checks: `bun test` 110 pass, 0 fail; build 6 pages.
+  - Pending from the plan: T7c (choose `/lab` animations; `/lab` is recoverable from `feat/ink-redesign` at `3de8f84` and `design/franjas-pincel/`), T7d (top-align the pinned stages on wide screens), then T8.
+  - Not touched: `rules/Narrativa.md`, `Storytelling.md` and `Copywriting.md` still contain "trinchera" and "La calle".
+- 2026-10-05 T0 commit `181152a` (doc, surface brief).
+- 2026-10-05 T1 commit `8796b6b`. Checks:
+  - `bunx astro check`: 0 errors.
+  - `bun run build`: OK.
+  - `bun test tests/tuls.test.ts`: 7 pass (parent re-ran it).
+  - Full `bun test`: 108 pass, 13 fail. The 13 failures pre-exist on the base and are ink-redesign scroll-engine contract tests. They go away in T7.
+- RDD: off (global). Delivery is unmanaged.
+- 2026-10-05 T2 commit `3eddaac`. Route: delegated (writer trigger).
+  - Fonts: `@fontsource-variable/archivo` (wdth.css: wght 100 to 900, width 62 to 125%) and `@fontsource-variable/atkinson-hyperlegible-next`.
+  - Belt field contrast: all pairs at or above 4.86:1.
+  - Checks: `astro check` 0 errors; build OK; `bun test` 113 pass, 3 skip, 13 fail (the same baseline names).
+  - Skipped, to be removed in T7: the 3 old-world page-composition assertions in `ink-s0`, `ink-sections-a` and `ink-sections-b`.
+  - No visual check yet; it is batched after T3.
+- 2026-10-05 T3 commit `739b965`. Route: delegated (writer trigger).
+  - Files: FloorDiagram (ghost line, `pathLength=1`, `--draw`, lateral arrow offsets, ready label), HeroJoonbi, the `tul.ts` engine (ScrollTrigger `--p` and `--draw`, IntersectionObserver chapter tracking, no Lenis), font preload and metric fallbacks.
+  - Checks: `astro check` 0 errors; build OK; `bun test` 134 pass, 3 skip, 13 fail (baseline).
+  - Visual: 2 rounds at 1440x900 and 390x844 (the limit reached). Round 1 fixes: role line, ghost route, overlapping arrows, desktop composition, ready label. The "10°" in the screenshot is the Archivo glyph for U+00BA, so the source was already correct; a test now guards it.
+  - Deferred to the T8 review: the "Listo" label touches the ghost line, and there is idle space in the middle of the left column on desktop.
+- 2026-10-05 T4 commit `d2d6d68`. Route: delegated (writer trigger).
+  - TulChapter: a pinned stage holding head, compact `<ol>` and diagram; rows activate as `--draw` passes their `t`; the h2 type grows with grade.
+  - Rojo: friction-to-code notation from `automationsContent`.
+  - Negro: NodoSur frame plus Kwang-Gae/NodoFit, Po-Eun/Satori and Ge-Baek/Don Pizza sub-scenes.
+  - Next-belt tie plane is driven by clip-path over the last 12% of `--p`.
+  - Checks: `astro check` 0 errors; build OK; `bun test` 157 pass, 3 skip, 13 fail (baseline).
+  - Visual, 2 rounds. Round 1 fix: the whole stage is pinned instead of 58svh row spacing, which removed the blank screens and lost context. Final captures (amarillo, NodoFit, rojo, azul in reduced motion) all show content together with 0 overflow.
+  - Deferred to T8:
+    - Arrowheads read like text chevrons.
+    - Spare space under the negro and rojo desktop stages.
+    - On mobile the rojo friction stage scrolls with no pin between scenes.
+- Black mapping changed in T4b: Kwang-Gae/satori, Po-Eun/nodofit. Engine API for T4 (T3b adds `data-q-end` and `data-draw-start`; the hero pin is 220svh):
+  - `[data-tul-scene]` gets `--p` and `--draw` (top top to bottom bottom, scrub 0.4), with `data-p-from` and `data-p-to`.
+  - The hero exposes `data-draw-end=0.25`.
+  - Each `main section[data-belt]` sets `html[data-belt]` and the grade indicator.
+- Running authored lines (before T2): about 500, past the budget, so the chain strategy is pending (ask-on-risk).
+- 2026-10-05 T0: `3de8f84` on `feat/ink-redesign`. Branch `feat/tul-redesign` created. Doc and mirror written.
+
+- 2026-10-07 T14 (user: remove the brush underline, keep the rest). Route: delegated, one writer (writer trigger: 2+ non-trivial files plus tests and the contract). TDD: off. Runner: `bunx astro check`, `bun test`, `bun run build`.
+  - DrawSVG stays registered: `beltDrawing.ts` still tweens `drawSVG` for the spacer belt. MorphSVG was already gone.
+  - Tests rewritten on purpose: `tul-ink.test.ts` (title block now asserts no TitleInk, no `.ti`, no `data-ink-stroke`, no reserved padding, belt-line contrast kept for the active row marker), `tul-motion.test.ts`, `tul-chapters.test.ts`.
+  - Checks: astro check 0 errors; bun test 344 pass, 0 fail; build 6 pages; `rg` for TitleInk, data-ink-stroke and `.ti__` in `src` finds nothing.
+  - Visual (Playwright, 1440 and 390, blanco, rojo, negro; reduced motion at 1440): no svg in the title wrap, title opacity 1, no underline. Round 1 showed the descender of the title almost touching the seal at 1440 (8 px); fix: `.tc__head` gap `--space-2xs` to `--space-xs` (12 px), confirmed in a second capture.
+
+## Next step
+T8.
+
+T8: finish review (impeccable detect, finish reviewer at 1440 and 390, one fix round, documenter rewrites DESIGN.md). Before deploy, the user decides whether the CV PDF gets tracked (see Open decisions).
