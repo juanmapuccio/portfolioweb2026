@@ -15,9 +15,12 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "@resvg/resvg-js": "^2.6.2",
     "astro": "^7.3.5",
     "lucide-astro": "^0.556.0",
-    "qrcode": "^1.5.4"
+    "qrcode": "^1.5.4",
+    "satori": "^0.33.5"
   },
   "allowScripts": {
     "esbuild": true

@@ -11,6 +11,13 @@ interface Props {
 }
 
 const { title, description, lang = 'es' } = Astro.props;
+
+// Same path pattern the nav (`brand` link) and lang-switch already use:
+// root for the default locale (es), `/en` and `/pt` for the others —
+// matching `i18n.routing.prefixDefaultLocale: false`.
+const pathFor = (code: Lang) => (code === 'es' ? '/' : `/${code}`);
+const canonicalUrl = new URL(pathFor(lang), Astro.site).toString();
+const ogImageUrl = new URL('/og-image.png', Astro.site).toString();
 ---
 
 <!doctype html>
@@ -22,10 +29,20 @@ const { title, description, lang = 'es' } = Astro.props;
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    {Object.keys(languages).map((code) => (
+      <link rel="alternate" hreflang={code} href={new URL(pathFor(code as Lang), Astro.site).toString()} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={new URL(pathFor('es'), Astro.site).toString()} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImageUrl} />
 
     <!-- Google Fonts: IBM Plex Sans only (industrial/utilitarian pairing).
          Data/metadata typography uses the zero-network-cost `ui-monospace`
