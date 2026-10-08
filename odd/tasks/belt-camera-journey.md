@@ -24,17 +24,22 @@ Pedido explícito del usuario tras una auditoría visual en vivo del sitio deplo
 
 ## Scope
 
+**Pivot de diseño (2026-10-08, tras validar T1/T2 en vivo):** T1/T2 demostraron que con una sola malla de cinturón/tatami compartida, moverla junto a la cámara no genera sensación de recorrido — solo la niebla cambia de color, nada queda "atrás". Decisión del usuario: construir un **entorno de dojo real** — una estación fija por cinturón (piso + cinturón propio, geometría editorial minimalista), todas coexistiendo en el espacio 3D a lo largo del eje Z, con la cámara recorriendo el pasillo entre estaciones. Esto reemplaza el enfoque de T2 de co-ubicar cinturón/tatami con la cámara (ver T8).
+
 **Incluye:**
-- Generalizar el sistema de cámara a N waypoints 3D reales, uno (o más) por capítulo de cinturón.
-- Agregar profundidad de escena (offset en Z por capítulo) + niebla (`fog` nativo de Three.js) para sensación de recorrido.
-- Resolver la tensión `setViewOffset` vs. movimiento real: híbrido — viaje real de cámara en los tramos *entre* capítulos, reencuadre de columna solo *dentro* de cada capítulo mientras hay texto que leer.
+- Generalizar el sistema de cámara a N waypoints 3D reales, uno (o más) por capítulo de cinturón. *(T1, hecho)*
+- Profundidad de escena (offset en Z por capítulo) + niebla (`fog` nativo de Three.js). *(T2, hecho — base reutilizable, el co-location se revisita en T8)*
+- **Entorno de dojo con estaciones fijas por cinturón**: geometría de piso + marco/paredes minimalistas por estación, una instancia de tatami+cinturón por estación (no una malla compartida), estética editorial (líneas finas, paleta neutra, acento del color de cinturón) coherente con el resto del sitio. *(T7, nuevo)*
+- Desacoplar cinturón/tatami de la cámara: cada estación queda fija en su Z; la cámara viaja por el pasillo y las estaciones anteriores quedan atrás (recesión real vía posición + niebla), no solo cambian de color. *(T8, nuevo)*
+- Resolver la tensión `setViewOffset` vs. movimiento real: dentro de cada estación, reencuadre de columna para que el texto no se pise con el 3D; en el pasillo entre estaciones, viaje de cámara libre. *(T3/T9)*
 - Capítulo cinturón negro: reducir el copy al mínimo imprescindible (coordinar qué contenido se corta/resume con el usuario antes de tocar `src/data/martialExperience.ts` u otros datos de contenido).
 - Mantener gating existente (`prefers-reduced-motion`, `<1024px`, WebGL, data-saver) y el fallback mobile ("Ver en 3D" on-demand).
+- Presupuesto de performance: con hasta 6 estaciones potencialmente en escena a la vez (aunque sea con culling/fog ocultando las lejanas), revisar drawcalls/triángulos — ya hubo un pase previo que bajó el cinturón de 168k a 44k triángulos; no reventar ese presupuesto multiplicando mallas sin culling.
 
 **No incluye (fuera de alcance, explícitamente):**
 - Rediseño de contenido/copy de los otros 5 capítulos (solo negro).
 - Cambios a `TulHeader.astro` más allá de lo estrictamente necesario para convivir con el nuevo canvas.
-- Nueva geometría de "salas" por capítulo más allá de offset en profundidad + niebla (no se modela mobiliario 3D nuevo salvo que surja como necesidad durante la tarea 2).
+- Mobiliario 3D detallado/realista tipo "museo de trofeos" — el dojo se mantiene minimalista/editorial (líneas, planos, tipografía), no es un diorama fotorrealista.
 
 ## Restricciones
 
@@ -46,18 +51,22 @@ Pedido explícito del usuario tras una auditoría visual en vivo del sitio deplo
 
 - [x] **T1 — Generalizar waypoints de cámara.** Reemplazar las 3 constantes de target por una tabla de waypoints `{ beltKey, position, lookAt }[]`, uno por capítulo como mínimo. Generalizar `lerpCam()` para interpolar entre N waypoints según el progreso de scroll *global* de la página (no solo el progreso local por capítulo). Ruta: inline o delegado directo (archivo único `journey.ts` + ajustes en `scene.ts`).
 - [x] **T2 — Profundidad de escena + niebla.** Dar a cada capítulo su propio offset en Z, agregar `fog` nativo de Three.js para profundidad visual entre capítulos. Verificar que el tatami/cinturón de cada capítulo no se solape visualmente con el del capítulo vecino.
-- [ ] **T3 — Híbrido viaje real / reencuadre de texto.** Implementar la transición: cámara con movimiento 3D real en los tramos "passage" (entre capítulos), reencuadre `setViewOffset` solo activo durante el tramo "travel" (dentro de un capítulo, con texto en pantalla). Decisión de diseño ya tomada por el usuario en la conversación — documentar el resultado acá tras implementar.
-- [ ] **T4 — Cinturón negro: reducir texto al mínimo.** Coordinar con el usuario qué contenido del capítulo negro se recorta antes de editar `src/data/martialExperience.ts` (o el archivo de datos correspondiente al capítulo negro). Aplicar el recorte + ajustar el layout de esa sección para que funcione con mucho menos texto.
-- [ ] **T5 — Verificación visual y de performance.** Recorrer las 6 etapas en navegador real (Playwright/browser pane) en >=1024px, confirmar que la cámara viaja (no solo reposa), confirmar fallback mobile/reduced-motion intacto, medir performance en GPU real (no swiftshader).
-- [ ] **T6 — Generalizar o retirar la cámara "piso bajo" del capítulo rojo** según si el nuevo sistema de waypoints la vuelve redundante o si conviene mantenerla como caso especial dentro del nuevo sistema.
+- [ ] **T7 — Construir el entorno de dojo (geometría por estación).** Diseñar y construir, en `src/scripts/belt3d/`, una estación 3D por cinturón: piso (reusar/derivar de `tatami.ts`), marco/paredes minimalistas editoriales, cinturón propio de esa estación (instancia independiente, no la malla compartida actual). 6 estaciones mínimo, ubicadas en su Z correspondiente (reusar `beltDepth()` de T1). Mantener la estética ya establecida (industrial/editorial: líneas finas, paleta neutra + acento de color de cinturón, sin gradientes ni foto-realismo).
+- [ ] **T8 — Desacoplar estaciones de la cámara y habilitar recesión real.** Revertir el co-location de T2 (`belt.group.position.z`/`tatami.group.position.z` ya no siguen a `cam.target.z`): cada estación queda fija en su lugar. La cámara recorre el pasillo entre estaciones (usando los waypoints de T1); la estación anterior queda atrás (se desvanece con la niebla de T2 + occlusion/culling si hace falta por performance) y la siguiente se revela adelante. Verificar que esto sí genere parallax/recesión visible (no solo cambio de color de niebla) — criterio de aceptación explícito más abajo.
+- [ ] **T9 — Híbrido viaje real / reencuadre de texto por estación.** Dentro de cada estación (tramo "travel", con texto en pantalla), mantener el reencuadre `setViewOffset` para que el texto no se pise con el 3D. En el pasillo entre estaciones (tramo "passage"), cámara libre sin reencuadre forzado. Documentar cómo quedó resuelta la composición.
+- [ ] **T10 — Cinturón negro: reducir texto al mínimo.** Coordinar con el usuario qué contenido del capítulo negro se recorta antes de editar `src/data/martialExperience.ts` (o el archivo de datos correspondiente al capítulo negro). Aplicar el recorte + ajustar el layout de esa sección para que funcione con mucho menos texto.
+- [ ] **T11 — Verificación visual y de performance.** Recorrer las 6 estaciones en navegador real (Playwright/browser pane) en >=1024px, confirmar que la cámara viaja por un pasillo con estaciones visibles adelante/atrás (no solo cambia de color), confirmar fallback mobile/reduced-motion intacto, medir drawcalls/triángulos con hasta 6 estaciones en escena y aplicar culling si el presupuesto de performance se resiente.
+- [ ] **T12 — Reconciliar la cámara "piso bajo" del capítulo rojo** (`tatamiLowFrame`) con el nuevo sistema de estaciones — ¿sigue siendo una estación especial dentro del pasillo, o se integra como cualquier otra?
 
 ## Criterios de aceptación
 
 - La cámara interpola posición 3D real entre waypoints de capítulos consecutivos durante el scroll — no solo reencuadre `setViewOffset` de un target fijo.
+- **Hay un entorno real recorrible**: al menos la estación actual y la anterior/siguiente son visibles simultáneamente en algún punto del recorrido (parallax/recesión verificable en captura, no solo cambio de color de niebla).
 - Progresión visual blanco -> negro coherente y con estilo editorial constante (tipografía, paleta, espaciado ya establecidos en el redesign actual, sin regresiones).
 - Cinturón negro con texto reducido al mínimo, aprobado por el usuario antes de mergear.
 - `astro check`, tests existentes (83 Vitest + suite `tul-*` bun:test) y build pasan sin romper nada fuera de scope.
 - Gating de accesibilidad/performance (reduced-motion, mobile, data-saver, WebGL ausente) se comporta igual que antes.
+- Performance real-GPU validada con hasta 6 estaciones potencialmente en escena (no solo swiftshader headless).
 
 ## Progreso
 
