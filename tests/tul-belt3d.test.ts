@@ -385,6 +385,20 @@ describe('journey: where the belt is', () => {
     });
   }
 
+  test('T9: the passage swings the camera a few degrees mid-way and is straight on at both ends', () => {
+    for (const m of sizes) {
+      for (const [from, to] of [['blanco', 'amarillo'], ['rojo', 'negro']] as const) {
+        close(passageFrame(from, to, 0, m).cam.azimuth ?? 0, 0);
+        close(passageFrame(from, to, 1, m).cam.azimuth ?? 0, 0);
+        const mid = passageFrame(from, to, 0.5, m).cam;
+        expect(Math.abs(mid.azimuth ?? 0)).toBeGreaterThan(0.05);
+        expect(Math.abs(mid.azimuth ?? 0)).toBeLessThan(0.15);
+        // The dolly is eased: halfway through the passage the camera is halfway between the two stations.
+        close(mid.target[2], (travelFrame(from, 0, m).cam.target[2] + travelFrame(to, 0, m).cam.target[2]) / 2);
+      }
+    }
+  });
+
   test('an ordinary passage unties, changes colour while loose and ties again; no gold, no rim', () => {
     const m = sizes[0];
     const k = (p: number) => (passageFrame('verde', 'azul', p, m).pose as { k: number }).k;

@@ -81,6 +81,8 @@ export interface Cam {
   elevation: number;
   dist: number;
   target: [number, number, number];
+  /** Orbit about the target's vertical axis, radians (0 = straight on). Only the passage swings it (T9). */
+  azimuth?: number;
 }
 
 export type Pose =
@@ -152,6 +154,7 @@ export function lerpCam(a: Cam, b: Cam, t: number): Cam {
     ppm: lerp(a.ppm, b.ppm, t),
     elevation: lerp(a.elevation, b.elevation, t),
     dist: lerp(a.dist, b.dist, t),
+    azimuth: lerp(a.azimuth ?? 0, b.azimuth ?? 0, t),
     target: [lerp(a.target[0], b.target[0], t), lerp(a.target[1], b.target[1], t), lerp(a.target[2], b.target[2], t)]
   };
 }
@@ -239,6 +242,10 @@ export function outroFrame(f: Frame, p: number, m: Metrics): Frame {
   return { ...f, pose, cam: { ...f.cam, sy: f.cam.sy - k * OUTRO_RISE * m.h }, opacity: f.opacity * (1 - smooth(k, 0.45, 1)) };
 }
 
+/** T9: peak camera orbit (radians, 6 degrees) and pull-back (metres) in the middle of a passage. */
+const PASSAGE_SWING = 6 * DEG;
+const PASSAGE_PULLBACK = 0.3;
+
 /** Where the belt is between two chapters. `to === 'negro'` is the tie beat. */
 export function passageFrame(from: BeltKey, to: BeltKey, p: number, m: Metrics): Frame {
   const tie = to === 'negro';
@@ -251,13 +258,21 @@ export function passageFrame(from: BeltKey, to: BeltKey, p: number, m: Metrics):
   // Real world-space dolly: the camera's target (and so its position) translates from the `from` chapter's
   // waypoint depth to the `to` chapter's, continuously over the spacer's scroll — this is the N-waypoint
   // interpolation T1 asks for, not just a re-tilt around a fixed point.
-  const z = TRAVEL_TARGET[2] + lerp(beltDepth(from), beltDepth(to), clamp01(p));
+  // T9: the move is eased (smooth) so the camera leaves one station and settles at the next with no velocity step
+  // against the still travel beats on either side.
+  const z = TRAVEL_TARGET[2] + lerp(beltDepth(from), beltDepth(to), smooth(p, 0, 1));
+  // T9: the free move. While the belt is away from the text column (`out`, the screen-space reframing above is
+  // already blended to the neutral centre there) the camera also swings a few degrees about the target and pulls
+  // back a little, like walking through the dojo instead of a straight dolly. `walk` is 0 at both ends (so it
+  // meets the travel beats exactly) and peaks in the middle of the passage.
+  const walk = smooth(p, 0, 0.5) - smooth(p, 0.5, 1);
   const cam: Cam = {
     sx: lerp(m.col.x, m.w / 2, out),
     sy: lerp(m.col.y, rideY, follow),
     ppm: lerp(columnPpm(m), centrePpm(m), out),
     elevation: TRAVEL_EL,
-    dist: TRAVEL_DIST,
+    dist: TRAVEL_DIST + PASSAGE_PULLBACK * walk,
+    azimuth: PASSAGE_SWING * walk,
     target: [TRAVEL_TARGET[0], TRAVEL_TARGET[1], z]
   };
   // k: 1 = tied, 0 = loose. Ordinary passage: untie, change colour while loose, tie again.

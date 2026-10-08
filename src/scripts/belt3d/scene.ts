@@ -302,7 +302,9 @@ function publishKnot(v: View, f: Frame): void {
 function aim(camera: PerspectiveCamera, c: Cam): void {
   const full = 2 * c.dist * Math.tan((FOV / 2) * DEG) * c.ppm;
   camera.aspect = 1;
-  camera.position.set(c.target[0], c.target[1] + c.dist * Math.sin(c.elevation), c.target[2] + c.dist * Math.cos(c.elevation));
+  const az = c.azimuth ?? 0;
+  const flat = c.dist * Math.cos(c.elevation);
+  camera.position.set(c.target[0] + flat * Math.sin(az), c.target[1] + c.dist * Math.sin(c.elevation), c.target[2] + flat * Math.cos(az));
   camera.lookAt(c.target[0], c.target[1], c.target[2]);
   camera.setViewOffset(full, full, full / 2 - c.sx, full / 2 - c.sy, metrics.w, metrics.h);
   camera.updateMatrixWorld();
