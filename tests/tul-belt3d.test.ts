@@ -44,7 +44,10 @@ describe('three stays out of the initial bundle', () => {
       'src/scripts/belt3d/scene.ts',
       'src/scripts/belt3d/proceduralBelt.ts',
       'src/scripts/belt3d/poses.ts',
-      'src/scripts/belt3d/tatami.ts'
+      'src/scripts/belt3d/tatami.ts',
+      // T7: the dojo stations (one per belt, fixed at its own beltDepth) are their own module, imported
+      // only by scene.ts, reusing createProceduralBelt/poseHang for each station's own belt instance.
+      'src/scripts/belt3d/station.ts'
     ]);
     const offenders = sources
       .map((f) => f.replaceAll('\\', '/'))

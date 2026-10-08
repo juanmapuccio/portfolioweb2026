@@ -48,6 +48,7 @@ import { BELT_COLORS, BELT_LINES, FIELD_DARK, FIELD_LIGHT, STITCH_GOLD, isBeltKe
 import { routeOf, type Route } from '../../data/tulRoute';
 import { isBelt3dEligible } from './eligible';
 import {
+  beltDepth,
   FLOOR_W,
   FOV,
   PARALLAX_DEG,
@@ -67,6 +68,7 @@ import {
 } from './journey';
 import { applyPose, blendPose } from './poses';
 import { createProceduralBelt, type ProceduralBelt } from './proceduralBelt';
+import { createStations, type Stations } from './station';
 import { TATAMI_LAYER, createTatami, type Tatami, type TatamiData } from './tatami';
 import { createTip, type Tip } from './tatamiTip';
 import { openExperience } from '../experiencePanel';
@@ -109,6 +111,8 @@ interface View {
   belt: ProceduralBelt;
   tatami: Tatami;
   rimLights: DirectionalLight[];
+  /** T7: the fixed dojo stations — one per belt, parked permanently at its own `beltDepth()`. */
+  stations: Stations;
 }
 
 const PIXEL_RATIO_CAP = 1.5;
@@ -239,14 +243,18 @@ function createView(): View {
   const tatami = createTatami();
   scene.add(tatami.group);
   const rimLights = lights(scene, envTexture);
-  // T2: depth cueing between chapters. There is one shared belt mesh and one shared tatami mesh (never several
-  // chapters' geometry on screen at once — see scene.ts's `tatamiView()`), so fog cannot fade a receding
-  // neighbour that is not drawn. Instead the fog itself becomes the travel cue: its colour crosses from the
-  // light field to the black field exactly where the page's own field flip happens (see tul.ts's FLOOD_FULL),
-  // and its near/far band is keyed to the active camera's own distance so whichever chapter is on screen stays
-  // crisp while anything nominally behind or ahead of it (the belt's own tails, the tatami's far edge) softens.
+  // T7/T8: six fixed stations — one per belt, each at its own `beltDepth()` — now coexist in the scene, so the
+  // chapter the camera is passing stays close while its neighbours really recede/approach along Z. The shared
+  // belt/tatami meshes below stay the "protagonist" instance that scene.ts poses for the active travel/passage
+  // beat; T8 parks it at the chapter's own fixed depth (see applyFrame/applyTatami) instead of riding the
+  // camera's continuous dolly, so it no longer teleports relative to the stations around it.
+  const stations = createStations();
+  scene.add(stations.group);
+  // T2 fog, retuned for T8: near/far are still keyed to the camera's own distance, but widened so a station one
+  // or two chapters away visibly softens instead of popping fully into or out of fog at the chapter boundary —
+  // that softening (plus the camera's real dolly) is the parallax/recession cue, not just a colour crossfade.
   scene.fog = new Fog(FIELD_LIGHT, 1, 4);
-  return { scene, camera, tcam, belt, tatami, rimLights };
+  return { scene, camera, tcam, belt, tatami, rimLights, stations };
 }
 
 function setReady(on: boolean): void {
@@ -306,11 +314,12 @@ function applyFrame(v: View, f: Frame): void {
   if (f.poseB && f.blend > 0) blendPose(belt, f.pose, f.poseB, f.blend);
   else applyPose(belt, f.pose);
   belt.group.visible = true;
-  // T1/T2: the belt is the one mesh standing in for "the current chapter's geometry" (see createView's fog
-  // comment) — it sits at the camera's own focal depth, so it rides the same real Z translation the camera does
-  // between waypoints (travelCam/passageFrame in journey.ts), instead of staying parked at the origin while only
-  // the camera re-tilts around it.
-  belt.group.position.z = f.cam.target[2];
+  // T8 (reverses T2's co-location): the protagonist belt no longer rides the camera's continuous dolly between
+  // waypoints. It is parked at its destination chapter's own fixed `beltDepth()` for the whole beat — the same
+  // depth during `travel` (from === to) and already during `passage` (it visually "arrives" at the next
+  // station while it unties/changes colour/reties, which is the chapter it is tied for) — so it stays put
+  // relative to the fixed dojo stations instead of sliding independently of them.
+  belt.group.position.z = beltDepth(f.to);
 
   belt.setColors(paletteOf(f.from), paletteOf(f.to), f.mix);
   if (f.gold > 0) belt.materials.stitch.color.lerp(goldColour, f.gold);
@@ -322,9 +331,13 @@ function applyFrame(v: View, f: Frame): void {
   belt.materials.cloth.sheen = 1 - 0.7 * f.rim;
   if (v.scene.fog instanceof Fog) {
     v.scene.fog.color.copy(fieldLight).lerp(fieldDark, f.rim);
-    v.scene.fog.near = Math.max(0.1, f.cam.dist - 0.6);
-    v.scene.fog.far = f.cam.dist + 2.2;
+    // T8: widened so a neighbouring station (≈1 chapter away along the dolly axis) softens instead of being
+    // either fully crisp or fully erased — the atmospheric half of the recession cue (the other half is the
+    // camera's real translation past fixed geometry).
+    v.scene.fog.near = Math.max(0.15, f.cam.dist - 1.0);
+    v.scene.fog.far = f.cam.dist + 3.2;
   }
+  v.stations.cull(f.cam.target[2]);
 
   aim(camera, f.cam);
 }
@@ -333,8 +346,10 @@ function applyFrame(v: View, f: Frame): void {
 function applyTatami(v: View, tv: TatamiView): void {
   const c = tv.frame.cam;
   aim(v.tcam, { ...c, elevation: c.elevation + par.y * PARALLAX_DEG * DEG });
-  // Same co-location as the belt (applyFrame): the one shared tatami mesh sits at its chapter's own waypoint depth.
-  v.tatami.group.position.z = c.target[2];
+  // T8: like the belt in applyFrame, the shared tatami mesh is parked at its OWN diagram's fixed `beltDepth()`
+  // (not the camera's `target[2]`, which keeps dollying through the passage) — it stays put at its station
+  // instead of sliding independently of the fixed dojo stations around it.
+  v.tatami.group.position.z = beltDepth(tv.entry.belt);
   v.tatami.setYaw(tv.frame.yaw + par.x * PARALLAX_DEG * DEG);
   v.tatami.show(tv.entry.key, tv.entry.data, BELT_LINES[tv.entry.belt], tv.entry.belt === 'negro' ? FIELD_DARK : FIELD_LIGHT);
   v.tatami.look(tv.frame.opacity, tv.draw, tv.all);
@@ -733,6 +748,7 @@ function teardown(): void {
   if (view) {
     view.belt.dispose();
     view.tatami.dispose();
+    view.stations.dispose();
     view.scene.clear();
     view = undefined;
   }
