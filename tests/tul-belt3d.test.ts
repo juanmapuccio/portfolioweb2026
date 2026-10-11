@@ -254,7 +254,7 @@ describe('the engine drives the beats', () => {
     expect(fn).toContain('scrollTrigger');
     expect(fn).not.toContain('--draw');
     expect(fn).not.toContain("'--q'");
-    expect(engine).toMatch(/initScenes\(\);\s*initBeats\(\);\s*initPassages\(\);/);
+    expect(engine).toMatch(/initScenes\(\);\s*initBeats\(\);\s*initSprint\(\);\s*initPassages\(\);/);
   });
 
   test('layout is measured here, on refresh only, and published in px on <html>', () => {

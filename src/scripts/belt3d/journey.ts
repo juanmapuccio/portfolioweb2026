@@ -11,6 +11,9 @@
 //             changes colour through a noise mask and ties again, then returns to the column.
 //             The passage that arrives at 1st dan ties the belt red to black (the tie beat): the knot is
 //             the centre of the black flood.
+//   shift     the condensed home's belt sprint (`--p`, one marker per change of belt): the belt stays in the
+//             column, loosens a little, changes colour through the noise mask and ties again, turning a step further
+//             with each change. Shifts chain from the hero's hand-off to the tie beat.
 //   rest      travel on black: rim light so the black belt reads on the black field; it fades out before
 //             the chapter ends, long before the close.
 //
@@ -92,12 +95,15 @@ export interface Frame {
   resting: boolean;
 }
 
-export type BeatKind = 'land' | 'travel' | 'passage';
+export type BeatKind = 'land' | 'travel' | 'passage' | 'shift';
 
 export interface Beat {
   kind: BeatKind;
   belt: BeltKey;
   from: BeltKey;
+  /** A shift beat: its place among the changes of the sprint (`step` of `steps`). */
+  step?: number;
+  steps?: number;
 }
 
 /** Progress of each beat in document order; the active beat is the last one that has started. */
@@ -217,6 +223,31 @@ export function outroFrame(f: Frame, p: number, m: Metrics): Frame {
   return { ...f, pose, cam: { ...f.cam, sy: f.cam.sy - k * OUTRO_RISE * m.h }, opacity: f.opacity * (1 - smooth(k, 0.45, 1)) };
 }
 
+/** How much the belt loosens at the middle of a shift (1 = fully loose). */
+const SHIFT_LOOSE = 0.35;
+
+/**
+ * A change of belt inside the sprint, in the column (`p` 0..1). Over all `steps` shifts the belt turns once from
+ * -YAW to +YAW, so the first shift starts where the hero leaves it and the last ends where the tie beat starts.
+ */
+export function shiftFrame(from: BeltKey, to: BeltKey, p: number, m: Metrics, step = 0, steps = 1): Frame {
+  const k = clamp01(p);
+  const loose = smooth(k, 0, 0.5) - smooth(k, 0.5, 1);
+  return {
+    opacity: 1,
+    cam: travelCam(m),
+    pose: { kind: 'hang', yaw: travelYaw((step + k) / Math.max(1, steps)), k: 1 - SHIFT_LOOSE * loose, lean: 1 },
+    blend: 0,
+    from,
+    to,
+    mix: smooth(k, 0.25, 0.75),
+    gold: 0,
+    rim: 0,
+    tie: false,
+    resting: false
+  };
+}
+
 /** Where the belt is between two chapters. `to === 'negro'` is the tie beat. */
 export function passageFrame(from: BeltKey, to: BeltKey, p: number, m: Metrics): Frame {
   const tie = to === 'negro';
@@ -256,6 +287,7 @@ export function passageFrame(from: BeltKey, to: BeltKey, p: number, m: Metrics):
 /** The frame for the active beat. `q`/`e` are the hero's, `p` is the beat's own progress, `outro` the progress of a chapter's outro. */
 export function frameFor(beat: Beat, p: number, q: number, e: number, m: Metrics, yawExtra: number, outro?: number): Frame {
   if (beat.kind === 'land') return heroFrame(q, e, m, yawExtra);
+  if (beat.kind === 'shift') return shiftFrame(beat.from, beat.belt, p, m, beat.step ?? 0, beat.steps ?? 1);
   // A chapter with an outro (the black one) lets the outro move and fade the belt.
   if (beat.kind === 'travel') return outro === undefined ? travelFrame(beat.belt, p, m) : outroFrame(travelFrame(beat.belt, p, m, false), outro, m);
   return passageFrame(beat.from, beat.belt, p, m);

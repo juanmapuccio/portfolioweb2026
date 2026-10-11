@@ -141,4 +141,160 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
   .bs__beat {
     display: none;
   }
+
+  /*
+   * The sprint (JS and motion only). The section becomes a tall track (one viewport for the stage plus ~150svh of
+   * scroll for the four changes) with a sticky full-viewport stage. The engine (tul.ts, initSprint) writes on each
+   * step `--o` (opacity) and `--d` (-1..1, the slide) and on the section `--fill` (0..1 over the six belts of the
+   * rail). The steps stack in one cell and crossfade; the band of the belt wipes in with clip-path. Before the engine
+   * runs, the first belt is the one shown. Only opacity, transform and clip-path change with scroll.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .bs {
+      padding: 0;
+    }
+
+    :global(html.js) .bs__track {
+      height: calc(100svh + (var(--n) - 1) * 37.5svh);
+    }
+
+    :global(html.js) .bs__stage {
+      position: sticky;
+      top: 0;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: var(--space-m);
+      max-width: none;
+      height: 100svh;
+      padding: calc(3rem + var(--space-l)) max(var(--gutter), calc((100vw - 72rem) / 2)) var(--space-l);
+      overflow: hidden;
+    }
+
+    :global(html.js) .bs__list {
+      display: grid;
+      align-items: center;
+    }
+
+    :global(html.js) .bs__step {
+      grid-area: 1 / 1;
+      row-gap: var(--space-2xs);
+      opacity: var(--o, calc(1 - min(var(--i), 1)));
+      transform: translate3d(0, calc(var(--d, 0) * -3rem), 0);
+      will-change: opacity, transform;
+    }
+
+    :global(html.js) .bs__band {
+      display: block;
+      grid-column: 1 / -1;
+      height: 0.75rem;
+      margin-bottom: var(--space-s);
+      border-block: 1.5px solid var(--ink);
+      background-color: var(--belt-fill);
+      clip-path: inset(0 calc((1 - var(--o, calc(1 - min(var(--i), 1)))) * 100%) 0 0);
+    }
+
+    :global(html.js) .bs__mark {
+      grid-row: 2 / span 3;
+      width: clamp(6.5rem, 4rem + 10vw, 11rem);
+    }
+
+    :global(html.js) .bs__name {
+      font-size: var(--step-4);
+    }
+
+    :global(html.js) .bs__line {
+      font-size: var(--step-1);
+      line-height: 1.4;
+    }
+
+    /* The rail: the six belts, lit up to the one on screen; a thin ink line runs under them. */
+    :global(html.js) .bs__rail {
+      position: relative;
+      display: block;
+      padding-bottom: var(--space-2xs);
+    }
+
+    :global(html.js) .bs__fill {
+      position: absolute;
+      inset: auto 0 0;
+      height: var(--line-strong);
+      background-color: var(--ink);
+      transform: scaleX(calc((var(--fill, 0) * 5 + 1) / 6));
+      transform-origin: left center;
+    }
+
+    :global(html.js) .bs__ticks {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: var(--space-2xs);
+    }
+
+    :global(html.js) .bs__tick {
+      /* 1 once the fill has reached this belt, 0 a quarter belt before. */
+      --lit: clamp(0, calc((var(--fill, 0) * 5 - var(--i)) * 4 + 1), 1);
+      display: grid;
+      gap: var(--space-3xs);
+      color: var(--ink-soft);
+      font-size: var(--step--1);
+      font-weight: 600;
+    }
+
+    :global(html.js) .bs__swatch {
+      height: 0.5rem;
+      border: 1.5px solid var(--ink);
+      background-color: var(--belt-fill);
+      opacity: calc(0.25 + 0.75 * var(--lit));
+    }
+
+    :global(html.js) .bs__gup {
+      opacity: calc(0.45 + 0.55 * var(--lit));
+    }
+  }
+
+  /* Phone: one column, the mark above the name. */
+  @media (max-width: 47.99rem) and (prefers-reduced-motion: no-preference) {
+    :global(html.js) .bs__step {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    :global(html.js) .bs__mark {
+      grid-row: auto;
+      width: 7.5rem;
+    }
+
+    :global(html.js) .bs__name,
+    :global(html.js) .bs__meta,
+    :global(html.js) .bs__line {
+      grid-column: 1;
+    }
+
+    :global(html.js) .bs__name {
+      font-size: var(--step-3);
+    }
+
+    :global(html.js) .bs__line {
+      font-size: var(--step-0);
+    }
+  }
+
+  @media (max-width: 29.99rem) and (prefers-reduced-motion: no-preference) {
+    :global(html.js) .bs__gup {
+      display: none;
+    }
+  }
+
+  /* Desktop: the 3D belt changes colour in the reserved column, so the stage keeps it free and the drawn marks step
+     aside once the scene is ready. Without 3D (no WebGL, save-data) the marks stay. */
+  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+    :global(html.js) .bs__stage {
+      padding-inline-end: max(calc(var(--gutter) + var(--belt-col)), calc((100vw - 72rem) / 2));
+    }
+
+    :global(html[data-belt3d='ready']) .bs__mark {
+      display: none;
+    }
+
+    :global(html[data-belt3d='ready']) .bs__step {
+      column-gap: 0;
+    }
+  }
 </style>

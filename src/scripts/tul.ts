@@ -31,6 +31,7 @@ import { bootBelt3d } from './belt3d/boot';
 import { playTitleReveal } from './titleReveal';
 import { buildBeltTimeline } from './beltDrawing';
 import { initExperiencePanel } from './experiencePanel';
+import { shiftProgress, sprintPosition, stepState } from '../components/tul/beltSprint';
 
 type Grade = { gup: string; form: string };
 
@@ -141,6 +142,7 @@ function initScenes(): void {
 //                              away (bottom at the viewport bottom to bottom at the top): the belt leaves its floor
 //                              for the column and the hero tatami rides up with the stage. Written on every viewport.
 //   [data-belt-beat="passage"] a spacer: `--p` is written by initPassages.
+//   [data-belt-beat="shift"]   a change of belt in the sprint: `--p` is written by initSprint.
 // Layout is measured here, on refresh and resize only, and published on <html> in px for the scene:
 //   --belt-vw/vh        the viewport (without the scrollbar),
 //   --belt-col-x/y/w/h  the reserved side column (a fixed probe sized by --belt-col, the same token the
@@ -265,6 +267,69 @@ function initBeats(): void {
   publish();
   ScrollTrigger.addEventListener('refresh', publish);
   window.addEventListener('tul:belt3d-tap', publish);
+}
+
+// [data-belt-sprint]  the condensed home's belt sprint (BeltSprint.astro). One scrubbed progress over its track (top
+//                     at the viewport top to bottom at the bottom) becomes an eased position along the belts
+//                     (beltSprint.ts: it holds on each belt and eases to the next). From it, each [data-sprint-step]
+//                     gets `--o` (opacity) and `--d` (-1..1, the slide), the section `--fill` (0..1 over the six belts
+//                     of the rail) and each [data-belt-beat="shift"] its `--p`, so the 3D belt changes colour with the
+//                     text. The header grade follows the belt on screen. With reduced motion nothing is scrubbed: the
+//                     list is static and the header follows the list item at mid-viewport.
+function initSprint(): void {
+  const sprint = document.querySelector<HTMLElement>('[data-belt-sprint]');
+  const steps = sprint ? [...sprint.querySelectorAll<HTMLElement>('[data-sprint-step]')] : [];
+  if (!sprint || !steps.length) return;
+
+  if (reduced) {
+    if (!('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setBelt((entry.target as HTMLElement).dataset.belt ?? 'blanco');
+        }
+      },
+      { rootMargin: '-50% 0px -50% 0px', threshold: 0 }
+    );
+    for (const step of steps) observer.observe(step);
+    return;
+  }
+
+  const shifts = [...sprint.querySelectorAll<HTMLElement>('[data-belt-beat="shift"]')];
+  const track = sprint.querySelector<HTMLElement>('.bs__track') ?? sprint;
+  const n = steps.length;
+  const state = { s: 0 };
+
+  const write = (): void => {
+    const pos = sprintPosition(state.s, n);
+    steps.forEach((el, i) => {
+      const { o, d } = stepState(pos, i);
+      el.style.setProperty('--o', o.toFixed(4));
+      el.style.setProperty('--d', d.toFixed(4));
+    });
+    // The rail holds the six belts; the sprint fills it up to the red one, black is what comes next.
+    sprint.style.setProperty('--fill', (pos / n).toFixed(4));
+    shifts.forEach((el, j) => el.style.setProperty('--p', shiftProgress(pos, j).toFixed(4)));
+  };
+  write();
+
+  gsap.to(state, {
+    s: 1,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: track,
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 0.6,
+      // The header grade follows the belt on screen while the stage is pinned (setBelt ignores repeats).
+      onUpdate: (self) => {
+        if (!self.isActive) return;
+        const belt = steps[Math.round(sprintPosition(self.progress, n))]?.dataset.belt;
+        if (belt) setBelt(belt);
+      }
+    },
+    onUpdate: write
+  });
 }
 
 // [data-tul-passage]  an in-flow spacer between two chapters. It writes its own `--p` (the CSS of the flood
@@ -512,6 +577,7 @@ function initHeaderAutohide(): void {
 
 initScenes();
 initBeats();
+initSprint();
 initPassages();
 initChapters();
 initEntrances();

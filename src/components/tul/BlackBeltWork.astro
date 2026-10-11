@@ -105,7 +105,8 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
     max-width: 16ch;
     color: var(--belt-line);
     font-size: var(--step-4);
-    letter-spacing: var(--track-display);
+    /* The 1st dan grade type is already condensed: no negative tracking on top of it. */
+    letter-spacing: 0;
   }
 
   .bw__meta {
@@ -222,6 +223,13 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
     :global(html.js) .bw [data-rise].is-in {
       opacity: 1;
       transform: none;
+    }
+  }
+
+  /* Desktop: the 3D belt rests on black in the reserved column, so the work keeps clear of it. */
+  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+    :global(html.js) .bw__inner {
+      padding-inline-end: var(--belt-col);
     }
   }
 </style>
