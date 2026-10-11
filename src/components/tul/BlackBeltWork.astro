@@ -1,0 +1,235 @@
+---
+import { useTranslations, type Lang } from '../../i18n/ui';
+import { BELTS, martialExperienceData } from '../../data/martialExperience';
+import { projectsContent } from '../../data/projects';
+import { skillsData } from '../../data/skills';
+
+/**
+ * The black belt: where the sprint lands, on the black field (the red to black InkPassage floods the page and flips
+ * html[data-field="dark"]; without JS or with reduced motion base.css paints this section black). It holds the real
+ * work: the four production systems, compact, and a condensed stack.
+ *
+ * `.bw__beat` is the travel beat of the 3D belt on black (data-belt-beat="travel", rim light, fades out before the
+ * close). It is an empty, aria-hidden box over the section and half a viewport past it, so the belt rests on black
+ * while the work is read and is gone once the section scrolls away.
+ */
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'es' } = Astro.props;
+const t = useTranslations(lang);
+
+const PROJECT_IDS = ['nodosur', 'nodofit', 'satori', 'donpizza'];
+const projects = PROJECT_IDS.flatMap((id) => projectsContent[lang].filter((p) => p.id === id));
+const stage = martialExperienceData[lang].stages.find((s) => s.beltKey === 'negro');
+const STACK_IDS = ['frontend', 'backend', 'devops'];
+/** Condensed stack: the first five items of each technical category. */
+const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) => c.id === id)).map((c) => ({
+  title: c.title,
+  items: c.items.slice(0, 5).join(' · ')
+}));
+---
+
+<section id="primer-dan" class="bw" data-belt="negro" aria-labelledby="bw-title">
+  <div class="bw__beat" data-belt-beat="travel" data-belt="negro" aria-hidden="true"></div>
+  <div class="bw__inner">
+    <header class="bw__head">
+      <h2 id="bw-title" class="bw__title grade-type">{t('tul.black.title')}</h2>
+      <p class="bw__meta num">
+        <span>{BELTS.negro.gup}</span>
+        <span>{stage?.years}</span>
+      </p>
+      <p class="bw__lede">{stage?.line}</p>
+    </header>
+
+    <ul class="bw__projects">
+      {projects.map((p) => (
+        <li class="bw__project" data-rise>
+          <h3 class="bw__name">{p.name}</h3>
+          <p class="bw__badge">{p.badge}</p>
+          <p class="bw__impact">{p.impact}</p>
+          <p class="bw__tech">{p.tech.join(' · ')}</p>
+          <a class="bw__link" href={p.url} target="_blank" rel="noopener noreferrer">
+            <span>{t('tul.project.visit')}<span class="visually-hidden">: {p.name} {t('tul.cv.newTab')}</span></span>
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false">
+              <path d="M6 14L14 6M7 6H14V13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"></path>
+            </svg>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <div class="bw__stack">
+      <h3 class="bw__stack-title">{t('tul.black.stack')}</h3>
+      <dl class="bw__stack-list">
+        {stack.map((row) => (
+          <div class="bw__stack-row">
+            <dt>{row.title}</dt>
+            <dd>{row.items}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* The layout's section scaffold (base.css) gives the padding; the content sets the height. */
+  .bw {
+    position: relative;
+    min-height: 0;
+  }
+
+  .bw__beat {
+    position: absolute;
+    inset: 0 0 auto;
+    height: calc(100% + 50svh);
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  .bw__inner {
+    display: grid;
+    gap: var(--space-xl);
+    max-width: 72rem;
+    margin-inline: auto;
+  }
+
+  .bw__head {
+    display: grid;
+    gap: var(--space-s);
+  }
+
+  .bw__title {
+    max-width: 16ch;
+    color: var(--belt-line);
+    font-size: var(--step-4);
+    /* The 1st dan grade type is already condensed: no negative tracking on top of it. */
+    letter-spacing: 0;
+  }
+
+  .bw__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-s);
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  .bw__lede {
+    max-width: 52ch;
+    font-size: var(--step-1);
+    line-height: 1.4;
+  }
+
+  .bw__projects {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+    gap: var(--space-l) var(--space-xl);
+  }
+
+  .bw__project {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2xs);
+    padding-top: var(--space-s);
+    border-top: var(--line) solid var(--belt-line);
+  }
+
+  .bw__name {
+    font-size: var(--step-2);
+  }
+
+  .bw__badge,
+  .bw__tech {
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  .bw__impact {
+    max-width: 48ch;
+  }
+
+  .bw__link {
+    display: inline-flex;
+    align-items: center;
+    align-self: start;
+    justify-self: start;
+    gap: var(--space-2xs);
+    min-height: 2.75rem;
+    font-weight: 700;
+  }
+
+  .bw__link svg {
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .bw__link:hover svg {
+    transform: translate(2px, -2px);
+  }
+
+  .bw__stack {
+    display: grid;
+    gap: var(--space-s);
+    padding-top: var(--space-m);
+    border-top: var(--line) solid var(--belt-line);
+  }
+
+  .bw__stack-title {
+    font-size: var(--step-1);
+  }
+
+  .bw__stack-list {
+    display: grid;
+    gap: var(--space-s);
+    margin: 0;
+  }
+
+  .bw__stack-row {
+    display: grid;
+    gap: var(--space-3xs);
+  }
+
+  .bw__stack-row dt {
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  .bw__stack-row dd {
+    margin: 0;
+  }
+
+  @media (min-width: 48rem) {
+    .bw__stack-row {
+      grid-template-columns: 16rem minmax(0, 1fr);
+      gap: var(--space-m);
+    }
+  }
+
+  /* Entrance: the projects rise in once (tul.ts adds .is-in), only with JS and motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .bw [data-rise] {
+      opacity: 0;
+      transform: translateY(1rem);
+      transition:
+        opacity 700ms var(--ease-out),
+        transform 700ms var(--ease-out);
+    }
+
+    :global(html.js) .bw [data-rise].is-in {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Desktop: the 3D belt rests on black in the reserved column, so the work keeps clear of it. */
+  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+    :global(html.js) .bw__inner {
+      padding-inline-end: var(--belt-col);
+    }
+  }
+</style>

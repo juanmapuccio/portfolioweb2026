@@ -90,13 +90,12 @@ describe('InkPassage is a spacer', () => {
 
 describe('ink passages between chapters', () => {
   for (const [lang, file] of [['es', 'src/pages/index.astro'], ['en', 'src/pages/en/index.astro'], ['pt', 'src/pages/pt/index.astro']]) {
-    test(`${lang}: one passage between every pair of belt chapters, in order`, () => {
+    test(`${lang}: the condensed home keeps one passage, red to black, between the sprint and the black belt`, () => {
       const page = read(file);
-      const order = [...page.matchAll(/<TulChapter lang="\w+" beltKey="(\w+)" \/>|<InkPassage from="(\w+)" to="(\w+)" \/>/g)].map((m) =>
+      const order = [...page.matchAll(/<(BeltSprint|BlackBeltWork) lang="\w+" \/>|<InkPassage from="(\w+)" to="(\w+)" \/>/g)].map((m) =>
         m[1] ? m[1] : `${m[2]}>${m[3]}`
       );
-      const expected = BELTS.flatMap((belt, i) => (i === 0 ? [belt] : [`${BELTS[i - 1]}>${belt}`, belt]));
-      expect(order).toEqual(expected);
+      expect(order).toEqual(['BeltSprint', `${BELTS[BELTS.length - 2]}>${BELTS[BELTS.length - 1]}`, 'BlackBeltWork']);
     });
   }
 
@@ -106,7 +105,7 @@ describe('ink passages between chapters', () => {
     expect(fn).toMatch(/if \(reduced\) return;/);
     expect(fn).toContain('scrollTrigger');
     expect(fn).not.toMatch(/requestAnimationFrame|lenis/i);
-    expect(engine).toMatch(/initBeats\(\);\s*initPassages\(\);/);
+    expect(engine).toMatch(/initBeats\(\);\s*initSprint\(\);\s*initPassages\(\);/);
   });
 });
 

@@ -1,0 +1,220 @@
+---
+/**
+ * The ink rule of the close. A few drops fall onto the rule and merge into beads of ink that stay
+ * on it, alive: they breathe and now and then a bud swells under one and is pulled back.
+ *
+ * The liquid look is a gooey (metaball) filter: blur, then an alpha threshold, then the source
+ * composited back on top so the merged shapes keep a crisp edge. It only ever paints this hidden,
+ * decorative layer and the small hover layers of the channels and the CTA (KyongYe.astro), never text.
+ *
+ * Static state (no JS, reduced motion): the merged beads on the rule, no drops, nothing moves.
+ * Motion (html.js, no reduced motion): the beads wait at scale 0 until `.is-in`, the drops fall and
+ * hand their volume to the beads; `.is-live` (set while on screen, tul.ts initInkDrops) runs the loops.
+ */
+const DROPS = [
+  { x: 9, d: 0, s: 1 },
+  { x: 33, d: 0.18, s: 0.8 },
+  { x: 61, d: 0.34, s: 1.1 },
+  { x: 86, d: 0.5, s: 0.9 }
+];
+---
+
+<svg class="ink__defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <filter id="ky-goo" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"></feGaussianBlur>
+    <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9" result="goo"></feColorMatrix>
+    <feComposite in="SourceGraphic" in2="goo" operator="atop"></feComposite>
+  </filter>
+</svg>
+
+<div class="ink" data-ink-drops aria-hidden="true">
+  <span class="ink__rule"></span>
+  <span class="ink__layer">
+    <span class="ink__film"></span>
+    {
+      DROPS.map((drop, i) => (
+        <>
+          <span class="ink__drop" style={`--x:${drop.x}%;--d:${drop.d}s;--s:${drop.s}`} />
+          <span class="ink__bead" style={`--x:${drop.x}%;--d:${drop.d}s;--s:${drop.s};--i:${i}`} />
+        </>
+      ))
+    }
+    <span class="ink__bud" style={`--x:${DROPS[2].x}%;--d:${DROPS[2].d}s`}></span>
+    <span class="ink__bud" style={`--x:${DROPS[0].x}%;--d:${DROPS[0].d + 3.5}s`}></span>
+  </span>
+</div>
+
+<style>
+  .ink__defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  /* The rule sits at the middle of a 1.5rem band; the goo layer reaches above it, where the drops fall from. */
+  .ink {
+    --line-y: 4.75rem;
+    position: relative;
+    grid-area: ink;
+    height: 1.5rem;
+    pointer-events: none;
+  }
+
+  .ink__rule {
+    position: absolute;
+    inset: 50% 0 auto;
+    height: var(--line-strong);
+    margin-top: calc(var(--line-strong) / -2);
+    background-color: var(--ink);
+  }
+
+  .ink__layer {
+    position: absolute;
+    inset: -4rem 0 -1.25rem;
+    filter: url(#ky-goo);
+  }
+
+  /* A thin film of the rule inside the goo: it vanishes on its own and only swells into a meniscus at a bead. */
+  .ink__film {
+    position: absolute;
+    top: var(--line-y);
+    left: 0;
+    right: 0;
+    height: 0.35rem;
+    margin-top: -0.175rem;
+    background-color: var(--ink);
+  }
+
+  .ink__drop,
+  .ink__bead,
+  .ink__bud {
+    position: absolute;
+    top: var(--line-y);
+    left: var(--x);
+    border-radius: 50%;
+    background-color: var(--ink);
+  }
+
+  /* A drop is centred on the rule: falling is only a transform from above. Merged = scale 0. */
+  .ink__drop {
+    width: 0.9rem;
+    height: 0.9rem;
+    margin: -0.45rem 0 0 -0.45rem;
+    transform: scale(0);
+  }
+
+  /* A bead of ink on the rule: a flat lens, a little wider for the bigger drops. */
+  .ink__bead {
+    width: calc(2.6rem * var(--s));
+    height: 0.6rem;
+    margin: -0.3rem 0 0 calc(-1.3rem * var(--s));
+  }
+
+  /* A bud waits inside its bead; with motion it swells under it and is pulled back. */
+  .ink__bud {
+    width: 0.55rem;
+    height: 0.55rem;
+    margin: -0.275rem 0 0 -0.275rem;
+    transform: scale(0);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .ink__drop,
+    :global(html.js) .ink__bead,
+    :global(html.js) .ink__bud {
+      animation-play-state: paused;
+    }
+
+    :global(html.js) .ink__bead {
+      transform: scale(0);
+    }
+
+    :global(html.js) .ink.is-in .ink__drop {
+      animation: ink-fall 720ms cubic-bezier(0.55, 0, 0.9, 0.4) var(--d) both;
+    }
+
+    :global(html.js) .ink.is-in .ink__bead {
+      animation:
+        ink-pool 900ms var(--ease-out) calc(var(--d) + 560ms) both,
+        ink-breathe 6.5s ease-in-out calc(var(--d) + 1460ms + var(--i) * 0.7s) infinite;
+    }
+
+    :global(html.js) .ink.is-in .ink__bud {
+      animation: ink-bud 7s ease-in-out calc(var(--d) + 2.2s) infinite;
+    }
+
+    :global(html.js) .ink.is-live .ink__drop,
+    :global(html.js) .ink.is-live .ink__bead,
+    :global(html.js) .ink.is-live .ink__bud {
+      animation-play-state: running;
+    }
+
+    /* Falls from above the rule, stretched by the speed, and is swallowed by its bead on contact. */
+    @keyframes ink-fall {
+      0% {
+        transform: translateY(-3.6rem) scale(0.55);
+        opacity: 0;
+      }
+
+      12% {
+        opacity: 1;
+      }
+
+      78% {
+        transform: translateY(-0.35rem) scale(0.8, 1.3);
+      }
+
+      100% {
+        transform: translateY(0.15rem) scale(0);
+      }
+    }
+
+    /* The splash: the bead spreads wider than it will rest, then settles. */
+    @keyframes ink-pool {
+      0% {
+        transform: scale(0.2, 1.6);
+      }
+
+      45% {
+        transform: scale(1.35, 1.25);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes ink-breathe {
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.18, 0.82);
+      }
+    }
+
+    /* Hidden in the bead most of the time; swells down, hangs on the goo neck, is pulled back in. */
+    @keyframes ink-bud {
+      0%,
+      30%,
+      100% {
+        transform: translateY(0) scale(0);
+      }
+
+      42% {
+        transform: translateY(0.35rem) scale(1);
+      }
+
+      58% {
+        transform: translateY(0.95rem) scale(0.85, 1.1);
+      }
+
+      72% {
+        transform: translateY(0.2rem) scale(0.9);
+      }
+    }
+  }
+</style>

@@ -14,6 +14,7 @@
 //   [data-belt-beat="land"]     --p, --q (portrait to path), --e (the hero scrolling away)
 //   [data-belt-beat="travel"]   --bp (0..1 across the chapter)
 //   [data-belt-beat="passage"]  --p (0..1 while the spacer crosses the viewport)
+//   [data-belt-beat="shift"]    --p (0..1 per change of belt in the belt sprint), data-step / data-steps
 //   [data-tul-scene]            --p, --draw of the scene that holds a [data-tatami] diagram
 //   <html>                      --belt-vw/vh (the viewport), --belt-col-x/y/w/h (the reserved column),
 //                               --belt-hero-x/y/s (the hero floor box) and --belt-tat-x/y/s (a chapter map)
@@ -117,7 +118,7 @@ const IDLE_FRAME_MS = 1000 / 30;
 /** While there is no renderer, check this often whether one is needed. */
 const WATCH_MS = 100;
 const DEG = Math.PI / 180;
-const KEY_PROGRESS: Record<Beat['kind'], string> = { land: '--p', travel: '--bp', passage: '--p' };
+const KEY_PROGRESS: Record<Beat['kind'], string> = { land: '--p', travel: '--bp', passage: '--p', shift: '--p' };
 /** A touch that moves further than this (px) is a scroll, not a tap. */
 const TAP_SLOP = 10;
 /** The tatami answers the pointer from this opacity up. */
@@ -416,7 +417,9 @@ function hoverTo(index: number): number {
   hoverIdx = index;
   view?.tatami.setHover(index);
   if (index < 0) tip?.hide();
-  document.body.style.cursor = index >= 0 && view?.tatami.stopOf(index)?.id ? 'pointer' : '';
+  // A click on a post opens the experience panel; a page without one (the condensed home) promises no click.
+  const clickable = index >= 0 && !!view?.tatami.stopOf(index)?.id && !!document.querySelector('dialog[data-exp-panel]');
+  document.body.style.cursor = clickable ? 'pointer' : '';
   force = true;
   return index;
 }
@@ -748,11 +751,14 @@ function sync(): void {
 function collect(): void {
   for (const el of document.querySelectorAll<HTMLElement>('[data-belt-beat]')) {
     const kind = el.dataset.beltBeat;
-    if (kind !== 'land' && kind !== 'travel' && kind !== 'passage') continue;
+    if (kind !== 'land' && kind !== 'travel' && kind !== 'passage' && kind !== 'shift') continue;
     const belt = isBeltKey(el.dataset.belt) ? el.dataset.belt : 'blanco';
     const from = isBeltKey(el.dataset.from) ? el.dataset.from : belt;
     const outro = kind === 'travel' ? (el.querySelector<HTMLElement>('[data-belt-outro]') ?? undefined) : undefined;
-    beats.push({ kind, belt, from, el, outro });
+    // A shift beat of the belt sprint knows its place among the changes (BeltSprint.astro).
+    const step = kind === 'shift' ? Number(el.dataset.step ?? 0) || 0 : undefined;
+    const steps = kind === 'shift' ? Number(el.dataset.steps ?? 1) || 1 : undefined;
+    beats.push({ kind, belt, from, el, outro, step, steps });
   }
 }
 

@@ -7,6 +7,8 @@
 //   data-q-end         optional: --q (0..1) runs over scene progress 0..q-end (the hero's portrait
 //                      turning into the path).
 //   data-draw-start    optional: --draw starts moving once the scene progress passes this value.
+//   data-scene-span    "enter": the span starts when the element's top enters at the viewport bottom (a
+//                      one-screen scene that is never pinned, e.g. the close: it draws while it scrolls in).
 //   --draw             consumed by TatamiIso (the floor of FloorDiagram): stroke-dashoffset, stops and arrows.
 //   main section[data-belt]  the section at mid-viewport sets html[data-active-belt] and the header
 //                      grade indicator ([data-grade-gup], [data-grade-form]). The belt never changes the
@@ -31,6 +33,8 @@ import { bootBelt3d } from './belt3d/boot';
 import { playTitleReveal } from './titleReveal';
 import { buildBeltTimeline } from './beltDrawing';
 import { initExperiencePanel } from './experiencePanel';
+import { shiftProgress, sprintPosition, stepState } from '../components/tul/beltSprint';
+import { FLOOD_FULL } from './belt3d/passage';
 
 type Grade = { gup: string; form: string };
 
@@ -116,6 +120,7 @@ function initScenes(): void {
 
     const [from, to] = readRange(el);
     const state = { p: 0 };
+    const enter = el.dataset.sceneSpan === 'enter';
     write(el, 0, from, to);
 
     gsap.to(state, {
@@ -123,7 +128,7 @@ function initScenes(): void {
       ease: 'none',
       scrollTrigger: {
         trigger: el,
-        start: 'top top',
+        start: enter ? 'top bottom' : 'top top',
         end: 'bottom bottom',
         scrub: 0.4
       },
@@ -141,6 +146,7 @@ function initScenes(): void {
 //                              away (bottom at the viewport bottom to bottom at the top): the belt leaves its floor
 //                              for the column and the hero tatami rides up with the stage. Written on every viewport.
 //   [data-belt-beat="passage"] a spacer: `--p` is written by initPassages.
+//   [data-belt-beat="shift"]   a change of belt in the sprint: `--p` is written by initSprint.
 // Layout is measured here, on refresh and resize only, and published on <html> in px for the scene:
 //   --belt-vw/vh        the viewport (without the scrollbar),
 //   --belt-col-x/y/w/h  the reserved side column (a fixed probe sized by --belt-col, the same token the
@@ -267,16 +273,87 @@ function initBeats(): void {
   window.addEventListener('tul:belt3d-tap', publish);
 }
 
+// [data-belt-sprint]  the condensed home's belt sprint (BeltSprint.astro). One scrubbed progress over its track (top
+//                     at the viewport top to bottom at the bottom) becomes an eased position along the belts
+//                     (beltSprint.ts: it holds on each belt and eases to the next). From it, each [data-sprint-step]
+//                     gets `--o` (opacity) and `--d` (-1..1, the slide), the section `--fill` (0..1 over the six belts
+//                     of the rail) and each [data-belt-beat="shift"] its `--p`, so the 3D belt changes colour with the
+//                     text. The header grade follows the belt on screen. With reduced motion nothing is scrubbed: the
+//                     list is static and the header follows the list item at mid-viewport.
+//                     The sprint ends exactly where the red-to-black passage starts (the passage is its end trigger),
+//                     and the track carries the passage as its tail (--pass-h), so the stage stays pinned through both.
+function initSprint(): void {
+  const sprint = document.querySelector<HTMLElement>('[data-belt-sprint]');
+  const steps = sprint ? [...sprint.querySelectorAll<HTMLElement>('[data-sprint-step]')] : [];
+  if (!sprint || !steps.length) return;
+
+  if (reduced) {
+    if (!('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setBelt((entry.target as HTMLElement).dataset.belt ?? 'blanco');
+        }
+      },
+      { rootMargin: '-50% 0px -50% 0px', threshold: 0 }
+    );
+    for (const step of steps) observer.observe(step);
+    return;
+  }
+
+  const shifts = [...sprint.querySelectorAll<HTMLElement>('[data-belt-beat="shift"]')];
+  const track = sprint.querySelector<HTMLElement>('.bs__track') ?? sprint;
+  const seam = document.querySelector<HTMLElement>('[data-tul-passage][data-belt="negro"]');
+  const n = steps.length;
+  const state = { s: 0 };
+
+  const write = (): void => {
+    const pos = sprintPosition(state.s, n);
+    steps.forEach((el, i) => {
+      const { o, d } = stepState(pos, i);
+      el.style.setProperty('--o', o.toFixed(4));
+      el.style.setProperty('--d', d.toFixed(4));
+    });
+    // The rail holds the six belts; the sprint fills it up to the red one, black is what comes next.
+    sprint.style.setProperty('--fill', (pos / n).toFixed(4));
+    shifts.forEach((el, j) => el.style.setProperty('--p', shiftProgress(pos, j).toFixed(4)));
+  };
+  write();
+
+  gsap.to(state, {
+    s: 1,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: track,
+      start: 'top top',
+      endTrigger: seam ?? track,
+      end: seam ? 'top bottom' : 'bottom bottom',
+      scrub: 2.5,
+      // The header grade follows the belt on screen while the stage is pinned (setBelt ignores repeats).
+      onUpdate: (self) => {
+        if (!self.isActive) return;
+        const belt = steps[Math.round(sprintPosition(self.progress, n))]?.dataset.belt;
+        if (belt) setBelt(belt);
+      }
+    },
+    onUpdate: write
+  });
+}
+
 // [data-tul-passage]  an in-flow spacer between two chapters. It writes its own `--p` (the CSS of the flood
 //                     reads it) and scrubs the belt drawing inside it (beltDrawing.ts) with the same value.
 //                     With reduced motion nothing is written and the CSS shows a static gap with the
 //                     finished drawing.
-// The passage that arrives at 1st dan (data-belt="negro") also owns the field flip: once its progress passes
-// FLOOD_FULL the black flood covers the whole view, so the page tokens are switched to the dark field
-// underneath it (html[data-field="dark"], tokens.css) and switched back when scrolling up past it. Both read
-// the same scrubbed `p`, so the flip always happens while the flood is fully opaque. Keep FLOOD_FULL equal to
-// the 0.5 in InkPassage.astro.
-const FLOOD_FULL = 0.5;
+// The passage that arrives at 1st dan (data-belt="negro") is the red-to-black moment (belt3d/passage.ts). It overlaps
+// the tail of the sprint track, so its span is its top at the viewport bottom to its bottom there, while the sprint
+// stage stays pinned. It also:
+//   - hands its progress to the sprint stage as `--pass` (the drawn red belt soaks up the ink, the words step back);
+//   - publishes where the drawn knot of the red belt sits on the pinned stage (`--ink-ox` / `--ink-oy`, px), the
+//     origin of the flood when the 3D scene does not publish its own knot (phones, no WebGL); measured on refresh;
+//   - owns the field flip: once its progress passes FLOOD_FULL the black flood covers the whole view, so the page
+//     tokens are switched to the dark field underneath it (html[data-field="dark"], tokens.css) and switched back when
+//     scrolling up past it. Both read the same scrubbed `p`, so the flip always happens while the flood is fully
+//     opaque. FLOOD_FULL comes from passage.ts, which InkPassage.astro passes to its CSS as well.
 
 function setField(dark: boolean): void {
   if (dark) {
@@ -292,6 +369,26 @@ function initPassages(): void {
     const flips = el.dataset.belt === 'negro';
     const state = { p: 0 };
     el.style.setProperty('--p', '0');
+    const stage = flips ? document.querySelector<HTMLElement>('[data-belt-sprint]') : null;
+    if (stage) {
+      const pinned = stage.querySelector<HTMLElement>('.bs__stage');
+      const red = [...stage.querySelectorAll<HTMLElement>('[data-sprint-step]')].pop();
+      // The drawn knot on the pinned stage (top 0): the mark when it shows, else the middle of the band. Offsets, not
+      // boxes, for the parts inside the step: they slide with transforms while the sprint plays.
+      const origin = (): void => {
+        const mark = red?.querySelector<HTMLElement>('.bs__mark');
+        const band = red?.querySelector<HTMLElement>('.bs__band');
+        const part = mark && mark.offsetWidth > 0 ? mark : band;
+        if (!pinned || !red || !part || part.offsetWidth === 0) return;
+        const box = red.getBoundingClientRect();
+        const top = box.top - pinned.getBoundingClientRect().top;
+        const fy = part === mark ? 31 / 88 : 0.5;
+        el.style.setProperty('--ink-ox', `${(box.left + part.offsetLeft + part.offsetWidth / 2).toFixed(1)}px`);
+        el.style.setProperty('--ink-oy', `${(top + part.offsetTop + part.offsetHeight * fy).toFixed(1)}px`);
+      };
+      origin();
+      ScrollTrigger.addEventListener('refresh', origin);
+    }
 
     // The belt drawing of the spacer unties and ties again with the same `p`. DrawSVG needs the drawing
     // to be rendered, so the timeline is built the first time it is (it is hidden on desktop once the 3D
@@ -310,9 +407,10 @@ function initPassages(): void {
     gsap.to(state, {
       p: 1,
       ease: 'none',
-      scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: 0.4 },
+      scrollTrigger: { trigger: el, start: 'top bottom', end: flips ? 'bottom bottom' : 'bottom top', scrub: flips ? 1.5 : 0.4 },
       onUpdate: () => {
         el.style.setProperty('--p', state.p.toFixed(4));
+        stage?.style.setProperty('--pass', state.p.toFixed(4));
         ensureDrawing();
         belt?.progress(state.p);
         if (flips) setField(state.p >= FLOOD_FULL);
@@ -421,6 +519,26 @@ function initEntrances(): void {
   for (const el of reveals) revealObserver.observe(el);
 }
 
+// The ink rule of the close (InkDrops.astro). `.is-in` once, when the rule is on screen: the drops fall
+// and merge. `.is-live` only while it is on screen: the CSS loops run, and pause offscreen. With reduced
+// motion, or without IntersectionObserver, nothing is toggled and the CSS shows the merged state, still.
+function initInkDrops(): void {
+  const layers = document.querySelectorAll<HTMLElement>('[data-ink-drops]');
+  if (reduced || !layers.length || !('IntersectionObserver' in window)) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        const el = entry.target as HTMLElement;
+        el.classList.toggle('is-live', entry.isIntersecting);
+        if (entry.isIntersecting && entry.intersectionRatio > 0.99) el.classList.add('is-in');
+      }
+    },
+    { threshold: [0, 1], rootMargin: '0px 0px -12% 0px' }
+  );
+  for (const el of layers) observer.observe(el);
+}
+
 function initHeaderAutohide(): void {
   const header = document.querySelector<HTMLElement>('.tul-header');
   if (!header) return;
@@ -512,9 +630,11 @@ function initHeaderAutohide(): void {
 
 initScenes();
 initBeats();
+initSprint();
 initPassages();
 initChapters();
 initEntrances();
+initInkDrops();
 initHeaderAutohide();
 endIntro();
 initExperiencePanel();

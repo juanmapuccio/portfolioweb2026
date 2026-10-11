@@ -2,6 +2,7 @@
 import type { BeltKey } from '../../data/tuls';
 import BeltDrawing from './BeltDrawing.astro';
 import { KNOT_AT } from './beltDrawing';
+import { FLOOD_FULL, FLOOD_START, seepPolygon } from '../../scripts/belt3d/passage';
 
 /**
  * The spacer between two belt chapters. In flow, decorative, aria-hidden, no text.
@@ -23,19 +24,22 @@ import { KNOT_AT } from './beltDrawing';
  * passage stays a static 12rem gap, `--p` is never written and there is no flood: the black chapter and
  * what follows are black by CSS (base.css).
  *
- * Flood (black passage only, html.js with motion):
- *   - `.ink__flood` is a viewport layer above the chapters and below the header (z-index 10).
- *   - Its fill is clipped by `clip-path: circle(r at x y)`. The radius grows with the square of the
- *     flood progress `--f` (0 at p = 0.2, 1 at p = 0.5), so the black first spreads slowly from the knot
- *     and then takes the whole view. At p = 0.5 it covers everything, tul.ts flips html[data-field="dark"]
- *     under it and the layer is hidden; scrolling back reverses it.
- *   - The centre is the knot. The 3D scene publishes `--knot-x` / `--knot-y` (viewport px) on html during
- *     the tie beat of this passage; without them (mobile, no 3D) the centre is the drawn belt knot of this
- *     spacer, placed at `--knot-fx` / `--knot-fy` (fractions of the spacer) and moving with the scroll,
- *     computed from `--p` alone.
- *   - Only clip-path and opacity change with scroll. The ink edge is a static feTurbulence +
- *     feDisplacementMap filter (parameters never animate), desktop only; on mobile the edge is a clean circle.
- *   - No mix-blend-mode.
+ * The flood passage (red to black, `.ink--flood`, html.js with motion) is the one authored moment of the page. Its
+ * timeline is src/scripts/belt3d/passage.ts:
+ *   - It is as tall as `--pass-h` and pulled up by it, so it overlaps the tail of the sprint track: the sprint stage
+ *     stays pinned on the red belt the whole time, and the passage starts the moment the sprint ends (no stage
+ *     scrolling away between them). Its `--p` runs from its top at the viewport bottom to its bottom there.
+ *   - The belt turns black on the light field first (the 3D belt, or the drawn mark and band of the sprint stage),
+ *     from the knot. Its own drawing steps aside: the stage holds the belt.
+ *   - `.ink__flood` is a viewport layer above the chapters and below the 3D canvas and the header (z-index 10).
+ *     Its fill grows from FLOOD_START (`--flood-a`) and covers the view at FLOOD_FULL (`--flood-z`); tul.ts flips
+ *     html[data-field="dark"] under it there and the layer is hidden; scrolling back reverses it.
+ *   - The fill is clipped by a seep polygon (passage.ts): an irregular ink front with fibres that run ahead, grown by
+ *     `--g` (the square of the flood progress, so it spreads slowly from the knot and then takes the view).
+ *   - The centre is the knot: the 3D knot when the scene publishes it (`--knot-x` / `--knot-y`), else the drawn
+ *     knot of the sprint stage (`--ink-ox` / `--ink-oy`, measured by tul.ts), else the middle of the view.
+ *   - Only clip-path and opacity change with scroll. On desktop the edge also passes a static feTurbulence +
+ *     feDisplacementMap filter (parameters never animate). No mix-blend-mode.
  */
 interface Props {
   from: BeltKey;
@@ -44,15 +48,19 @@ interface Props {
 
 const { from, to } = Astro.props;
 const floods = to === 'negro';
+const floodClip = seepPolygon({ v: '--g', cx: 'var(--cx) + 3rem', cy: 'var(--cy) + 3rem', rx: 150, ry: 150, unit: 'vmax', seed: 11, points: 72, lead: 0.22 });
+// The clip is declared on the fill itself: a custom property resolves its var()s where it is declared, and --cx,
+// --cy and --g live on the flood layer above it.
+const vars = [`--knot-fx:${KNOT_AT.fx};--knot-fy:${KNOT_AT.fy}`, floods && `--flood-a:${FLOOD_START};--flood-z:${FLOOD_FULL}`];
 ---
 
 <div
-  class="ink"
+  class:list={['ink', { 'ink--flood': floods }]}
   data-tul-passage
   data-belt-beat="passage"
   data-belt={to}
   data-from={from}
-  style={`--knot-fx:${KNOT_AT.fx};--knot-fy:${KNOT_AT.fy}`}
+  style={vars.filter(Boolean).join(';')}
   aria-hidden="true"
 >
   <div class="ink__drawing" data-ink-drawing>
@@ -60,7 +68,7 @@ const floods = to === 'negro';
   </div>
   {floods && (
     <div class="ink__flood" data-ink-flood>
-      <div class="ink__fill"></div>
+      <div class="ink__fill" style={`--flood-clip:${floodClip}`}></div>
     </div>
   )}
 </div>
@@ -112,29 +120,38 @@ const floods = to === 'negro';
       --ink-h: 50svh;
     }
 
+    /* The flood passage overlaps the tail of the sprint track (the stage stays pinned through it). */
+    :global(html.js) .ink--flood {
+      --ink-h: var(--pass-h);
+      margin-top: calc(-1 * var(--ink-h));
+    }
+
+    /* Its belt is the one on the pinned stage; a drawing here would scroll across it. */
+    :global(html.js) .ink--flood .ink__drawing {
+      display: none;
+    }
+
     :global(html.js) .ink__flood {
-      /* 0 until p = 0.2, 1 at p = 0.5. */
-      --f: clamp(0, calc((var(--p, 0) - 0.2) / 0.3), 1);
-      /* Flood centre in viewport coordinates: the 3D knot when published, otherwise the drawn knot. */
-      --cx: var(--knot-x, calc(100vw * var(--knot-fx)));
-      --cy: var(
-        --knot-y,
-        calc(100svh + var(--ink-h) * var(--knot-fy) - var(--p, 0) * (100svh + var(--ink-h)))
-      );
+      /* 0 until --flood-a, 1 at --flood-z (FLOOD_START, FLOOD_FULL), squared for the growth. */
+      --f: clamp(0, calc((var(--p, 0) - var(--flood-a)) / (var(--flood-z) - var(--flood-a))), 1);
+      --g: calc(var(--f) * var(--f));
+      /* Flood centre in viewport coordinates: the 3D knot, else the drawn knot of the stage, else the spacer. */
+      --cx: var(--knot-x, var(--ink-ox, calc(100vw * var(--knot-fx))));
+      --cy: var(--knot-y, var(--ink-oy, 50svh));
       position: fixed;
       /* Bleed past the viewport so the displaced ink edge never shows the layer's own border. */
       inset: -3rem;
       z-index: 10;
       display: block;
-      /* Fully there up to p = 0.5, gone right after: the dark field takes over underneath. */
-      opacity: clamp(0, calc((0.5 - var(--p, 0)) * 1000 + 1), 1);
+      /* Fully there up to --flood-z, gone right after: the dark field takes over underneath. */
+      opacity: clamp(0, calc((var(--flood-z) - var(--p, 0)) * 1000 + 1), 1);
     }
 
     :global(html.js) .ink__fill {
       position: absolute;
       inset: 0;
       background-color: var(--field-dark);
-      clip-path: circle(calc(var(--f) * var(--f) * 150vmax) at calc(var(--cx) + 3rem) calc(var(--cy) + 3rem));
+      clip-path: var(--flood-clip);
     }
   }
 
@@ -142,9 +159,13 @@ const floods = to === 'negro';
     :global(html.js) .ink {
       --ink-h: 40svh;
     }
+
+    :global(html.js) .ink--flood {
+      --ink-h: var(--pass-h);
+    }
   }
 
-  /* Ink edge: desktop only. The filter is static; the circle grows under it. */
+  /* Ink edge: desktop only. The filter is static; the front grows under it. */
   @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
     :global(html.js) .ink__flood {
       filter: url('#ink-edge');

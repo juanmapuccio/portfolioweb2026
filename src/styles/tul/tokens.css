@@ -187,3 +187,18 @@ html[data-active-belt='negro'] .tul-header {
   --ink: var(--ink-dark);
   --ink-soft: var(--ink-soft-dark);
 }
+
+/*
+ * The red-to-black passage: the scroll the sprint stage stays pinned for while the belt turns black and the ink
+ * floods the page. The sprint track adds it to its height and the flood passage overlaps it (BeltSprint.astro,
+ * InkPassage.astro); PASSAGE_SVH in src/scripts/belt3d/passage.ts mirrors it (tests/tul-passage.test.ts).
+ */
+:root {
+  --pass-h: 140svh;
+}
+
+@media (max-width: 47.99rem) {
+  :root {
+    --pass-h: 120svh;
+  }
+}

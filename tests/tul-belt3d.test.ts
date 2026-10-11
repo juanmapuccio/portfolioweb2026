@@ -254,7 +254,7 @@ describe('the engine drives the beats', () => {
     expect(fn).toContain('scrollTrigger');
     expect(fn).not.toContain('--draw');
     expect(fn).not.toContain("'--q'");
-    expect(engine).toMatch(/initScenes\(\);\s*initBeats\(\);\s*initPassages\(\);/);
+    expect(engine).toMatch(/initScenes\(\);\s*initBeats\(\);\s*initSprint\(\);\s*initPassages\(\);/);
   });
 
   test('layout is measured here, on refresh only, and published in px on <html>', () => {
@@ -263,8 +263,9 @@ describe('the engine drives the beats', () => {
       expect(fn).toContain(`'${name}'`);
     }
     // The probe, the hero box and stage, and the box and stage of each scene's figure: the only layout reads of the
-    // scene, all inside publish(). It measures again when the phone turns the 3D view on.
-    expect(engine.match(/getBoundingClientRect/g)?.length).toBe(5);
+    // scene, all inside publish(). It measures again when the phone turns the 3D view on. The other two are the red
+    // belt's step and the pinned sprint stage, read on refresh by the flood passage (its fallback origin, T6).
+    expect(engine.match(/getBoundingClientRect/g)?.length).toBe(7);
     expect(fn).toContain("window.addEventListener('tul:belt3d-tap', publish)");
     expect(fn).not.toContain('requestAnimationFrame');
   });
@@ -364,7 +365,8 @@ describe('journey: where the belt is', () => {
     test(`${m.w}x${m.h}: in the column the belt fits it, and it never leaves it except inside the spacer`, () => {
       expect(RING_W * travelFrame('azul', 0.5, m).cam.ppm).toBeLessThanOrEqual(m.col.w * COL_FILL + 1e-6);
       const spacerH = SPACER_VH * m.h;
-      for (const [from, to] of [['blanco', 'amarillo'], ['rojo', 'negro']] as const) {
+      // The tie beat (rojo to negro) never leaves the column at all: tests/tul-passage.test.ts.
+      for (const [from, to] of [['blanco', 'amarillo'], ['verde', 'azul']] as const) {
         for (let p = 0; p <= 1.0001; p += 0.01) {
           const f = passageFrame(from, to, p, m);
           // Pixels the belt is away from the column: the spacer (an empty box) must contain it vertically.
@@ -377,7 +379,7 @@ describe('journey: where the belt is', () => {
         // The belt reaches the centre of the screen, loose, in the middle of the spacer.
         const mid = passageFrame(from, to, 0.5, m);
         close(mid.cam.sx, m.w / 2);
-        if (to !== 'negro') expect((mid.pose as { k: number }).k).toBe(0);
+        expect((mid.pose as { k: number }).k).toBe(0);
       }
     });
   }
@@ -401,7 +403,7 @@ describe('journey: where the belt is', () => {
 
   test('the tie beat: red to black with gold stitches and a rim light, and the knot is published only while the flood grows', () => {
     const m = sizes[0];
-    const early = passageFrame('rojo', 'negro', 0.2, m);
+    const early = passageFrame('rojo', 'negro', 0.04, m);
     const late = passageFrame('rojo', 'negro', 0.9, m);
     expect(early.tie).toBe(true);
     expect(early.mix).toBe(0);
@@ -411,10 +413,10 @@ describe('journey: where the belt is', () => {
     expect(late.rim).toBeGreaterThan(0.99);
     expect(passageFrame('rojo', 'negro', KNOT_UNTIL, m).tie).toBe(true);
     expect(passageFrame('rojo', 'negro', KNOT_UNTIL + 0.01, m).tie).toBe(false);
-    // The knot is tied (k = 1) again by the time the flood has covered the screen and the field flips (p = 0.5).
+    // The knot loosens while the ink soaks in and is tied (k = 1) again before the flood covers the screen (T6).
     const k = (p: number) => (passageFrame('rojo', 'negro', p, m).pose as { k: number }).k;
-    expect(k(0.28)).toBe(0);
-    expect(k(0.62)).toBe(1);
+    close(k(0.28), 0.4);
+    expect(k(0.7)).toBe(1);
   });
 
   test('rest on black: rim light and gold stitches, fading out before the chapter ends', () => {
