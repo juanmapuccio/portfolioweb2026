@@ -156,8 +156,8 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
   }
 
   /*
-   * The sprint (JS and motion only). The section becomes a tall track (one viewport for the stage plus ~360svh of
-   * scroll for the four changes, 90svh each so every line can be read) with a sticky full-viewport stage. The engine (tul.ts, initSprint) writes on each
+   * The sprint (JS and motion only). The section becomes a tall track (one viewport for the stage plus ~480svh of
+   * scroll for the four changes, 120svh each: a long, even change and a pause to read) with a sticky full-viewport stage. The engine (tul.ts, initSprint) writes on each
    * step `--o` (opacity) and `--d` (-1..1, the slide) and on the section `--fill` (0..1 over the six belts of the
    * rail). The steps stack in one cell; the text hands over and the band is dyed with the scroll. Before the engine
    * runs, the first belt is the one shown. Only opacity, filter, transform and clip-path change with scroll.
@@ -168,7 +168,7 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
     }
 
     :global(html.js) .bs__track {
-      height: calc(100svh + (var(--n) - 1) * 90svh);
+      height: calc(100svh + (var(--n) - 1) * 120svh);
     }
 
     :global(html.js) .bs__stage {

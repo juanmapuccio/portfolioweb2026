@@ -36,12 +36,13 @@ export function sprintSteps(lang: Lang): SprintStep[] {
 
 // ---- Motion: pure numbers for the engine (tul.ts). The sprint track's scroll progress `s` (0..1) becomes a
 // position along the belts (0 = first belt, n - 1 = last): it holds on each belt while its line is read and eases
-// to the next one in between (cubic in-out), so the scrub never feels linear.
+// to the next one in between (sine in-out), so the scrub never feels linear.
 
 /** Share of each belt-to-belt stretch spent holding, at each end. */
-const HOLD = 0.3;
+const HOLD = 0.2;
 const clamp = (x: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, x));
-const easeInOutCubic = (t: number): number => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+// Sine in-out: the motion is spread evenly over the scroll, so a change never rushes through its middle.
+const easeInOutSine = (t: number): number => (1 - Math.cos(Math.PI * t)) / 2;
 
 /** Position along `n` belts for the scroll progress `s` (0..1): 0 .. n - 1, eased between belts. */
 export function sprintPosition(s: number, n: number): number {
@@ -49,7 +50,7 @@ export function sprintPosition(s: number, n: number): number {
   const pos = clamp(s, 0, 1) * last;
   const i = Math.min(Math.floor(pos), last - 1);
   const g = clamp((pos - i - HOLD) / (1 - 2 * HOLD), 0, 1);
-  return i + easeInOutCubic(g);
+  return i + easeInOutSine(g);
 }
 
 /**

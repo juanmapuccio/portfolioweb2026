@@ -38,11 +38,18 @@ describe('sprint position', () => {
     }
   });
 
-  test('holds long enough to read: 30% of each stretch at each end', () => {
+  test('holds long enough to read: 20% of each stretch at each end', () => {
     for (let i = 0; i < N - 1; i++) {
       const at = i / (N - 1);
-      close(sprintPosition(at + 0.29 / (N - 1), N), i, 1e-9);
-      close(sprintPosition(at + 0.71 / (N - 1), N), i + 1, 1e-9);
+      close(sprintPosition(at + 0.19 / (N - 1), N), i, 1e-9);
+      close(sprintPosition(at + 0.81 / (N - 1), N), i + 1, 1e-9);
+    }
+  });
+
+  test('moves on a gentle sine curve: a quarter into the motion is already ~15% of the way, not ~6%', () => {
+    for (let i = 0; i < N - 1; i++) {
+      const at = i / (N - 1);
+      close(sprintPosition(at + (0.2 + 0.6 * 0.25) / (N - 1), N), i + (1 - Math.cos(Math.PI * 0.25)) / 2, 1e-9);
     }
   });
 
@@ -202,8 +209,8 @@ describe('sprint styles', () => {
 });
 
 describe('sprint pacing and ink drops between belts', () => {
-  test('each belt change gets a long stretch of scroll (90svh)', () => {
-    expect(sprint).toMatch(/\.bs__track\s*\{\s*height: calc\(100svh \+ \(var\(--n\) - 1\) \* 90svh\);/);
+  test('each belt change gets a long stretch of scroll (120svh)', () => {
+    expect(sprint).toMatch(/\.bs__track\s*\{\s*height: calc\(100svh \+ \(var\(--n\) - 1\) \* 120svh\);/);
   });
 
   test('one decorative ink drop per change, coloured by the belt it brings', () => {
