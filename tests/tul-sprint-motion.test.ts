@@ -174,11 +174,11 @@ describe('sprint styles', () => {
     expect(sprint).toMatch(/html\.js\) \.bs__stage\s*\{[\s\S]*?position: sticky/);
   });
 
-  test('the steps stack and read --o / --d; the rail fill reads --fill; no blend modes, shadows or gradients', () => {
-    expect(sprint).toMatch(/opacity:[^;]*var\(--o/);
-    // The belt wipe: the engine's --d drives the left-to-right clip of each step.
-    expect(sprint).toMatch(/--in: max\(0, -1 \* var\(--d/);
-    expect(sprint).toContain('clip-path: inset(-0.5rem calc(var(--in) * 100%)');
+  test('the steps stack and read --o; the rail fill reads --fill; no blend modes, shadows or gradients', () => {
+    // The veil: the engine's --o goes through a smoothstep for the opacity and drives the blur.
+    expect(sprint).toMatch(/--oo: var\(--o,/);
+    expect(sprint).toContain('opacity: var(--sm)');
+    expect(sprint).toContain('filter: blur(calc((1 - var(--oo)) * 10px))');
     expect(sprint).toContain('var(--fill');
     expect(sprint.replace(/\/\*[\s\S]*?\*\//g, '')).not.toMatch(/mix-blend-mode|box-shadow|gradient/);
   });
