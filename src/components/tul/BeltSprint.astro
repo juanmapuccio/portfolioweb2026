@@ -3,6 +3,7 @@ import BeltMark from './BeltMark.astro';
 import { useTranslations, type Lang } from '../../i18n/ui';
 import { BELTS } from '../../data/martialExperience';
 import { PROGRESS_BELTS, SPRINT_BELTS, sprintSteps } from './beltSprint';
+import { SEEP, TEXT_OUT, seepPolygon } from '../../scripts/belt3d/passage';
 
 /**
  * The belt sprint: the five coloured belts in one pass, from the white belt of the hero to the red one, one line
@@ -17,6 +18,9 @@ import { PROGRESS_BELTS, SPRINT_BELTS, sprintSteps } from './beltSprint';
  *   [data-belt-beat="shift"]     an empty marker per change of belt (data-from, data-belt, data-step of data-steps):
  *                                the 3D belt changes colour in its column while the sprint plays.
  *   .bs__rail                    decorative progress of the six belts (aria-hidden).
+ *   .bs__soak                    the red belt only: a black twin of its band and of its mark, revealed from the knot by
+ *                                a seep polygon (passage.ts) while the red-to-black passage plays. The engine hands the
+ *                                passage progress over as `--pass` on the section; the stage stays pinned through it.
  */
 interface Props {
   lang?: Lang;
@@ -26,9 +30,13 @@ const { lang = 'es' } = Astro.props;
 const t = useTranslations(lang);
 const steps = sprintSteps(lang);
 const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to }));
+// The black twin of the red belt: the band seeps from its middle, the mark from its knot (60, 31 of 120 x 88).
+const bandClip = seepPolygon({ v: '--seep', cx: '50%', cy: '50%', rx: 120, ry: 400, unit: '%', seed: 5, points: 64 });
+const markClip = seepPolygon({ v: '--seep', cx: '50%', cy: '35.2%', rx: 140, ry: 140, unit: '%', seed: 9, points: 48 });
+const passVars = `--seep-a:${SEEP.from};--seep-z:${SEEP.to};--out-a:${TEXT_OUT.from};--out-z:${TEXT_OUT.to}`;
 ---
 
-<section class="bs" data-belt-sprint style={`--n:${steps.length}`} aria-labelledby="bs-title">
+<section class="bs" data-belt-sprint style={`--n:${steps.length};${passVars}`} aria-labelledby="bs-title">
   <div class="bs__track">
     <div class="bs__stage">
       <h2 id="bs-title" class="bs__title">{t('tul.sprint.title')}</h2>
@@ -36,8 +44,17 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
       <ol class="bs__list">
         {steps.map((step, i) => (
           <li class="bs__step" data-sprint-step data-belt={step.key} style={`--i:${i}`}>
-            <span class="bs__band" aria-hidden="true"></span>
-            <span class="bs__mark" aria-hidden="true"><BeltMark beltKey={step.key} /></span>
+            <span class="bs__band" aria-hidden="true">
+              {i === steps.length - 1 && <span class="bs__soak" data-belt="negro" style={`--soak-clip:${bandClip}`}></span>}
+            </span>
+            <span class="bs__mark" aria-hidden="true">
+              <BeltMark beltKey={step.key} />
+              {i === steps.length - 1 && (
+                <span class="bs__soak" data-belt="negro" style={`--soak-clip:${markClip}`}>
+                  <BeltMark beltKey="negro" />
+                </span>
+              )}
+            </span>
             <h3 class="bs__name grade-type">{step.name}</h3>
             <p class="bs__meta num">
               <span>{step.gup}</span>
@@ -149,6 +166,10 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
     display: none;
   }
 
+  .bs__soak {
+    display: none;
+  }
+
   .bs__band,
   .bs__rail,
   .bs__beat {
@@ -163,12 +184,22 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
    * runs, the first belt is the one shown. Only opacity, filter, transform and clip-path change with scroll.
    */
   @media (prefers-reduced-motion: no-preference) {
+    /*
+     * The red-to-black passage (passage.ts) plays on this stage: `--pass` (0..1, written by the engine) becomes
+     * `--seep` (the red belt soaks up the ink from its knot, SEEP) and `--gone` (the words step back, TEXT_OUT). Both
+     * are smoothsteps over windows passed in from passage.ts as inline custom properties.
+     */
     :global(html.js) .bs {
+      --seep0: clamp(0, calc((var(--pass, 0) - var(--seep-a)) / (var(--seep-z) - var(--seep-a))), 1);
+      --seep: calc(var(--seep0) * var(--seep0) * (3 - 2 * var(--seep0)));
+      --out0: clamp(0, calc((var(--pass, 0) - var(--out-a)) / (var(--out-z) - var(--out-a))), 1);
+      --gone: calc(var(--out0) * var(--out0) * (3 - 2 * var(--out0)));
       padding: 0;
     }
 
+    /* The stage stays pinned through the passage too: its scroll is the tail of this track. */
     :global(html.js) .bs__track {
-      height: calc(100svh + (var(--n) - 1) * 120svh);
+      height: calc(100svh + (var(--n) - 1) * 120svh + var(--pass-h));
     }
 
     :global(html.js) .bs__stage {
@@ -221,7 +252,18 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
       filter: blur(calc((1 - var(--sv)) * 4px));
     }
 
+    /* Under the ink the words step back; the belt (band and mark) stays and is what is left on the black field. */
+    :global(html.js) .bs__step > :is(.bs__name, .bs__meta, .bs__line) {
+      opacity: calc(var(--sv) * (1 - var(--gone)));
+    }
+
+    :global(html.js) .bs__title,
+    :global(html.js) .bs__rail {
+      opacity: calc(1 - var(--gone));
+    }
+
     :global(html.js) .bs__band {
+      position: relative;
       display: block;
       grid-column: 1 / -1;
       height: 0.75rem;
@@ -231,7 +273,24 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
       clip-path: inset(-2px calc(var(--in) * 100%) -2px 0);
     }
 
+    /*
+     * The black twin of the red belt, on top of its band and its mark. Its seep polygon grows with `--seep`: the ink
+     * enters at the knot and runs out along the cloth with a ragged front and a few fibres running ahead.
+     */
+    :global(html.js) .bs__soak {
+      position: absolute;
+      inset: 0;
+      display: block;
+      background-color: var(--belt-fill);
+      clip-path: var(--soak-clip);
+    }
+
+    :global(html.js) .bs__mark .bs__soak {
+      background-color: transparent;
+    }
+
     :global(html.js) .bs__mark {
+      position: relative;
       grid-row: 2 / span 3;
       width: clamp(6.5rem, 4rem + 10vw, 11rem);
     }

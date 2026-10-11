@@ -9,8 +9,10 @@
 //             with the scroll (`--bp`) and its tails lean toward the route.
 //   passage   the spacer between two chapters (`--p`): the belt rides the spacer to its centre, unties,
 //             changes colour through a noise mask and ties again, then returns to the column.
-//             The passage that arrives at 1st dan ties the belt red to black (the tie beat): the knot is
-//             the centre of the black flood.
+//             The passage that arrives at 1st dan is the tie beat (passage.ts): it plays while the sprint stage
+//             is still pinned, so the belt stays in its column. The ink soaks into it from the knot while the
+//             field is still light, the stitches go gold, then the flood leaves from its knot and the rim light
+//             comes up for the black field.
 //   shift     the condensed home's belt sprint (`--p`, one marker per change of belt): the belt stays in the
 //             column, loosens a little, changes colour through the noise mask and ties again, turning a step further
 //             with each change. Shifts chain from the hero's hand-off to the tie beat.
@@ -21,6 +23,7 @@
 // passage p = 1 equals travel p = 0), so switching beats never jumps.
 import { pointAt, type Route } from '../../data/tulRoute';
 import type { BeltKey } from './colors';
+import { FLOOD_FULL, FLOOD_START, KNOT_UNTIL, seepAt } from './passage';
 
 const DEG = Math.PI / 180;
 
@@ -39,8 +42,8 @@ const TRAVEL_EL = 16 * DEG;
 const TRAVEL_TARGET: [number, number, number] = [0, -0.09, 0];
 /** The belt turns from -YAW to +YAW over a chapter. */
 export const TRAVEL_YAW = 0.55;
-/** The tie beat publishes the knot while the passage is below this progress (the flood is over at 0.5). */
-export const KNOT_UNTIL = 0.55;
+/** The tie beat publishes the knot while the passage is at or below this progress (passage.ts). */
+export { KNOT_UNTIL };
 
 export const clamp01 = (n: number): number => Math.min(1, Math.max(0, n));
 export const smooth = (x: number, a: number, b: number): number => {
@@ -248,9 +251,32 @@ export function shiftFrame(from: BeltKey, to: BeltKey, p: number, m: Metrics, st
   };
 }
 
+/**
+ * The tie beat (red to black, passage.ts), in the column: the stage is pinned and has text, so the belt never leaves
+ * it. It loosens while the ink soaks in from the knot (`mix` is the shared seep, black before the flood starts), the
+ * stitches go gold on the light field, it is tied again before the flood covers the view, and the rim light is full by
+ * the time the field flips. It turns from +YAW (where the last shift leaves it) to -YAW (where travel on black starts).
+ */
+function tieFrame(from: BeltKey, to: BeltKey, p: number, m: Metrics): Frame {
+  const k = 1 - 0.6 * (smooth(p, 0.02, 0.18) - smooth(p, 0.42, 0.66));
+  return {
+    opacity: 1,
+    cam: travelCam(m),
+    pose: { kind: 'hang', yaw: TRAVEL_YAW - 2 * TRAVEL_YAW * smooth(p, 0.1, 0.9), k, lean: 1 },
+    blend: 0,
+    from,
+    to,
+    mix: seepAt(p),
+    gold: smooth(p, 0.3, 0.6),
+    rim: smooth(p, FLOOD_START, FLOOD_FULL),
+    tie: p <= KNOT_UNTIL,
+    resting: false
+  };
+}
+
 /** Where the belt is between two chapters. `to === 'negro'` is the tie beat. */
 export function passageFrame(from: BeltKey, to: BeltKey, p: number, m: Metrics): Frame {
-  const tie = to === 'negro';
+  if (to === 'negro') return tieFrame(from, to, p, m);
   // Out to the centre of the spacer and back.
   const out = smooth(p, 0.3, 0.44) - smooth(p, 0.56, 0.7);
   // The belt rides the spacer (it scrolls up with it) while it is away from the column, so it never leaves
@@ -265,10 +291,8 @@ export function passageFrame(from: BeltKey, to: BeltKey, p: number, m: Metrics):
     dist: TRAVEL_DIST,
     target: TRAVEL_TARGET
   };
-  // k: 1 = tied, 0 = loose. Ordinary passage: untie, change colour while loose, tie again.
-  // Tie beat: untie early, then tie while the colour turns black and the stitches go gold.
-  const k = tie ? 1 - smooth(p, 0.08, 0.26) + smooth(p, 0.3, 0.62) : 1 - smooth(p, 0.3, 0.46) + smooth(p, 0.54, 0.72);
-  const mix = tie ? smooth(p, 0.3, 0.58) : smooth(p, 0.44, 0.56);
+  // k: 1 = tied, 0 = loose: untie, change colour while loose, tie again.
+  const k = 1 - smooth(p, 0.3, 0.46) + smooth(p, 0.54, 0.72);
   return {
     opacity: 1,
     cam,
@@ -276,10 +300,10 @@ export function passageFrame(from: BeltKey, to: BeltKey, p: number, m: Metrics):
     blend: 0,
     from,
     to,
-    mix,
-    gold: tie ? smooth(p, 0.62, 0.9) : 0,
-    rim: tie ? smooth(p, 0.3, 0.6) : 0,
-    tie: tie && p <= KNOT_UNTIL,
+    mix: smooth(p, 0.44, 0.56),
+    gold: 0,
+    rim: 0,
+    tie: false,
     resting: false
   };
 }

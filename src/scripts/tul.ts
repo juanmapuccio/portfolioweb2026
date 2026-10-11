@@ -34,6 +34,7 @@ import { playTitleReveal } from './titleReveal';
 import { buildBeltTimeline } from './beltDrawing';
 import { initExperiencePanel } from './experiencePanel';
 import { shiftProgress, sprintPosition, stepState } from '../components/tul/beltSprint';
+import { FLOOD_FULL } from './belt3d/passage';
 
 type Grade = { gup: string; form: string };
 
@@ -279,6 +280,8 @@ function initBeats(): void {
 //                     of the rail) and each [data-belt-beat="shift"] its `--p`, so the 3D belt changes colour with the
 //                     text. The header grade follows the belt on screen. With reduced motion nothing is scrubbed: the
 //                     list is static and the header follows the list item at mid-viewport.
+//                     The sprint ends exactly where the red-to-black passage starts (the passage is its end trigger),
+//                     and the track carries the passage as its tail (--pass-h), so the stage stays pinned through both.
 function initSprint(): void {
   const sprint = document.querySelector<HTMLElement>('[data-belt-sprint]');
   const steps = sprint ? [...sprint.querySelectorAll<HTMLElement>('[data-sprint-step]')] : [];
@@ -300,6 +303,7 @@ function initSprint(): void {
 
   const shifts = [...sprint.querySelectorAll<HTMLElement>('[data-belt-beat="shift"]')];
   const track = sprint.querySelector<HTMLElement>('.bs__track') ?? sprint;
+  const seam = document.querySelector<HTMLElement>('[data-tul-passage][data-belt="negro"]');
   const n = steps.length;
   const state = { s: 0 };
 
@@ -322,7 +326,8 @@ function initSprint(): void {
     scrollTrigger: {
       trigger: track,
       start: 'top top',
-      end: 'bottom bottom',
+      endTrigger: seam ?? track,
+      end: seam ? 'top bottom' : 'bottom bottom',
       scrub: 2.5,
       // The header grade follows the belt on screen while the stage is pinned (setBelt ignores repeats).
       onUpdate: (self) => {
@@ -339,12 +344,16 @@ function initSprint(): void {
 //                     reads it) and scrubs the belt drawing inside it (beltDrawing.ts) with the same value.
 //                     With reduced motion nothing is written and the CSS shows a static gap with the
 //                     finished drawing.
-// The passage that arrives at 1st dan (data-belt="negro") also owns the field flip: once its progress passes
-// FLOOD_FULL the black flood covers the whole view, so the page tokens are switched to the dark field
-// underneath it (html[data-field="dark"], tokens.css) and switched back when scrolling up past it. Both read
-// the same scrubbed `p`, so the flip always happens while the flood is fully opaque. Keep FLOOD_FULL equal to
-// the 0.5 in InkPassage.astro.
-const FLOOD_FULL = 0.5;
+// The passage that arrives at 1st dan (data-belt="negro") is the red-to-black moment (belt3d/passage.ts). It overlaps
+// the tail of the sprint track, so its span is its top at the viewport bottom to its bottom there, while the sprint
+// stage stays pinned. It also:
+//   - hands its progress to the sprint stage as `--pass` (the drawn red belt soaks up the ink, the words step back);
+//   - publishes where the drawn knot of the red belt sits on the pinned stage (`--ink-ox` / `--ink-oy`, px), the
+//     origin of the flood when the 3D scene does not publish its own knot (phones, no WebGL); measured on refresh;
+//   - owns the field flip: once its progress passes FLOOD_FULL the black flood covers the whole view, so the page
+//     tokens are switched to the dark field underneath it (html[data-field="dark"], tokens.css) and switched back when
+//     scrolling up past it. Both read the same scrubbed `p`, so the flip always happens while the flood is fully
+//     opaque. FLOOD_FULL comes from passage.ts, which InkPassage.astro passes to its CSS as well.
 
 function setField(dark: boolean): void {
   if (dark) {
@@ -360,6 +369,26 @@ function initPassages(): void {
     const flips = el.dataset.belt === 'negro';
     const state = { p: 0 };
     el.style.setProperty('--p', '0');
+    const stage = flips ? document.querySelector<HTMLElement>('[data-belt-sprint]') : null;
+    if (stage) {
+      const pinned = stage.querySelector<HTMLElement>('.bs__stage');
+      const red = [...stage.querySelectorAll<HTMLElement>('[data-sprint-step]')].pop();
+      // The drawn knot on the pinned stage (top 0): the mark when it shows, else the middle of the band. Offsets, not
+      // boxes, for the parts inside the step: they slide with transforms while the sprint plays.
+      const origin = (): void => {
+        const mark = red?.querySelector<HTMLElement>('.bs__mark');
+        const band = red?.querySelector<HTMLElement>('.bs__band');
+        const part = mark && mark.offsetWidth > 0 ? mark : band;
+        if (!pinned || !red || !part || part.offsetWidth === 0) return;
+        const box = red.getBoundingClientRect();
+        const top = box.top - pinned.getBoundingClientRect().top;
+        const fy = part === mark ? 31 / 88 : 0.5;
+        el.style.setProperty('--ink-ox', `${(box.left + part.offsetLeft + part.offsetWidth / 2).toFixed(1)}px`);
+        el.style.setProperty('--ink-oy', `${(top + part.offsetTop + part.offsetHeight * fy).toFixed(1)}px`);
+      };
+      origin();
+      ScrollTrigger.addEventListener('refresh', origin);
+    }
 
     // The belt drawing of the spacer unties and ties again with the same `p`. DrawSVG needs the drawing
     // to be rendered, so the timeline is built the first time it is (it is hidden on desktop once the 3D
@@ -378,9 +407,10 @@ function initPassages(): void {
     gsap.to(state, {
       p: 1,
       ease: 'none',
-      scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: 0.4 },
+      scrollTrigger: { trigger: el, start: 'top bottom', end: flips ? 'bottom bottom' : 'bottom top', scrub: flips ? 1.5 : 0.4 },
       onUpdate: () => {
         el.style.setProperty('--p', state.p.toFixed(4));
+        stage?.style.setProperty('--pass', state.p.toFixed(4));
         ensureDrawing();
         belt?.progress(state.p);
         if (flips) setField(state.p >= FLOOD_FULL);

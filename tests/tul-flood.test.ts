@@ -21,24 +21,28 @@ describe('black flood at 1st dan', () => {
     expect(motion).toMatch(/html\.js\) \.ink__flood \{[^}]*display: block/);
   });
 
-  test('the fill is a clip-path circle that grows with --p from the knot', () => {
-    expect(motion).toMatch(/--f: clamp\(0, calc\(\(var\(--p, 0\) - 0\.2\) \/ 0\.3\), 1\)/);
-    expect(motion).toMatch(/clip-path: circle\(calc\(var\(--f\) \* var\(--f\) \* 150vmax\) at calc\(var\(--cx\) \+ 3rem\) calc\(var\(--cy\) \+ 3rem\)\)/);
+  // T6: the fill is a seep polygon (an irregular ink front) grown by --g = --f squared, between FLOOD_START and
+  // FLOOD_FULL (passage.ts, passed in as --flood-a / --flood-z). Details in tests/tul-passage.test.ts.
+  test('the fill is an ink-front clip-path that grows with --p from the knot', () => {
+    expect(motion).toContain('--f: clamp(0, calc((var(--p, 0) - var(--flood-a)) / (var(--flood-z) - var(--flood-a))), 1)');
+    expect(motion).toContain('--g: calc(var(--f) * var(--f))');
+    expect(motion).toMatch(/clip-path: var\(--flood-clip\)/);
+    expect(markup).toMatch(/seepPolygon\(\{ v: '--g', cx: 'var\(--cx\) \+ 3rem', cy: 'var\(--cy\) \+ 3rem', rx: 150, ry: 150, unit: 'vmax'/);
     expect(motion).toMatch(/background-color: var\(--field-dark\)/);
   });
 
-  test('the centre is the published 3D knot, else the drawn knot of the spacer (mobile)', () => {
-    expect(motion).toMatch(/--cx: var\(--knot-x, calc\(100vw \* var\(--knot-fx\)\)\)/);
-    expect(motion).toMatch(/--knot-y,\s*calc\(100svh \+ var\(--ink-h\) \* var\(--knot-fy\) - var\(--p, 0\) \* \(100svh \+ var\(--ink-h\)\)\)/);
+  test('the centre is the published 3D knot, else the drawn knot of the sprint stage, else the middle of the view', () => {
+    expect(motion).toMatch(/--cx: var\(--knot-x, var\(--ink-ox, calc\(100vw \* var\(--knot-fx\)\)\)\)/);
+    expect(motion).toMatch(/--cy: var\(--knot-y, var\(--ink-oy, 50svh\)\)/);
     expect(css).toMatch(/--knot-fx: 0\.5;/);
     expect(css).toMatch(/--knot-fy: 0\.5;/);
   });
 
-  test('it sits above the chapters and below the header, covers the view at p = 0.5 and then goes away', () => {
+  test('it sits above the chapters and below the header, covers the view at FLOOD_FULL and then goes away', () => {
     expect(motion).toMatch(/position: fixed;/);
     expect(motion).toMatch(/z-index: 10;/);
     expect(read('src/components/tul/TulHeader.astro')).toMatch(/\.tul-header \{[^}]*z-index: 50/);
-    expect(motion).toMatch(/opacity: clamp\(0, calc\(\(0\.5 - var\(--p, 0\)\) \* 1000 \+ 1\), 1\)/);
+    expect(motion).toMatch(/opacity: clamp\(0, calc\(\(var\(--flood-z\) - var\(--p, 0\)\) \* 1000 \+ 1\), 1\)/);
   });
 
   test('the ink edge is a static feTurbulence displacement, desktop only, and never a blend mode', () => {
@@ -53,7 +57,8 @@ describe('black flood at 1st dan', () => {
   test('the flood animates only clip-path and opacity (no filter, transition or keyframes)', () => {
     expect(css).not.toMatch(/transition|animation|@keyframes/);
     const props = [...motion.matchAll(/^\s+([a-z-]+):/gm)].map((m) => m[1]);
-    const allowed = new Set(['--ink-h', '--f', '--cx', '--cy', 'position', 'inset', 'z-index', 'display', 'opacity', 'background-color', 'clip-path']);
+    // margin-top is static: it pulls the flood passage over the tail of the sprint track (T6).
+    const allowed = new Set(['--ink-h', '--f', '--g', '--cx', '--cy', 'margin-top', 'position', 'inset', 'z-index', 'display', 'opacity', 'background-color', 'clip-path']);
     for (const prop of props) expect(allowed.has(prop)).toBe(true);
   });
 });
@@ -61,8 +66,8 @@ describe('black flood at 1st dan', () => {
 describe('data-field flip', () => {
   const fn = engine.slice(engine.indexOf('function setField'), engine.indexOf('function initChapters'));
 
-  test('the engine sets html[data-field="dark"] at p >= 0.5 on the negro passage and removes it below', () => {
-    expect(engine).toContain('const FLOOD_FULL = 0.5;');
+  test('the engine sets html[data-field="dark"] at p >= FLOOD_FULL on the negro passage and removes it below', () => {
+    expect(engine).toContain("import { FLOOD_FULL } from './belt3d/passage';");
     expect(fn).toContain("el.dataset.belt === 'negro'");
     expect(fn).toMatch(/setField\(state\.p >= FLOOD_FULL\)/);
     expect(fn).toMatch(/root\.dataset\.field = 'dark'/);
@@ -73,8 +78,9 @@ describe('data-field flip', () => {
     expect(fn).toMatch(/if \(reduced\) return;/);
     expect(fn).toContain('scrollTrigger');
     expect(fn).not.toMatch(/requestAnimationFrame|lenis|IntersectionObserver/i);
-    // The flood threshold and the CSS threshold are the same number.
-    expect(motion).toContain('(0.5 - var(--p, 0))');
+    // The flood threshold and the CSS threshold are the same number: InkPassage passes FLOOD_FULL to its CSS.
+    expect(motion).toContain('(var(--flood-z) - var(--p, 0))');
+    expect(markup).toContain('--flood-z:${FLOOD_FULL}');
   });
 
   test('the dark field survives a reload deep in the page: the tween is a plain scrub, no one-way latch', () => {

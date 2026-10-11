@@ -67,3 +67,28 @@ Ask the delivery strategy (single PR vs chained) before opening the PR.
 - Route: inline (parent). RED: 4 new tests in `tests/tul-sprint-motion.test.ts` failed first; GREEN after. Checks: `bun test tests/` 474 pass / 1 pre-existing fail (missing rules/ file); `astro check` 0 errors; headless Edge sequence 1440 and 375, no page errors.
 - [x] Revision (user: more animation time, a bit more scroll): 120svh per change, hold 20% each end, sine in-out instead of cubic. Motion scroll doubles (36svh to 72svh) and is spread evenly; reading pause 54svh to 48svh. Route: inline. Tests updated first (sine curve + 120svh RED), then GREEN; `bun test tests/` 475 pass / 1 pre-existing fail; `astro check` 0 errors; headless sequence shows even steps (pos 1.10, 1.25, 1.45, 1.66, 1.90).
 - [x] Smoothing (user: scroll-to-animation coupling too fast): sprint ScrollTrigger scrub 1.2 to 2.5. Measured with 3 wheel ticks: before, 75% of the move in ~350ms and settled under 1s; after, an even deceleration settling in ~2s. Route: inline. `bun test tests/` 475 pass / 1 pre-existing fail; `astro check` 0 errors.
+
+## T6 — Organic red-to-black passage, seamless with the sprint (user request 2026-10-11, impeccable animate)
+- [x] The belt turns black organically while the field is still light: the 3D noise mask is now led by each cloth
+  vertex's baked distance from the knot (`aSeep`) plus noise and fibres, so the ink enters at the knot and runs along
+  the cloth. Mix is the shared seep (0.06-0.46 of the passage), black before the flood starts (0.5).
+- [x] Phones / no 3D: the red step carries a black twin of its band and of its BeltMark, revealed from the knot by a
+  build-time seep polygon (`clip-path: polygon(calc(...var(--seep)...))`) driven by `--pass` from the engine.
+- [x] No seam: the flood passage (`.ink--flood`, `--pass-h` 140svh desktop / 120svh phone) overlaps the tail of the
+  sprint track, the sprint's ScrollTrigger ends at the passage (`endTrigger`), so the stage stays pinned on the red
+  belt throughout; the words fade (0.56-0.78) and the belt stays.
+- [x] Flood from the knot: centre = 3D knot (published until 0.82), else the drawn knot of the stage (`--ink-ox/oy`,
+  measured on refresh), else mid-view; edge is a seep polygon (short fibres) on every width plus the static
+  feTurbulence displacement on desktop. FLOOD_FULL = 0.8 (shared constant in `src/scripts/belt3d/passage.ts`, passed
+  to the CSS as inline custom properties); field flip unchanged in principle (only under full coverage).
+- Design decisions: the 3D belt no longer flies to the middle (the pinned stage has text); gold stitches come up on the
+  light field (0.3-0.6), the rim light during the flood (0.5-0.8); flood passage scrub 1.5 (calmer); the passage's own
+  BeltDrawing is hidden in motion mode (the stage holds the belt). BlackBeltWork unchanged: it follows the unpinned
+  stage directly (no empty screen beyond a short black-belt hold).
+- Route: delegated writer (2+ non-trivial files). Test-first: `tests/tul-passage.test.ts` (25 tests) RED (module
+  missing) then GREEN; adjusted `tul-flood`, `tul-belt3d`, `tul-sprint-motion` to the new contract.
+- Checks: `bun test tests/` 500 pass / 1 pre-existing fail (`tuls.test.ts` rules file); `astro check` 0 errors;
+  `astro build` ok; impeccable detect `[]`; headless Edge 1440x900, 375x812 and reduced motion: no page errors, no
+  horizontal overflow, field flips at p 0.8, back to light on reverse scroll, dark after a reload deep in the page.
+  One fix round: the flood fibres were shortened (`lead: 0.22`) after they read as spikes on the phone.
+- Note: the dev server served stale BeltSprint CSS to the browser once (Vite HMR); re-saving the file fixed it.

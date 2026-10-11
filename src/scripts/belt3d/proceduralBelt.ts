@@ -60,6 +60,7 @@ export interface ProceduralBelt {
 
 const MIX_GLSL = /* glsl */ `
 varying vec3 vBeltPos;
+varying float vSeep;
 uniform vec3 uColorB;
 uniform float uMix;
 float bHash( vec3 p ) {
@@ -78,8 +79,13 @@ float bNoise( vec3 x ) {
 }
 float beltMask() {
   float n = 0.6 * bNoise( vBeltPos * 34.0 ) + 0.4 * bNoise( vBeltPos * 96.0 );
+  // Fibres: noise stretched along the cloth (fast across the band width, Y), so the front runs in threads.
+  float fib = bNoise( vec3( vBeltPos.x * 16.0, vBeltPos.y * 380.0, vBeltPos.z * 16.0 ) );
+  // The ink enters at the knot (vSeep 0) and travels along the belt to the farthest cloth (vSeep 1); the noise
+  // and the fibres make its front irregular instead of a clean wipe.
+  float v = 0.56 * vSeep + 0.3 * n + 0.14 * fib;
   float t = uMix * 1.24 - 0.12;
-  return smoothstep( n - 0.06, n + 0.06, t );
+  return smoothstep( v - 0.05, v + 0.05, t );
 }
 `;
 
@@ -176,15 +182,16 @@ export function createProceduralBelt(initial: { color?: string } = {}): Procedur
   });
 
   // Colour change by a noise mask: `uMix` 0..1 sweeps a threshold through 3D value noise of the object-space
-  // position, so cloth `uColorB` appears in blotches that are glued to the belt.
+  // position, led by `aSeep` (each vertex's distance from the knot, set below), so cloth `uColorB` soaks in from
+  // the knot and runs along the belt with a ragged, fibrous front that is glued to the cloth.
   const uColorB = { value: new Color('#ffffff') };
   const uMix = { value: 0 };
   cloth.onBeforeCompile = (shader) => {
     shader.uniforms.uColorB = uColorB;
     shader.uniforms.uMix = uMix;
     shader.vertexShader = shader.vertexShader
-      .replace('#include <common>', '#include <common>\nvarying vec3 vBeltPos;')
-      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvBeltPos = position;');
+      .replace('#include <common>', '#include <common>\nvarying vec3 vBeltPos;\nattribute float aSeep;\nvarying float vSeep;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvBeltPos = position;\nvSeep = aSeep;');
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <common>', `#include <common>\n${MIX_GLSL}`)
       .replace('vec4 diffuseColor = vec4( diffuse, opacity );', 'vec4 diffuseColor = vec4( mix( diffuse, uColorB, beltMask() ), opacity );');
@@ -433,6 +440,22 @@ export function createProceduralBelt(initial: { color?: string } = {}): Procedur
     tailR,
     stitches: stitchMeshes
   };
+
+  // Ink seep: every cloth vertex knows how far it is from the knot in the rest pose (0 at the knot, 1 at the
+  // farthest cloth, the back of the ring or a tail end), so a colour change enters at the knot and travels along
+  // the belt (MIX_GLSL). Baked once, so it stays glued to the cloth while the parts are posed.
+  root.updateMatrixWorld(true);
+  const knotAt = new Vector3().setFromMatrixPosition(knot.matrixWorld);
+  const clothMeshes = meshes.filter((m) => m.material === cloth);
+  const seeps = clothMeshes.map((m) => {
+    const pos = m.geometry.getAttribute('position');
+    const d = new Float32Array(pos.count);
+    const v = new Vector3();
+    for (let i = 0; i < pos.count; i++) d[i] = v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld).distanceTo(knotAt);
+    return d;
+  });
+  const far = Math.max(1e-6, ...seeps.map((d) => d.reduce((a, x) => Math.max(a, x), 0)));
+  clothMeshes.forEach((m, i) => m.geometry.setAttribute('aSeep', new Float32BufferAttribute(seeps[i].map((x) => x / far), 1)));
 
   // Remember the modelled transform of every animated part.
   const animated: Object3D[] = [band, wraps, knot, flaps.left, flaps.right, tailL, tailR];

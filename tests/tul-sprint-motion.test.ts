@@ -209,8 +209,8 @@ describe('sprint styles', () => {
 });
 
 describe('sprint pacing and ink drops between belts', () => {
-  test('each belt change gets a long stretch of scroll (120svh)', () => {
-    expect(sprint).toMatch(/\.bs__track\s*\{\s*height: calc\(100svh \+ \(var\(--n\) - 1\) \* 120svh\);/);
+  test('each belt change gets a long stretch of scroll (120svh), plus the red-to-black passage as the tail', () => {
+    expect(sprint).toMatch(/\.bs__track\s*\{\s*height: calc\(100svh \+ \(var\(--n\) - 1\) \* 120svh \+ var\(--pass-h\)\);/);
   });
 
   test('one decorative ink drop per change, coloured by the belt it brings', () => {
