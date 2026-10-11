@@ -161,7 +161,8 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
     :global(html.js) .bs__stage {
       position: sticky;
       top: 0;
-      grid-template-rows: auto minmax(0, 1fr) auto;
+      /* Title and belt are one group, centred in the free height; the rail is the floor of the stage. */
+      grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr) auto;
       gap: var(--space-m);
       max-width: none;
       height: 100svh;
@@ -169,7 +170,12 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
       overflow: hidden;
     }
 
+    :global(html.js) .bs__title {
+      grid-row: 2;
+    }
+
     :global(html.js) .bs__list {
+      grid-row: 3;
       /* One shared row, centred; every belt starts at its top so the hand-over lines up. */
       display: grid;
       align-content: center;
@@ -228,6 +234,7 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
 
     /* The rail: the six belts, lit up to the one on screen; a thin ink line runs under them. */
     :global(html.js) .bs__rail {
+      grid-row: 5;
       position: relative;
       display: block;
       padding-bottom: var(--space-2xs);
@@ -266,7 +273,7 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
     }
 
     :global(html.js) .bs__gup {
-      opacity: calc(0.45 + 0.55 * var(--lit));
+      opacity: calc(0.62 + 0.38 * var(--lit));
     }
   }
 
