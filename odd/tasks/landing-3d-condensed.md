@@ -91,4 +91,5 @@ Ask the delivery strategy (single PR vs chained) before opening the PR.
   `astro build` ok; impeccable detect `[]`; headless Edge 1440x900, 375x812 and reduced motion: no page errors, no
   horizontal overflow, field flips at p 0.8, back to light on reverse scroll, dark after a reload deep in the page.
   One fix round: the flood fibres were shortened (`lead: 0.22`) after they read as spikes on the phone.
+- Commit: `64e3633` feat(motion): organic red-to-black ink seep and seamless passage.
 - Note: the dev server served stale BeltSprint CSS to the browser once (Vite HMR); re-saving the file fixed it.
