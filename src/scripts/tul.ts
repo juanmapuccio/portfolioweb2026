@@ -7,6 +7,8 @@
 //   data-q-end         optional: --q (0..1) runs over scene progress 0..q-end (the hero's portrait
 //                      turning into the path).
 //   data-draw-start    optional: --draw starts moving once the scene progress passes this value.
+//   data-scene-span    "enter": the span starts when the element's top enters at the viewport bottom (a
+//                      one-screen scene that is never pinned, e.g. the close: it draws while it scrolls in).
 //   --draw             consumed by TatamiIso (the floor of FloorDiagram): stroke-dashoffset, stops and arrows.
 //   main section[data-belt]  the section at mid-viewport sets html[data-active-belt] and the header
 //                      grade indicator ([data-grade-gup], [data-grade-form]). The belt never changes the
@@ -117,6 +119,7 @@ function initScenes(): void {
 
     const [from, to] = readRange(el);
     const state = { p: 0 };
+    const enter = el.dataset.sceneSpan === 'enter';
     write(el, 0, from, to);
 
     gsap.to(state, {
@@ -124,7 +127,7 @@ function initScenes(): void {
       ease: 'none',
       scrollTrigger: {
         trigger: el,
-        start: 'top top',
+        start: enter ? 'top bottom' : 'top top',
         end: 'bottom bottom',
         scrub: 0.4
       },
@@ -486,6 +489,26 @@ function initEntrances(): void {
   for (const el of reveals) revealObserver.observe(el);
 }
 
+// The ink rule of the close (InkDrops.astro). `.is-in` once, when the rule is on screen: the drops fall
+// and merge. `.is-live` only while it is on screen: the CSS loops run, and pause offscreen. With reduced
+// motion, or without IntersectionObserver, nothing is toggled and the CSS shows the merged state, still.
+function initInkDrops(): void {
+  const layers = document.querySelectorAll<HTMLElement>('[data-ink-drops]');
+  if (reduced || !layers.length || !('IntersectionObserver' in window)) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        const el = entry.target as HTMLElement;
+        el.classList.toggle('is-live', entry.isIntersecting);
+        if (entry.isIntersecting && entry.intersectionRatio > 0.99) el.classList.add('is-in');
+      }
+    },
+    { threshold: [0, 1], rootMargin: '0px 0px -12% 0px' }
+  );
+  for (const el of layers) observer.observe(el);
+}
+
 function initHeaderAutohide(): void {
   const header = document.querySelector<HTMLElement>('.tul-header');
   if (!header) return;
@@ -581,6 +604,7 @@ initSprint();
 initPassages();
 initChapters();
 initEntrances();
+initInkDrops();
 initHeaderAutohide();
 endIntro();
 initExperiencePanel();
