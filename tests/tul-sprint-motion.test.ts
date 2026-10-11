@@ -174,11 +174,14 @@ describe('sprint styles', () => {
     expect(sprint).toMatch(/html\.js\) \.bs__stage\s*\{[\s\S]*?position: sticky/);
   });
 
-  test('the steps stack and read --o; the rail fill reads --fill; no blend modes, shadows or gradients', () => {
-    // The veil: the engine's --o goes through a smoothstep for the opacity and drives the blur.
-    expect(sprint).toMatch(/--oo: var\(--o,/);
-    expect(sprint).toContain('opacity: var(--sm)');
-    expect(sprint).toContain('filter: blur(calc((1 - var(--oo)) * 10px))');
+  test('the steps stack and read --d; the rail fill reads --fill; no blend modes, shadows or gradients', () => {
+    // The dye: the engine's --d dyes the band with the scroll and hands the text over without overlap.
+    expect(sprint).toMatch(/--dd: var\(--d, calc\(-1 \* min\(var\(--i\), 1\)\)\)/);
+    expect(sprint).toContain('clip-path: inset(-2px calc(var(--in) * 100%) -2px 0)');
+    // The leaving belt is gone (45%) before the arriving one shows (55%): the text never double-exposes.
+    expect(sprint).toContain('(0.45 - var(--out)) / 0.45');
+    expect(sprint).toContain('(0.55 - var(--in)) / 0.55');
+    expect(sprint).toContain('opacity: var(--sv)');
     expect(sprint).toContain('var(--fill');
     expect(sprint.replace(/\/\*[\s\S]*?\*\//g, '')).not.toMatch(/mix-blend-mode|box-shadow|gradient/);
   });

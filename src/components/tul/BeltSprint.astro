@@ -146,8 +146,8 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
    * The sprint (JS and motion only). The section becomes a tall track (one viewport for the stage plus ~150svh of
    * scroll for the four changes) with a sticky full-viewport stage. The engine (tul.ts, initSprint) writes on each
    * step `--o` (opacity) and `--d` (-1..1, the slide) and on the section `--fill` (0..1 over the six belts of the
-   * rail). The steps stack in one cell and crossfade through a light blur; the band of the belt settles open. Before the engine
-   * runs, the first belt is the one shown. Only opacity, filter and transform change with scroll.
+   * rail). The steps stack in one cell; the text hands over and the band is dyed with the scroll. Before the engine
+   * runs, the first belt is the one shown. Only opacity, filter, transform and clip-path change with scroll.
    */
   @media (prefers-reduced-motion: no-preference) {
     :global(html.js) .bs {
@@ -170,25 +170,36 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
     }
 
     :global(html.js) .bs__list {
-      /* One shared row, centred; every belt starts at its top so the crossfade lines up. */
+      /* One shared row, centred; every belt starts at its top so the hand-over lines up. */
       display: grid;
       align-content: center;
       align-items: start;
     }
 
     /*
-     * The veil: each change is a soft crossfade. `--o` (from the engine) goes through a smoothstep so every belt starts
-     * and lands gently; the one leaving blurs out and the one arriving comes into focus, with no movement. The band
-     * settles open from its centre. Before the engine runs the opacity fallback shows the first belt only.
+     * The dye: each change reads straight off the scroll. The engine writes `--d` (-1..1): `--in` is how much of the
+     * next belt is still to come (1..0), `--out` how much of the last one has gone (0..1).
+     *   - The band is dyed left to right with the new belt colour exactly as you scroll, over the band before it (later
+     *     steps sit on top), and undyes when scrolling back. It ignores the step opacity on purpose.
+     *   - The text hands over without ever overlapping: the leaving belt fades out over the first 45% of the change,
+     *     the arriving one fades in over the rest. Each side runs on a smoothstep, drifts 1.25rem (up out, up in)
+     *     and passes through a light 4px blur.
+     * Before the engine runs `--d` falls back to 0 for the first belt and -1 for the rest, so only the first shows.
      */
     :global(html.js) .bs__step {
-      --oo: var(--o, calc(1 - min(var(--i), 1)));
-      --sm: calc(var(--oo) * var(--oo) * (3 - 2 * var(--oo)));
+      --dd: var(--d, calc(-1 * min(var(--i), 1)));
+      --in: max(0, -1 * var(--dd));
+      --out: max(0, var(--dd));
+      --v: calc(clamp(0, (0.45 - var(--out)) / 0.45, 1) * clamp(0, (0.55 - var(--in)) / 0.55, 1));
+      --sv: calc(var(--v) * var(--v) * (3 - 2 * var(--v)));
       grid-area: 1 / 1;
       row-gap: var(--space-2xs);
-      opacity: var(--sm);
-      filter: blur(calc((1 - var(--oo)) * 10px));
-      will-change: opacity, filter;
+    }
+
+    :global(html.js) .bs__step > :is(.bs__mark, .bs__name, .bs__meta, .bs__line) {
+      opacity: var(--sv);
+      transform: translate3d(0, calc((var(--in) - var(--out)) * 1.25rem), 0);
+      filter: blur(calc((1 - var(--sv)) * 4px));
     }
 
     :global(html.js) .bs__band {
@@ -198,7 +209,7 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
       margin-bottom: var(--space-s);
       border-block: 1.5px solid var(--ink);
       background-color: var(--belt-fill);
-      transform: scaleX(calc(0.9 + 0.1 * var(--sm)));
+      clip-path: inset(-2px calc(var(--in) * 100%) -2px 0);
     }
 
     :global(html.js) .bs__mark {
