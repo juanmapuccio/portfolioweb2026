@@ -48,6 +48,15 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
         ))}
       </ol>
 
+      <div class="bs__ink" aria-hidden="true">
+        {shifts.map((s, j) => (
+          <div class="bs__drop" data-belt={s.to} style={`--j:${j}`}>
+            <span class="bs__fall"></span>
+            <span class="bs__pool"></span>
+          </div>
+        ))}
+      </div>
+
       <div class="bs__rail" aria-hidden="true">
         <span class="bs__fill"></span>
         <ol class="bs__ticks">
@@ -136,6 +145,10 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
   }
 
   /* Motion-only parts: hidden in the static list. */
+  .bs__ink {
+    display: none;
+  }
+
   .bs__band,
   .bs__rail,
   .bs__beat {
@@ -143,8 +156,8 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
   }
 
   /*
-   * The sprint (JS and motion only). The section becomes a tall track (one viewport for the stage plus ~150svh of
-   * scroll for the four changes) with a sticky full-viewport stage. The engine (tul.ts, initSprint) writes on each
+   * The sprint (JS and motion only). The section becomes a tall track (one viewport for the stage plus ~360svh of
+   * scroll for the four changes, 90svh each so every line can be read) with a sticky full-viewport stage. The engine (tul.ts, initSprint) writes on each
    * step `--o` (opacity) and `--d` (-1..1, the slide) and on the section `--fill` (0..1 over the six belts of the
    * rail). The steps stack in one cell; the text hands over and the band is dyed with the scroll. Before the engine
    * runs, the first belt is the one shown. Only opacity, filter, transform and clip-path change with scroll.
@@ -155,7 +168,7 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
     }
 
     :global(html.js) .bs__track {
-      height: calc(100svh + (var(--n) - 1) * 37.5svh);
+      height: calc(100svh + (var(--n) - 1) * 90svh);
     }
 
     :global(html.js) .bs__stage {
@@ -236,6 +249,7 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
     :global(html.js) .bs__rail {
       grid-row: 5;
       position: relative;
+      z-index: 2;
       display: block;
       padding-bottom: var(--space-2xs);
     }
@@ -274,6 +288,59 @@ const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to
 
     :global(html.js) .bs__gup {
       opacity: calc(0.62 + 0.38 * var(--lit));
+    }
+
+    /*
+     * Ink between belts: at every change a drop of the new belt's colour falls onto the band, spreads over the stage
+     * while the text hands over underneath, then soaks away. It is the light cousin of the red-to-black flood. Each
+     * drop reads the scroll straight from the section's `--fill` (pos = fill * 5): `--t` is its change, 0..1, and the
+     * position already holds still on each belt, so the drop only moves while the belts do.
+     *   0.00-0.30  the drop falls (stretched while falling) to the impact point;
+     *   0.30-0.52  the pool spreads from the impact until it covers the stage;
+     *   0.58-0.92  the pool soaks away and the new belt is left on the band.
+     * Scrolling back plays it in reverse. Only transform, opacity and clip-path change.
+     */
+    :global(html.js) .bs__ink {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: block;
+      pointer-events: none;
+    }
+
+    :global(html.js) .bs__drop {
+      --t: clamp(0, calc(var(--fill, 0) * 5 - var(--j)), 1);
+      --f: clamp(0, calc(var(--t) / 0.3), 1);
+      --g0: clamp(0, calc((var(--t) - 0.3) / 0.22), 1);
+      --g: calc(var(--g0) * var(--g0) * (3 - 2 * var(--g0)));
+      --k0: clamp(0, calc((var(--t) - 0.58) / 0.34), 1);
+      --k: calc(var(--k0) * var(--k0) * (3 - 2 * var(--k0)));
+      --x: 22%;
+      --y: 46%;
+      position: absolute;
+      inset: 0;
+    }
+
+    :global(html.js) .bs__fall {
+      position: absolute;
+      left: var(--x);
+      top: var(--y);
+      width: 1.1rem;
+      height: 1.5rem;
+      margin: -0.75rem 0 0 -0.55rem;
+      border: 1.5px solid var(--ink);
+      border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+      background-color: var(--belt-fill);
+      opacity: calc(min(1, var(--t) * 40) * clamp(0, calc((0.33 - var(--t)) * 30), 1));
+      transform: translate3d(0, calc((var(--f) - 1) * 55svh), 0) scale(calc(1 - 0.25 * var(--f)), calc(1 + 0.35 * (1 - var(--f))));
+    }
+
+    :global(html.js) .bs__pool {
+      position: absolute;
+      inset: 0;
+      background-color: var(--belt-fill);
+      clip-path: circle(calc(var(--g) * 160vmax) at var(--x) var(--y));
+      opacity: calc(1 - var(--k));
     }
   }
 

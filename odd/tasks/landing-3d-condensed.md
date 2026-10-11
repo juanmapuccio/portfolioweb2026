@@ -60,3 +60,8 @@ Forecast: ~800-1200 authored changed lines (exceeds the ~400 budget). Strategy: 
 
 ## Next step
 Ask the delivery strategy (single PR vs chained) before opening the PR.
+
+## T5 — Sprint pacing and ink drops between belts (user request 2026-10-11, option B)
+- [x] Each belt change gets 90svh of scroll (was 37.5svh) and holds 30% at each end (was 20%) so every line can be read.
+- [x] A light cousin of the red-to-black flood at every change: a drop of the new belt colour falls onto the band, spreads over the stage while the text hands over, then soaks away (`.bs__ink`, CSS only, driven by `--fill`).
+- Route: inline (parent). RED: 4 new tests in `tests/tul-sprint-motion.test.ts` failed first; GREEN after. Checks: `bun test tests/` 474 pass / 1 pre-existing fail (missing rules/ file); `astro check` 0 errors; headless Edge sequence 1440 and 375, no page errors.

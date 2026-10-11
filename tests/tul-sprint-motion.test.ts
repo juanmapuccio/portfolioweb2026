@@ -38,6 +38,14 @@ describe('sprint position', () => {
     }
   });
 
+  test('holds long enough to read: 30% of each stretch at each end', () => {
+    for (let i = 0; i < N - 1; i++) {
+      const at = i / (N - 1);
+      close(sprintPosition(at + 0.29 / (N - 1), N), i, 1e-9);
+      close(sprintPosition(at + 0.71 / (N - 1), N), i + 1, 1e-9);
+    }
+  });
+
   test('clamps progress outside 0..1', () => {
     close(sprintPosition(-1, N), 0);
     close(sprintPosition(2, N), N - 1);
@@ -190,5 +198,27 @@ describe('sprint styles', () => {
     expect(sprint).toContain("html[data-belt3d='ready']");
     expect(sprint).toContain('var(--belt-col)');
     expect(black).toContain('var(--belt-col)');
+  });
+});
+
+describe('sprint pacing and ink drops between belts', () => {
+  test('each belt change gets a long stretch of scroll (90svh)', () => {
+    expect(sprint).toMatch(/\.bs__track\s*\{\s*height: calc\(100svh \+ \(var\(--n\) - 1\) \* 90svh\);/);
+  });
+
+  test('one decorative ink drop per change, coloured by the belt it brings', () => {
+    expect(sprint).toMatch(/<div class="bs__ink" aria-hidden="true">/);
+    expect(sprint).toMatch(/class="bs__drop" data-belt=\{s\.to\} style=\{`--j:\$\{j\}`\}/);
+    expect(sprint).toContain('class="bs__fall"');
+    expect(sprint).toContain('class="bs__pool"');
+    // The drop reads the scroll from the section's --fill: no extra engine writes.
+    expect(sprint).toMatch(/--t: clamp\(0, calc\(var\(--fill, 0\) \* 5 - var\(--j\)\), 1\)/);
+  });
+
+  test('the ink only exists with JS and motion; the static list never shows it', () => {
+    const css = sprint.replace(/\/\*[\s\S]*?\*\//g, '');
+    const base = css.slice(css.indexOf('<style>'), css.indexOf('@media (prefers-reduced-motion: no-preference)'));
+    expect(base).toMatch(/\.bs__ink\s*\{\s*display: none;/);
+    expect(css).toMatch(/:global\(html\.js\) \.bs__ink\s*\{[^}]*display: block;/);
   });
 });

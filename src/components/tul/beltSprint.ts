@@ -39,7 +39,7 @@ export function sprintSteps(lang: Lang): SprintStep[] {
 // to the next one in between (cubic in-out), so the scrub never feels linear.
 
 /** Share of each belt-to-belt stretch spent holding, at each end. */
-const HOLD = 0.2;
+const HOLD = 0.3;
 const clamp = (x: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, x));
 const easeInOutCubic = (t: number): number => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
