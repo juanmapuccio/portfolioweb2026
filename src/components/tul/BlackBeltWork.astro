@@ -3,6 +3,7 @@ import { useTranslations, type Lang } from '../../i18n/ui';
 import { BELTS, martialExperienceData } from '../../data/martialExperience';
 import { projectsContent } from '../../data/projects';
 import { skillsData } from '../../data/skills';
+import { FLOOD_FULL } from '../../scripts/belt3d/passage';
 
 /**
  * The black belt: where the sprint lands, on the black field (the red to black InkPassage floods the page and flips
@@ -12,6 +13,12 @@ import { skillsData } from '../../data/skills';
  * `.bw__beat` is the travel beat of the 3D belt on black (data-belt-beat="travel", rim light, fades out before the
  * close). It is an empty, aria-hidden box over the section and half a viewport past it, so the belt rests on black
  * while the work is read and is gone once the section scrolls away.
+ *
+ * With JS and motion the section is pulled up over the tail of the passage (`--tail`, the part after FLOOD_FULL, from
+ * passage.ts) and 20svh more: its header is already in the lower part of the view when the field flips, so there is no
+ * empty black stretch.
+ * The header waits invisible under the flood and rises once html[data-field="dark"] is set (and steps back if the
+ * reader scrolls back above the flip).
  */
 interface Props {
   lang?: Lang;
@@ -31,7 +38,7 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
 }));
 ---
 
-<section id="primer-dan" class="bw" data-belt="negro" aria-labelledby="bw-title">
+<section id="primer-dan" class="bw" data-belt="negro" style={`--tail:${Math.round((1 - FLOOD_FULL) * 1000) / 1000}`} aria-labelledby="bw-title">
   <div class="bw__beat" data-belt-beat="travel" data-belt="negro" aria-hidden="true"></div>
   <div class="bw__inner">
     <header class="bw__head">
@@ -126,7 +133,8 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
 
   .bw__projects {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+    /* Fixed columns: one on a phone, two from 48rem (four projects never break 3 + 1). */
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-l) var(--space-xl);
   }
 
@@ -204,6 +212,10 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
   }
 
   @media (min-width: 48rem) {
+    .bw__projects {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .bw__stack-row {
       grid-template-columns: 16rem minmax(0, 1fr);
       gap: var(--space-m);
@@ -212,6 +224,28 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
 
   /* Entrance: the projects rise in once (tul.ts adds .is-in), only with JS and motion. */
   @media (prefers-reduced-motion: no-preference) {
+    /*
+     * Pulled up over the passage tail and a fifth of a viewport more: when the field flips the header already sits in
+     * the lower part of the view (still invisible, see below), so it rises in place instead of scrolling up from the
+     * edge. The fixed header (3rem) is far above when the top enters, so less padding.
+     */
+    :global(html.js) .bw {
+      margin-top: calc(-1 * var(--tail) * var(--pass-h) - 20svh);
+      padding-top: var(--space-l);
+    }
+
+    /* The header is revealed by the field flip, not by the scroll: it waits under the flood and rises with it. */
+    :global(html.js) .bw__head {
+      transition:
+        opacity 700ms var(--ease-out),
+        transform 700ms var(--ease-out);
+    }
+
+    :global(html.js:not([data-field='dark'])) .bw__head {
+      opacity: 0;
+      transform: translateY(1.5rem);
+    }
+
     :global(html.js) .bw [data-rise] {
       opacity: 0;
       transform: translateY(1rem);

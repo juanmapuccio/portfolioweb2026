@@ -9,17 +9,18 @@
 //                         or without 3D, the drawn mark and the band of the stage. The field is still light.
 //              0.30-0.60  the stitches turn gold (3D).
 //   TEXT_OUT   0.56-0.78  the words of the stage step back.
-//   FLOOD      0.50-0.80  the ink overflows from the knot into the page. At FLOOD_FULL it covers the view and the
+//   FLOOD      0.50-0.88  the ink overflows from the knot into the page. At FLOOD_FULL it covers the view and the
 //                         engine flips html[data-field="dark"] under it; the rim light is up by then (3D).
-//              0.80-1.00  the black belt rests on the black field; then the stage lets go and the 1st dan follows.
+//              0.88-1.00  a short tail: the 1st dan (BlackBeltWork) is pulled up over it, so its header rises as the
+//                         field flips instead of leaving an empty black stretch; then the stage lets go.
 
 export const SEEP = { from: 0.06, to: 0.46 } as const;
 export const TEXT_OUT = { from: 0.56, to: 0.78 } as const;
 export const FLOOD_START = 0.5;
 /** The flood covers the whole view from here on: the field flips under it. */
-export const FLOOD_FULL = 0.8;
+export const FLOOD_FULL = 0.88;
 /** The 3D scene publishes the knot (the centre of the flood) while the passage is at or below this. */
-export const KNOT_UNTIL = 0.82;
+export const KNOT_UNTIL = 0.9;
 /** Scroll length of the passage in svh (`--pass-h` in tokens.css): desktop and phone. */
 export const PASSAGE_SVH = { wide: 140, narrow: 120 } as const;
 

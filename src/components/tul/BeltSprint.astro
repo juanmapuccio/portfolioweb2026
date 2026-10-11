@@ -271,6 +271,21 @@ const passVars = `--seep-a:${SEEP.from};--seep-z:${SEEP.to};--out-a:${TEXT_OUT.f
       border-block: 1.5px solid var(--ink);
       background-color: var(--belt-fill);
       clip-path: inset(-2px calc(var(--in) * 100%) -2px 0);
+      transition: opacity 600ms var(--ease-out);
+    }
+
+    /*
+     * Once the flood has flipped the field, the drawn belt has done its job: a black band and mark on the black field
+     * only leave light hairlines (their outlines take the dark ink). They fade out with the flip and back in when
+     * scrolling above it. The children of the mark fade, as the mark itself carries the scrubbed step opacity.
+     */
+    :global(html.js) .bs__mark > :global(*) {
+      transition: opacity 600ms var(--ease-out);
+    }
+
+    :global(html[data-field='dark']) .bs__band,
+    :global(html[data-field='dark']) .bs__mark > :global(*) {
+      opacity: 0;
     }
 
     /*
