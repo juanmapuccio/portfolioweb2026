@@ -175,8 +175,10 @@ describe('sprint styles', () => {
   });
 
   test('the steps stack and read --o / --d; the rail fill reads --fill; no blend modes, shadows or gradients', () => {
-    expect(sprint).toContain('opacity: var(--o');
-    expect(sprint).toContain('var(--d');
+    expect(sprint).toMatch(/opacity:[^;]*var\(--o/);
+    // The belt wipe: the engine's --d drives the left-to-right clip of each step.
+    expect(sprint).toMatch(/--in: max\(0, -1 \* var\(--d/);
+    expect(sprint).toContain('clip-path: inset(-0.5rem calc(var(--in) * 100%)');
     expect(sprint).toContain('var(--fill');
     expect(sprint.replace(/\/\*[\s\S]*?\*\//g, '')).not.toMatch(/mix-blend-mode|box-shadow|gradient/);
   });

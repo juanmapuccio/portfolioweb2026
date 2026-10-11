@@ -320,7 +320,7 @@ function initSprint(): void {
       trigger: track,
       start: 'top top',
       end: 'bottom bottom',
-      scrub: 0.6,
+      scrub: 1.2,
       // The header grade follows the belt on screen while the stage is pinned (setBelt ignores repeats).
       onUpdate: (self) => {
         if (!self.isActive) return;
