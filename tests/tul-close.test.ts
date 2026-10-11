@@ -14,11 +14,10 @@ const COMPONENTS = ['Principles', 'TechSheet', 'KyongYe'].map((n) => `src/compon
 
 describe('close mounting', () => {
   for (const [file, lang] of PAGES) {
-    test(`${lang}: principles, sheet and Kyong-ye follow the negro chapter`, () => {
+    test(`${lang}: Kyong-ye closes the page right after the black belt work`, () => {
       const src = read(file);
-      const tags = [...src.matchAll(/<(HeroJoonbi|TulChapter|Principles|TechSheet|KyongYe) lang="(\w+)"(?: beltKey="(\w+)")? \/>/g)];
-      const names = tags.map((m) => (m[1] === 'TulChapter' ? `chapter:${m[3]}` : m[1]));
-      expect(names.slice(-4)).toEqual(['chapter:negro', 'Principles', 'TechSheet', 'KyongYe']);
+      const tags = [...src.matchAll(/<(HeroJoonbi|BeltSprint|BlackBeltWork|Principles|TechSheet|KyongYe) lang="(\w+)" \/>/g)];
+      expect(tags.map((m) => m[1]).slice(-2)).toEqual(['BlackBeltWork', 'KyongYe']);
       expect(tags.every((m) => m[2] === lang)).toBe(true);
     });
   }
@@ -26,7 +25,14 @@ describe('close mounting', () => {
 
 describe('anchors', () => {
   test('exactly one element has id="contacto" among the mounted tul components', () => {
-    const files = [...COMPONENTS, 'src/components/tul/TulChapter.astro', 'src/components/tul/HeroJoonbi.astro', 'src/components/tul/TulHeader.astro'];
+    const files = [
+      ...COMPONENTS,
+      'src/components/tul/TulChapter.astro',
+      'src/components/tul/HeroJoonbi.astro',
+      'src/components/tul/TulHeader.astro',
+      'src/components/tul/BeltSprint.astro',
+      'src/components/tul/BlackBeltWork.astro'
+    ];
     const hits = files.flatMap((f) => [...read(f).matchAll(/\bid="contacto"/g)]);
     expect(hits.length).toBe(1);
     expect(read('src/components/tul/KyongYe.astro')).toContain('id="contacto"');

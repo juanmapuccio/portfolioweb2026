@@ -51,6 +51,7 @@ const isExternal = (url: string) => url.startsWith('https:');
             <path d="M3 10H16M11 5L16 10L11 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"></path>
           </svg>
         </a>
+        <a class="ky__cv" href={localePaths[lang] + 'cv/'}>{t('tul.close.cv')}</a>
       </div>
 
       <figure class="ky__map">
@@ -194,6 +195,14 @@ const isExternal = (url: string) => url.startsWith('https:');
   .ky__cta svg {
     flex: none;
     transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  /* The full CV of the page language: a plain text link under the solid CTA. */
+  .ky__cv {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-weight: 700;
   }
 
   .ky__map {

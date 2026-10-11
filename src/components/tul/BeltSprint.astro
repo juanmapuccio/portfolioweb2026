@@ -1,0 +1,144 @@
+---
+import BeltMark from './BeltMark.astro';
+import { useTranslations, type Lang } from '../../i18n/ui';
+import { BELTS } from '../../data/martialExperience';
+import { PROGRESS_BELTS, SPRINT_BELTS, sprintSteps } from './beltSprint';
+
+/**
+ * The belt sprint: the five coloured belts in one pass, from the white belt of the hero to the red one, one line
+ * each. The black belt is where it lands (InkPassage red to black, then BlackBeltWork).
+ *
+ * The content is an ordered list, always in the DOM and readable without JS: one item per belt with its mark, grade,
+ * years and one line (the `line` of the stage in martialExperience.ts).
+ *
+ * Hooks for the engine (tul.ts) and the 3D scene (belt3d):
+ *   [data-belt-sprint]           the section; the engine scrubs its track.
+ *   [data-sprint-step]           one belt; carries its belt as data-belt so the tokens colour its details.
+ *   [data-belt-beat="shift"]     an empty marker per change of belt (data-from, data-belt, data-step of data-steps):
+ *                                the 3D belt changes colour in its column while the sprint plays.
+ *   .bs__rail                    decorative progress of the six belts (aria-hidden).
+ */
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'es' } = Astro.props;
+const t = useTranslations(lang);
+const steps = sprintSteps(lang);
+const shifts = SPRINT_BELTS.slice(1).map((to, i) => ({ from: SPRINT_BELTS[i], to }));
+---
+
+<section class="bs" data-belt-sprint style={`--n:${steps.length}`} aria-labelledby="bs-title">
+  <div class="bs__track">
+    <div class="bs__stage">
+      <h2 id="bs-title" class="bs__title">{t('tul.sprint.title')}</h2>
+
+      <ol class="bs__list">
+        {steps.map((step, i) => (
+          <li class="bs__step" data-sprint-step data-belt={step.key} style={`--i:${i}`}>
+            <span class="bs__band" aria-hidden="true"></span>
+            <span class="bs__mark" aria-hidden="true"><BeltMark beltKey={step.key} /></span>
+            <h3 class="bs__name grade-type">{step.name}</h3>
+            <p class="bs__meta num">
+              <span>{step.gup}</span>
+              <span>{step.years}</span>
+            </p>
+            <p class="bs__line">{step.line}</p>
+          </li>
+        ))}
+      </ol>
+
+      <div class="bs__rail" aria-hidden="true">
+        <span class="bs__fill"></span>
+        <ol class="bs__ticks">
+          {PROGRESS_BELTS.map((key, i) => (
+            <li class="bs__tick" data-belt={key} style={`--i:${i}`}>
+              <span class="bs__swatch"></span>
+              <span class="bs__gup num">{BELTS[key].gup}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  {shifts.map((s, j) => (
+    <div class="bs__beat" data-belt-beat="shift" data-from={s.from} data-belt={s.to} data-step={j} data-steps={shifts.length} aria-hidden="true"></div>
+  ))}
+</section>
+
+<style>
+  /* Static state (no JS, reduced motion): a plain list of the five belts. */
+  .bs {
+    position: relative;
+    padding: var(--space-2xl) var(--gutter) var(--space-xl);
+  }
+
+  .bs__stage {
+    display: grid;
+    gap: var(--space-l);
+    max-width: 72rem;
+    margin-inline: auto;
+  }
+
+  .bs__title {
+    max-width: 18ch;
+    font-size: var(--step-3);
+    letter-spacing: var(--track-display);
+  }
+
+  .bs__list {
+    display: grid;
+    gap: var(--space-l);
+  }
+
+  .bs__step {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--space-m);
+    row-gap: var(--space-3xs);
+    align-items: start;
+  }
+
+  .bs__mark {
+    grid-row: 1 / span 3;
+    width: clamp(4.5rem, 3.5rem + 4vw, 7.5rem);
+  }
+
+  .bs__mark :global(svg) {
+    width: 100%;
+    height: auto;
+  }
+
+  .bs__name,
+  .bs__meta,
+  .bs__line {
+    grid-column: 2;
+  }
+
+  .bs__name {
+    font-size: var(--step-2);
+    line-height: 1.05;
+  }
+
+  .bs__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-s);
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  .bs__line {
+    max-width: 52ch;
+  }
+
+  /* Motion-only parts: hidden in the static list. */
+  .bs__band,
+  .bs__rail,
+  .bs__beat {
+    display: none;
+  }
+</style>

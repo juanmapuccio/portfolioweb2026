@@ -24,14 +24,12 @@ function walk(dir: string, out: string[] = []): string[] {
   return out;
 }
 
+// The home no longer mounts the long chapters (condensed landing, tests/tul-landing.test.ts); the component
+// stays available and keeps its own structure tests below.
 describe('chapter mounting', () => {
   for (const [file, lang] of PAGES) {
-    test(`${lang}: hero then the six chapters, in belt order`, () => {
-      const src = read(file);
-      const tags = [...src.matchAll(/<(HeroJoonbi|TulChapter) lang="(\w+)"(?: beltKey="(\w+)")? \/>/g)];
-      expect(tags.map((m) => m[1])).toEqual(['HeroJoonbi', ...ORDER.map(() => 'TulChapter')]);
-      expect(tags.every((m) => m[2] === lang)).toBe(true);
-      expect(tags.slice(1).map((m) => m[3])).toEqual([...ORDER]);
+    test(`${lang}: the condensed home mounts no chapter`, () => {
+      expect(read(file)).not.toContain('<TulChapter');
     });
   }
 });

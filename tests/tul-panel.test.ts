@@ -29,13 +29,12 @@ describe('experience panel markup', () => {
     expect(script).not.toContain('fetch(');
   });
 
-  test('every page mounts the panel once, after main, in its own language', () => {
-    for (const [file, lang] of PAGES) {
-      const src = read(file);
-      expect(src.match(/<ExperiencePanel /g)?.length).toBe(1);
-      expect(src).toContain(`<ExperiencePanel lang="${lang}" />`);
-      expect(src.indexOf('</main>')).toBeLessThan(src.indexOf('<ExperiencePanel'));
-    }
+  test('the condensed home does not mount the panel (the detail lives in /cv/)', () => {
+    for (const [file] of PAGES) expect(read(file)).not.toContain('<ExperiencePanel');
+  });
+
+  test('without a panel on the page, opening a position is a no-op', () => {
+    expect(script).toMatch(/if \(!dlg \|\| !body \|\| !tpl\) return false;/);
   });
 
   test('the panel only uses page tokens, so it works on the black field', () => {
