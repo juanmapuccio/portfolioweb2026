@@ -50,11 +50,14 @@ describe('nothing of the sprint is left on the dark field', () => {
 });
 
 describe('reduced motion and no JS', () => {
-  test('the projects sit in one column on a phone and exactly two from 48rem (no 3+1 orphan)', () => {
+  // P3 replaced the 2-column project grid with one lead case and an index list (tests/tul-lead-case.test.ts): the
+  // "no 3+1 orphan" goal now holds by structure, so this checks the new fixed columns instead.
+  test('the lead case is one column on a phone and exactly two from 56rem; the index never becomes a grid of tiles', () => {
     const css = styleOf(black);
     expect(css).not.toContain('auto-fit');
-    expect(css).toMatch(/\.bw__projects \{[^}]*grid-template-columns: minmax\(0, 1fr\);/);
-    expect(css).toMatch(/@media \(min-width: 48rem\) \{[^@]*\.bw__projects \{\s*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/);
+    expect(css).not.toContain('.bw__projects');
+    expect(css).toMatch(/@media \(min-width: 56rem\) \{\s*\.bw__case \{\s*grid-template-columns: minmax\(0, 1fr\) minmax\(0, 1fr\);/);
+    expect(css).not.toMatch(/\.bw__index \{[^}]*grid-template-columns/);
   });
 
   test('the light-to-black cut is a static ink edge (seep polygon at a fixed progress), hidden when the flood runs', () => {

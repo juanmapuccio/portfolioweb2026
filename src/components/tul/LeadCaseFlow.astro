@@ -1,0 +1,144 @@
+---
+import { useTranslations, type Lang } from '../../i18n/ui';
+
+/**
+ * The system of the lead case (NodoFit) as a crisp line diagram: four inputs that used to be kept by hand converge
+ * on one trunk into the real-time dashboard, which emits alerts and metrics to its right. Geometry only, no picture.
+ * The figure is compact (340 x 176 units) so the phone column stays short.
+ *
+ * Every label is real SVG text from i18n; the figure is role="img" with a title and a description that spell the
+ * same flow for screen readers.
+ *
+ * Motion: the wrapper is a one-screen scene of the engine (tul.ts initScenes, data-scene-span="enter"), which
+ * scrubs `--draw` 0..1 while the figure scrolls in. Each line has pathLength="1" and draws its own slice of that
+ * progress (`--a` start, `--len` span) through stroke-dashoffset, like the stitching of the belt: inputs first,
+ * then the hub outline, then the outputs. Only with JS and motion; otherwise the flow is complete and static.
+ */
+interface Props {
+  lang?: Lang;
+  name: string;
+}
+
+const { lang = 'es', name } = Astro.props;
+const t = useTranslations(lang);
+
+const INPUTS = ['payments', 'dues', 'access', 'bookings'] as const;
+const OUTPUTS = ['alerts', 'metrics'] as const;
+type FlowKey = (typeof INPUTS)[number] | (typeof OUTPUTS)[number];
+const label = (key: FlowKey) => t(`tul.black.flow.${key}`);
+
+/*
+ * Layout in viewBox units (340 x 176). Inputs are a left column; their lines meet on a trunk at x = 196 that drops
+ * into the hub; the hub emits two arrows to the right, one per output.
+ */
+const ROW = 27;
+const TOP = 12;
+const NODE = 128;
+const TRUNK = 196;
+const HUB = { x: 2, y: 122, w: 216, h: 50 };
+const OUT_FROM = HUB.x + HUB.w;
+const OUT_END = 250;
+const OUT_Y = [HUB.y + 14, HUB.y + 36];
+
+const inputs = INPUTS.map((key, i) => {
+  const y = TOP + i * ROW;
+  return { key, y, d: `M${NODE + 8} ${y} H${TRUNK - 20} Q${TRUNK} ${y} ${TRUNK} ${y + 20} V${HUB.y}`, a: i * 0.07 };
+});
+const outputs = OUTPUTS.map((key, i) => {
+  const y = OUT_Y[i];
+  return { key, y, d: `M${OUT_FROM} ${y} H${OUT_END} M${OUT_END - 6} ${y - 6} L${OUT_END} ${y} L${OUT_END - 6} ${y + 6}`, a: 0.7 + i * 0.06 };
+});
+
+const titleId = `lf-title-${lang}`;
+const descId = `lf-desc-${lang}`;
+const hub = `${t('tul.black.flow.hub')} ${t('tul.black.flow.hubNote')}`;
+const desc = `${INPUTS.map(label).join(', ')} → ${hub} → ${OUTPUTS.map(label).join(', ')}`;
+---
+
+<div class="lf" data-tul-scene data-scene-span="enter">
+  <svg class="lf__svg" viewBox="0 0 340 176" role="img" aria-labelledby={`${titleId} ${descId}`}>
+    <title id={titleId}>{`${name} · ${t('tul.black.system')}`}</title>
+    <desc id={descId}>{desc}</desc>
+
+    {INPUTS.map((key, i) => (
+      <g class="lf__in">
+        <text class="lf__label" x="2" y={inputs[i].y} dominant-baseline="central">{t(`tul.black.flow.${key}`)}</text>
+        <circle class="lf__node" cx={NODE} cy={inputs[i].y} r="2.5"></circle>
+        <path class="lf__line" d={inputs[i].d} pathLength="1" style={`--a:${inputs[i].a}`}></path>
+      </g>
+    ))}
+
+    <g class="lf__hub">
+      <rect class="lf__line lf__box" x={HUB.x} y={HUB.y} width={HUB.w} height={HUB.h} pathLength="1" style="--a:0.45;--len:0.25"></rect>
+      <circle class="lf__node" cx={TRUNK} cy={HUB.y} r="2.5"></circle>
+      <text class="lf__label lf__label--hub" x={HUB.x + HUB.w / 2} y={HUB.y + 21} text-anchor="middle" dominant-baseline="central">{t('tul.black.flow.hub')}</text>
+      <text class="lf__note" x={HUB.x + HUB.w / 2} y={HUB.y + 38} text-anchor="middle" dominant-baseline="central">{t('tul.black.flow.hubNote')}</text>
+    </g>
+
+    {OUTPUTS.map((key, i) => (
+      <g class="lf__out">
+        <path class="lf__line" d={outputs[i].d} pathLength="1" style={`--a:${outputs[i].a};--len:0.24`}></path>
+        <text class="lf__label" x={OUT_END + 10} y={outputs[i].y} dominant-baseline="central">{t(`tul.black.flow.${key}`)}</text>
+      </g>
+    ))}
+  </svg>
+</div>
+
+<style>
+  .lf {
+    /* The gold of the 1st dan embroidery (BeltDrawing.astro): about 8:1 on the black field. */
+    --lf-gold: #c9a227;
+    width: 100%;
+    max-width: 26rem;
+  }
+
+  .lf__svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .lf__line {
+    --len: 0.42;
+    fill: none;
+    stroke: var(--lf-gold);
+    stroke-width: 1.5;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+  }
+
+  .lf__node {
+    fill: var(--lf-gold);
+  }
+
+  .lf__label {
+    fill: var(--ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .lf__label--hub {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .lf__note {
+    fill: var(--ink-soft);
+    font-family: var(--font-body);
+    font-size: 12.5px;
+  }
+
+  /*
+   * With JS and motion the lines draw with the scroll: each one maps its slice of --draw (written by the engine on
+   * .lf) to its dash offset. The labels and nodes never hide.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .lf .lf__line {
+      stroke-dasharray: 1;
+      stroke-dashoffset: calc(1 - clamp(0, (var(--draw, 0) - var(--a)) / var(--len), 1));
+    }
+  }
+</style>
