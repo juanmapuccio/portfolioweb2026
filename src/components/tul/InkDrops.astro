@@ -52,9 +52,11 @@ const DROPS = [
     overflow: hidden;
   }
 
-  /* The rule sits at the middle of a 1.5rem band; the goo layer reaches above it, where the drops fall from. */
+  /* The rule sits at the middle of a 1.5rem band; the goo layer reaches above it, where the drops fall from.
+     Phones: a hairline rule and smaller beads (--bead), full weight from 48rem. */
   .ink {
     --line-y: 4.75rem;
+    --bead: 0.7;
     position: relative;
     grid-area: ink;
     height: 1.5rem;
@@ -64,8 +66,8 @@ const DROPS = [
   .ink__rule {
     position: absolute;
     inset: 50% 0 auto;
-    height: var(--line-strong);
-    margin-top: calc(var(--line-strong) / -2);
+    height: var(--line);
+    margin-top: calc(var(--line) / -2);
     background-color: var(--ink);
   }
 
@@ -81,8 +83,8 @@ const DROPS = [
     top: var(--line-y);
     left: 0;
     right: 0;
-    height: 0.35rem;
-    margin-top: -0.175rem;
+    height: calc(0.35rem * var(--bead));
+    margin-top: calc(-0.175rem * var(--bead));
     background-color: var(--ink);
   }
 
@@ -106,9 +108,9 @@ const DROPS = [
 
   /* A bead of ink on the rule: a flat lens, a little wider for the bigger drops. */
   .ink__bead {
-    width: calc(2.6rem * var(--s));
-    height: 0.6rem;
-    margin: -0.3rem 0 0 calc(-1.3rem * var(--s));
+    width: calc(2.6rem * var(--s) * var(--bead));
+    height: calc(0.6rem * var(--bead));
+    margin: calc(-0.3rem * var(--bead)) 0 0 calc(-1.3rem * var(--s) * var(--bead));
   }
 
   /* A bud waits inside its bead; with motion it swells under it and is pulled back. */
@@ -117,6 +119,17 @@ const DROPS = [
     height: 0.55rem;
     margin: -0.275rem 0 0 -0.275rem;
     transform: scale(0);
+  }
+
+  @media (min-width: 48rem) {
+    .ink {
+      --bead: 1;
+    }
+
+    .ink__rule {
+      height: var(--line-strong);
+      margin-top: calc(var(--line-strong) / -2);
+    }
   }
 
   @media (prefers-reduced-motion: no-preference) {

@@ -60,7 +60,7 @@ describe('anchors', () => {
 
 describe('contact channels', () => {
   for (const lang of ['es', 'en', 'pt'] as const) {
-    test(`${lang}: five channels, each with a real href scheme`, () => {
+    test(`${lang}: the data keeps five channels (the CV page lists them all), each with a real href scheme`, () => {
       const channels = contactData[lang].channels;
       expect(channels.map((c) => c.id)).toEqual(['whatsapp', 'email', 'linkedin', 'github', 'nodosur']);
       for (const c of channels) expect(/^(mailto:|https:\/\/)/.test(c.url)).toBe(true);
@@ -158,14 +158,16 @@ describe('single-viewport close with living ink (T4)', () => {
   test('the return line still draws, over the section entering the viewport (no extra scroll)', () => {
     expect(ky).toMatch(/data-tul-scene data-scene-span="enter"/);
     expect(engine).toContain("el.dataset.sceneSpan === 'enter'");
-    expect(engine).toMatch(/start: enter \? 'top bottom' : 'top top'/);
+    // P4 added the opt-in "settle" span (lead-case flow); "enter" keeps its start and its end.
+    expect(engine).toMatch(/start: enter \|\| settle \? 'top bottom' : 'top top'/);
+    expect(engine).toMatch(/end: settle \? 'center 55%' : 'bottom bottom'/);
   });
 
-  test('content kept: CTA, CV link of the language, five channels, languages and the back link', () => {
+  test('content kept: CTA, CV link of the language, four channel items, languages and the back link', () => {
     expect(ky).toContain('id="contacto"');
     expect(ky).toContain('<a class="ky__cta" href={primary.url}>');
     expect(ky).toContain("localePaths[lang] + 'cv/'");
-    expect(ky).toContain('content.channels.map(');
+    expect(ky).toContain('items.map(');
     for (const key of ['tul.close.cta', 'tul.close.cv', 'tul.close.channels', 'tul.close.back', 'tul.hero.availability', 'contact.footer', 'tul.lang.label']) {
       expect(ky).toContain(`t('${key}')`);
     }

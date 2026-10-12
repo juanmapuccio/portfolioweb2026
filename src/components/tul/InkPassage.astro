@@ -22,7 +22,9 @@ import { FLOOD_FULL, FLOOD_START, seepPolygon } from '../../scripts/belt3d/passa
  * The engine (tul.ts, [data-tul-passage]) writes `--p` (0..1) on the passage while it crosses the
  * viewport (top at the bottom edge to bottom at the top edge). With reduced motion or without JS the
  * passage stays a static 12rem gap, `--p` is never written and there is no flood: the black chapter and
- * what follows are black by CSS (base.css).
+ * what follows are black by CSS (base.css). The flood passage then ends in a static ink edge (`.ink__edge`): the same
+ * seep polygon as the flood, frozen at one progress (`--edge`), so the black field bleeds up into the gap with a
+ * ragged front instead of a ruler-straight cut. Nothing about it moves.
  *
  * The flood passage (red to black, `.ink--flood`, html.js with motion) is the one authored moment of the page. Its
  * timeline is src/scripts/belt3d/passage.ts:
@@ -51,6 +53,8 @@ const floods = to === 'negro';
 const floodClip = seepPolygon({ v: '--g', cx: 'var(--cx) + 3rem', cy: 'var(--cy) + 3rem', rx: 150, ry: 150, unit: 'vmax', seed: 11, points: 72, lead: 0.22 });
 // The clip is declared on the fill itself: a custom property resolves its var()s where it is declared, and --cx,
 // --cy and --g live on the flood layer above it.
+// The static edge: a front centred well below the gap, wide and flat, so only its ragged top shows across the width.
+const edgeClip = seepPolygon({ v: '--edge', cx: '50%', cy: '204%', rx: 138, ry: 229, unit: '%', seed: 11, points: 160, lead: 1.2 });
 const vars = [`--knot-fx:${KNOT_AT.fx};--knot-fy:${KNOT_AT.fy}`, floods && `--flood-a:${FLOOD_START};--flood-z:${FLOOD_FULL}`];
 ---
 
@@ -66,6 +70,7 @@ const vars = [`--knot-fx:${KNOT_AT.fx};--knot-fy:${KNOT_AT.fy}`, floods && `--fl
   <div class="ink__drawing" data-ink-drawing>
     <BeltDrawing from={from} to={to} />
   </div>
+  {floods && <div class="ink__edge" style={`--edge-clip:${edgeClip}`}></div>}
   {floods && (
     <div class="ink__flood" data-ink-flood>
       <div class="ink__fill" style={`--flood-clip:${floodClip}`}></div>
@@ -115,6 +120,16 @@ const vars = [`--knot-fx:${KNOT_AT.fx};--knot-fy:${KNOT_AT.fy}`, floods && `--fl
     display: none;
   }
 
+  /* Reduced motion and no JS: the black field below bleeds up into the gap through a static ink front. */
+  .ink__edge {
+    --edge: 0.7;
+    position: absolute;
+    inset: auto 0 -1px;
+    height: 5rem;
+    background-color: var(--field-dark);
+    clip-path: var(--edge-clip);
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     :global(html.js) .ink {
       --ink-h: 50svh;
@@ -124,6 +139,11 @@ const vars = [`--knot-fx:${KNOT_AT.fx};--knot-fy:${KNOT_AT.fy}`, floods && `--fl
     :global(html.js) .ink--flood {
       --ink-h: var(--pass-h);
       margin-top: calc(-1 * var(--ink-h));
+    }
+
+    /* The flood draws the real front; the static edge is only for the still page. */
+    :global(html.js) .ink__edge {
+      display: none;
     }
 
     /* Its belt is the one on the pinned stage; a drawing here would scroll across it. */

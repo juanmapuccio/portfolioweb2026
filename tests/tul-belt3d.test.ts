@@ -404,7 +404,7 @@ describe('journey: where the belt is', () => {
   test('the tie beat: red to black with gold stitches and a rim light, and the knot is published only while the flood grows', () => {
     const m = sizes[0];
     const early = passageFrame('rojo', 'negro', 0.04, m);
-    const late = passageFrame('rojo', 'negro', 0.9, m);
+    const late = passageFrame('rojo', 'negro', KNOT_UNTIL + 0.05, m);
     expect(early.tie).toBe(true);
     expect(early.mix).toBe(0);
     expect(late.tie).toBe(false);

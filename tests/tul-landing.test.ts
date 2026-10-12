@@ -77,6 +77,9 @@ describe('black belt work', () => {
     expect(src).toMatch(/<section[^>]*data-belt="negro"/);
     expect(src).toContain('data-belt-beat="travel"');
     expect(src).toContain("['nodosur', 'nodofit', 'satori', 'donpizza']");
+    // P3: NodoFit renders first as the lead case; the other three keep their fixed relative order in the index.
+    expect(src).toContain("const LEAD_ID = 'nodofit'");
+    expect(src).toContain('const others = projects.filter((p) => p.id !== LEAD_ID)');
     expect(src).toContain('projectsContent');
     expect(src).toContain('skillsData');
   });
