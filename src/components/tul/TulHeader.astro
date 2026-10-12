@@ -3,6 +3,7 @@ import { languages, useTranslations, type Lang } from '../../i18n/ui';
 import { BELTS, martialExperienceData } from '../../data/martialExperience';
 import type { BeltKey } from '../../data/tuls';
 import BeltMark from './BeltMark.astro';
+import QRModal from './QRModal.astro';
 
 interface Props {
   lang?: Lang;
@@ -103,6 +104,22 @@ const legend = [
       {!isCv && (
         <a class="tul-btn tul-btn--cv" href={localePaths[lang] + 'cv/'} aria-label={t('tul.cv.short')}>{t('tul.cv.nav')}</a>
       )}
+      <button
+        class="tul-btn tul-btn--qr"
+        type="button"
+        popovertarget="tul-qr-modal"
+        aria-haspopup="dialog"
+        aria-label={t('tul.qr.title')}
+        title={t('tul.qr.title')}
+      >
+        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
+          <rect x="3" y="3" width="5" height="5"></rect>
+          <rect x="12" y="3" width="5" height="5"></rect>
+          <rect x="3" y="12" width="5" height="5"></rect>
+          <path d="M12 12H14V14H12V12ZM15 12H17V15H15V12ZM12 15H15V17H12V15ZM16 16H17V17H16V16Z" fill="currentColor"></path>
+        </svg>
+        <span class="tul-btn__qr-text">{t('tul.qr.button')}</span>
+      </button>
       <a class="tul-btn tul-btn--contact" href="#contacto">{t('tul.header.contact')}</a>
     </div>
   </nav>
@@ -165,6 +182,8 @@ const legend = [
       ))}
     </dl>
   </div>
+
+  <QRModal lang={lang} path={path} />
 </header>
 
 <style>
@@ -354,6 +373,26 @@ const legend = [
 
   .tul-btn--contact {
     border-color: var(--ink);
+  }
+
+  .tul-btn--qr {
+    gap: var(--space-3xs);
+    border-color: color-mix(in srgb, var(--ink-soft) 40%, transparent);
+    color: var(--ink);
+  }
+
+  .tul-btn--qr:hover {
+    border-color: var(--dan-gold);
+    color: var(--dan-gold);
+  }
+
+  @media (max-width: 40rem) {
+    .tul-btn__qr-text {
+      display: none;
+    }
+    .tul-btn--qr {
+      padding: 0 var(--space-2xs);
+    }
   }
 
   .tul-btn--contact:hover {
