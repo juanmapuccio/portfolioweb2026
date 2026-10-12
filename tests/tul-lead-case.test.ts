@@ -9,7 +9,16 @@ import { projectsContent } from '../src/data/projects';
 const BLACK = 'src/components/tul/BlackBeltWork.astro';
 const FLOW = 'src/components/tul/LeadCaseFlow.astro';
 const read = (p: string) => (existsSync(p) ? readFileSync(p, 'utf8') : '');
-const noComments = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/<!--[\s\S]*?-->/g, '').replace(/^\s*\/\/.*$/gm, '');
+const stripAll = (s: string, re: RegExp) => {
+  let prev;
+  do {
+    prev = s;
+    s = s.replace(re, '');
+  } while (s !== prev);
+  return s;
+};
+const noComments = (s: string) =>
+  stripAll(stripAll(s, /\/\*[\s\S]*?\*\//g), /<!--[\s\S]*?-->/g).replace(/^\s*\/\/.*$/gm, '');
 const styleOf = (src: string) => noComments(src.slice(src.indexOf('<style>')));
 const markupOf = (src: string) => src.slice(0, src.indexOf('<style>'));
 const MOTION = '@media (prefers-reduced-motion: no-preference)';
