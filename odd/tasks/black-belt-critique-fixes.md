@@ -22,7 +22,7 @@ Approved plan: `C:/Users/juanr/.claude/plans/por-donde-recomendarias-empezar-cos
 - [x] P1 — Corrections: shorten the post-flood tail so "Primer dan" rises as the field flips; hide sprint band outlines and phone belt mark on the dark field; fixed 2-column project grid at ≥48rem; static ink edge on the reduced-motion light→dark cut; de-duplicate the close pitch copy (es/en/pt).
 - [x] P2 — Close improvements: WhatsApp co-primary on phone, remove email duplicate, NodoSur to colophon (4 channels 2×2); title tracking, mobile title size, channel value size, thinner mobile ink rule, CTA bead hidden at rest, 44px language targets; hidden "new tab" text and name/value separator on channels.
 - [x] P3 — Redesign of the project block: `shape` first, then one lead case (problem → system → result + crisp SVG flow) and a compact index of the other three; belt ties to the lead case via the existing travel beat.
-- [ ] P4 — Finish: `polish`, refresh `DESIGN.md` (`document`), re-run `critique` and read the trend.
+- [x] P4 — Finish: `polish`, refresh `DESIGN.md` (`document`), re-run `critique` and read the trend.
 
 ## Route
 - P1: delegated writer (2+ non-trivial files).
@@ -59,5 +59,7 @@ Forecast ~700-1000 authored lines over four phases (above the ~400 budget). Stra
   - DESIGN.md regenerated in English from code (canonical 8 sections + Stitch frontmatter); replaces the stale v3 "Editorial Organic" document. Qualitative names (North Star "The Tul Diagram", colour names) inferred from the committed direction contract, not asked. No `.impeccable/design.json` sidecar written.
   - Checks: `bun test tests/` 541 pass / 1 known fail (tuls movement counts); `bun run check` 0 errors 0 warnings; `bun run test` 83 pass; `bun run build` ok; impeccable detect [] on BlackBeltWork/LeadCaseFlow/KyongYe; headless Edge (astro preview :4392) `/`, `/en/`, `/pt/` at 1440x900 and 375x812 + reduced motion on `/`: 0 page errors, 0 horizontal overflow; close = viewport at 375x812, 375x667, 1440x900; Tab pass from the lead case through the close: every stop `:focus-visible` with a visible 2px ring, all in view. RDD review: not run by the writer (parent decides).
 
+- 2026-10-12: re-critique (route: delegated read-only critic, dual assessment) scored 26/32 (baseline 25). Snapshot `.impeccable/critique/2026-10-12T00-58-01Z__src-pages-index-astro.md` (untracked). Detector [] on the five components. Baseline P1 void: partly resolved (~430-450px of black above the title remains); P1 generic grid: mostly resolved; reduced-motion grid/cut: resolved; close copy: resolved. Open follow-ups (not in this feature scope): earlier title rise during the flood (P2), hard proof for NodoFit pending user-supplied screenshots or numbers (P2), Stack table and gap before the close (P2), duplicate links at the close: sticky nav over #contacto and WhatsApp twice on phone (P2), close type polish (P3).
+
 ## Next step
-P4: re-run `critique` and read the trend.
+User decides delivery (push + chained PRs) and whether to open a follow-up feature for the open critique items.
