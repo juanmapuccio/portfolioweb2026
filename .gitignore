@@ -13,30 +13,37 @@ yarn-error.log*
 pnpm-debug.log*
 *.log
 
-
 # environment variables
 .env
 .env.production
+.env.local
+.env.*.local
 
 # macOS-specific files
 .DS_Store
 
-# jetbrains setting folder
+# IDE setting folders
 .idea/
+.vscode/
 
-# CV files are hosted externally
-*.pdf
+# AI Agent memory, skills & tooling
+.claude/
+.agents/skills/
+.atl/
+.codegraph/
+.engram/
+.impeccable/
+.playwright-mcp/
+skills-lock.json
 
-# Private career strategy — interview answers, recruiter-bias analysis and
-# positioning notes. These stay local: a recruiter reading the playbook that
-# was written about them defeats its whole purpose.
+# Local documentation & task workflows
+odd/
 rules/
-
-# Reference content and assets (original HTML bundles, 3D models, source docs).
-# Local-only: the public repo ships code, not raw reference material.
 content/
 design/
 
-odd/tasks/docs-stoky-y-reencuadre-empleo.md
-odd/tasks/tres-puertas-y-reencuadre-sitio.md
-odd/tasks/alineacion-cv-real-y-aire-visual.md
+# Analysis & local test artifacts
+sonar-project.properties
+tests/*.png
+tests/visual-audit/
+*.pdf
