@@ -1,0 +1,206 @@
+---
+export interface Props {
+  projectId: string;
+  name: string;
+}
+
+const { projectId, name } = Astro.props;
+---
+
+<div class="pflow" data-project-flow={projectId} aria-hidden="true">
+  {projectId === 'nodosur' && (
+    <svg viewBox="0 0 240 76" class="pflow__svg">
+      <defs>
+        <pattern id="dot-grid-nodosur" width="10" height="10" patternUnits="userSpaceOnUse">
+          <circle cx="2" cy="2" r="0.75" fill="rgba(201, 162, 39, 0.15)"></circle>
+        </pattern>
+      </defs>
+      <rect width="240" height="76" fill="url(#dot-grid-nodosur)"></rect>
+      
+      <!-- Node 1: Client Dev -->
+      <g class="pflow__node" transform="translate(14, 18)">
+        <rect width="52" height="40" rx="3" class="pflow__box"></rect>
+        <text x="26" y="20" class="pflow__text" dominant-baseline="central" text-anchor="middle">CLIENT</text>
+        <text x="26" y="31" class="pflow__sub" dominant-baseline="central" text-anchor="middle">Web & Apps</text>
+      </g>
+      
+      <!-- Flow 1 -->
+      <path d="M 66 38 H 92" class="pflow__line pflow__line--pulse"></path>
+      <polygon points="92,38 87,35 87,41" class="pflow__arrow"></polygon>
+      
+      <!-- Node 2: Reverse Proxy / Docker -->
+      <g class="pflow__node" transform="translate(94, 14)">
+        <rect width="64" height="48" rx="3" class="pflow__box pflow__box--hub"></rect>
+        <text x="32" y="20" class="pflow__text pflow__text--hub" dominant-baseline="central" text-anchor="middle">NODOSUR</text>
+        <text x="32" y="31" class="pflow__sub" dominant-baseline="central" text-anchor="middle">Linux Server</text>
+        <text x="32" y="40" class="pflow__sub pflow__sub--gold" dominant-baseline="central" text-anchor="middle">Docker · Nginx</text>
+      </g>
+      
+      <!-- Flow 2 -->
+      <path d="M 158 38 H 182" class="pflow__line pflow__line--pulse"></path>
+      <polygon points="182,38 177,35 177,41" class="pflow__arrow"></polygon>
+      
+      <!-- Node 3: Cloud / DB -->
+      <g class="pflow__node" transform="translate(184, 18)">
+        <rect width="46" height="40" rx="3" class="pflow__box"></rect>
+        <text x="23" y="20" class="pflow__text" dominant-baseline="central" text-anchor="middle">CLOUD</text>
+        <text x="23" y="31" class="pflow__sub" dominant-baseline="central" text-anchor="middle">DB & CI/CD</text>
+      </g>
+    </svg>
+  )}
+
+  {projectId === 'satori' && (
+    <svg viewBox="0 0 240 76" class="pflow__svg">
+      <!-- Pedagogy / Members -->
+      <g class="pflow__node" transform="translate(14, 18)">
+        <rect width="54" height="40" rx="3" class="pflow__box"></rect>
+        <text x="27" y="20" class="pflow__text" dominant-baseline="central" text-anchor="middle">ALUMNOS</text>
+        <text x="27" y="31" class="pflow__sub" dominant-baseline="central" text-anchor="middle">Graduación</text>
+      </g>
+
+      <!-- Connection -->
+      <path d="M 68 38 H 94" class="pflow__line pflow__line--pulse"></path>
+      <polygon points="94,38 89,35 89,41" class="pflow__arrow"></polygon>
+
+      <!-- Core Engine -->
+      <g class="pflow__node" transform="translate(96, 14)">
+        <rect width="60" height="48" rx="3" class="pflow__box pflow__box--hub"></rect>
+        <text x="30" y="20" class="pflow__text pflow__text--hub" dominant-baseline="central" text-anchor="middle">PORTAL</text>
+        <text x="30" y="31" class="pflow__sub" dominant-baseline="central" text-anchor="middle">Next.js</text>
+        <text x="30" y="40" class="pflow__sub pflow__sub--gold" dominant-baseline="central" text-anchor="middle">Edge DB Sync</text>
+      </g>
+
+      <!-- Connection -->
+      <path d="M 156 38 H 182" class="pflow__line pflow__line--pulse"></path>
+      <polygon points="182,38 177,35 177,41" class="pflow__arrow"></polygon>
+
+      <!-- Outcome -->
+      <g class="pflow__node" transform="translate(184, 18)">
+        <rect width="46" height="40" rx="3" class="pflow__box"></rect>
+        <text x="23" y="20" class="pflow__text" dominant-baseline="central" text-anchor="middle">ARANCELES</text>
+        <text x="23" y="31" class="pflow__sub" dominant-baseline="central" text-anchor="middle">Notificaciones</text>
+      </g>
+    </svg>
+  )}
+
+  {projectId === 'donpizza' && (
+    <svg viewBox="0 0 240 76" class="pflow__svg">
+      <!-- Order -->
+      <g class="pflow__node" transform="translate(14, 18)">
+        <rect width="52" height="40" rx="3" class="pflow__box"></rect>
+        <text x="26" y="20" class="pflow__text" dominant-baseline="central" text-anchor="middle">MÓVIL</text>
+        <text x="26" y="31" class="pflow__sub" dominant-baseline="central" text-anchor="middle">Catálogo Web</text>
+      </g>
+
+      <!-- Speed Line -->
+      <path d="M 66 38 H 92" class="pflow__line pflow__line--pulse"></path>
+      <polygon points="92,38 87,35 87,41" class="pflow__arrow"></polygon>
+
+      <!-- Fast Checkout Queue -->
+      <g class="pflow__node" transform="translate(94, 14)">
+        <rect width="64" height="48" rx="3" class="pflow__box pflow__box--hub"></rect>
+        <text x="32" y="20" class="pflow__text pflow__text--hub" dominant-baseline="central" text-anchor="middle">DISPATCH</text>
+        <text x="32" y="31" class="pflow__sub" dominant-baseline="central" text-anchor="middle">Fast Checkout</text>
+        <text x="32" y="40" class="pflow__sub pflow__sub--gold" dominant-baseline="central" text-anchor="middle">&lt; 300ms UX</text>
+      </g>
+
+      <!-- Connection -->
+      <path d="M 158 38 H 182" class="pflow__line pflow__line--pulse"></path>
+      <polygon points="182,38 177,35 177,41" class="pflow__arrow"></polygon>
+
+      <!-- Kitchen / Deliver -->
+      <g class="pflow__node" transform="translate(184, 18)">
+        <rect width="46" height="40" rx="3" class="pflow__box"></rect>
+        <text x="23" y="20" class="pflow__text" dominant-baseline="central" text-anchor="middle">COCINA</text>
+        <text x="23" y="31" class="pflow__sub" dominant-baseline="central" text-anchor="middle">Comanda Real</text>
+      </g>
+    </svg>
+  )}
+</div>
+
+<style>
+  .pflow {
+    width: 100%;
+    max-width: 17rem;
+    margin-top: var(--space-2xs);
+    border: var(--line) solid color-mix(in srgb, var(--ink-soft) 22%, transparent);
+    background: color-mix(in srgb, var(--field-dark) 70%, #000000 30%);
+    padding: 0.35rem;
+    border-radius: 2px;
+  }
+
+  .pflow__svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .pflow__box {
+    fill: color-mix(in srgb, var(--field-dark) 40%, transparent);
+    stroke: color-mix(in srgb, var(--ink-soft) 40%, transparent);
+    stroke-width: 1;
+  }
+
+  .pflow__box--hub {
+    stroke: var(--dan-gold);
+    stroke-width: 1.25;
+    fill: color-mix(in srgb, var(--dan-gold) 6%, #000000 94%);
+  }
+
+  .pflow__text {
+    fill: var(--ink);
+    font-family: var(--font-display);
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  .pflow__text--hub {
+    fill: var(--dan-gold);
+    font-size: 9px;
+  }
+
+  .pflow__sub {
+    fill: var(--ink-soft);
+    font-family: var(--font-body);
+    font-size: 7px;
+    font-weight: 500;
+  }
+
+  .pflow__sub--gold {
+    fill: var(--dan-gold);
+    font-weight: 700;
+  }
+
+  .pflow__line {
+    fill: none;
+    stroke: var(--ink-soft);
+    stroke-width: 1.25;
+    stroke-dasharray: 3 2;
+  }
+
+  .pflow__line--pulse {
+    stroke: var(--dan-gold);
+    animation: flowPulse 2.4s linear infinite;
+  }
+
+  .pflow__arrow {
+    fill: var(--dan-gold);
+  }
+
+  @keyframes flowPulse {
+    from {
+      stroke-dashoffset: 20;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pflow__line--pulse {
+      animation: none;
+      stroke-dasharray: none;
+    }
+  }
+</style>

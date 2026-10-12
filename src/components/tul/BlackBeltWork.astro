@@ -5,6 +5,7 @@ import { projectsContent } from '../../data/projects';
 import { skillsData } from '../../data/skills';
 import { FLOOD_FULL } from '../../scripts/belt3d/passage';
 import LeadCaseFlow from './LeadCaseFlow.astro';
+import ProjectMiniFlow from './ProjectMiniFlow.astro';
 
 /**
  * The black belt: where the sprint lands, on the black field (the red to black InkPassage floods the page and flips
@@ -59,28 +60,54 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
     {lead && (
       <article class="bw__lead" aria-labelledby="bw-lead" data-rise>
         <div class="bw__lead-head">
-          <h3 id="bw-lead" class="bw__lead-name">{lead.name}</h3>
+          <div class="bw__lead-title-row">
+            <h3 id="bw-lead" class="bw__lead-name">{lead.name}</h3>
+            <span class="bw__badge-live" aria-label="Sistema activo en producción">
+              <span class="bw__badge-dot" aria-hidden="true"></span>
+              {lead.badge}
+            </span>
+          </div>
           <p class="bw__lead-meta">
-            <span>{lead.badge}</span>
-            <span>{lead.role}</span>
+            <span class="bw__lead-role">{lead.role}</span>
+            {lead.tech && (
+              <span class="bw__lead-tech" aria-label="Tecnologías principales">
+                {lead.tech.join(' · ')}
+              </span>
+            )}
           </p>
         </div>
+
         <dl class="bw__case">
           <div class="bw__part bw__part--problem">
-            <dt>{t('tul.black.problem')}</dt>
+            <dt>
+              <span class="bw__part-num" aria-hidden="true">01</span>
+              <span>{t('tul.black.problem')}</span>
+            </dt>
             <dd>{lead.problem}</dd>
           </div>
           <div class="bw__part bw__part--system">
-            <dt>{t('tul.black.system')}</dt>
+            <dt>
+              <span class="bw__part-num" aria-hidden="true">02</span>
+              <span>{t('tul.black.system')}</span>
+            </dt>
             <dd>
-              <LeadCaseFlow lang={lang} name={lead.name} />
+              <div class="bw__diagram-frame">
+                <div class="bw__diagram-header" aria-hidden="true">
+                  <span class="bw__diagram-tag">DATA_FLOW_MAP</span>
+                  <span class="bw__diagram-status">REALTIME_PIPELINE</span>
+                </div>
+                <LeadCaseFlow lang={lang} name={lead.name} />
+              </div>
               <p class="bw__caption">{lead.solution}</p>
             </dd>
           </div>
           <div class="bw__part bw__part--result">
-            <dt>{t('tul.black.result')}</dt>
+            <dt>
+              <span class="bw__part-num" aria-hidden="true">03</span>
+              <span>{t('tul.black.result')}</span>
+            </dt>
             <dd>
-              <p>{lead.impact}</p>
+              <p class="bw__result-text">{lead.impact}</p>
               <a class="bw__cta" href={lead.url} target="_blank" rel="noopener noreferrer">
                 <span>{t('tul.project.visit')}<span class="visually-hidden">: {lead.name} {t('tul.cv.newTab')}</span></span>
                 <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false">
@@ -94,24 +121,38 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
     )}
 
     <ul class="bw__index" role="list">
-      {others.map((p) => (
+      {others.map((p, idx) => (
         <li class="bw__row" data-rise>
-          <h3 class="bw__row-name">
-            <a href={p.url} target="_blank" rel="noopener noreferrer">
-              <span>{p.name}<span class="visually-hidden"> {t('tul.cv.newTab')}</span></span>
-              <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true" focusable="false">
-                <path d="M6 14L14 6M7 6H14V13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"></path>
-              </svg>
-            </a>
-          </h3>
-          <p class="bw__row-badge">{p.badge}</p>
-          <p class="bw__row-impact">{p.impact}</p>
+          <div class="bw__row-col-head">
+            <div class="bw__row-title-row">
+              <span class="bw__row-index num" aria-hidden="true">0{idx + 2}</span>
+              <h3 class="bw__row-name">
+                <a href={p.url} target="_blank" rel="noopener noreferrer">
+                  <span>{p.name}<span class="visually-hidden"> {t('tul.cv.newTab')}</span></span>
+                  <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true" focusable="false">
+                    <path d="M6 14L14 6M7 6H14V13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"></path>
+                  </svg>
+                </a>
+              </h3>
+            </div>
+            <p class="bw__row-badge">{p.badge}</p>
+          </div>
+          <div class="bw__row-col-body">
+            <p class="bw__row-impact">{p.impact}</p>
+            {p.tech && (
+              <p class="bw__row-tech num">{p.tech.join(' · ')}</p>
+            )}
+            <ProjectMiniFlow projectId={p.id} name={p.name} />
+          </div>
         </li>
       ))}
     </ul>
 
     <div class="bw__stack">
-      <h3 class="bw__stack-title">{t('tul.black.stack')}</h3>
+      <div class="bw__stack-header">
+        <span class="bw__stack-index num" aria-hidden="true">05</span>
+        <h3 class="bw__stack-title">{t('tul.black.stack')}</h3>
+      </div>
       <dl class="bw__stack-list">
         {stack.map((row) => (
           <div class="bw__stack-row">
@@ -179,36 +220,74 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
   .bw__lead {
     display: grid;
     gap: var(--space-m);
-    padding-top: var(--space-s);
-    border-top: var(--line-strong) solid var(--belt-line);
+    padding-top: var(--space-m);
+    border-top: var(--line-strong) solid var(--dan-gold);
   }
 
   .bw__lead-head {
     display: grid;
-    gap: var(--space-2xs);
+    gap: var(--space-xs);
+  }
+
+  .bw__lead-title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs) var(--space-s);
   }
 
   .bw__lead-name {
     font-size: var(--step-3);
     line-height: 1;
+    letter-spacing: -0.01em;
   }
 
-  .bw__lead-meta,
-  .bw__row-badge {
-    color: var(--ink-soft);
+  .bw__badge-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.2rem 0.55rem;
+    border: var(--line) solid color-mix(in srgb, var(--dan-gold) 60%, transparent);
+    background: color-mix(in srgb, var(--dan-gold) 8%, transparent);
+    color: var(--dan-gold);
+    font-family: var(--font-body);
     font-size: var(--step--1);
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .bw__badge-dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background-color: var(--dan-gold);
+    box-shadow: 0 0 8px var(--dan-gold);
   }
 
   .bw__lead-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 0 var(--space-s);
+    align-items: baseline;
+    gap: var(--space-2xs) var(--space-s);
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  .bw__lead-role {
+    color: var(--ink);
+  }
+
+  .bw__lead-tech {
+    font-family: var(--font-display);
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
   }
 
   .bw__case {
     display: grid;
-    gap: var(--space-m);
+    gap: var(--space-l);
     margin: 0;
   }
 
@@ -219,11 +298,21 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
   }
 
   .bw__part dt {
-    color: var(--belt-line);
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-xs);
+    color: var(--dan-gold);
     font-size: var(--step--1);
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+  }
+
+  .bw__part-num {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    opacity: 0.75;
   }
 
   .bw__part dd {
@@ -234,15 +323,43 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
     text-wrap: pretty;
   }
 
+  /* Architectural frame for the system diagram */
+  .bw__diagram-frame {
+    display: grid;
+    gap: var(--space-2xs);
+    padding: var(--space-xs);
+    border: var(--line) solid color-mix(in srgb, var(--ink-soft) 25%, transparent);
+    background: color-mix(in srgb, var(--field-dark) 50%, #000000 50%);
+  }
+
+  .bw__diagram-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: var(--space-3xs);
+    border-bottom: var(--line) solid color-mix(in srgb, var(--ink-soft) 18%, transparent);
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+  }
+
+  .bw__diagram-status {
+    color: var(--dan-gold);
+    font-size: 0.625rem;
+  }
+
   /* The result is the verdict a recruiter keeps: heavier than the problem (and a step up on desktop). */
-  .bw__part--result dd > p {
+  .bw__result-text {
     font-weight: 600;
-    line-height: 1.4;
+    line-height: 1.45;
+    color: var(--ink);
   }
 
   /* Body size on every viewport: a recruiter on a phone reads it at arm's length (P4). */
   .bw__caption {
-    max-width: 46ch;
+    max-width: 48ch;
     color: var(--ink-soft);
     font-size: var(--step-0);
     line-height: 1.4;
@@ -257,12 +374,14 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
     align-items: center;
     justify-self: start;
     gap: var(--space-xs);
-    min-height: 3rem;
+    min-height: 2.75rem;
     padding-inline: var(--space-m);
-    border: var(--line-strong) solid var(--ink);
-    background-color: var(--ink);
-    color: var(--field);
+    border: var(--line-strong) solid var(--dan-gold);
+    background-color: var(--dan-gold);
+    color: var(--field-dark);
     font-weight: 700;
+    font-size: var(--step--1);
+    letter-spacing: 0.02em;
     text-decoration: none;
     transition:
       background-color var(--dur-fast) var(--ease-out),
@@ -272,8 +391,8 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
 
   .bw__cta:hover,
   .bw__cta:focus-visible {
-    background-color: var(--field);
-    color: var(--ink);
+    background-color: transparent;
+    color: var(--dan-gold);
   }
 
   .bw__cta:active {
@@ -304,22 +423,46 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
   /* Phone: name and badge share a line when they fit, the impact runs below. The whole row is the link's target. */
   .bw__row {
     position: relative;
+    display: grid;
+    gap: var(--space-xs);
+    padding-block: var(--space-m);
+    border-top: var(--line) solid color-mix(in srgb, var(--ink-soft) 30%, transparent);
+    transition: background-color var(--dur-fast) var(--ease-out);
+  }
+
+  .bw__row:hover {
+    background-color: color-mix(in srgb, var(--ink-soft) 4%, transparent);
+  }
+
+  .bw__row-col-head {
+    display: grid;
+    gap: var(--space-3xs);
+  }
+
+  .bw__row-title-row {
     display: flex;
-    flex-wrap: wrap;
     align-items: baseline;
-    gap: var(--space-3xs) var(--space-s);
-    padding-block: var(--space-s);
-    border-top: var(--line) solid var(--belt-line);
+    gap: var(--space-xs);
+  }
+
+  .bw__row-index {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--dan-gold);
+    opacity: 0.85;
   }
 
   .bw__row-name {
     font-size: var(--step-1);
+    font-weight: 700;
   }
 
   .bw__row-name a {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2xs);
+    color: var(--ink);
+    text-decoration: none;
   }
 
   /* The stretched target: the whole row (well over 44px) opens the system. */
@@ -331,7 +474,7 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
 
   /* Hover anywhere on the row reads as hovering its name. */
   .bw__row:hover .bw__row-name a {
-    text-decoration-thickness: var(--line-strong);
+    color: var(--dan-gold);
   }
 
   /* Keyboard focus rings the whole row (the target), not just the name. */
@@ -340,26 +483,59 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
   }
 
   .bw__row-name a:focus-visible::after {
-    outline: var(--line-strong) solid var(--ink);
+    outline: var(--line-strong) solid var(--dan-gold);
     outline-offset: 2px;
   }
 
+  .bw__row-badge {
+    color: var(--dan-gold);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .bw__row-col-body {
+    display: grid;
+    gap: var(--space-2xs);
+  }
+
   .bw__row-impact {
-    flex-basis: 100%;
-    max-width: 60ch;
+    max-width: 62ch;
     font-size: var(--step-0);
     line-height: 1.4;
+    color: var(--ink);
+  }
+
+  .bw__row-tech {
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    letter-spacing: 0.03em;
   }
 
   .bw__stack {
     display: grid;
     gap: var(--space-s);
     padding-top: var(--space-m);
-    border-top: var(--line) solid var(--belt-line);
+    border-top: var(--line-strong) solid var(--belt-line);
+  }
+
+  .bw__stack-header {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-xs);
+  }
+
+  .bw__stack-index {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--dan-gold);
+    opacity: 0.85;
   }
 
   .bw__stack-title {
     font-size: var(--step-1);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
   }
 
   .bw__stack-list {
@@ -377,31 +553,33 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
     color: var(--ink-soft);
     font-size: var(--step--1);
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
   }
 
   .bw__stack-row dd {
     margin: 0;
+    color: var(--ink);
+    font-size: var(--step-0);
   }
 
   @media (min-width: 48rem) {
-    /* A row reads across: name and badge in the stack's 16rem label column, the impact beside them. */
     .bw__inner {
       gap: var(--space-xl);
     }
 
-    /* Name and badge stay together at the top even when the impact runs to three lines. */
     .bw__row {
-      display: grid;
       grid-template-columns: 16rem minmax(0, 1fr);
-      grid-template-rows: auto 1fr;
       align-items: start;
-      /* The same column gap as the stack rows below, so the impact and the stack items share one left edge. */
       column-gap: var(--space-m);
     }
 
     .bw__row-impact {
       grid-column: 2;
-      grid-row: 1 / span 2;
+    }
+
+    .bw__row-tech {
+      grid-column: 2;
     }
 
     .bw__stack-row {

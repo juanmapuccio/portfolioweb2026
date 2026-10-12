@@ -64,14 +64,19 @@ const desc = `${INPUTS.map(label).join(', ')} → ${hub} → ${OUTPUTS.map(label
     {INPUTS.map((key, i) => (
       <g class="lf__in">
         <text class="lf__label" x="2" y={inputs[i].y} dominant-baseline="central">{t(`tul.black.flow.${key}`)}</text>
+        <circle class="lf__node-glow" cx={NODE} cy={inputs[i].y} r="5"></circle>
         <circle class="lf__node" cx={NODE} cy={inputs[i].y} r="2.5"></circle>
         <path class="lf__line" d={inputs[i].d} pathLength="1" style={`--a:${inputs[i].a}`}></path>
+        <path class="lf__pulse" d={inputs[i].d}></path>
       </g>
     ))}
 
     <g class="lf__hub">
       <rect class="lf__line lf__box" x={HUB.x} y={HUB.y} width={HUB.w} height={HUB.h} pathLength="1" style="--a:0.45;--len:0.25"></rect>
-      <circle class="lf__node" cx={TRUNK} cy={HUB.y} r="2.5"></circle>
+      <!-- Corner brackets on hub -->
+      <path d={`M ${HUB.x + 8} ${HUB.y + 8} H ${HUB.x + 16} M ${HUB.x + 8} ${HUB.y + 8} V ${HUB.y + 16}`} class="lf__bracket" />
+      <path d={`M ${HUB.x + HUB.w - 8} ${HUB.y + 8} H ${HUB.x + HUB.w - 16} M ${HUB.x + HUB.w - 8} ${HUB.y + 8} V ${HUB.y + 16}`} class="lf__bracket" />
+      <circle class="lf__node lf__node--hub" cx={TRUNK} cy={HUB.y} r="3"></circle>
       <text class="lf__label lf__label--hub" x={HUB.x + HUB.w / 2} y={HUB.y + 21} text-anchor="middle" dominant-baseline="central">{t('tul.black.flow.hub')}</text>
       <text class="lf__note" x={HUB.x + HUB.w / 2} y={HUB.y + 38} text-anchor="middle" dominant-baseline="central">{t('tul.black.flow.hubNote')}</text>
     </g>
@@ -79,7 +84,8 @@ const desc = `${INPUTS.map(label).join(', ')} → ${hub} → ${OUTPUTS.map(label
     {OUTPUTS.map((key, i) => (
       <g class="lf__out">
         <path class="lf__line" d={outputs[i].d} pathLength="1" style={`--a:${outputs[i].a};--len:0.24`}></path>
-        <text class="lf__label" x={OUT_END + 10} y={outputs[i].y} dominant-baseline="central">{t(`tul.black.flow.${key}`)}</text>
+        <path class="lf__pulse" d={outputs[i].d}></path>
+        <text class="lf__label lf__label--out" x={OUT_END + 10} y={outputs[i].y} dominant-baseline="central">{t(`tul.black.flow.${key}`)}</text>
       </g>
     ))}
   </svg>
@@ -107,8 +113,45 @@ const desc = `${INPUTS.map(label).join(', ')} → ${hub} → ${OUTPUTS.map(label
     stroke-linejoin: miter;
   }
 
+  .lf__pulse {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 1.5;
+    stroke-dasharray: 4 24;
+    animation: lfPulse 2.8s linear infinite;
+    opacity: 0.65;
+    pointer-events: none;
+  }
+
+  @keyframes lfPulse {
+    from {
+      stroke-dashoffset: 28;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
   .lf__node {
     fill: var(--dan-gold);
+  }
+
+  .lf__node-glow {
+    fill: none;
+    stroke: color-mix(in srgb, var(--dan-gold) 35%, transparent);
+    stroke-width: 0.8;
+  }
+
+  .lf__node--hub {
+    fill: #ffffff;
+    stroke: var(--dan-gold);
+    stroke-width: 1.5;
+  }
+
+  .lf__bracket {
+    fill: none;
+    stroke: color-mix(in srgb, var(--dan-gold) 60%, transparent);
+    stroke-width: 1;
   }
 
   .lf__label {
@@ -121,6 +164,11 @@ const desc = `${INPUTS.map(label).join(', ')} → ${hub} → ${OUTPUTS.map(label
   .lf__label--hub {
     font-family: var(--font-display);
     font-size: 17px;
+    font-weight: 700;
+    fill: var(--dan-gold);
+  }
+
+  .lf__label--out {
     font-weight: 700;
   }
 
@@ -138,6 +186,12 @@ const desc = `${INPUTS.map(label).join(', ')} → ${hub} → ${OUTPUTS.map(label
     :global(html.js) .lf .lf__line {
       stroke-dasharray: 1;
       stroke-dashoffset: calc(1 - clamp(0, (var(--draw, 0) - var(--a)) / var(--len), 1));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lf__pulse {
+      display: none;
     }
   }
 </style>
