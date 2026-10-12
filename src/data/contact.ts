@@ -156,10 +156,10 @@ export const contactData: Record<Lang, ContactData> = {
 };
 
 /**
- * The channels listed in the close (KyongYe). The email lives in its CTA and NodoSur in its colophon,
- * so the list stays at three channels plus the CV link: a 2x2 grid on phones. The CV page lists all.
+ * The channels listed in the close (KyongYe). WhatsApp lives in the primary CTA and NodoSur in the colophon,
+ * so the list stays at three channels (Email, LinkedIn, GitHub) plus the CV link: a 2x2 grid on phones.
  */
-export const CLOSE_CHANNEL_IDS = ['whatsapp', 'linkedin', 'github'] as const;
+export const CLOSE_CHANNEL_IDS = ['email', 'linkedin', 'github'] as const;
 
 export const closeChannels = (lang: Lang): ContactChannel[] =>
   CLOSE_CHANNEL_IDS.flatMap((id) => contactData[lang].channels.filter((c) => c.id === id));
