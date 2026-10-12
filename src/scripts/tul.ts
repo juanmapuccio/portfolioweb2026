@@ -9,6 +9,9 @@
 //   data-draw-start    optional: --draw starts moving once the scene progress passes this value.
 //   data-scene-span    "enter": the span starts when the element's top enters at the viewport bottom (a
 //                      one-screen scene that is never pinned, e.g. the close: it draws while it scrolls in).
+//                      "settle": the same start, but the span ends when the element's centre reaches 55% of the
+//                      viewport, so a short figure (the lead-case flow) draws over about half a screen of scroll
+//                      instead of its own height, and is complete a little past mid-view.
 //   --draw             consumed by TatamiIso (the floor of FloorDiagram): stroke-dashoffset, stops and arrows.
 //   main section[data-belt]  the section at mid-viewport sets html[data-active-belt] and the header
 //                      grade indicator ([data-grade-gup], [data-grade-form]). The belt never changes the
@@ -121,6 +124,7 @@ function initScenes(): void {
     const [from, to] = readRange(el);
     const state = { p: 0 };
     const enter = el.dataset.sceneSpan === 'enter';
+    const settle = el.dataset.sceneSpan === 'settle';
     write(el, 0, from, to);
 
     gsap.to(state, {
@@ -128,8 +132,8 @@ function initScenes(): void {
       ease: 'none',
       scrollTrigger: {
         trigger: el,
-        start: enter ? 'top bottom' : 'top top',
-        end: 'bottom bottom',
+        start: enter || settle ? 'top bottom' : 'top top',
+        end: settle ? 'center 55%' : 'bottom bottom',
         scrub: 0.4
       },
       onUpdate: () => write(el, state.p, from, to)

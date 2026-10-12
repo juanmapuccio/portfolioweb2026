@@ -26,6 +26,11 @@
   --ink-soft-dark: #aab0b8;
   /* Warm light grey: strokes and the title ink on black (3:1 and up). */
   --line-dark: #c8c1b6;
+  /*
+   * The gold of the 1st dan embroidery: only drawn details on the black field (about 8:1 there). BeltDrawing keeps
+   * the same value as its one literal (tests/tul-beltdrawing.test.ts); the lead-case flow reads this token.
+   */
+  --dan-gold: #c9a227;
 }
 
 [data-belt="blanco"] {

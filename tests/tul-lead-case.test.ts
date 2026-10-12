@@ -95,7 +95,7 @@ describe('the system flow (LeadCaseFlow)', () => {
   });
 
   test('the lines draw with the scroll: a scrubbed scene writes --draw, CSS turns it into stroke-dashoffset', () => {
-    expect(html).toMatch(/data-tul-scene data-scene-span="enter"/);
+    expect(html).toMatch(/data-tul-scene data-scene-span="settle"/);
     expect(html).toContain('pathLength="1"');
     const css = styleOf(src);
     const motion = css.slice(css.indexOf(MOTION));
@@ -116,6 +116,31 @@ describe('the system flow (LeadCaseFlow)', () => {
       expect(read(file)).not.toContain('requestAnimationFrame');
       expect(read(file)).not.toContain('lenis');
     }
+  });
+});
+
+describe('P4 polish: flow pacing and colour token', () => {
+  const engine = read('src/scripts/tul.ts');
+  const tokens = read('src/styles/tul/tokens.css');
+
+  test('the engine has an opt-in "settle" span: from the top entering to the centre past mid-view', () => {
+    expect(engine).toMatch(/sceneSpan === 'settle'/);
+    expect(engine).toMatch(/end: settle \? 'center 55%' : 'bottom bottom'/);
+    // "enter" scenes (the close) keep their span.
+    expect(engine).toMatch(/start: enter \|\| settle \? 'top bottom' : 'top top'/);
+  });
+
+  test('the flow uses the settle span (a calmer draw than the figure height)', () => {
+    expect(markupOf(read(FLOW))).toContain('data-scene-span="settle"');
+    expect(markupOf(read(FLOW))).not.toContain('data-scene-span="enter"');
+  });
+
+  test('the gold is a token, not a literal: LeadCaseFlow has no hex colour', () => {
+    const css = styleOf(read(FLOW));
+    expect(css).not.toMatch(/#[0-9a-f]{3,8}\b/i);
+    expect(css).toContain('var(--dan-gold)');
+    // Same gold as the 1st dan embroidery of BeltDrawing (tests/tul-beltdrawing.test.ts keeps that literal).
+    expect(tokens).toMatch(/--dan-gold:\s*#c9a227;/);
   });
 });
 

@@ -9,8 +9,9 @@ import { useTranslations, type Lang } from '../../i18n/ui';
  * Every label is real SVG text from i18n; the figure is role="img" with a title and a description that spell the
  * same flow for screen readers.
  *
- * Motion: the wrapper is a one-screen scene of the engine (tul.ts initScenes, data-scene-span="enter"), which
- * scrubs `--draw` 0..1 while the figure scrolls in. Each line has pathLength="1" and draws its own slice of that
+ * Motion: the wrapper is a scene of the engine (tul.ts initScenes, data-scene-span="settle"), which scrubs `--draw`
+ * 0..1 from the figure's top entering the view until its centre is a little past mid-view (about half a screen of
+ * scroll, not just the figure's own height). Each line has pathLength="1" and draws its own slice of that
  * progress (`--a` start, `--len` span) through stroke-dashoffset, like the stitching of the belt: inputs first,
  * then the hub outline, then the outputs. Only with JS and motion; otherwise the flow is complete and static.
  */
@@ -55,7 +56,7 @@ const hub = `${t('tul.black.flow.hub')} ${t('tul.black.flow.hubNote')}`;
 const desc = `${INPUTS.map(label).join(', ')} → ${hub} → ${OUTPUTS.map(label).join(', ')}`;
 ---
 
-<div class="lf" data-tul-scene data-scene-span="enter">
+<div class="lf" data-tul-scene data-scene-span="settle">
   <svg class="lf__svg" viewBox="0 0 340 176" role="img" aria-labelledby={`${titleId} ${descId}`}>
     <title id={titleId}>{`${name} · ${t('tul.black.system')}`}</title>
     <desc id={descId}>{desc}</desc>
@@ -86,8 +87,6 @@ const desc = `${INPUTS.map(label).join(', ')} → ${hub} → ${OUTPUTS.map(label
 
 <style>
   .lf {
-    /* The gold of the 1st dan embroidery (BeltDrawing.astro): about 8:1 on the black field. */
-    --lf-gold: #c9a227;
     width: 100%;
     max-width: 26rem;
   }
@@ -102,14 +101,14 @@ const desc = `${INPUTS.map(label).join(', ')} → ${hub} → ${OUTPUTS.map(label
   .lf__line {
     --len: 0.42;
     fill: none;
-    stroke: var(--lf-gold);
+    stroke: var(--dan-gold);
     stroke-width: 1.5;
     stroke-linecap: square;
     stroke-linejoin: miter;
   }
 
   .lf__node {
-    fill: var(--lf-gold);
+    fill: var(--dan-gold);
   }
 
   .lf__label {

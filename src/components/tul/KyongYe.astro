@@ -513,7 +513,14 @@ const items = [
     opacity: 0.7;
   }
 
+  /*
+   * The studio link keeps its text size in the row but gets a 44px tall target: the padding grows the hit area and
+   * the equal negative margin gives the space back, so the close still fits one short phone screen.
+   */
   .ky__studio {
+    display: inline-block;
+    padding-block: var(--space-xs);
+    margin-block: calc(-1 * var(--space-xs));
     transition: opacity var(--dur-fast) var(--ease-out);
   }
 

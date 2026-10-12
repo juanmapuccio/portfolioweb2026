@@ -158,7 +158,9 @@ describe('single-viewport close with living ink (T4)', () => {
   test('the return line still draws, over the section entering the viewport (no extra scroll)', () => {
     expect(ky).toMatch(/data-tul-scene data-scene-span="enter"/);
     expect(engine).toContain("el.dataset.sceneSpan === 'enter'");
-    expect(engine).toMatch(/start: enter \? 'top bottom' : 'top top'/);
+    // P4 added the opt-in "settle" span (lead-case flow); "enter" keeps its start and its end.
+    expect(engine).toMatch(/start: enter \|\| settle \? 'top bottom' : 'top top'/);
+    expect(engine).toMatch(/end: settle \? 'center 55%' : 'bottom bottom'/);
   });
 
   test('content kept: CTA, CV link of the language, four channel items, languages and the back link', () => {

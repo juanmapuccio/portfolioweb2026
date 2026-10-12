@@ -231,6 +231,7 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
     gap: var(--space-s);
     max-width: 52ch;
     margin: 0;
+    text-wrap: pretty;
   }
 
   /* The result is the verdict a recruiter keeps: heavier than the problem (and a step up on desktop). */
@@ -239,13 +240,18 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
     line-height: 1.4;
   }
 
+  /* Body size on every viewport: a recruiter on a phone reads it at arm's length (P4). */
   .bw__caption {
     max-width: 46ch;
     color: var(--ink-soft);
-    font-size: var(--step--1);
+    font-size: var(--step-0);
+    line-height: 1.4;
   }
 
-  /* The one primary action of the block: the live system, in a solid light bar on black. */
+  /*
+   * The one primary action of the block: the live system, in a solid light bar on black. Same family as the close
+   * CTA (KyongYe): an ink block that inverts to an outline on hover and focus, and presses on click.
+   */
   .bw__cta {
     display: inline-flex;
     align-items: center;
@@ -253,10 +259,25 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
     gap: var(--space-xs);
     min-height: 3rem;
     padding-inline: var(--space-m);
+    border: var(--line-strong) solid var(--ink);
     background-color: var(--ink);
     color: var(--field);
     font-weight: 700;
     text-decoration: none;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out);
+  }
+
+  .bw__cta:hover,
+  .bw__cta:focus-visible {
+    background-color: var(--field);
+    color: var(--ink);
+  }
+
+  .bw__cta:active {
+    transform: translateY(1px);
   }
 
   .bw__cta svg,
@@ -266,7 +287,9 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
   }
 
   .bw__cta:hover svg,
-  .bw__row:hover .bw__row-name svg {
+  .bw__cta:focus-visible svg,
+  .bw__row:hover .bw__row-name svg,
+  .bw__row:focus-within .bw__row-name svg {
     transform: translate(2px, -2px);
   }
 
@@ -299,16 +322,33 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
     gap: var(--space-2xs);
   }
 
+  /* The stretched target: the whole row (well over 44px) opens the system. */
   .bw__row-name a::after {
     content: '';
     position: absolute;
     inset: 0;
   }
 
+  /* Hover anywhere on the row reads as hovering its name. */
+  .bw__row:hover .bw__row-name a {
+    text-decoration-thickness: var(--line-strong);
+  }
+
+  /* Keyboard focus rings the whole row (the target), not just the name. */
+  .bw__row-name a:focus-visible {
+    outline: none;
+  }
+
+  .bw__row-name a:focus-visible::after {
+    outline: var(--line-strong) solid var(--ink);
+    outline-offset: 2px;
+  }
+
   .bw__row-impact {
     flex-basis: 100%;
     max-width: 60ch;
-    font-size: var(--step--1);
+    font-size: var(--step-0);
+    line-height: 1.4;
   }
 
   .bw__stack {
@@ -349,10 +389,14 @@ const stack = STACK_IDS.flatMap((id) => skillsData[lang].categories.filter((c) =
       gap: var(--space-xl);
     }
 
+    /* Name and badge stay together at the top even when the impact runs to three lines. */
     .bw__row {
       display: grid;
       grid-template-columns: 16rem minmax(0, 1fr);
-      align-items: center;
+      grid-template-rows: auto 1fr;
+      align-items: start;
+      /* The same column gap as the stack rows below, so the impact and the stack items share one left edge. */
+      column-gap: var(--space-m);
     }
 
     .bw__row-impact {
