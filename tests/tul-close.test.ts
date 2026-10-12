@@ -60,7 +60,7 @@ describe('anchors', () => {
 
 describe('contact channels', () => {
   for (const lang of ['es', 'en', 'pt'] as const) {
-    test(`${lang}: five channels, each with a real href scheme`, () => {
+    test(`${lang}: the data keeps five channels (the CV page lists them all), each with a real href scheme`, () => {
       const channels = contactData[lang].channels;
       expect(channels.map((c) => c.id)).toEqual(['whatsapp', 'email', 'linkedin', 'github', 'nodosur']);
       for (const c of channels) expect(/^(mailto:|https:\/\/)/.test(c.url)).toBe(true);
@@ -161,11 +161,11 @@ describe('single-viewport close with living ink (T4)', () => {
     expect(engine).toMatch(/start: enter \? 'top bottom' : 'top top'/);
   });
 
-  test('content kept: CTA, CV link of the language, five channels, languages and the back link', () => {
+  test('content kept: CTA, CV link of the language, four channel items, languages and the back link', () => {
     expect(ky).toContain('id="contacto"');
     expect(ky).toContain('<a class="ky__cta" href={primary.url}>');
     expect(ky).toContain("localePaths[lang] + 'cv/'");
-    expect(ky).toContain('content.channels.map(');
+    expect(ky).toContain('items.map(');
     for (const key of ['tul.close.cta', 'tul.close.cv', 'tul.close.channels', 'tul.close.back', 'tul.hero.availability', 'contact.footer', 'tul.lang.label']) {
       expect(ky).toContain(`t('${key}')`);
     }

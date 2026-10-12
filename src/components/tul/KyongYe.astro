@@ -2,7 +2,7 @@
 import FloorDiagram from './FloorDiagram.astro';
 import InkDrops from './InkDrops.astro';
 import { languages, useTranslations, type Lang } from '../../i18n/ui';
-import { contactData } from '../../data/contact';
+import { closeChannels, contactData } from '../../data/contact';
 import { RETURN_FORM } from '../../data/tuls';
 
 /**
@@ -21,6 +21,8 @@ const t = useTranslations(lang);
 
 const content = contactData[lang];
 const primary = content.channels.find((c) => c.id === 'email') ?? content.channels[0];
+const whatsapp = content.channels.find((c) => c.id === 'whatsapp');
+const studio = content.channels.find((c) => c.id === 'nodosur');
 const localePaths: Record<Lang, string> = { es: '/', en: '/en/', pt: '/pt/' };
 
 // One stroke weight for all channel icons (24 grid, square caps).
@@ -29,9 +31,15 @@ const ICONS: Record<string, string> = {
   email: 'M3 6H21V18H3Z M3 6L12 13L21 6',
   linkedin: 'M3 3H21V21H3Z M8 10.5V17 M8 7V7.5 M12 17V10.5 M12 13.5A3 3 0 0 1 18 13.5V17',
   github: 'M5 3H9V7H5Z M5 17H9V21H5Z M15 9H19V13H15Z M7 7V17 M7 11H15',
-  nodosur: 'M5 18L12 6L19 18Z M5 18H19'
+  cv: 'M5 3H15L19 7V21H5Z M15 3V7H19 M8 11H16 M8 14.5H16 M8 18H13'
 };
 const isExternal = (url: string) => url.startsWith('https:');
+
+// Four items, a 2x2 grid on phones: the email has its CTA and NodoSur sits in the colophon.
+const items = [
+  ...closeChannels(lang).map((c) => ({ id: c.id, name: c.name, label: c.label, url: c.url, external: isExternal(c.url) })),
+  { id: 'cv', name: t('tul.cv.nav'), label: t('tul.close.cv'), url: localePaths[lang] + 'cv/', external: false }
+];
 ---
 
 <section
@@ -55,7 +63,11 @@ const isExternal = (url: string) => url.startsWith('https:');
             </svg>
             <span class="ky__goo ky__goo--drip" aria-hidden="true"></span>
           </a>
-          <a class="ky__cv" href={localePaths[lang] + 'cv/'}>{t('tul.close.cv')}</a>
+          {whatsapp && (
+            <a class="ky__cta ky__cta--wa" href={whatsapp.url} target="_blank" rel="noopener noreferrer">
+              <span>{t('tul.close.whatsapp')}<span class="visually-hidden"> {t('tul.cv.newTab')}</span></span>
+            </a>
+          )}
         </div>
       </div>
 
@@ -73,20 +85,20 @@ const isExternal = (url: string) => url.startsWith('https:');
 
       <nav class="ky__nav" aria-label={t('tul.close.channels')}>
         <ul class="ky__channels">
-          {content.channels.map((c) => (
+          {items.map((c) => (
             <li>
               <a
                 class="ky__chan"
                 href={c.url}
-                target={isExternal(c.url) ? '_blank' : undefined}
-                rel={isExternal(c.url) ? 'noopener' : undefined}
+                target={c.external ? '_blank' : undefined}
+                rel={c.external ? 'noopener noreferrer' : undefined}
                 data-channel={c.id}
               >
                 <svg class="ky__icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
                   <path d={ICONS[c.id] ?? ICONS.email}></path>
                 </svg>
-                <span class="ky__chan-name">{c.name}</span>
-                <span class="ky__chan-value num">{c.label}</span>
+                <span class="ky__chan-name">{c.name}<span class="visually-hidden"> · </span></span>
+                <span class="ky__chan-value num">{c.label}{c.external && <span class="visually-hidden"> {t('tul.cv.newTab')}</span>}</span>
                 <span class="ky__goo" aria-hidden="true"><span class="ky__run"></span></span>
               </a>
             </li>
@@ -105,6 +117,9 @@ const isExternal = (url: string) => url.startsWith('https:');
             </li>
           ))}
         </ul>
+        {studio && (
+          <a class="ky__studio" href={studio.url} target="_blank" rel="noopener noreferrer">{studio.name}<span class="visually-hidden"> {t('tul.cv.newTab')}</span></a>
+        )}
         <a class="ky__top" href="#main">{t('tul.close.back')}</a>
       </footer>
     </div>
@@ -126,7 +141,7 @@ const isExternal = (url: string) => url.startsWith('https:');
   .ky__stage {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(7.5rem, 1fr) auto auto auto;
+    grid-template-rows: auto minmax(min(7.5rem, 14svh), 1fr) auto auto auto;
     grid-template-areas:
       'copy'
       'map'
@@ -153,9 +168,10 @@ const isExternal = (url: string) => url.startsWith('https:');
   .ky__title {
     --grade: 0.9;
     max-width: 22ch;
-    font-size: min(var(--step-3), 4svh);
+    font-size: min(var(--step-3), 5.5svh);
     line-height: 1.02;
-    letter-spacing: var(--track-display);
+    /* Local: the display token is tighter than a two-line pitch at this size can carry. */
+    letter-spacing: -0.01em;
     text-wrap: balance;
   }
 
@@ -171,11 +187,12 @@ const isExternal = (url: string) => url.startsWith('https:');
     font-weight: 600;
   }
 
+  /* Phones: the email and WhatsApp CTAs side by side; from 48rem one CTA. */
   .ky__actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-3xs) var(--space-m);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2xs);
+    justify-self: stretch;
     margin-top: var(--space-3xs);
   }
 
@@ -222,12 +239,30 @@ const isExternal = (url: string) => url.startsWith('https:');
     transition: transform var(--dur-fast) var(--ease-out);
   }
 
-  /* The full CV of the page language: a plain text link next to the solid CTA. */
-  .ky__cv {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.75rem;
-    font-weight: 700;
+  /* Phones: a compact pair; the arrow travels only on hover, so it waits for the wider screens. */
+  .ky__actions .ky__cta {
+    justify-content: center;
+    gap: var(--space-2xs);
+    padding-inline: var(--space-xs);
+    font-size: var(--step--1);
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  .ky__actions .ky__cta svg {
+    display: none;
+  }
+
+  /* WhatsApp, the second way in: an outlined block of the same family beside the email CTA. */
+  .ky__cta--wa {
+    background-color: transparent;
+    color: var(--ink);
+  }
+
+  .ky__cta--wa:hover,
+  .ky__cta--wa:focus-visible {
+    background-color: var(--ink);
+    color: var(--field);
   }
 
   /* Gooey hover layers: decorative, hidden, never over text. They share the filter of InkDrops. */
@@ -252,6 +287,13 @@ const isExternal = (url: string) => url.startsWith('https:');
     right: 0.85rem;
     width: 2.25rem;
     height: 2.25rem;
+    opacity: 0;
+    transition: opacity var(--dur-fast) var(--ease-out);
+  }
+
+  .ky__cta:hover .ky__goo--drip,
+  .ky__cta:focus-visible .ky__goo--drip {
+    opacity: 1;
   }
 
   .ky__goo--drip::before {
@@ -323,24 +365,21 @@ const isExternal = (url: string) => url.startsWith('https:');
     grid-area: chan;
   }
 
-  /* Phone: two columns, the last channel takes the full row. */
+  /* Phone: four items in a 2x2 grid. */
   .ky__channels {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: var(--space-xs);
   }
 
-  .ky__channels > li:last-child:nth-child(odd) {
-    grid-column: 1 / -1;
-  }
-
+  /* Phones: the icon sits by the name and the value takes the full width of the cell below. */
   .ky__chan {
     position: relative;
     display: grid;
     grid-template-columns: 1.25rem minmax(0, 1fr);
     grid-template-areas:
       'icon name'
-      'icon value';
+      'value value';
     column-gap: var(--space-2xs);
     align-items: center;
     min-height: 2.75rem;
@@ -374,7 +413,7 @@ const isExternal = (url: string) => url.startsWith('https:');
     grid-area: value;
     min-width: 0;
     overflow-wrap: anywhere;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     line-height: 1.3;
     opacity: 0.85;
   }
@@ -461,9 +500,21 @@ const isExternal = (url: string) => url.startsWith('https:');
     transition: opacity var(--dur-fast) var(--ease-out);
   }
 
+  /* 44px targets for the three language codes. */
+  .ky__langs a {
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
   .ky__top:hover,
-  .ky__langs a:hover {
+  .ky__langs a:hover,
+  .ky__studio:hover {
     opacity: 0.7;
+  }
+
+  .ky__studio {
+    transition: opacity var(--dur-fast) var(--ease-out);
   }
 
   .ky__langs a[aria-current='page'] {
@@ -473,11 +524,19 @@ const isExternal = (url: string) => url.startsWith('https:');
 
   /* Reduced motion: the hover states land at once, nothing travels. */
   @media (prefers-reduced-motion: reduce) {
+    .ky__goo,
     .ky__goo::before,
     .ky__goo::after,
     .ky__run,
     .ky__run::after {
       transition: none;
+    }
+  }
+
+  /* Short phones (375 x 667): tighter rows keep the close on one screen. */
+  @media (max-width: 47.99rem) and (max-height: 44rem) {
+    .ky__stage {
+      row-gap: var(--space-2xs);
     }
   }
 
@@ -495,15 +554,34 @@ const isExternal = (url: string) => url.startsWith('https:');
       font-size: var(--step-0);
     }
 
-    .ky__channels {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+    .ky__actions {
+      display: flex;
+      justify-self: start;
     }
 
-    .ky__channels > li:last-child:nth-child(odd) {
-      grid-column: auto;
+    .ky__actions .ky__cta {
+      justify-content: space-between;
+      gap: var(--space-s);
+      padding-inline: var(--space-m);
+      font-size: var(--step-0);
+    }
+
+    .ky__actions .ky__cta svg {
+      display: block;
+    }
+
+    .ky__cta--wa {
+      display: none;
+    }
+
+    .ky__channels {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
     .ky__chan {
+      grid-template-areas:
+        'icon name'
+        'icon value';
       min-height: 3.75rem;
       padding-block: var(--space-2xs);
     }
@@ -538,7 +616,7 @@ const isExternal = (url: string) => url.startsWith('https:');
       font-size: min(var(--step-4), 7svh);
     }
 
-    .ky__cta {
+    .ky__actions .ky__cta {
       min-height: 3.5rem;
       padding-inline: var(--space-l);
     }
