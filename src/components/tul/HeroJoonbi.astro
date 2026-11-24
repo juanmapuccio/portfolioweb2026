@@ -513,6 +513,46 @@ const stopLabels = Object.fromEntries(
     }
   }
 
+  @media (max-width: 29.999rem) {
+    .hero__stage {
+      gap: var(--space-xs);
+      padding: calc(3rem + var(--space-xs)) var(--gutter) var(--space-s);
+    }
+
+    .hero__copy {
+      gap: var(--space-xs);
+    }
+
+    .hero__name {
+      font-size: clamp(3rem, 13vw, 3.25rem);
+    }
+
+    .hero__hook {
+      max-width: 19ch;
+      font-size: var(--step-1);
+    }
+
+    .hero__actions {
+      grid-template-columns: 1fr;
+      gap: var(--space-2xs);
+      margin-top: 0;
+    }
+
+    .hero__actions .cta--secondary {
+      display: none;
+    }
+
+    .hero__foot {
+      gap: var(--space-3xs);
+      max-width: 30ch;
+      padding-top: var(--space-2xs);
+    }
+
+    .hero__cue {
+      display: none;
+    }
+  }
+
   /* Desktop: copy top-left; availability and cue anchored to the diagram's baseline. */
   @media (min-width: 62rem) {
     .hero__stage {

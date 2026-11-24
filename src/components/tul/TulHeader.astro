@@ -478,8 +478,16 @@ const legend = [
     }
 
     .tul-btn--contact,
-    .tul-btn--cv {
-      padding: 0 var(--space-2xs);
+    .tul-btn--cv,
+    .tul-btn--top {
+      min-height: 2.75rem;
+      min-width: 2.75rem;
+      padding-inline: var(--space-2xs);
+    }
+
+    .tul-btn--cv,
+    .tul-btn--top {
+      display: none;
     }
 
     /* Keep the grade readable at 390: swatch and form name give way to the tools. */
@@ -492,12 +500,20 @@ const legend = [
     }
 
     .tul-lang .tul-btn {
-      min-width: 2.25rem;
-      padding: 0 var(--space-3xs);
+      min-width: 2.75rem;
+      min-height: 2.75rem;
+      padding: 0 var(--space-2xs);
     }
 
     .tul-legend__row {
       grid-template-columns: 7rem 1fr;
+    }
+  }
+
+  @media (max-width: 22rem) {
+    .tul-grade__mark,
+    .tul-btn--qr {
+      display: none;
     }
   }
 </style>

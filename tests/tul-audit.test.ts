@@ -8,6 +8,8 @@ const panel = css(read('src/components/tul/ExperiencePanel.astro'));
 const principles = css(read('src/components/tul/Principles.astro'));
 const chapter = css(read('src/components/tul/TulChapter.astro'));
 const ky = css(read('src/components/tul/KyongYe.astro'));
+const header = css(read('src/components/tul/TulHeader.astro'));
+const hero = css(read('src/components/tul/HeroJoonbi.astro'));
 
 describe('visual audit fixes (T13f)', () => {
   test('the Kyong-ye figure follows the isometric box, so it never makes the page wider than a phone', () => {
@@ -29,5 +31,17 @@ describe('visual audit fixes (T13f)', () => {
     expect(chapter).toMatch(/\.tc__passages a \{[^}]*grid-template-columns: 9\.5rem minmax\(0, 1fr\)/);
     expect(chapter).toMatch(/\.tc__passage-form \{[^}]*white-space: nowrap/);
     expect(chapter).toMatch(/\.tc--black \.tc__side:not\(\.tc__side--map\) \{\s*padding-bottom: var\(--space-m\)/);
+  });
+
+  test('the 390px header keeps core actions inside the viewport', () => {
+    expect(header).toMatch(/@media \(max-width: 30rem\) \{[\s\S]*\.tul-btn--cv,[\s\S]*\.tul-btn--top \{\s*display: none;/);
+    expect(header).toMatch(/\.tul-lang \.tul-btn \{[^}]*min-width: 2\.75rem[^}]*min-height: 2\.75rem/);
+    expect(header).toMatch(/@media \(max-width: 22rem\) \{[\s\S]*\.tul-grade__mark,[\s\S]*\.tul-btn--qr \{\s*display: none;/);
+  });
+
+  test('the 480px hero promotes contact and removes the secondary CV from the first screen', () => {
+    expect(hero).toMatch(/@media \(max-width: 29\.999rem\) \{[\s\S]*\.hero__actions \{[^}]*grid-template-columns: 1fr/);
+    expect(hero).toMatch(/@media \(max-width: 29\.999rem\) \{[\s\S]*\.hero__actions \.cta--secondary \{\s*display: none;/);
+    expect(hero).toMatch(/@media \(max-width: 29\.999rem\) \{[\s\S]*\.hero__cue \{\s*display: none;/);
   });
 });
